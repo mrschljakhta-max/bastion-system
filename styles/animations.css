@@ -1,3 +1,4 @@
+
 @keyframes rotateSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -10,18 +11,18 @@
 
 @keyframes pulseRing {
   0%, 100% {
-    opacity: .58;
+    opacity: .50;
     transform: scale(1);
   }
   50% {
-    opacity: .95;
-    transform: scale(1.018);
+    opacity: .78;
+    transform: scale(1.014);
   }
 }
 
 @keyframes cameraBreath {
-  0%, 100% { transform: scale(1.03) translate3d(0, 0, 0); }
-  50% { transform: scale(1.07) translate3d(0, -8px, 0); }
+  0%, 100% { transform: scale(1.035) translate3d(0, 0, 0); }
+  50% { transform: scale(1.055) translate3d(0, -5px, 0); }
 }
 
 @keyframes noiseDrift {
@@ -31,21 +32,22 @@
 
 .fog-layer {
   z-index: 2;
-  opacity: .16;
-  filter: blur(18px);
+  opacity: .10;
+  filter: blur(22px);
+  mix-blend-mode: screen;
   background:
-    radial-gradient(ellipse at 18% 70%, rgba(255,46,77,.28), transparent 36%),
-    radial-gradient(ellipse at 78% 66%, rgba(255,46,77,.22), transparent 38%),
-    radial-gradient(ellipse at 50% 74%, rgba(255,255,255,.08), transparent 50%);
+    radial-gradient(ellipse at 18% 70%, rgba(255,46,77,.24), transparent 38%),
+    radial-gradient(ellipse at 78% 66%, rgba(255,46,77,.18), transparent 40%),
+    radial-gradient(ellipse at 50% 78%, rgba(255,255,255,.06), transparent 52%);
 }
 
 .fog-a {
-  animation: fogMoveA 38s ease-in-out infinite;
+  animation: fogMoveA 42s ease-in-out infinite;
 }
 
 .fog-b {
-  opacity: .10;
-  animation: fogMoveB 52s ease-in-out infinite;
+  opacity: .065;
+  animation: fogMoveB 56s ease-in-out infinite;
 }
 
 @keyframes fogMoveA {
@@ -63,8 +65,8 @@
   width: 2px;
   height: 2px;
   border-radius: 999px;
-  background: rgba(255, 46, 77, .85);
-  box-shadow: 0 0 10px rgba(255, 46, 77, .85);
+  background: rgba(255, 46, 77, .72);
+  box-shadow: 0 0 9px rgba(255, 46, 77, .72);
   animation: emberFloat linear infinite;
 }
 
@@ -73,8 +75,8 @@
     transform: translateY(30vh) translateX(0);
     opacity: 0;
   }
-  15% { opacity: .8; }
-  85% { opacity: .55; }
+  15% { opacity: .62; }
+  85% { opacity: .46; }
   to {
     transform: translateY(-105vh) translateX(28px);
     opacity: 0;

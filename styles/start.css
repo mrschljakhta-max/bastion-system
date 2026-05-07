@@ -5,8 +5,8 @@
   min-height: 100vh;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 58%, rgba(154, 10, 24, .22), transparent 34%),
-    linear-gradient(180deg, #040406 0%, #070306 52%, #120308 100%);
+    radial-gradient(circle at 50% 64%, rgba(213, 20, 45, .16), transparent 36%),
+    linear-gradient(180deg, #050407 0%, #080306 54%, #120308 100%);
 }
 
 .bg-layer,
@@ -18,25 +18,25 @@
 
 .bg-main {
   background:
-    radial-gradient(circle at 50% 82%, rgba(213, 20, 45, .18), transparent 34%),
-    linear-gradient(180deg, rgba(0,0,0,.24), rgba(0,0,0,.72)),
+    radial-gradient(circle at 50% 86%, rgba(255, 46, 77, .12), transparent 34%),
+    linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.26)),
     url("../assets/images/bg-bastion-hero.webp") center center / cover no-repeat;
-  transform: scale(1.04);
-  animation: cameraBreath 18s ease-in-out infinite;
-  filter: saturate(1.08) contrast(1.04);
+  transform: scale(1.035);
+  animation: cameraBreath 20s ease-in-out infinite;
+  filter: saturate(1.16) contrast(1.08) brightness(1.08);
 }
 
 .bg-vignette {
   background:
-    radial-gradient(circle at 50% 52%, transparent 0 30%, rgba(0,0,0,.52) 68%, rgba(0,0,0,.94) 100%),
-    linear-gradient(90deg, rgba(0,0,0,.82), transparent 24% 76%, rgba(0,0,0,.82));
+    radial-gradient(circle at 50% 54%, transparent 0 42%, rgba(0,0,0,.18) 73%, rgba(0,0,0,.56) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.46), transparent 22% 78%, rgba(0,0,0,.46));
 }
 
 .bg-noise {
-  opacity: .05;
+  opacity: .035;
   mix-blend-mode: screen;
   background-image:
-    repeating-radial-gradient(circle at 20% 30%, rgba(255,255,255,.38) 0 1px, transparent 1px 3px);
+    repeating-radial-gradient(circle at 20% 30%, rgba(255,255,255,.36) 0 1px, transparent 1px 3px);
   background-size: 180px 180px;
   animation: noiseDrift 12s steps(8) infinite;
 }
@@ -50,13 +50,14 @@
   font-family: var(--font-ui);
   letter-spacing: .28em;
   text-transform: uppercase;
-  color: rgba(244, 247, 255, .78);
+  color: rgba(244, 247, 255, .82);
+  text-shadow: 0 0 18px rgba(0,0,0,.7);
 }
 
 .corner-left {
   left: 48px;
   padding-left: 22px;
-  border-left: 1px solid rgba(244, 247, 255, .45);
+  border-left: 1px solid rgba(244, 247, 255, .42);
 }
 
 .corner-right {
@@ -70,7 +71,7 @@
 
 .corner-sub {
   font-size: 10px;
-  color: rgba(244, 247, 255, .48);
+  color: rgba(244, 247, 255, .52);
 }
 
 .corner-title i {
@@ -101,14 +102,15 @@
   font-family: var(--font-ui);
   font-size: 11px;
   letter-spacing: .28em;
-  color: rgba(244, 247, 255, .58);
+  color: rgba(244, 247, 255, .62);
   text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(0,0,0,.75);
 }
 
 .status-left {
   left: 48px;
   padding-left: 22px;
-  border-left: 1px solid rgba(244, 247, 255, .42);
+  border-left: 1px solid rgba(244, 247, 255, .36);
 }
 
 .status-left b {
@@ -120,7 +122,7 @@
   right: 48px;
   text-align: right;
   padding-right: 22px;
-  border-right: 1px solid rgba(244, 247, 255, .42);
+  border-right: 1px solid rgba(244, 247, 255, .36);
 }
 
 @media (max-width: 900px) {
