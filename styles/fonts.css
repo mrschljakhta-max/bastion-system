@@ -1,0 +1,26 @@
+/* 
+  Пізніше сюди кладемо локальні файли:
+  assets/fonts/bastion-brand.woff2
+  assets/fonts/bastion-ui.woff2
+  assets/fonts/bastion-text.woff2
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Michroma&family=Oxanium:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap');
+
+@font-face {
+  font-family: "BastionBrand";
+  src: url("../assets/fonts/bastion-brand.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "BastionUI";
+  src: url("../assets/fonts/bastion-ui.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "BastionText";
+  src: url("../assets/fonts/bastion-text.woff2") format("woff2");
+  font-display: swap;
+}

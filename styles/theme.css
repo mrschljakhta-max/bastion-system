@@ -1,0 +1,22 @@
+:root {
+  --black-0: #020203;
+  --black-1: #060608;
+  --black-2: #0b0b10;
+  --red-900: #310007;
+  --red-800: #5d0710;
+  --red-700: #860a18;
+  --red-500: #d4142d;
+  --red-400: #ff2e4d;
+  --gold-500: #f5bd35;
+  --gold-300: #ffda72;
+  --white-0: #f4f7ff;
+  --metal-1: #b9c1cf;
+  --metal-2: #7f8796;
+
+  --glow-red: 0 0 18px rgba(255, 35, 62, .7), 0 0 48px rgba(170, 0, 26, .42);
+  --glow-soft: 0 0 18px rgba(240, 248, 255, .35);
+
+  --font-brand: "BastionBrand", "Syncopate", "Michroma", sans-serif;
+  --font-ui: "BastionUI", "Oxanium", "Rajdhani", sans-serif;
+  --font-text: "BastionText", "Manrope", "Inter", sans-serif;
+}

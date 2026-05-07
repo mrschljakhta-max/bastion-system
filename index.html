@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BASTION — Access Node</title>
+
+  <link rel="stylesheet" href="./styles/fonts.css" />
+  <link rel="stylesheet" href="./styles/theme.css" />
+  <link rel="stylesheet" href="./styles/base.css" />
+  <link rel="stylesheet" href="./styles/animations.css" />
+  <link rel="stylesheet" href="./styles/hud-ring.css" />
+  <link rel="stylesheet" href="./styles/start.css" />
+</head>
+
+<body>
+  <main class="start-page">
+    <div class="bg-layer bg-main"></div>
+    <div class="bg-layer bg-vignette"></div>
+    <div class="bg-layer bg-noise"></div>
+    <div class="fog-layer fog-a"></div>
+    <div class="fog-layer fog-b"></div>
+    <div class="embers" id="embers"></div>
+
+    <header class="corner-ui corner-left">
+      <span class="corner-title">BASTION SYSTEMS</span>
+      <span class="corner-sub">v.0.1.0</span>
+    </header>
+
+    <header class="corner-ui corner-right">
+      <span class="corner-title">SECURE CONNECTION <i></i></span>
+      <span class="corner-sub">EST. 2026</span>
+    </header>
+
+    <section class="access-shell" aria-label="BASTION access menu">
+      <div class="hud-ring" id="hudRing">
+        <div class="ring ring-outer"></div>
+        <div class="ring ring-mid"></div>
+        <div class="ring ring-inner"></div>
+        <div class="ring-glow"></div>
+
+        <button class="ring-sector sector-login is-active" data-mode="login" aria-label="Вхід">
+          <span class="sector-num">01</span>
+          <span class="sector-title">Вхід</span>
+          <span class="sector-sub">Login</span>
+        </button>
+
+        <button class="ring-sector sector-register" data-mode="register" aria-label="Реєстрація">
+          <span class="sector-num">02</span>
+          <span class="sector-title">Реєстрація</span>
+          <span class="sector-sub">Register</span>
+        </button>
+
+        <button class="ring-sector sector-dev" data-mode="developer" aria-label="Розробник">
+          <span class="sector-num">03</span>
+          <span class="sector-title">Розробник</span>
+          <span class="sector-sub">Developer</span>
+        </button>
+
+        <div class="ring-center">
+          <img src="./assets/logo/bastion-mark.svg" alt="BASTION mark" class="brand-mark" />
+          <div class="brand-name">BASTION</div>
+          <div class="brand-subtitle" id="modeSubtitle">Authorized access node</div>
+          <div class="signal-line"></div>
+          <a href="./pages/login.html" class="enter-link" id="enterLink">Enter system</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="status-left">
+      <span>STATUS: <b>STANDBY</b></span>
+      <span>ALL SYSTEMS NOMINAL</span>
+    </footer>
+
+    <footer class="status-right">
+      <span>© 2026 BASTION SYSTEMS</span>
+      <span>ALL RIGHTS RESERVED</span>
+    </footer>
+  </main>
+
+  <script src="./scripts/main.js"></script>
+  <script src="./scripts/hud-ring.js"></script>
+</body>
+</html>

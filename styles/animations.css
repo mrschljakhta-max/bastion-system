@@ -1,0 +1,82 @@
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotateReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes pulseRing {
+  0%, 100% {
+    opacity: .58;
+    transform: scale(1);
+  }
+  50% {
+    opacity: .95;
+    transform: scale(1.018);
+  }
+}
+
+@keyframes cameraBreath {
+  0%, 100% { transform: scale(1.03) translate3d(0, 0, 0); }
+  50% { transform: scale(1.07) translate3d(0, -8px, 0); }
+}
+
+@keyframes noiseDrift {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-80px, 40px); }
+}
+
+.fog-layer {
+  z-index: 2;
+  opacity: .16;
+  filter: blur(18px);
+  background:
+    radial-gradient(ellipse at 18% 70%, rgba(255,46,77,.28), transparent 36%),
+    radial-gradient(ellipse at 78% 66%, rgba(255,46,77,.22), transparent 38%),
+    radial-gradient(ellipse at 50% 74%, rgba(255,255,255,.08), transparent 50%);
+}
+
+.fog-a {
+  animation: fogMoveA 38s ease-in-out infinite;
+}
+
+.fog-b {
+  opacity: .10;
+  animation: fogMoveB 52s ease-in-out infinite;
+}
+
+@keyframes fogMoveA {
+  0%, 100% { transform: translateX(-4%) translateY(2%); }
+  50% { transform: translateX(5%) translateY(-1%); }
+}
+
+@keyframes fogMoveB {
+  0%, 100% { transform: translateX(5%) translateY(0); }
+  50% { transform: translateX(-6%) translateY(2%); }
+}
+
+.ember {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 46, 77, .85);
+  box-shadow: 0 0 10px rgba(255, 46, 77, .85);
+  animation: emberFloat linear infinite;
+}
+
+@keyframes emberFloat {
+  from {
+    transform: translateY(30vh) translateX(0);
+    opacity: 0;
+  }
+  15% { opacity: .8; }
+  85% { opacity: .55; }
+  to {
+    transform: translateY(-105vh) translateX(28px);
+    opacity: 0;
+  }
+}

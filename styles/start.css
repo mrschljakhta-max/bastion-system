@@ -1,0 +1,130 @@
+.start-page {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 58%, rgba(154, 10, 24, .26), transparent 34%),
+    linear-gradient(180deg, #050407 0%, #080306 52%, #120308 100%);
+}
+
+.bg-layer,
+.fog-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bg-main {
+  background:
+    radial-gradient(circle at 50% 82%, rgba(213, 20, 45, .30), transparent 32%),
+    linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.62)),
+    url("../assets/images/bg-bastion-hero.svg") center / cover no-repeat;
+  transform: scale(1.03);
+  animation: cameraBreath 16s ease-in-out infinite;
+}
+
+.bg-vignette {
+  background:
+    radial-gradient(circle at 50% 52%, transparent 0 32%, rgba(0,0,0,.55) 66%, rgba(0,0,0,.92) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.78), transparent 25% 75%, rgba(0,0,0,.78));
+}
+
+.bg-noise {
+  opacity: .085;
+  mix-blend-mode: screen;
+  background-image:
+    repeating-radial-gradient(circle at 20% 30%, rgba(255,255,255,.38) 0 1px, transparent 1px 3px);
+  background-size: 180px 180px;
+  animation: noiseDrift 12s steps(8) infinite;
+}
+
+.corner-ui {
+  position: absolute;
+  z-index: 10;
+  top: 42px;
+  display: grid;
+  gap: 8px;
+  font-family: var(--font-ui);
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgba(244, 247, 255, .78);
+}
+
+.corner-left {
+  left: 48px;
+  padding-left: 22px;
+  border-left: 1px solid rgba(244, 247, 255, .45);
+}
+
+.corner-right {
+  right: 48px;
+  text-align: right;
+}
+
+.corner-title {
+  font-size: 13px;
+}
+
+.corner-sub {
+  font-size: 10px;
+  color: rgba(244, 247, 255, .48);
+}
+
+.corner-title i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 7px;
+  border-radius: 50%;
+  background: var(--red-400);
+  box-shadow: var(--glow-red);
+}
+
+.access-shell {
+  position: relative;
+  z-index: 5;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.status-left,
+.status-right {
+  position: absolute;
+  z-index: 10;
+  bottom: 42px;
+  display: grid;
+  gap: 9px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: .28em;
+  color: rgba(244, 247, 255, .58);
+  text-transform: uppercase;
+}
+
+.status-left {
+  left: 48px;
+  padding-left: 22px;
+  border-left: 1px solid rgba(244, 247, 255, .42);
+}
+
+.status-left b {
+  color: var(--red-400);
+  font-weight: 600;
+}
+
+.status-right {
+  right: 48px;
+  text-align: right;
+  padding-right: 22px;
+  border-right: 1px solid rgba(244, 247, 255, .42);
+}
+
+@media (max-width: 900px) {
+  .corner-ui,
+  .status-left,
+  .status-right {
+    display: none;
+  }
+}
