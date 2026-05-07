@@ -1,10 +1,12 @@
+
 .hud-ring {
   position: relative;
-  width: min(78vw, 760px);
+  width: min(68vw, 680px);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  filter: drop-shadow(0 0 28px rgba(255, 36, 62, .22));
+  transform: translateY(-20px);
+  filter: drop-shadow(0 0 36px rgba(255, 36, 62, .26));
 }
 
 .ring,
@@ -15,53 +17,58 @@
 }
 
 .ring-outer {
-  border: 1px solid rgba(244, 247, 255, .18);
+  border: 1px solid rgba(244, 247, 255, .12);
   background:
     conic-gradient(
       from -90deg,
-      rgba(255,46,77,.95) 0 78deg,
-      transparent 78deg 120deg,
-      rgba(255,46,77,.95) 120deg 198deg,
-      transparent 198deg 240deg,
-      rgba(255,46,77,.95) 240deg 318deg,
-      transparent 318deg 360deg
+      rgba(255,46,77,.98) 0 76deg,
+      transparent 76deg 122deg,
+      rgba(255,46,77,.98) 122deg 196deg,
+      transparent 196deg 242deg,
+      rgba(255,46,77,.98) 242deg 316deg,
+      transparent 316deg 360deg
     );
-  mask: radial-gradient(circle, transparent 64%, #000 65%, #000 66.5%, transparent 67.5%);
-  animation: rotateSlow 38s linear infinite;
+  mask: radial-gradient(circle, transparent 65%, #000 66%, #000 67.2%, transparent 68.5%);
+  animation: rotateSlow 40s linear infinite;
 }
 
 .ring-mid {
   inset: 8%;
-  border: 1px solid rgba(255, 255, 255, .10);
   background:
-    repeating-conic-gradient(from 0deg, rgba(255,255,255,.28) 0 1deg, transparent 1deg 4deg);
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(255,255,255,.18) 0 .8deg,
+      transparent .8deg 4deg
+    );
   mask: radial-gradient(circle, transparent 69%, #000 70%, #000 70.8%, transparent 72%);
-  opacity: .55;
-  animation: rotateReverse 52s linear infinite;
+  opacity: .42;
+  animation: rotateReverse 58s linear infinite;
 }
 
 .ring-inner {
   inset: 23%;
-  border: 1px solid rgba(255, 46, 77, .28);
-  box-shadow: inset 0 0 28px rgba(255,46,77,.08), 0 0 32px rgba(255,46,77,.12);
-  animation: pulseRing 4.6s ease-in-out infinite;
+  border: 1px solid rgba(255, 46, 77, .22);
+  box-shadow:
+    inset 0 0 48px rgba(255,46,77,.05),
+    0 0 42px rgba(255,46,77,.08);
+  animation: pulseRing 5s ease-in-out infinite;
 }
 
 .ring-glow {
-  inset: 3%;
+  inset: 2%;
   background:
     conic-gradient(
       from -90deg,
       rgba(255,46,77,.0) 0 4deg,
-      rgba(255,46,77,.95) 6deg 10deg,
+      rgba(255,46,77,.95) 6deg 11deg,
       rgba(255,46,77,.0) 12deg 120deg,
-      rgba(255,46,77,.95) 122deg 128deg,
+      rgba(255,46,77,.95) 122deg 129deg,
       rgba(255,46,77,.0) 132deg 240deg,
-      rgba(255,46,77,.95) 242deg 248deg,
+      rgba(255,46,77,.95) 242deg 249deg,
       rgba(255,46,77,.0) 252deg 360deg
     );
-  mask: radial-gradient(circle, transparent 71%, #000 72%, #000 73.7%, transparent 75%);
-  filter: blur(.2px) drop-shadow(0 0 18px rgba(255, 46, 77, .9));
+  mask: radial-gradient(circle, transparent 71%, #000 72%, #000 73.6%, transparent 75%);
+  filter: blur(.3px) drop-shadow(0 0 18px rgba(255, 46, 77, .9));
 }
 
 .ring-sector {
@@ -77,16 +84,20 @@
   text-transform: uppercase;
   font-family: var(--font-ui);
   letter-spacing: .18em;
-  transition: transform .35s ease, color .35s ease, text-shadow .35s ease;
+  transition:
+    transform .35s ease,
+    color .35s ease,
+    text-shadow .35s ease,
+    filter .35s ease;
 }
 
 .ring-sector::before {
   content: "";
   position: absolute;
   inset: 15px 38px;
-  border: 1px solid rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.12);
   clip-path: polygon(14% 0, 86% 0, 100% 50%, 86% 100%, 14% 100%, 0 50%);
-  opacity: .55;
+  opacity: .45;
   transition: border-color .35s ease, box-shadow .35s ease, opacity .35s ease;
 }
 
@@ -94,30 +105,33 @@
 .ring-sector.is-active {
   color: #fff;
   text-shadow: var(--glow-red);
-  transform: scale(1.04);
+  transform: scale(1.05);
+  filter: brightness(1.08);
 }
 
 .ring-sector:hover::before,
 .ring-sector.is-active::before {
-  border-color: rgba(255,46,77,.82);
-  box-shadow: var(--glow-red);
+  border-color: rgba(255,46,77,.88);
+  box-shadow:
+    0 0 24px rgba(255,46,77,.38),
+    inset 0 0 18px rgba(255,46,77,.16);
   opacity: 1;
 }
 
 .sector-login {
-  top: 6%;
+  top: 4%;
   left: 50%;
   translate: -50% 0;
 }
 
 .sector-register {
-  right: 5%;
-  bottom: 24%;
+  right: 2%;
+  bottom: 20%;
 }
 
 .sector-dev {
-  left: 5%;
-  bottom: 24%;
+  left: 2%;
+  bottom: 20%;
 }
 
 .sector-num {
@@ -126,7 +140,7 @@
 }
 
 .sector-title {
-  font-size: clamp(16px, 1.6vw, 24px);
+  font-size: clamp(16px, 1.7vw, 26px);
 }
 
 .sector-sub {
@@ -144,19 +158,20 @@
   align-content: center;
   gap: 16px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,0,0,.78), rgba(0,0,0,.12) 68%, transparent);
+  background:
+    radial-gradient(circle, rgba(0,0,0,.84), rgba(0,0,0,.12) 68%, transparent);
   text-align: center;
 }
 
 .brand-mark {
-  width: 82px;
-  filter: drop-shadow(0 0 16px rgba(245, 189, 53, .4));
+  width: 88px;
+  filter: drop-shadow(0 0 22px rgba(245, 189, 53, .42));
 }
 
 .brand-name {
   font-family: var(--font-brand);
-  font-size: clamp(26px, 3.3vw, 46px);
-  letter-spacing: .22em;
+  font-size: clamp(26px, 3.5vw, 52px);
+  letter-spacing: .24em;
   color: var(--white-0);
   text-shadow: var(--glow-soft);
 }
@@ -170,9 +185,9 @@
 }
 
 .signal-line {
-  width: 190px;
+  width: 210px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,46,77,.7), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,46,77,.72), transparent);
   box-shadow: var(--glow-red);
 }
 

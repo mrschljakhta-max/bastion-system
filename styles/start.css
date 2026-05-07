@@ -1,11 +1,12 @@
+
 .start-page {
   position: relative;
   width: 100vw;
   min-height: 100vh;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 58%, rgba(154, 10, 24, .26), transparent 34%),
-    linear-gradient(180deg, #050407 0%, #080306 52%, #120308 100%);
+    radial-gradient(circle at 50% 58%, rgba(154, 10, 24, .22), transparent 34%),
+    linear-gradient(180deg, #040406 0%, #070306 52%, #120308 100%);
 }
 
 .bg-layer,
@@ -17,21 +18,22 @@
 
 .bg-main {
   background:
-    radial-gradient(circle at 50% 82%, rgba(213, 20, 45, .30), transparent 32%),
-    linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.62)),
-    url("../assets/images/bg-bastion-hero.svg") center / cover no-repeat;
-  transform: scale(1.03);
-  animation: cameraBreath 16s ease-in-out infinite;
+    radial-gradient(circle at 50% 82%, rgba(213, 20, 45, .18), transparent 34%),
+    linear-gradient(180deg, rgba(0,0,0,.24), rgba(0,0,0,.72)),
+    url("../assets/images/bg-bastion-hero.webp") center center / cover no-repeat;
+  transform: scale(1.04);
+  animation: cameraBreath 18s ease-in-out infinite;
+  filter: saturate(1.08) contrast(1.04);
 }
 
 .bg-vignette {
   background:
-    radial-gradient(circle at 50% 52%, transparent 0 32%, rgba(0,0,0,.55) 66%, rgba(0,0,0,.92) 100%),
-    linear-gradient(90deg, rgba(0,0,0,.78), transparent 25% 75%, rgba(0,0,0,.78));
+    radial-gradient(circle at 50% 52%, transparent 0 30%, rgba(0,0,0,.52) 68%, rgba(0,0,0,.94) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.82), transparent 24% 76%, rgba(0,0,0,.82));
 }
 
 .bg-noise {
-  opacity: .085;
+  opacity: .05;
   mix-blend-mode: screen;
   background-image:
     repeating-radial-gradient(circle at 20% 30%, rgba(255,255,255,.38) 0 1px, transparent 1px 3px);
