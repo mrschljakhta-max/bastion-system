@@ -1,374 +1,413 @@
+/* ===== BASTION HUD RING — COMPACT PREMIUM VERSION ===== */
 
-/* ===== BASTION PREMIUM RING V2 ===== */
+/*
+  Ідея:
+  - кільце менше;
+  - легше;
+  - без товстої "неонової труби";
+  - центр BASTION головний;
+  - кільце — обрамлення, а не головний об'єкт.
+*/
 
-.hud-ring{
-    position:relative;
-    width:min(72vw,760px);
-    aspect-ratio:1;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    filter:drop-shadow(0 0 28px rgba(255,40,60,.10));
+.hud-ring {
+  position: relative;
+  width: min(58vw, 610px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  transform: translateY(-8px);
+  filter: drop-shadow(0 0 22px rgba(255, 40, 60, .14));
 }
 
-/* OUTER THIN RING */
-.hud-ring::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-
-    background:
-        conic-gradient(
-            from -90deg,
-
-            transparent 0deg 22deg,
-
-            rgba(255,255,255,.06) 22deg 24deg,
-            rgba(255,70,90,.42) 24deg 102deg,
-
-            transparent 102deg 140deg,
-
-            rgba(255,255,255,.04) 140deg 142deg,
-            rgba(255,70,90,.34) 142deg 214deg,
-
-            transparent 214deg 258deg,
-
-            rgba(255,255,255,.04) 258deg 260deg,
-            rgba(255,70,90,.30) 260deg 336deg,
-
-            transparent 336deg 360deg
-        );
-
-    -webkit-mask:
-        radial-gradient(circle,
-            transparent 67.5%,
-            #000 68.2%,
-            #000 69.2%,
-            transparent 70%
-        );
-
-    mask:
-        radial-gradient(circle,
-            transparent 67.5%,
-            #000 68.2%,
-            #000 69.2%,
-            transparent 70%
-        );
-
-    animation:ringRotateSlow 46s linear infinite;
-
-    box-shadow:
-        0 0 18px rgba(255,40,60,.16),
-        inset 0 0 18px rgba(255,40,60,.08);
-}
-
-/* DOTTED DATA RING */
-.hud-ring::after{
-    content:"";
-    position:absolute;
-    inset:9%;
-    border-radius:50%;
-
-    background:
-        repeating-conic-gradient(
-            rgba(255,255,255,.22) 0deg .7deg,
-            transparent .7deg 5deg
-        );
-
-    -webkit-mask:
-        radial-gradient(circle,
-            transparent 74%,
-            #000 75%,
-            #000 75.8%,
-            transparent 76.6%
-        );
-
-    mask:
-        radial-gradient(circle,
-            transparent 74%,
-            #000 75%,
-            #000 75.8%,
-            transparent 76.6%
-        );
-
-    opacity:.38;
-
-    animation:ringRotateReverse 85s linear infinite;
-}
-
-/* EXTRA TECH RINGS */
+/* Базові шари кільця */
 .ring-tech-layer,
+.ring-data-layer,
 .ring-inner-layer,
-.ring-glow-sweep,
-.ring-orbitals{
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-    pointer-events:none;
+.ring-active-layer,
+.ring-glass-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-/* MIDDLE THIN RING */
-.ring-tech-layer{
-    inset:14%;
-    border:1px solid rgba(255,255,255,.06);
+/* Основне зовнішнє кільце — тонше і спокійніше */
+.ring-tech-layer {
+  background:
+    conic-gradient(
+      from -90deg,
+      transparent 0deg 26deg,
+      rgba(255, 65, 88, .56) 26deg 112deg,
 
-    box-shadow:
-        0 0 24px rgba(255,40,60,.05),
-        inset 0 0 24px rgba(255,40,60,.03);
+      transparent 112deg 146deg,
+      rgba(255, 65, 88, .48) 146deg 232deg,
 
-    animation:softPulse 7s ease-in-out infinite;
+      transparent 232deg 266deg,
+      rgba(255, 65, 88, .44) 266deg 352deg,
+
+      transparent 352deg 360deg
+    );
+
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 65.5%,
+      #000 66.25%,
+      #000 68.15%,
+      transparent 69%
+    );
+
+  mask:
+    radial-gradient(circle,
+      transparent 65.5%,
+      #000 66.25%,
+      #000 68.15%,
+      transparent 69%
+    );
+
+  filter: drop-shadow(0 0 16px rgba(255, 46, 77, .30));
+  animation: ringRotateSlow 58s linear infinite;
 }
 
-/* INNER GLASS RING */
-.ring-inner-layer{
-    inset:28%;
-    border:1px solid rgba(255,70,90,.10);
+/* Дрібні HUD-поділки */
+.ring-data-layer {
+  inset: 8%;
+  opacity: .36;
+  background:
+    repeating-conic-gradient(
+      rgba(255,255,255,.20) 0deg .6deg,
+      transparent .6deg 5deg
+    );
 
-    background:
-        radial-gradient(circle at 50% 20%,
-            rgba(255,255,255,.03),
-            transparent 60%);
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 74%,
+      #000 75%,
+      #000 75.7%,
+      transparent 76.6%
+    );
+
+  mask:
+    radial-gradient(circle,
+      transparent 74%,
+      #000 75%,
+      #000 75.7%,
+      transparent 76.6%
+    );
+
+  animation: ringRotateReverse 95s linear infinite;
 }
 
-/* LIGHT SWEEP */
-.ring-glow-sweep{
-    inset:5%;
-    overflow:hidden;
-    opacity:.55;
+/* Внутрішнє скляне кільце */
+.ring-inner-layer {
+  inset: 27%;
+  border: 1px solid rgba(255, 70, 90, .13);
+  box-shadow:
+    inset 0 0 34px rgba(255, 46, 77, .035),
+    0 0 26px rgba(255, 46, 77, .045);
+  animation: pulseRing 7s ease-in-out infinite;
 }
 
-.ring-glow-sweep::before{
-    content:"";
-    position:absolute;
-    width:24%;
-    height:120%;
+/* Активна дуга залежно від режиму */
+.ring-active-layer {
+  opacity: .68;
+  background:
+    conic-gradient(
+      from var(--active-angle, -126deg),
+      transparent 0deg,
+      rgba(255,46,77,.0) 8deg,
+      rgba(255,46,77,.62) 18deg,
+      rgba(255,130,140,.22) 42deg,
+      rgba(255,46,77,.56) 72deg,
+      rgba(255,46,77,.0) 84deg,
+      transparent 105deg 360deg
+    );
 
-    top:-10%;
-    left:-30%;
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 64.8%,
+      #000 65.7%,
+      #000 69.1%,
+      transparent 70%
+    );
 
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,.08),
-            rgba(255,70,90,.22),
-            transparent
-        );
+  mask:
+    radial-gradient(circle,
+      transparent 64.8%,
+      #000 65.7%,
+      #000 69.1%,
+      transparent 70%
+    );
 
-    transform:rotate(14deg);
-
-    filter:blur(10px);
-
-    animation:ringSweep 11s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px rgba(255,46,77,.38));
+  animation: activeSectorBreath 4.4s ease-in-out infinite;
 }
 
-/* ORBITAL MARKERS */
-.ring-orbitals::before,
-.ring-orbitals::after{
-    content:"";
-    position:absolute;
-    width:8px;
-    height:8px;
-    border-radius:50%;
-
-    background:rgba(255,80,100,.82);
-
-    box-shadow:
-        0 0 14px rgba(255,40,60,.55),
-        0 0 28px rgba(255,40,60,.18);
+.start-page.mode-login {
+  --active-angle: -128deg;
 }
 
-.ring-orbitals::before{
-    top:13%;
-    left:50%;
-    transform:translateX(-50%);
-    animation:orbitMarkerA 22s linear infinite;
+.start-page.mode-register {
+  --active-angle: 10deg;
 }
 
-.ring-orbitals::after{
-    bottom:13%;
-    left:50%;
-    transform:translateX(-50%);
-    animation:orbitMarkerB 28s linear infinite;
+.start-page.mode-developer {
+  --active-angle: 132deg;
 }
 
-/* CENTER */
-.ring-center{
-    position:relative;
-    width:44%;
-    aspect-ratio:1;
-    border-radius:50%;
+.start-page.mode-developer .ring-active-layer {
+  background:
+    conic-gradient(
+      from var(--active-angle),
+      transparent 0deg,
+      rgba(245,189,53,.0) 8deg,
+      rgba(245,189,53,.42) 18deg,
+      rgba(255,225,120,.18) 42deg,
+      rgba(245,189,53,.36) 72deg,
+      rgba(245,189,53,.0) 84deg,
+      transparent 105deg 360deg
+    );
 
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:14px;
-
-    z-index:3;
-
-    background:
-        radial-gradient(circle,
-            rgba(0,0,0,.48) 0%,
-            rgba(0,0,0,.18) 58%,
-            transparent 100%);
+  filter: drop-shadow(0 0 14px rgba(245,189,53,.28));
 }
 
-.brand-name{
-    text-shadow:
-        0 0 18px rgba(255,255,255,.06),
-        0 0 26px rgba(255,40,60,.12);
+/* Легкий скляний відблиск */
+.ring-glass-layer {
+  inset: 13%;
+  opacity: .11;
+  background:
+    linear-gradient(
+      112deg,
+      transparent 0 36%,
+      rgba(255,255,255,.13) 45%,
+      rgba(255,255,255,.025) 54%,
+      transparent 66% 100%
+    );
+
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 34%,
+      #000 42%,
+      #000 60%,
+      transparent 68%
+    );
+
+  mask:
+    radial-gradient(circle,
+      transparent 34%,
+      #000 42%,
+      #000 60%,
+      transparent 68%
+    );
+
+  animation: glassReflection 12s ease-in-out infinite;
 }
 
-/* SECTORS */
-.ring-sector{
-    position:absolute;
+/* Центр */
+.ring-center {
+  position: relative;
+  z-index: 3;
+  width: 47%;
+  aspect-ratio: 1;
+  border-radius: 50%;
 
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:5px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 13px;
 
-    background:none;
-    border:none;
+  background:
+    radial-gradient(circle,
+      rgba(0,0,0,.48) 0%,
+      rgba(0,0,0,.16) 58%,
+      transparent 100%
+    );
 
-    color:rgba(255,255,255,.84);
-
-    transition:
-        transform .35s ease,
-        text-shadow .35s ease,
-        opacity .35s ease;
+  text-align: center;
+  text-shadow: 0 0 22px rgba(0,0,0,.85);
 }
 
-.ring-sector::after{
-    content:"";
-    position:absolute;
+.brand-mark {
+  width: 74px;
+  height: auto;
+  filter:
+    drop-shadow(0 0 14px rgba(245, 189, 53, .34))
+    drop-shadow(0 0 30px rgba(245, 189, 53, .10));
+  animation: emblemFloat 6.5s ease-in-out infinite;
+}
 
-    bottom:-12px;
-    left:50%;
+.brand-name {
+  font-size: clamp(30px, 3.05vw, 52px);
+  letter-spacing: .24em;
+  color: rgba(255,255,255,.94);
+  text-shadow:
+    0 0 20px rgba(0,0,0,.75),
+    0 0 18px rgba(255,255,255,.12),
+    0 0 25px rgba(255,46,77,.10);
+}
 
-    width:0;
-    height:1px;
+.brand-subtitle {
+  min-height: 14px;
+  color: rgba(255, 72, 92, .86);
+  font-size: 10px;
+  letter-spacing: .30em;
+  text-transform: uppercase;
+}
 
-    transform:translateX(-50%);
+.signal-line {
+  position: relative;
+  width: 190px;
+  height: 1px;
+  overflow: hidden;
+  background: linear-gradient(90deg, transparent, rgba(255,46,77,.45), transparent);
+  box-shadow: 0 0 12px rgba(255,46,77,.30);
+}
 
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255,255,255,.6),
-            rgba(255,70,90,.9),
-            transparent
-        );
+.signal-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -35%;
+  width: 32%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+  animation: signalScan 4s ease-in-out infinite;
+}
 
-    transition:width .35s ease;
+.enter-link {
+  font-size: 12px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: rgba(244,247,255,.82);
+  transition: color .3s ease, text-shadow .3s ease, letter-spacing .3s ease;
+}
+
+.enter-link:hover {
+  color: #fff;
+  letter-spacing: .42em;
+  text-shadow: 0 0 15px rgba(255, 46, 77, .5);
+}
+
+/* Сектори */
+.ring-sector {
+  position: absolute;
+  z-index: 4;
+
+  display: grid;
+  place-items: center;
+  gap: 5px;
+
+  min-width: 190px;
+  padding: 10px 12px;
+
+  color: rgba(255,255,255,.84);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  text-align: center;
+  text-transform: uppercase;
+
+  transition:
+    transform .32s ease,
+    text-shadow .32s ease,
+    filter .32s ease,
+    opacity .32s ease;
+}
+
+.ring-sector::before {
+  content: "";
+  position: absolute;
+  inset: 2px 12px;
+  opacity: 0;
+  border: 1px solid rgba(255,46,77,.32);
+  background: rgba(45, 0, 9, .13);
+  clip-path: polygon(13% 0, 87% 0, 100% 50%, 87% 100%, 13% 100%, 0 50%);
+  filter: drop-shadow(0 0 14px rgba(255,46,77,.20));
+  transition: opacity .32s ease;
+}
+
+.ring-sector::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 0;
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.62), rgba(255,70,90,.80), transparent);
+  box-shadow: 0 0 12px rgba(255,46,77,.38);
+  transition: width .32s ease, opacity .32s ease;
+  opacity: 0;
 }
 
 .ring-sector:hover,
-.ring-sector.is-active{
-    transform:scale(1.045);
-    text-shadow:0 0 14px rgba(255,40,60,.38);
+.ring-sector.is-active {
+  transform: scale(1.035);
+  text-shadow: 0 0 13px rgba(255,40,60,.40);
+}
+
+.ring-sector:hover::before,
+.ring-sector.is-active::before {
+  opacity: .68;
 }
 
 .ring-sector:hover::after,
-.ring-sector.is-active::after{
-    width:92px;
+.ring-sector.is-active::after {
+  width: 92px;
+  opacity: 1;
 }
 
-.sector-login{
-    top:7%;
-    left:50%;
-    transform:translateX(-50%);
+.sector-login {
+  top: 5%;
+  left: 50%;
+  translate: -50% 0;
 }
 
-.sector-register{
-    right:8%;
-    bottom:22%;
+.sector-register {
+  right: 3%;
+  bottom: 21%;
 }
 
-.sector-dev{
-    left:8%;
-    bottom:22%;
+.sector-dev {
+  left: 3%;
+  bottom: 21%;
 }
 
-/* ANIMATIONS */
-@keyframes ringRotateSlow{
-    from{ transform:rotate(0deg); }
-    to{ transform:rotate(360deg); }
+.sector-num {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  letter-spacing: .20em;
+  color: rgba(255,255,255,.84);
 }
 
-@keyframes ringRotateReverse{
-    from{ transform:rotate(360deg); }
-    to{ transform:rotate(0deg); }
+.sector-title {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(17px, 1.45vw, 23px);
+  letter-spacing: .18em;
+  color: rgba(255,255,255,.88);
 }
 
-@keyframes softPulse{
-    0%,100%{
-        opacity:.55;
-        transform:scale(1);
-    }
-
-    50%{
-        opacity:.82;
-        transform:scale(1.006);
-    }
+.sector-sub {
+  position: relative;
+  z-index: 1;
+  font-size: 9px;
+  letter-spacing: .32em;
+  color: rgba(255, 72, 92, .80);
 }
 
-@keyframes ringSweep{
-    0%,100%{
-        left:-35%;
-        opacity:0;
-    }
+/* Адаптив */
+@media (max-width: 1000px) {
+  .hud-ring {
+    width: min(88vw, 600px);
+  }
 
-    12%{
-        opacity:.55;
-    }
+  .sector-register {
+    right: -2%;
+  }
 
-    55%{
-        opacity:.16;
-    }
-
-    72%{
-        left:120%;
-        opacity:0;
-    }
-}
-
-@keyframes orbitMarkerA{
-    from{
-        transform:
-            translateX(-50%)
-            rotate(0deg)
-            translateY(-320px)
-            rotate(0deg);
-    }
-
-    to{
-        transform:
-            translateX(-50%)
-            rotate(360deg)
-            translateY(-320px)
-            rotate(-360deg);
-    }
-}
-
-@keyframes orbitMarkerB{
-    from{
-        transform:
-            translateX(-50%)
-            rotate(360deg)
-            translateY(-320px)
-            rotate(-360deg);
-    }
-
-    to{
-        transform:
-            translateX(-50%)
-            rotate(0deg)
-            translateY(-320px)
-            rotate(0deg);
-    }
+  .sector-dev {
+    left: -2%;
+  }
 }

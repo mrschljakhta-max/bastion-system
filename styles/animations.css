@@ -1,21 +1,21 @@
-@keyframes rotateSlow {
+@keyframes ringRotateSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-@keyframes rotateReverse {
+@keyframes ringRotateReverse {
   from { transform: rotate(360deg); }
   to { transform: rotate(0deg); }
 }
 
 @keyframes pulseRing {
-  0%, 100% { opacity: .50; transform: scale(1); }
+  0%, 100% { opacity: .48; transform: scale(1); }
   50% { opacity: .74; transform: scale(1.011); }
 }
 
 @keyframes activeSectorBreath {
-  0%, 100% { opacity: .54; }
-  50% { opacity: .88; }
+  0%, 100% { opacity: .46; }
+  50% { opacity: .78; }
 }
 
 @keyframes glassReflection {
@@ -23,11 +23,13 @@
     opacity: .04;
     transform: translateX(-22%) rotate(0deg);
   }
+
   45% {
-    opacity: .18;
+    opacity: .16;
   }
+
   72% {
-    opacity: .06;
+    opacity: .055;
     transform: translateX(22%) rotate(12deg);
   }
 }
@@ -35,25 +37,26 @@
 @keyframes emblemFloat {
   0%, 100% {
     transform: translateY(0);
-    filter: drop-shadow(0 0 18px rgba(245, 189, 53, .36));
   }
+
   50% {
     transform: translateY(-3px);
-    filter: drop-shadow(0 0 24px rgba(245, 189, 53, .48));
   }
 }
 
 @keyframes signalScan {
   0%, 18% { left: -35%; opacity: 0; }
-  40% { opacity: .85; }
+  40% { opacity: .82; }
   70%, 100% { left: 105%; opacity: 0; }
 }
 
+/* Фонові анімації */
 @keyframes cameraBreath {
   0%, 100% {
     transform: scale(1.035);
     filter: saturate(1.16) contrast(1.08) brightness(1.08);
   }
+
   50% {
     transform: scale(1.048);
     filter: saturate(1.19) contrast(1.09) brightness(1.10);
@@ -70,6 +73,7 @@
     transform: translate3d(-4%, 1%, 0) scaleX(1.05);
     opacity: .13;
   }
+
   50% {
     transform: translate3d(5%, -2%, 0) scaleX(1.18);
     opacity: .20;
@@ -81,6 +85,7 @@
     transform: translate3d(3%, 0, 0) scaleX(1.04);
     opacity: .08;
   }
+
   50% {
     transform: translate3d(-4%, -1%, 0) scaleX(1.16);
     opacity: .14;
@@ -92,9 +97,11 @@
     opacity: 0;
     transform: translateX(-65vw) skewX(-8deg);
   }
+
   70% {
     opacity: .30;
   }
+
   86% {
     opacity: .08;
     transform: translateX(125vw) skewX(-8deg);
@@ -119,7 +126,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
