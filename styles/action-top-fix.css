@@ -1,0 +1,75 @@
+
+/* ===== TOP ACTION (ВХІД) ===== */
+.action-top {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    z-index: 30;
+}
+
+.action-top .action-title {
+    font-size: 3.8rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+
+    margin: 0;
+    padding: 0;
+
+    text-align: center;
+
+    position: relative;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+}
+
+.action-top .action-id {
+    margin-bottom: 8px;
+
+    font-size: 1.1rem;
+    letter-spacing: 0.35em;
+
+    opacity: 0.8;
+
+    text-align: center;
+}
+
+.action-top .action-subtitle {
+    margin-top: 8px;
+
+    font-size: 0.95rem;
+    letter-spacing: 0.45em;
+
+    color: #ff4040;
+    opacity: 0.9;
+
+    text-align: center;
+}
+
+.action-top::after {
+    content: "";
+
+    width: 240px;
+    height: 1px;
+
+    margin-top: 18px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,40,40,0.95),
+        transparent
+    );
+
+    box-shadow:
+        0 0 12px rgba(255,40,40,0.75),
+        0 0 30px rgba(255,40,40,0.35);
+}
