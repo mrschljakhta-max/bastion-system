@@ -13,6 +13,54 @@
   50% { opacity: .78; transform: scale(1.014); }
 }
 
+@keyframes activeSectorBreath {
+  0%, 100% {
+    opacity: .50;
+  }
+  50% {
+    opacity: .88;
+  }
+}
+
+@keyframes glassReflection {
+  0%, 100% {
+    opacity: .05;
+    transform: translateX(-26%) rotate(0deg);
+  }
+  45% {
+    opacity: .26;
+  }
+  70% {
+    opacity: .08;
+    transform: translateX(28%) rotate(12deg);
+  }
+}
+
+@keyframes emblemFloat {
+  0%, 100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 0 18px rgba(245, 189, 53, .36));
+  }
+  50% {
+    transform: translateY(-3px);
+    filter: drop-shadow(0 0 25px rgba(245, 189, 53, .50));
+  }
+}
+
+@keyframes signalScan {
+  0%, 18% {
+    left: -35%;
+    opacity: 0;
+  }
+  40% {
+    opacity: .9;
+  }
+  70%, 100% {
+    left: 105%;
+    opacity: 0;
+  }
+}
+
 @keyframes cameraBreath {
   0%, 100% {
     transform: scale(1.035);

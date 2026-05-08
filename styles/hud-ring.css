@@ -1,4 +1,4 @@
-
+/* BASTION HUD premium interactions */
 .hud-ring {
   position: relative;
   width: min(66vw, 660px);
@@ -7,11 +7,26 @@
   place-items: center;
   transform: translateY(-16px);
   filter: drop-shadow(0 0 28px rgba(255, 36, 62, .18));
+  transition: filter .55s ease, transform .55s ease;
+}
+
+.start-page.mode-login .hud-ring {
+  filter: drop-shadow(0 0 34px rgba(255, 46, 77, .22));
+}
+
+.start-page.mode-register .hud-ring {
+  filter: drop-shadow(0 0 40px rgba(255, 46, 77, .28));
+}
+
+.start-page.mode-developer .hud-ring {
+  filter: drop-shadow(0 0 32px rgba(255, 188, 54, .18));
 }
 
 .ring,
 .ring-glow,
-.ring-scan {
+.ring-scan,
+.ring-active-sector,
+.ring-reflection {
   position: absolute;
   inset: 0;
   border-radius: 50%;
@@ -22,11 +37,11 @@
   background:
     conic-gradient(
       from -90deg,
-      rgba(255,46,77,.78) 0 74deg,
+      rgba(255,46,77,.68) 0 74deg,
       transparent 74deg 124deg,
-      rgba(255,46,77,.78) 124deg 194deg,
+      rgba(255,46,77,.68) 124deg 194deg,
       transparent 194deg 244deg,
-      rgba(255,46,77,.78) 244deg 314deg,
+      rgba(255,46,77,.68) 244deg 314deg,
       transparent 314deg 360deg
     );
   mask: radial-gradient(circle, transparent 65.2%, #000 66%, #000 66.8%, transparent 68%);
@@ -61,16 +76,63 @@
     conic-gradient(
       from -90deg,
       rgba(255,46,77,.0) 0 4deg,
-      rgba(255,46,77,.58) 6deg 10deg,
+      rgba(255,46,77,.50) 6deg 10deg,
       rgba(255,46,77,.0) 12deg 120deg,
-      rgba(255,46,77,.58) 122deg 128deg,
+      rgba(255,46,77,.50) 122deg 128deg,
       rgba(255,46,77,.0) 132deg 240deg,
-      rgba(255,46,77,.58) 242deg 248deg,
+      rgba(255,46,77,.50) 242deg 248deg,
       rgba(255,46,77,.0) 252deg 360deg
     );
   mask: radial-gradient(circle, transparent 71%, #000 72%, #000 73.1%, transparent 74.3%);
-  filter: blur(.2px) drop-shadow(0 0 13px rgba(255, 46, 77, .62));
-  opacity: .78;
+  filter: blur(.2px) drop-shadow(0 0 13px rgba(255, 46, 77, .58));
+  opacity: .72;
+}
+
+.ring-active-sector {
+  inset: 1.2%;
+  opacity: .72;
+  filter: blur(.15px) drop-shadow(0 0 20px rgba(255, 46, 77, .72));
+  transition: opacity .35s ease, transform .55s ease, filter .55s ease;
+  background:
+    conic-gradient(
+      from var(--active-angle, -90deg),
+      transparent 0deg,
+      rgba(255, 46, 77, .00) 8deg,
+      rgba(255, 46, 77, .90) 16deg,
+      rgba(255, 118, 130, .36) 38deg,
+      rgba(255, 46, 77, .85) 70deg,
+      rgba(255, 46, 77, .00) 80deg,
+      transparent 105deg 360deg
+    );
+  mask: radial-gradient(circle, transparent 68.9%, #000 70%, #000 72.4%, transparent 74%);
+  animation: activeSectorBreath 3.8s ease-in-out infinite;
+}
+
+.start-page.mode-login {
+  --active-angle: -126deg;
+}
+
+.start-page.mode-register {
+  --active-angle: 18deg;
+}
+
+.start-page.mode-developer {
+  --active-angle: 138deg;
+}
+
+.start-page.mode-developer .ring-active-sector {
+  filter: blur(.15px) drop-shadow(0 0 20px rgba(255, 190, 67, .38));
+  background:
+    conic-gradient(
+      from var(--active-angle),
+      transparent 0deg,
+      rgba(255, 190, 67, .00) 8deg,
+      rgba(255, 190, 67, .58) 16deg,
+      rgba(255, 236, 160, .26) 38deg,
+      rgba(255, 190, 67, .55) 70deg,
+      rgba(255, 190, 67, .00) 80deg,
+      transparent 105deg 360deg
+    );
 }
 
 .ring-scan {
@@ -79,13 +141,28 @@
     conic-gradient(
       from 0deg,
       transparent 0 344deg,
-      rgba(255, 46, 77, .18) 352deg,
-      rgba(255, 255, 255, .20) 356deg,
+      rgba(255, 46, 77, .15) 352deg,
+      rgba(255, 255, 255, .16) 356deg,
       transparent 360deg
     );
   mask: radial-gradient(circle, transparent 7%, #000 8%, #000 69%, transparent 70%);
   animation: rotateSlow 13s linear infinite;
-  opacity: .28;
+  opacity: .24;
+}
+
+.ring-reflection {
+  inset: 13%;
+  opacity: .22;
+  pointer-events: none;
+  background:
+    linear-gradient(105deg,
+      transparent 0 34%,
+      rgba(255,255,255,.12) 44%,
+      rgba(255,255,255,.025) 51%,
+      transparent 64% 100%);
+  mask: radial-gradient(circle, transparent 46%, #000 49%, #000 62%, transparent 66%);
+  transform: translateX(-18%);
+  animation: glassReflection 9s ease-in-out infinite;
 }
 
 .ring-sector {
@@ -120,6 +197,20 @@
   transition: border-color .35s ease, box-shadow .35s ease, opacity .35s ease, background .35s ease;
 }
 
+.ring-sector::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  width: 0;
+  height: 1px;
+  translate: -50% 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), rgba(255,46,77,.75), transparent);
+  box-shadow: 0 0 14px rgba(255,46,77,.48);
+  transition: width .35s ease, opacity .35s ease;
+  opacity: 0;
+}
+
 .ring-sector:hover,
 .ring-sector.is-active {
   color: #fff;
@@ -135,6 +226,12 @@
   box-shadow:
     0 0 18px rgba(255,46,77,.26),
     inset 0 0 14px rgba(255,46,77,.10);
+  opacity: 1;
+}
+
+.ring-sector:hover::after,
+.ring-sector.is-active::after {
+  width: 104px;
   opacity: 1;
 }
 
@@ -182,11 +279,18 @@
     radial-gradient(circle, rgba(0,0,0,.50), rgba(0,0,0,.12) 64%, transparent);
   text-align: center;
   text-shadow: 0 0 24px rgba(0,0,0,.85);
+  transition: transform .45s ease, filter .45s ease;
+}
+
+.start-page.is-switching .ring-center {
+  transform: scale(1.018);
+  filter: drop-shadow(0 0 22px rgba(255, 46, 77, .22));
 }
 
 .brand-mark {
   width: 84px;
   filter: drop-shadow(0 0 18px rgba(245, 189, 53, .36));
+  animation: emblemFloat 5.8s ease-in-out infinite;
 }
 
 .brand-name {
@@ -197,6 +301,14 @@
   text-shadow:
     0 0 20px rgba(0,0,0,.75),
     0 0 18px rgba(240, 248, 255, .20);
+  transition: letter-spacing .35s ease, text-shadow .35s ease;
+}
+
+.start-page.is-switching .brand-name {
+  letter-spacing: .255em;
+  text-shadow:
+    0 0 24px rgba(0,0,0,.75),
+    0 0 26px rgba(255, 255, 255, .26);
 }
 
 .brand-subtitle {
@@ -205,6 +317,13 @@
   font-size: 11px;
   letter-spacing: .28em;
   text-transform: uppercase;
+  min-height: 14px;
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.start-page.is-switching .brand-subtitle {
+  opacity: .4;
+  transform: translateY(2px);
 }
 
 .signal-line {
@@ -212,6 +331,19 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255,46,77,.56), transparent);
   box-shadow: 0 0 14px rgba(255,46,77,.42);
+  position: relative;
+  overflow: hidden;
+}
+
+.signal-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -30%;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.85), transparent);
+  animation: signalScan 3.2s ease-in-out infinite;
 }
 
 .enter-link {
