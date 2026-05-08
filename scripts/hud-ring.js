@@ -5,19 +5,19 @@ const startPage = document.querySelector(".start-page");
 
 const modes = {
   login: {
-    subtitle: "Authorized access node",
+    subtitle: "ВИКОНАЙТЕ ВХІД У СИСТЕМУ",
     href: "./pages/login.html",
-    label: "Enter system"
+    label: "ВХІД • РЕЄСТРАЦІЯ"
   },
   register: {
-    subtitle: "Create new operator identity",
+    subtitle: "СТВОРІТЬ ОБЛІКОВИЙ ЗАПИС ОПЕРАТОРА",
     href: "./pages/register.html",
-    label: "Create access"
+    label: "РЕЄСТРАЦІЯ"
   },
   developer: {
-    subtitle: "Developer access terminal",
+    subtitle: "ТЕРМІНАЛ РОЗРОБНИКА",
     href: "./pages/developer.html",
-    label: "Open dev mode"
+    label: "РЕЖИМ РОЗРОБНИКА"
   }
 };
 
@@ -54,11 +54,9 @@ sectors.forEach((sector) => {
   sector.addEventListener("click", () => {
     const mode = sector.dataset.mode;
     const data = modes[mode];
-
-    if (data) {
-      window.location.href = data.href;
-    }
+    if (data) window.location.href = data.href;
   });
 });
 
-setMode("login");
+// Якщо секторів немає, не чіпаємо центральні написи — вони вже прописані в HTML.
+if (sectors.length > 0) setMode("login");

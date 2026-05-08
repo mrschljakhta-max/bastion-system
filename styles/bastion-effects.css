@@ -1,0 +1,381 @@
+/* =========================================================
+   BASTION — CINEMATIC LIVE EFFECTS v13
+   Живі, але не агресивні ефекти для стартової сторінки
+   ========================================================= */
+
+.start-page {
+  --mx: 0;
+  --my: 0;
+  --bastion-glow: rgba(255, 46, 77, .34);
+}
+
+/* ---------------------------------------------------------
+   1. Легка глибина сцени / parallax
+--------------------------------------------------------- */
+.bg-main {
+  transform:
+    translate3d(calc(var(--mx) * -14px), calc(var(--my) * -8px), 0)
+    scale(1.048) !important;
+  transition: filter .35s ease;
+}
+
+.fog-low {
+  transform:
+    translate3d(calc(var(--mx) * 18px), calc(var(--my) * 8px), 0)
+    scaleX(1.10);
+}
+
+.fog-horizon {
+  transform:
+    translate3d(calc(var(--mx) * -10px), calc(var(--my) * -5px), 0)
+    scaleX(1.08);
+}
+
+.access-shell {
+  transform: translate3d(calc(var(--mx) * 5px), calc(var(--my) * 3px), 0);
+  transition: transform .08s linear;
+}
+
+/* ---------------------------------------------------------
+   2. Живе HUD-кільце: різні шари рухаються з різною логікою
+--------------------------------------------------------- */
+.hud-ring {
+  animation: bastionHudBreath 9s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 20px rgba(255, 40, 60, .12))
+    drop-shadow(0 0 48px rgba(255, 20, 40, .045));
+}
+
+.ring-tech-layer {
+  animation: bastionRingDrift 96s linear infinite;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+
+.ring-data-layer {
+  animation: bastionRingCounterDrift 132s linear infinite !important;
+  transform-origin: 50% 50%;
+  opacity: .30;
+}
+
+.ring-inner-layer {
+  animation: bastionCorePulse 7.5s ease-in-out infinite !important;
+}
+
+/* Активний сектор перетворено на тонкий scanner sweep, без жирного “банана” */
+.ring-active-layer {
+  opacity: .24 !important;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0deg 248deg,
+      rgba(255, 46, 77, 0) 250deg,
+      rgba(255, 92, 104, .20) 256deg,
+      rgba(255, 255, 255, .16) 260deg,
+      rgba(255, 46, 77, .16) 264deg,
+      transparent 272deg 360deg
+    ) !important;
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 66.15%,
+      #000 66.55%,
+      #000 68.1%,
+      transparent 68.55%
+    ) !important;
+  mask:
+    radial-gradient(circle,
+      transparent 66.15%,
+      #000 66.55%,
+      #000 68.1%,
+      transparent 68.55%
+    ) !important;
+  filter:
+    drop-shadow(0 0 9px rgba(255, 46, 77, .22)) !important;
+  animation: bastionScannerOrbit 18s linear infinite !important;
+  transform-origin: 50% 50%;
+}
+
+.ring-glass-layer {
+  animation: bastionGlassSweep 13s ease-in-out infinite !important;
+}
+
+/* ---------------------------------------------------------
+   3. Внутрішнє “дихання” ядра
+--------------------------------------------------------- */
+.ring-center.hero-core::before,
+.ring-center.hero-core::after {
+  content: "";
+  position: absolute;
+  inset: -42%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ring-center.hero-core::before {
+  background:
+    radial-gradient(circle, rgba(255, 42, 58, .10), transparent 48%),
+    radial-gradient(circle, rgba(255, 190, 30, .055), transparent 24%);
+  filter: blur(14px);
+  animation: bastionCoreGlow 8.8s ease-in-out infinite;
+}
+
+.ring-center.hero-core::after {
+  inset: -24%;
+  border: 1px solid rgba(255, 70, 90, .055);
+  box-shadow: inset 0 0 40px rgba(255, 50, 70, .035);
+  animation: bastionInnerHalo 11s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------
+   4. Логотип — теплий енергетичний pulse
+--------------------------------------------------------- */
+.brand-mark {
+  animation: bastionMarkPulse 5.8s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 10px rgba(255, 186, 24, .30))
+    drop-shadow(0 0 26px rgba(255, 126, 0, .10));
+}
+
+/* ---------------------------------------------------------
+   5. Металевий light-pass по BASTION
+--------------------------------------------------------- */
+.brand-name {
+  position: relative;
+  background:
+    linear-gradient(
+      100deg,
+      rgba(150, 154, 162, .90) 0%,
+      rgba(245, 247, 252, .98) 28%,
+      rgba(130, 134, 142, .86) 45%,
+      rgba(255, 255, 255, 1) 50%,
+      rgba(150, 154, 162, .88) 58%,
+      rgba(235, 238, 244, .96) 78%,
+      rgba(128, 132, 140, .88) 100%
+    );
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: bastionMetalPass 7.8s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------
+   6. Українські написи — alive HUD text
+--------------------------------------------------------- */
+.brand-subtitle {
+  animation: bastionTextGlow 6.8s ease-in-out infinite;
+}
+
+.enter-link {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.enter-link::before {
+  animation: bastionCtaLineBreath 4.8s ease-in-out infinite;
+}
+
+.enter-link::after {
+  animation: bastionCtaLineBreath 4.8s ease-in-out infinite reverse;
+}
+
+.enter-link:hover,
+.enter-link:focus-visible {
+  transform: scaleX(.92) translateY(-1px) !important;
+}
+
+/* ---------------------------------------------------------
+   7. Скануюча лінія через центральний сектор
+--------------------------------------------------------- */
+.access-shell::before {
+  content: "";
+  position: absolute;
+  left: 18vw;
+  right: 18vw;
+  top: 50%;
+  height: 1px;
+  z-index: 18;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(255, 45, 62, .12),
+      rgba(255, 255, 255, .36),
+      rgba(255, 45, 62, .12),
+      transparent
+    );
+  box-shadow: 0 0 18px rgba(255, 46, 77, .20);
+  animation: bastionScanLine 12s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------
+   8. Дуже легка HUD-сітка / telemetry particles
+--------------------------------------------------------- */
+.start-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  opacity: .075;
+  mix-blend-mode: screen;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 70, 90, .42) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 72% 62%, rgba(255, 255, 255, .26) 0 1px, transparent 1.5px),
+    linear-gradient(90deg, transparent 0 49.85%, rgba(255, 60, 80, .10) 50%, transparent 50.15% 100%);
+  background-size: 180px 180px, 260px 260px, 100% 100%;
+  animation: bastionTelemetryDrift 28s linear infinite;
+}
+
+.start-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  pointer-events: none;
+  opacity: .11;
+  background:
+    radial-gradient(circle at 50% 48%, transparent 0 30%, rgba(255, 46, 77, .06) 48%, transparent 64%),
+    linear-gradient(180deg, transparent, rgba(255, 26, 48, .035) 64%, transparent 100%);
+  animation: bastionAtmosphereBreath 10s ease-in-out infinite;
+}
+
+/* =========================================================
+   KEYFRAMES
+   ========================================================= */
+
+@keyframes bastionHudBreath {
+  0%, 100% { opacity: .96; }
+  50% { opacity: 1; }
+}
+
+@keyframes bastionRingDrift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bastionRingCounterDrift {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes bastionScannerOrbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bastionCorePulse {
+  0%, 100% { opacity: .52; transform: scale(1); }
+  50% { opacity: .78; transform: scale(1.012); }
+}
+
+@keyframes bastionGlassSweep {
+  0%, 100% { opacity: .045; transform: translateX(-20%) rotate(0deg); }
+  45% { opacity: .13; }
+  72% { opacity: .055; transform: translateX(22%) rotate(10deg); }
+}
+
+@keyframes bastionCoreGlow {
+  0%, 100% { opacity: .52; transform: scale(.96); }
+  50% { opacity: .92; transform: scale(1.05); }
+}
+
+@keyframes bastionInnerHalo {
+  0%, 100% { opacity: .28; transform: scale(.985); }
+  50% { opacity: .58; transform: scale(1.025); }
+}
+
+@keyframes bastionMarkPulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 10px rgba(255, 186, 24, .30)) drop-shadow(0 0 26px rgba(255, 126, 0, .10));
+  }
+  50% {
+    transform: translateY(-2px) scale(1.018);
+    filter: drop-shadow(0 0 14px rgba(255, 204, 42, .42)) drop-shadow(0 0 38px rgba(255, 126, 0, .16));
+  }
+}
+
+@keyframes bastionMetalPass {
+  0%, 22% { background-position: 120% 50%; }
+  52% { background-position: -40% 50%; }
+  100% { background-position: -40% 50%; }
+}
+
+@keyframes bastionTextGlow {
+  0%, 100% {
+    opacity: .86;
+    text-shadow: 0 0 8px rgba(255, 55, 48, .26), 0 0 18px rgba(255, 32, 42, .12);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 11px rgba(255, 60, 50, .40), 0 0 26px rgba(255, 32, 42, .20);
+  }
+}
+
+@keyframes bastionCtaLineBreath {
+  0%, 100% { opacity: .44; width: 34px; }
+  50% { opacity: .90; width: 54px; }
+}
+
+@keyframes bastionScanLine {
+  0%, 64%, 100% {
+    opacity: 0;
+    transform: translateY(-54px) scaleX(.72);
+  }
+  72% { opacity: .38; }
+  84% {
+    opacity: .16;
+    transform: translateY(58px) scaleX(1.02);
+  }
+}
+
+@keyframes bastionTelemetryDrift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-90px, 42px, 0); }
+}
+
+@keyframes bastionAtmosphereBreath {
+  0%, 100% { opacity: .08; }
+  50% { opacity: .16; }
+}
+
+@media (max-width: 900px) {
+  .access-shell::before,
+  .start-page::before,
+  .start-page::after {
+    opacity: .045;
+  }
+
+  .ring-active-layer {
+    opacity: .14 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-main,
+  .fog-low,
+  .fog-horizon,
+  .access-shell,
+  .hud-ring,
+  .ring-tech-layer,
+  .ring-data-layer,
+  .ring-active-layer,
+  .ring-inner-layer,
+  .ring-glass-layer,
+  .ring-center.hero-core::before,
+  .ring-center.hero-core::after,
+  .brand-mark,
+  .brand-name,
+  .brand-subtitle,
+  .enter-link::before,
+  .enter-link::after,
+  .access-shell::before,
+  .start-page::before,
+  .start-page::after {
+    animation: none !important;
+    transform: none !important;
+  }
+}
