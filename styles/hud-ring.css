@@ -1,17 +1,19 @@
 
-/* ===== CLEAN ORIGINAL BASTION RING ===== */
+/* ===== BASTION PREMIUM RING V2 ===== */
 
 .hud-ring{
     position:relative;
     width:min(72vw,760px);
     aspect-ratio:1;
+
     display:flex;
     align-items:center;
     justify-content:center;
-    filter:drop-shadow(0 0 24px rgba(255,40,60,.18));
+
+    filter:drop-shadow(0 0 28px rgba(255,40,60,.10));
 }
 
-/* MAIN RING */
+/* OUTER THIN RING */
 .hud-ring::before{
     content:"";
     position:absolute;
@@ -21,78 +23,182 @@
     background:
         conic-gradient(
             from -90deg,
-            transparent 0deg 28deg,
-            rgba(255,60,90,.92) 28deg 118deg,
 
-            transparent 118deg 148deg,
-            rgba(255,60,90,.92) 148deg 238deg,
+            transparent 0deg 22deg,
 
-            transparent 238deg 268deg,
-            rgba(255,60,90,.92) 268deg 358deg,
+            rgba(255,255,255,.06) 22deg 24deg,
+            rgba(255,70,90,.42) 24deg 102deg,
 
-            transparent 358deg 360deg
+            transparent 102deg 140deg,
+
+            rgba(255,255,255,.04) 140deg 142deg,
+            rgba(255,70,90,.34) 142deg 214deg,
+
+            transparent 214deg 258deg,
+
+            rgba(255,255,255,.04) 258deg 260deg,
+            rgba(255,70,90,.30) 260deg 336deg,
+
+            transparent 336deg 360deg
         );
 
     -webkit-mask:
         radial-gradient(circle,
-            transparent 63%,
-            #000 64%,
-            #000 68%,
-            transparent 69%
+            transparent 67.5%,
+            #000 68.2%,
+            #000 69.2%,
+            transparent 70%
         );
 
     mask:
         radial-gradient(circle,
-            transparent 63%,
-            #000 64%,
-            #000 68%,
-            transparent 69%
+            transparent 67.5%,
+            #000 68.2%,
+            #000 69.2%,
+            transparent 70%
         );
 
-    box-shadow:
-        0 0 35px rgba(255,40,60,.28),
-        inset 0 0 35px rgba(255,40,60,.18);
+    animation:ringRotateSlow 46s linear infinite;
 
-    animation:ringRotate 38s linear infinite;
+    box-shadow:
+        0 0 18px rgba(255,40,60,.16),
+        inset 0 0 18px rgba(255,40,60,.08);
 }
 
-/* INNER DOTTED RING */
+/* DOTTED DATA RING */
 .hud-ring::after{
     content:"";
     position:absolute;
-    inset:10%;
+    inset:9%;
     border-radius:50%;
 
     background:
         repeating-conic-gradient(
-            rgba(255,255,255,.18) 0deg 1deg,
-            transparent 1deg 6deg
+            rgba(255,255,255,.22) 0deg .7deg,
+            transparent .7deg 5deg
         );
 
     -webkit-mask:
         radial-gradient(circle,
-            transparent 73%,
-            #000 74%,
+            transparent 74%,
             #000 75%,
-            transparent 76%
+            #000 75.8%,
+            transparent 76.6%
         );
 
     mask:
         radial-gradient(circle,
-            transparent 73%,
-            #000 74%,
+            transparent 74%,
             #000 75%,
-            transparent 76%
+            #000 75.8%,
+            transparent 76.6%
         );
 
+    opacity:.38;
+
+    animation:ringRotateReverse 85s linear infinite;
+}
+
+/* EXTRA TECH RINGS */
+.ring-tech-layer,
+.ring-inner-layer,
+.ring-glow-sweep,
+.ring-orbitals{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    pointer-events:none;
+}
+
+/* MIDDLE THIN RING */
+.ring-tech-layer{
+    inset:14%;
+    border:1px solid rgba(255,255,255,.06);
+
+    box-shadow:
+        0 0 24px rgba(255,40,60,.05),
+        inset 0 0 24px rgba(255,40,60,.03);
+
+    animation:softPulse 7s ease-in-out infinite;
+}
+
+/* INNER GLASS RING */
+.ring-inner-layer{
+    inset:28%;
+    border:1px solid rgba(255,70,90,.10);
+
+    background:
+        radial-gradient(circle at 50% 20%,
+            rgba(255,255,255,.03),
+            transparent 60%);
+}
+
+/* LIGHT SWEEP */
+.ring-glow-sweep{
+    inset:5%;
+    overflow:hidden;
     opacity:.55;
-    animation:ringReverse 70s linear infinite;
+}
+
+.ring-glow-sweep::before{
+    content:"";
+    position:absolute;
+    width:24%;
+    height:120%;
+
+    top:-10%;
+    left:-30%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.08),
+            rgba(255,70,90,.22),
+            transparent
+        );
+
+    transform:rotate(14deg);
+
+    filter:blur(10px);
+
+    animation:ringSweep 11s ease-in-out infinite;
+}
+
+/* ORBITAL MARKERS */
+.ring-orbitals::before,
+.ring-orbitals::after{
+    content:"";
+    position:absolute;
+    width:8px;
+    height:8px;
+    border-radius:50%;
+
+    background:rgba(255,80,100,.82);
+
+    box-shadow:
+        0 0 14px rgba(255,40,60,.55),
+        0 0 28px rgba(255,40,60,.18);
+}
+
+.ring-orbitals::before{
+    top:13%;
+    left:50%;
+    transform:translateX(-50%);
+    animation:orbitMarkerA 22s linear infinite;
+}
+
+.ring-orbitals::after{
+    bottom:13%;
+    left:50%;
+    transform:translateX(-50%);
+    animation:orbitMarkerB 28s linear infinite;
 }
 
 /* CENTER */
 .ring-center{
     position:relative;
-    width:46%;
+    width:44%;
     aspect-ratio:1;
     border-radius:50%;
 
@@ -102,150 +208,167 @@
     justify-content:center;
     gap:14px;
 
+    z-index:3;
+
     background:
         radial-gradient(circle,
-            rgba(0,0,0,.58) 0%,
-            rgba(0,0,0,.28) 58%,
-            transparent 100%
-        );
-
-    z-index:3;
-}
-
-.brand-mark{
-    width:78px;
-    filter:drop-shadow(0 0 16px rgba(255,190,40,.35));
+            rgba(0,0,0,.48) 0%,
+            rgba(0,0,0,.18) 58%,
+            transparent 100%);
 }
 
 .brand-name{
-    font-family:var(--font-brand);
-    font-size:clamp(34px,3.5vw,62px);
-    letter-spacing:.22em;
-    color:#fff;
     text-shadow:
-        0 0 20px rgba(255,255,255,.08),
-        0 0 28px rgba(255,40,60,.18);
-}
-
-.brand-subtitle{
-    font-family:var(--font-ui);
-    font-size:11px;
-    letter-spacing:.35em;
-    text-transform:uppercase;
-    color:rgba(255,70,90,.82);
-}
-
-.enter-link{
-    margin-top:10px;
-    font-family:var(--font-ui);
-    font-size:14px;
-    letter-spacing:.34em;
-    text-transform:uppercase;
-    color:rgba(255,255,255,.82);
-
-    transition:
-        color .3s ease,
-        letter-spacing .3s ease,
-        text-shadow .3s ease;
-}
-
-.enter-link:hover{
-    color:#fff;
-    letter-spacing:.42em;
-    text-shadow:0 0 18px rgba(255,40,60,.45);
+        0 0 18px rgba(255,255,255,.06),
+        0 0 26px rgba(255,40,60,.12);
 }
 
 /* SECTORS */
 .ring-sector{
     position:absolute;
+
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:4px;
+    gap:5px;
 
     background:none;
     border:none;
-    cursor:pointer;
 
-    color:rgba(255,255,255,.88);
+    color:rgba(255,255,255,.84);
 
     transition:
-        transform .3s ease,
-        opacity .3s ease,
-        text-shadow .3s ease;
+        transform .35s ease,
+        text-shadow .35s ease,
+        opacity .35s ease;
+}
+
+.ring-sector::after{
+    content:"";
+    position:absolute;
+
+    bottom:-12px;
+    left:50%;
+
+    width:0;
+    height:1px;
+
+    transform:translateX(-50%);
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.6),
+            rgba(255,70,90,.9),
+            transparent
+        );
+
+    transition:width .35s ease;
 }
 
 .ring-sector:hover,
 .ring-sector.is-active{
-    transform:scale(1.06);
-    text-shadow:0 0 18px rgba(255,40,60,.55);
+    transform:scale(1.045);
+    text-shadow:0 0 14px rgba(255,40,60,.38);
+}
+
+.ring-sector:hover::after,
+.ring-sector.is-active::after{
+    width:92px;
 }
 
 .sector-login{
-    top:6%;
+    top:7%;
     left:50%;
     transform:translateX(-50%);
 }
 
 .sector-register{
-    right:7%;
-    bottom:21%;
+    right:8%;
+    bottom:22%;
 }
 
 .sector-dev{
-    left:7%;
-    bottom:21%;
-}
-
-.sector-num{
-    font-family:var(--font-ui);
-    font-size:14px;
-    letter-spacing:.22em;
-    opacity:.85;
-}
-
-.sector-title{
-    font-family:var(--font-ui);
-    font-size:clamp(22px,2vw,38px);
-    letter-spacing:.12em;
-    text-transform:uppercase;
-}
-
-.sector-sub{
-    font-family:var(--font-ui);
-    font-size:10px;
-    letter-spacing:.35em;
-    text-transform:uppercase;
-    color:rgba(255,70,90,.8);
+    left:8%;
+    bottom:22%;
 }
 
 /* ANIMATIONS */
-@keyframes ringRotate{
+@keyframes ringRotateSlow{
     from{ transform:rotate(0deg); }
     to{ transform:rotate(360deg); }
 }
 
-@keyframes ringReverse{
+@keyframes ringRotateReverse{
     from{ transform:rotate(360deg); }
     to{ transform:rotate(0deg); }
 }
 
-/* MOBILE */
-@media(max-width:900px){
-
-    .hud-ring{
-        width:min(96vw,640px);
+@keyframes softPulse{
+    0%,100%{
+        opacity:.55;
+        transform:scale(1);
     }
 
-    .sector-title{
-        font-size:20px;
+    50%{
+        opacity:.82;
+        transform:scale(1.006);
+    }
+}
+
+@keyframes ringSweep{
+    0%,100%{
+        left:-35%;
+        opacity:0;
     }
 
-    .sector-register{
-        right:2%;
+    12%{
+        opacity:.55;
     }
 
-    .sector-dev{
-        left:2%;
+    55%{
+        opacity:.16;
+    }
+
+    72%{
+        left:120%;
+        opacity:0;
+    }
+}
+
+@keyframes orbitMarkerA{
+    from{
+        transform:
+            translateX(-50%)
+            rotate(0deg)
+            translateY(-320px)
+            rotate(0deg);
+    }
+
+    to{
+        transform:
+            translateX(-50%)
+            rotate(360deg)
+            translateY(-320px)
+            rotate(-360deg);
+    }
+}
+
+@keyframes orbitMarkerB{
+    from{
+        transform:
+            translateX(-50%)
+            rotate(360deg)
+            translateY(-320px)
+            rotate(-360deg);
+    }
+
+    to{
+        transform:
+            translateX(-50%)
+            rotate(0deg)
+            translateY(-320px)
+            rotate(0deg);
     }
 }
