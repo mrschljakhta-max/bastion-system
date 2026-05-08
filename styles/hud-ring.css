@@ -1,38 +1,393 @@
-.ring{
-  position:absolute;
-  border-radius:50%;
-  pointer-events:none;
+/* ===== BASTION HUD RING — CENTER + SECTOR FIX ===== */
+
+.hud-ring {
+  position: relative;
+  width: min(58vw, 610px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  transform: translateY(-8px);
+  filter: drop-shadow(0 0 22px rgba(255, 40, 60, .14));
 }
 
-.ring-1{
-  width:620px;
-  height:620px;
-  border:4px solid rgba(255,70,70,.45);
-  border-top-color:transparent;
-  border-bottom-color:transparent;
-  animation:slowRotate 24s linear infinite;
-  filter:blur(.2px);
+.ring-tech-layer,
+.ring-data-layer,
+.ring-inner-layer,
+.ring-active-layer,
+.ring-glass-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-.ring-2{
-  width:690px;
-  height:690px;
-  border:1px solid rgba(255,255,255,.08);
+.ring-tech-layer {
+  z-index: 1;
+  background:
+    conic-gradient(
+      from -90deg,
+      transparent 0deg 26deg,
+      rgba(255, 65, 88, .54) 26deg 102deg,
+      transparent 102deg 146deg,
+      rgba(255, 65, 88, .44) 146deg 226deg,
+      transparent 226deg 268deg,
+      rgba(255, 65, 88, .40) 268deg 346deg,
+      transparent 346deg 360deg
+    );
+
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 65.5%,
+      #000 66.25%,
+      #000 68.15%,
+      transparent 69%
+    );
+
+  mask:
+    radial-gradient(circle,
+      transparent 65.5%,
+      #000 66.25%,
+      #000 68.15%,
+      transparent 69%
+    );
+
+  filter: drop-shadow(0 0 16px rgba(255, 46, 77, .28));
 }
 
-.ring-3{
-  width:740px;
-  height:740px;
-  border:1px dashed rgba(255,90,90,.14);
-  animation:reverseRotate 38s linear infinite;
+.ring-data-layer {
+  z-index: 1;
+  inset: 8%;
+  opacity: .32;
+  background:
+    repeating-conic-gradient(
+      rgba(255,255,255,.18) 0deg .6deg,
+      transparent .6deg 5deg
+    );
+
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 74%,
+      #000 75%,
+      #000 75.7%,
+      transparent 76.6%
+    );
+
+  mask:
+    radial-gradient(circle,
+      transparent 74%,
+      #000 75%,
+      #000 75.7%,
+      transparent 76.6%
+    );
+
+  animation: ringRotateReverse 120s linear infinite;
 }
 
-@keyframes slowRotate{
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
+.ring-inner-layer {
+  z-index: 1;
+  inset: 27%;
+  border: 1px solid rgba(255, 70, 90, .13);
+  box-shadow:
+    inset 0 0 34px rgba(255, 46, 77, .035),
+    0 0 26px rgba(255, 46, 77, .045);
+  animation: pulseRing 7s ease-in-out infinite;
 }
 
-@keyframes reverseRotate{
-  from{transform:rotate(360deg);}
-  to{transform:rotate(0deg);}
+.ring-active-layer {
+  z-index: 1;
+  opacity: .58;
+  background:
+    conic-gradient(
+      from var(--active-angle, -126deg),
+      transparent 0deg,
+      rgba(255,46,77,.0) 8deg,
+      rgba(255,46,77,.48) 18deg,
+      rgba(255,130,140,.18) 42deg,
+      rgba(255,46,77,.44) 72deg,
+      rgba(255,46,77,.0) 84deg,
+      transparent 105deg 360deg
+    );
+
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 64.8%,
+      #000 65.7%,
+      #000 69.1%,
+      transparent 70%
+    );
+
+  mask:
+    radial-gradient(circle,
+      transparent 64.8%,
+      #000 65.7%,
+      #000 69.1%,
+      transparent 70%
+    );
+
+  filter: drop-shadow(0 0 16px rgba(255,46,77,.30));
+  animation: activeSectorBreath 4.4s ease-in-out infinite;
+}
+
+.start-page.mode-login {
+  --active-angle: -128deg;
+}
+
+.start-page.mode-register {
+  --active-angle: 10deg;
+}
+
+.start-page.mode-developer {
+  --active-angle: 132deg;
+}
+
+.start-page.mode-developer .ring-active-layer {
+  background:
+    conic-gradient(
+      from var(--active-angle),
+      transparent 0deg,
+      rgba(245,189,53,.0) 8deg,
+      rgba(245,189,53,.36) 18deg,
+      rgba(255,225,120,.15) 42deg,
+      rgba(245,189,53,.32) 72deg,
+      rgba(245,189,53,.0) 84deg,
+      transparent 105deg 360deg
+    );
+
+  filter: drop-shadow(0 0 14px rgba(245,189,53,.24));
+}
+
+.ring-glass-layer {
+  z-index: 2;
+  inset: 13%;
+  opacity: .09;
+  background:
+    linear-gradient(
+      112deg,
+      transparent 0 36%,
+      rgba(255,255,255,.13) 45%,
+      rgba(255,255,255,.025) 54%,
+      transparent 66% 100%
+    );
+
+  -webkit-mask:
+    radial-gradient(circle,
+      transparent 34%,
+      #000 42%,
+      #000 60%,
+      transparent 68%
+    );
+
+  mask:
+    radial-gradient(circle,
+      transparent 34%,
+      #000 42%,
+      #000 60%,
+      transparent 68%
+    );
+
+  animation: glassReflection 12s ease-in-out infinite;
+}
+
+.ring-center {
+  position: relative;
+  z-index: 4;
+  width: 47%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 13px;
+  background:
+    radial-gradient(circle,
+      rgba(0,0,0,.48) 0%,
+      rgba(0,0,0,.16) 58%,
+      transparent 100%
+    );
+  text-align: center;
+  text-shadow: 0 0 22px rgba(0,0,0,.85);
+}
+
+.brand-name {
+  font-size: clamp(30px, 3.05vw, 52px);
+  letter-spacing: .24em;
+  color: rgba(255,255,255,.94);
+  text-shadow:
+    0 0 20px rgba(0,0,0,.75),
+    0 0 18px rgba(255,255,255,.12),
+    0 0 25px rgba(255,46,77,.10);
+}
+
+.brand-subtitle {
+  min-height: 14px;
+  color: rgba(255, 72, 92, .86);
+  font-size: 10px;
+  letter-spacing: .30em;
+  text-transform: uppercase;
+}
+
+.signal-line {
+  position: relative;
+  width: 190px;
+  height: 1px;
+  overflow: hidden;
+  background: linear-gradient(90deg, transparent, rgba(255,46,77,.45), transparent);
+  box-shadow: 0 0 12px rgba(255,46,77,.30);
+}
+
+.signal-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -35%;
+  width: 32%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+  animation: signalScan 4s ease-in-out infinite;
+}
+
+.enter-link {
+  font-size: 12px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: rgba(244,247,255,.82);
+  transition: color .3s ease, text-shadow .3s ease, letter-spacing .3s ease;
+}
+
+.enter-link:hover {
+  color: #fff;
+  letter-spacing: .42em;
+  text-shadow: 0 0 15px rgba(255, 46, 77, .5);
+}
+
+.ring-sector {
+  position: absolute;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  gap: 5px;
+  min-width: 198px;
+  padding: 11px 14px;
+  color: rgba(255,255,255,.84);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+  transition:
+    transform .32s ease,
+    text-shadow .32s ease,
+    filter .32s ease,
+    opacity .32s ease;
+}
+
+.ring-sector::before {
+  content: "";
+  position: absolute;
+  inset: -3px 4px;
+  opacity: .74;
+  border: 1px solid rgba(255,46,77,.22);
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255,46,77,.12), transparent 58%),
+    linear-gradient(180deg, rgba(18, 0, 5, .82), rgba(6, 0, 2, .42));
+  clip-path: polygon(13% 0, 87% 0, 100% 50%, 87% 100%, 13% 100%, 0 50%);
+  box-shadow:
+    0 0 24px rgba(0,0,0,.72),
+    inset 0 0 18px rgba(255,46,77,.045);
+  backdrop-filter: blur(3px);
+  transition: opacity .32s ease, border-color .32s ease, box-shadow .32s ease;
+}
+
+.ring-sector::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 0;
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.62), rgba(255,70,90,.80), transparent);
+  box-shadow: 0 0 12px rgba(255,46,77,.38);
+  transition: width .32s ease, opacity .32s ease;
+  opacity: 0;
+}
+
+.ring-sector:hover,
+.ring-sector.is-active {
+  transform: scale(1.035);
+  text-shadow: 0 0 13px rgba(255,40,60,.40);
+}
+
+.ring-sector:hover::before,
+.ring-sector.is-active::before {
+  opacity: .92;
+  border-color: rgba(255,46,77,.42);
+  box-shadow:
+    0 0 26px rgba(0,0,0,.78),
+    0 0 18px rgba(255,46,77,.16),
+    inset 0 0 18px rgba(255,46,77,.08);
+}
+
+.ring-sector:hover::after,
+.ring-sector.is-active::after {
+  width: 92px;
+  opacity: 1;
+}
+
+.sector-login {
+  top: 5.8%;
+  left: 50%;
+  translate: -50% 0;
+}
+
+.sector-register {
+  right: 0%;
+  bottom: 20.5%;
+}
+
+.sector-dev {
+  left: 0%;
+  bottom: 20.5%;
+}
+
+.sector-num {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  letter-spacing: .20em;
+  color: rgba(255,255,255,.84);
+}
+
+.sector-title {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(17px, 1.45vw, 23px);
+  letter-spacing: .18em;
+  color: rgba(255,255,255,.88);
+}
+
+.sector-sub {
+  position: relative;
+  z-index: 1;
+  font-size: 9px;
+  letter-spacing: .32em;
+  color: rgba(255, 72, 92, .80);
+}
+
+@media (max-width: 1000px) {
+  .hud-ring {
+    width: min(88vw, 600px);
+  }
+
+  .ring-sector {
+    min-width: 174px;
+  }
+
+  .sector-register {
+    right: -2%;
+  }
+
+  .sector-dev {
+    left: -2%;
+  }
 }
