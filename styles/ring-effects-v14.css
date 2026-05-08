@@ -215,3 +215,405 @@
 @media (max-width: 900px) {
   .ring-v14-core { inset: 12%; }
 }
+
+
+/* =========================================================
+   BASTION — LIVE PREMIUM EFFECTS v17
+   Додає:
+   1) золотий енергетичний спалах логотипа;
+   2) 3D-нахил HUD-кільця від курсора;
+   3) hover-режим “система прокидається”;
+   4) metallic sweep по BASTION;
+   5) мікро-іскри на кільці;
+   6) scan-line через центр;
+   7) активний стан напису “ВХІД • РЕЄСТРАЦІЯ”.
+   ========================================================= */
+
+.hero-center,
+.bastion-core,
+.core-shell {
+  transform-style: preserve-3d;
+}
+
+/* 3D tilt */
+.hud-ring {
+  transform:
+    translate3d(var(--ring-parallax-x, 0px), var(--ring-parallax-y, 0px), 0)
+    rotateX(var(--ring-tilt-x, 0deg))
+    rotateY(var(--ring-tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition:
+    transform .28s cubic-bezier(.2,.8,.2,1),
+    filter .35s ease,
+    opacity .35s ease;
+  will-change: transform, filter;
+}
+
+.hud-ring.is-ring-awake {
+  filter:
+    drop-shadow(0 0 10px rgba(255, 58, 78, .16))
+    drop-shadow(0 0 34px rgba(255, 30, 54, .10));
+}
+
+/* Logo gold burst */
+.brand-mark,
+.logo-mark,
+.bastion-logo,
+.hero-logo,
+.core-logo {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: filter, transform;
+  animation: bastionLogoBreathV17 6.8s ease-in-out infinite;
+}
+
+.brand-mark::before,
+.logo-mark::before,
+.bastion-logo::before,
+.hero-logo::before,
+.core-logo::before {
+  content: "";
+  position: absolute;
+  inset: -42%;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255, 213, 72, .55) 0%, rgba(255, 140, 0, .16) 28%, transparent 62%);
+  filter: blur(10px);
+  mix-blend-mode: screen;
+  animation: bastionLogoGoldBurstV17 10.5s ease-in-out infinite;
+}
+
+.brand-mark::after,
+.logo-mark::after,
+.bastion-logo::after,
+.hero-logo::after,
+.core-logo::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(115deg,
+      transparent 0%,
+      transparent 38%,
+      rgba(255, 235, 150, .0) 43%,
+      rgba(255, 235, 150, .75) 49%,
+      rgba(255, 160, 20, .18) 54%,
+      transparent 62%,
+      transparent 100%);
+  transform: translateX(-80%);
+  mix-blend-mode: screen;
+  animation: bastionLogoShardSweepV17 10.5s ease-in-out infinite;
+}
+
+/* Metallic sweep on BASTION */
+.bastion-wordmark,
+.brand-title,
+.wordmark-bastion {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.bastion-wordmark::after,
+.brand-title::after,
+.wordmark-bastion::after {
+  content: "";
+  position: absolute;
+  top: -35%;
+  bottom: -35%;
+  width: 18%;
+  left: -26%;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(105deg,
+      transparent 0%,
+      rgba(255,255,255,0) 30%,
+      rgba(255,255,255,.82) 48%,
+      rgba(255,80,80,.22) 55%,
+      transparent 72%);
+  transform: skewX(-18deg);
+  filter: blur(.4px);
+  mix-blend-mode: screen;
+  animation: bastionWordSweepV17 8.4s cubic-bezier(.55,0,.22,1) infinite;
+}
+
+/* Center scan line */
+.hero-center::after,
+.bastion-core::after,
+.core-shell::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(760px, 62vw);
+  height: 1px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(255, 52, 76, .12),
+      rgba(255, 255, 255, .62),
+      rgba(255, 52, 76, .18),
+      transparent);
+  box-shadow:
+    0 0 8px rgba(255,255,255,.24),
+    0 0 22px rgba(255,36,60,.16);
+  animation: bastionCenterScanLineV17 11s ease-in-out infinite;
+}
+
+/* Ring sparks */
+.ring-v17-sparks {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  border-radius: 50%;
+  overflow: visible;
+  transform-style: preserve-3d;
+  opacity: .85;
+}
+
+.ring-v17-spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 235, 220, .88);
+  box-shadow:
+    0 0 8px rgba(255, 235, 220, .55),
+    0 0 18px rgba(255, 40, 66, .28);
+  opacity: 0;
+  transform:
+    rotate(var(--spark-angle))
+    translateX(var(--spark-radius))
+    rotate(calc(var(--spark-angle) * -1))
+    scale(.65);
+  animation: bastionRingSparkV17 var(--spark-duration) ease-in-out infinite;
+  animation-delay: var(--spark-delay);
+}
+
+.ring-v17-spark::after {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 1px;
+  width: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 70, 90, .58), transparent);
+  opacity: .5;
+}
+
+/* Active access link */
+.enter-link,
+.access-actions,
+.access-link,
+.start-access {
+  position: relative;
+  isolation: isolate;
+  cursor: pointer;
+  transition:
+    color .25s ease,
+    text-shadow .25s ease,
+    letter-spacing .25s ease,
+    filter .25s ease;
+}
+
+.enter-link::before,
+.access-actions::before,
+.access-link::before,
+.start-access::before {
+  content: "";
+  position: absolute;
+  left: -34px;
+  right: -34px;
+  top: 50%;
+  height: 32px;
+  transform: translateY(-50%) scaleX(.75);
+  opacity: 0;
+  pointer-events: none;
+  border-left: 1px solid rgba(255, 68, 86, .72);
+  border-right: 1px solid rgba(255, 68, 86, .72);
+  background:
+    linear-gradient(90deg,
+      rgba(255, 48, 72, .0),
+      rgba(255, 48, 72, .08),
+      rgba(255, 48, 72, .0));
+  transition:
+    opacity .28s ease,
+    transform .28s ease;
+}
+
+.enter-link:hover,
+.access-actions:hover,
+.access-link:hover,
+.start-access:hover {
+  color: rgba(255,255,255,.96) !important;
+  text-shadow:
+    0 0 8px rgba(255,255,255,.28),
+    0 0 20px rgba(255, 50, 72, .26);
+  filter: brightness(1.12);
+}
+
+.enter-link:hover::before,
+.access-actions:hover::before,
+.access-link:hover::before,
+.start-access:hover::before {
+  opacity: 1;
+  transform: translateY(-50%) scaleX(1);
+}
+
+.access-dot,
+.enter-dot {
+  display: inline-block;
+  color: rgba(255, 46, 62, .95);
+  text-shadow:
+    0 0 8px rgba(255, 38, 62, .65),
+    0 0 18px rgba(255, 38, 62, .28);
+  animation: bastionAccessDotPulseV17 2.4s ease-in-out infinite;
+}
+
+.enter-link:hover,
+.access-actions:hover {
+  animation: bastionAccessRowWakeV17 1.4s ease-in-out infinite;
+}
+
+/* Wake mode */
+.hud-ring.is-ring-awake .ring-v14-segments-a circle {
+  opacity: .48;
+  stroke-width: 2.55;
+}
+
+.hud-ring.is-ring-awake .ring-v14-segments-b circle {
+  opacity: .44;
+}
+
+.hud-ring.is-ring-awake .ring-v14-scanner circle {
+  opacity: .64;
+  stroke-width: 1.8;
+}
+
+.hud-ring.is-ring-awake .ring-v14-ticks-a circle,
+.hud-ring.is-ring-awake .ring-v14-ticks-b circle {
+  opacity: .34;
+}
+
+/* Keyframes */
+@keyframes bastionLogoBreathV17 {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 7px rgba(255, 196, 30, .28))
+      drop-shadow(0 0 18px rgba(255, 140, 0, .12));
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 10px rgba(255, 220, 70, .44))
+      drop-shadow(0 0 30px rgba(255, 145, 0, .20));
+    transform: translateZ(8px) scale(1.012);
+  }
+}
+
+@keyframes bastionLogoGoldBurstV17 {
+  0%, 68%, 100% { opacity: 0; transform: scale(.72); }
+  72% { opacity: .34; transform: scale(.95); }
+  76% { opacity: .70; transform: scale(1.12); }
+  84% { opacity: .12; transform: scale(1.35); }
+}
+
+@keyframes bastionLogoShardSweepV17 {
+  0%, 69%, 100% { opacity: 0; transform: translateX(-88%) skewX(-18deg); }
+  73% { opacity: .34; }
+  78% { opacity: .90; transform: translateX(92%) skewX(-18deg); }
+  84% { opacity: 0; transform: translateX(128%) skewX(-18deg); }
+}
+
+@keyframes bastionWordSweepV17 {
+  0%, 58%, 100% { left: -28%; opacity: 0; }
+  64% { opacity: .18; }
+  70% { opacity: .58; }
+  78% { left: 110%; opacity: .12; }
+  82% { opacity: 0; }
+}
+
+@keyframes bastionCenterScanLineV17 {
+  0%, 74%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(.45);
+  }
+  78% {
+    opacity: .36;
+    transform: translate(-50%, -50%) scaleX(.78);
+  }
+  84% {
+    opacity: .15;
+    transform: translate(-50%, -50%) scaleX(1.08);
+  }
+  90% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(1.18);
+  }
+}
+
+@keyframes bastionRingSparkV17 {
+  0%, 72%, 100% {
+    opacity: 0;
+    transform:
+      rotate(var(--spark-angle))
+      translateX(var(--spark-radius))
+      rotate(calc(var(--spark-angle) * -1))
+      scale(.35);
+  }
+  78% {
+    opacity: .85;
+    transform:
+      rotate(calc(var(--spark-angle) + 4deg))
+      translateX(calc(var(--spark-radius) + 2px))
+      rotate(calc((var(--spark-angle) + 4deg) * -1))
+      scale(1);
+  }
+  86% {
+    opacity: .14;
+    transform:
+      rotate(calc(var(--spark-angle) + 11deg))
+      translateX(calc(var(--spark-radius) + 9px))
+      rotate(calc((var(--spark-angle) + 11deg) * -1))
+      scale(.62);
+  }
+}
+
+@keyframes bastionAccessDotPulseV17 {
+  0%, 100% { opacity: .48; transform: scale(.86); }
+  50% { opacity: 1; transform: scale(1.18); }
+}
+
+@keyframes bastionAccessRowWakeV17 {
+  0%, 100% { text-shadow: 0 0 10px rgba(255, 60, 80, .16); }
+  50% { text-shadow: 0 0 18px rgba(255, 60, 80, .38); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-ring,
+  .hud-ring *,
+  .brand-mark,
+  .logo-mark,
+  .bastion-logo,
+  .hero-logo,
+  .core-logo,
+  .bastion-wordmark,
+  .brand-title,
+  .wordmark-bastion,
+  .hero-center::after,
+  .bastion-core::after,
+  .core-shell::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
