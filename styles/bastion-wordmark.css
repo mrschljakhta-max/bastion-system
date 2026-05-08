@@ -1,55 +1,83 @@
 @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
-/* BASTION — CLEAN RING + TEXT NODES PATCH */
+/* =====================================================
+   BASTION — DUAL + ORBITAL RING UPDATE
+   - Вхід по центру
+   - Реєстрація знизу по центру
+   - Розробник прибраний
+   - Плашки прибрані
+   - Кільце більш технологічне: dual ring + сегменти + orbiters
+   ===================================================== */
 
 .hud-ring {
   --core-shift-x: 14px;
   --core-shift-y: -4px;
 }
 
-/* CENTER CORE */
+/* ================= CENTER CORE ================= */
 
 .hud-ring .ring-center.hero-core,
 .hud-ring .ring-center {
   position: absolute !important;
   left: 50% !important;
   top: 50% !important;
+
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
+
   width: max-content !important;
   max-width: none !important;
   text-align: center !important;
-  transform: translate(-50%, -50%) translate(var(--core-shift-x), var(--core-shift-y)) !important;
-  z-index: 20 !important;
+
+  transform:
+    translate(-50%, -50%)
+    translate(var(--core-shift-x), var(--core-shift-y)) !important;
+
+  z-index: 25 !important;
 }
 
 .hud-ring .brand-mark {
   display: block !important;
+
   width: clamp(72px, 4.15vw, 96px) !important;
   height: auto !important;
+
   margin: 0 auto 12px auto !important;
   transform: none !important;
+
   filter:
-    drop-shadow(0 0 14px rgba(255, 196, 0, .18))
-    drop-shadow(0 0 34px rgba(255, 196, 0, .12)) !important;
+    drop-shadow(0 0 14px rgba(255, 196, 0, .20))
+    drop-shadow(0 0 34px rgba(255, 196, 0, .13)) !important;
 }
 
 .hud-ring .brand-name {
   position: relative !important;
   display: inline-block !important;
+
   font-family: "Michroma", "Rajdhani", sans-serif !important;
   font-size: clamp(40px, 3.55vw, 68px) !important;
   font-weight: 400 !important;
   line-height: .92 !important;
+
   letter-spacing: .125em !important;
   padding-left: .125em !important;
   text-transform: uppercase !important;
-  background: linear-gradient(180deg, #f7f7f8 0%, #d3d5da 34%, #777d86 72%, #eef0f2 100%) !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8f8f9 0%,
+      #d4d6db 34%,
+      #787e88 72%,
+      #eef0f2 100%
+    ) !important;
+
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
+
   filter:
     drop-shadow(0 0 8px rgba(255,255,255,.08))
     drop-shadow(0 0 18px rgba(255,58,34,.12))
@@ -63,9 +91,21 @@
   right: 11%;
   top: 54%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255,58,34,.12), rgba(255,58,34,.96), rgba(255,58,34,.16), transparent);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,58,34,.12),
+      rgba(255,58,34,.96),
+      rgba(255,58,34,.16),
+      transparent
+    );
+
   opacity: .82;
-  filter: blur(.2px) drop-shadow(0 0 10px rgba(255,58,34,.85));
+  filter:
+    blur(.2px)
+    drop-shadow(0 0 10px rgba(255,58,34,.85));
 }
 
 .hud-ring .brand-name::before {
@@ -75,22 +115,32 @@
   left: 26%;
   width: 76px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #ff3a22, transparent);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #ff3a22,
+      transparent
+    );
+
   opacity: .88;
   filter: drop-shadow(0 0 14px #ff3a22);
 }
 
 .hud-ring .brand-subtitle {
   margin-top: 13px !important;
+
   font-family: "Rajdhani", sans-serif !important;
   font-size: 12px !important;
   letter-spacing: .40em !important;
   text-transform: uppercase !important;
+
   color: rgba(255,76,56,.84) !important;
   opacity: .82 !important;
 }
 
-/* TECH RING STYLE */
+/* ================= RING BASE LAYERS ================= */
 
 .hud-ring .ring-tech-layer,
 .hud-ring .ring-data-layer,
@@ -103,18 +153,20 @@
 }
 
 .hud-ring .ring-active-layer {
-  opacity: .72 !important;
-  filter: drop-shadow(0 0 12px rgba(255, 54, 72, .34)) drop-shadow(0 0 28px rgba(255, 54, 72, .16)) !important;
+  opacity: .74 !important;
+  filter:
+    drop-shadow(0 0 12px rgba(255, 54, 72, .36))
+    drop-shadow(0 0 30px rgba(255, 54, 72, .17)) !important;
   animation: bastionRingRotateMain 34s linear infinite !important;
 }
 
 .hud-ring .ring-tech-layer {
-  opacity: .38 !important;
+  opacity: .40 !important;
   animation: bastionRingRotateTech 74s linear infinite !important;
 }
 
 .hud-ring .ring-data-layer {
-  opacity: .48 !important;
+  opacity: .50 !important;
   animation: bastionRingRotateReverse 58s linear infinite !important;
 }
 
@@ -128,42 +180,165 @@
   animation: bastionRingRotateGlass 120s linear infinite !important;
 }
 
+/* ================= EXTRA TECH RINGS ================= */
+
+/* Внутрішнє тонке кільце */
 .hud-ring::before {
   content: "";
   position: absolute;
   inset: 8.5%;
   border-radius: 50%;
-  border: 1px solid rgba(255, 64, 78, .26);
+
+  border: 1px solid rgba(255, 64, 78, .28);
   border-left-color: rgba(255, 64, 78, .08);
   border-right-color: rgba(255, 64, 78, .08);
-  box-shadow: inset 0 0 28px rgba(255, 36, 58, .045), 0 0 20px rgba(255, 36, 58, .06);
+
+  box-shadow:
+    inset 0 0 28px rgba(255, 36, 58, .05),
+    0 0 20px rgba(255, 36, 58, .07);
+
   pointer-events: none;
+  z-index: 5;
+
   animation: bastionRingRotateReverse 88s linear infinite;
 }
 
+/* Технічна дрібна розмітка */
 .hud-ring::after {
   content: "";
   position: absolute;
-  inset: 3.8%;
+  inset: 3.7%;
   border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg, rgba(255, 64, 78, .34) 0deg, rgba(255, 64, 78, .34) .55deg, transparent .55deg, transparent 3.2deg);
-  mask: radial-gradient(circle, transparent 66%, #000 66.4%, #000 68%, transparent 68.4%);
-  -webkit-mask: radial-gradient(circle, transparent 66%, #000 66.4%, #000 68%, transparent 68.4%);
-  opacity: .34;
+
+  background:
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(255, 64, 78, .36) 0deg,
+      rgba(255, 64, 78, .36) .55deg,
+      transparent .55deg,
+      transparent 3.15deg
+    );
+
+  mask:
+    radial-gradient(circle, transparent 65.8%, #000 66.2%, #000 68.2%, transparent 68.7%);
+  -webkit-mask:
+    radial-gradient(circle, transparent 65.8%, #000 66.2%, #000 68.2%, transparent 68.7%);
+
+  opacity: .36;
   pointer-events: none;
+  z-index: 6;
+
   animation: bastionRingRotateTech 64s linear infinite;
 }
 
-@keyframes bastionRingRotateMain { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes bastionRingRotateTech { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes bastionRingRotateReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-@keyframes bastionRingRotateInner { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
-@keyframes bastionRingRotateGlass { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* Окремі світлові сегменти, як у концепті */
+.hud-ring .ring-glass-layer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
 
-/* TEXT NODES WITHOUT PLAQUES */
+  background:
+    conic-gradient(
+      from 12deg,
+      transparent 0deg,
+      transparent 18deg,
+      rgba(255, 64, 78, .78) 21deg,
+      rgba(255, 64, 78, .18) 29deg,
+      transparent 36deg,
+
+      transparent 86deg,
+      rgba(255, 64, 78, .65) 91deg,
+      rgba(255, 64, 78, .14) 100deg,
+      transparent 108deg,
+
+      transparent 178deg,
+      rgba(255, 64, 78, .60) 182deg,
+      rgba(255, 64, 78, .12) 193deg,
+      transparent 202deg,
+
+      transparent 263deg,
+      rgba(255, 64, 78, .70) 268deg,
+      rgba(255, 64, 78, .15) 278deg,
+      transparent 286deg,
+      transparent 360deg
+    );
+
+  mask:
+    radial-gradient(circle, transparent 70%, #000 70.6%, #000 74.8%, transparent 75.5%);
+  -webkit-mask:
+    radial-gradient(circle, transparent 70%, #000 70.6%, #000 74.8%, transparent 75.5%);
+
+  opacity: .78;
+  filter:
+    drop-shadow(0 0 10px rgba(255, 55, 72, .45))
+    drop-shadow(0 0 22px rgba(255, 55, 72, .20));
+
+  pointer-events: none;
+}
+
+/* Орбітальні точки */
+.hud-ring .ring-data-layer::before,
+.hud-ring .ring-data-layer::after {
+  content: "";
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+
+  background: rgba(255, 72, 88, .92);
+  box-shadow:
+    0 0 0 3px rgba(255, 72, 88, .14),
+    0 0 12px rgba(255, 72, 88, .85),
+    0 0 26px rgba(255, 72, 88, .25);
+
+  pointer-events: none;
+}
+
+.hud-ring .ring-data-layer::before {
+  top: 8.5%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.hud-ring .ring-data-layer::after {
+  bottom: 8.5%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* ================= RING ANIMATIONS ================= */
+
+@keyframes bastionRingRotateMain {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bastionRingRotateTech {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bastionRingRotateReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes bastionRingRotateInner {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes bastionRingRotateGlass {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ================= TEXT NODES WITHOUT PLAQUES ================= */
 
 .hud-ring .ring-sector {
   position: absolute !important;
+
   width: auto !important;
   height: auto !important;
   padding: 0 !important;
@@ -174,13 +349,16 @@
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   clip-path: none !important;
+
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
+
   text-align: center !important;
   overflow: visible !important;
-  z-index: 26 !important;
+
+  z-index: 30 !important;
 }
 
 .hud-ring .ring-sector::before,
@@ -188,73 +366,113 @@
   display: none !important;
 }
 
+/* ВХІД — чітко по центру зверху */
 .hud-ring .sector-login {
   left: 50% !important;
-  top: 5.8% !important;
+  right: auto !important;
+  top: 6.2% !important;
+  bottom: auto !important;
+
   transform: translateX(-50%) !important;
 }
 
+/* РЕЄСТРАЦІЯ — чітко по центру знизу */
 .hud-ring .sector-register {
   left: 50% !important;
+  right: auto !important;
   bottom: 6.4% !important;
+  top: auto !important;
+
   transform: translateX(-50%) !important;
 }
 
+/* РОЗРОБНИК прибраний */
 .hud-ring .sector-dev {
   display: none !important;
 }
 
+/* Текст пунктів */
 .hud-ring .ring-sector .sector-num {
   display: block !important;
+
   font-family: "Rajdhani", sans-serif !important;
   font-size: 15px !important;
   font-weight: 600 !important;
   line-height: 1 !important;
+
   letter-spacing: .18em !important;
   color: rgba(255,255,255,.82) !important;
+
   margin-bottom: 7px !important;
-  text-shadow: 0 0 10px rgba(255,255,255,.10), 0 0 18px rgba(255, 64, 78, .12) !important;
+
+  text-shadow:
+    0 0 10px rgba(255,255,255,.10),
+    0 0 18px rgba(255, 64, 78, .12) !important;
 }
 
 .hud-ring .ring-sector .sector-title {
   display: block !important;
+
   font-family: "Rajdhani", sans-serif !important;
   font-size: clamp(28px, 2vw, 38px) !important;
   font-weight: 600 !important;
   line-height: .92 !important;
+
   letter-spacing: .12em !important;
   text-transform: uppercase !important;
+
   color: rgba(255,255,255,.92) !important;
-  text-shadow: 0 0 12px rgba(255,255,255,.10), 0 0 22px rgba(255, 64, 78, .10) !important;
+
+  text-shadow:
+    0 0 12px rgba(255,255,255,.10),
+    0 0 22px rgba(255, 64, 78, .10) !important;
 }
 
 .hud-ring .ring-sector .sector-sub {
   display: block !important;
+
   margin-top: 9px !important;
+
   font-family: "Rajdhani", sans-serif !important;
   font-size: 11px !important;
   font-weight: 500 !important;
   line-height: 1 !important;
+
   letter-spacing: .42em !important;
   text-transform: uppercase !important;
+
   color: rgba(255, 66, 82, .84) !important;
 }
 
+/* Тонка лінія під Вхід / Реєстрація */
 .hud-ring .sector-login .sector-sub::after,
 .hud-ring .sector-register .sector-sub::after {
   content: "";
   display: block;
+
   width: 155px;
   height: 1px;
+
   margin: 12px auto 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 60, 76, .68), transparent);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 60, 76, .68),
+      transparent
+    );
+
   filter: drop-shadow(0 0 8px rgba(255, 60, 76, .55));
 }
 
 .hud-ring .ring-sector:hover .sector-title,
 .hud-ring .ring-sector.is-active .sector-title {
   color: rgba(255,255,255,.98) !important;
-  text-shadow: 0 0 14px rgba(255,255,255,.16), 0 0 26px rgba(255, 64, 78, .18) !important;
+
+  text-shadow:
+    0 0 14px rgba(255,255,255,.16),
+    0 0 26px rgba(255, 64, 78, .18) !important;
 }
 
 .hud-ring .signal-line,
@@ -264,11 +482,14 @@
   margin-right: auto !important;
 }
 
+/* Cleanup */
 .brand-wordmark,
 .bastion-glyph-wordmark,
 .brand-name-img {
   display: none !important;
 }
+
+/* ================= MOBILE ================= */
 
 @media (max-width: 900px) {
   .hud-ring {
@@ -287,7 +508,7 @@
   }
 
   .hud-ring .sector-login {
-    top: 5.2% !important;
+    top: 5.4% !important;
   }
 
   .hud-ring .sector-register {
