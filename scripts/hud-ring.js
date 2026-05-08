@@ -10,7 +10,7 @@ const modes = {
     label: "ВХІД • РЕЄСТРАЦІЯ"
   },
   register: {
-    subtitle: "СТВОРІТЬ ОБЛІКОВИЙ ЗАПИС ОПЕРАТОРА",
+    subtitle: "СТВОРЕННЯ НОВОГО ДОСТУПУ",
     href: "./pages/register.html",
     label: "РЕЄСТРАЦІЯ"
   },
@@ -54,9 +54,9 @@ sectors.forEach((sector) => {
   sector.addEventListener("click", () => {
     const mode = sector.dataset.mode;
     const data = modes[mode];
+
     if (data) window.location.href = data.href;
   });
 });
 
-// Якщо секторів немає, не чіпаємо центральні написи — вони вже прописані в HTML.
-if (sectors.length > 0) setMode("login");
+setMode("login");

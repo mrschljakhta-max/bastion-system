@@ -12,11 +12,11 @@
   <link rel="stylesheet" href="./styles/theme.css" />
   <link rel="stylesheet" href="./styles/base.css" />
   <link rel="stylesheet" href="./styles/animations.css" />
-  <link rel="stylesheet" href="./styles/hud-ring.css?v=13" />
+  <link rel="stylesheet" href="./styles/hud-ring.css?v=14" />
   <link rel="stylesheet" href="./styles/logo.css" />
   <link rel="stylesheet" href="./styles/start.css" />
-  <link rel="stylesheet" href="./styles/bastion-wordmark.css?v=13" />
-  <link rel="stylesheet" href="./styles/bastion-effects.css?v=13" />
+  <link rel="stylesheet" href="./styles/bastion-wordmark.css?v=14" />
+  <link rel="stylesheet" href="./styles/ring-effects-v14.css?v=14" />
 
   <!-- Start page visual styles moved to styles/hud-ring.css -->
 
@@ -38,6 +38,80 @@
 
     <section class="access-shell" aria-label="BASTION access menu">
       <div class="hud-ring" id="hudRing">
+
+        <!-- BASTION SVG HUD CORE v14 -->
+        <div class="ring-v14-core" aria-hidden="true">
+          <svg class="ring-v14-svg" viewBox="0 0 600 600" role="img" focusable="false">
+            <defs>
+              <filter id="ringV14Glow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="2.6" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              <filter id="ringV14SoftGlow" x="-70%" y="-70%" width="240%" height="240%">
+                <feGaussianBlur stdDeviation="8" result="blur"/>
+                <feMerge>
+                  <feMergeNode in="blur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              <linearGradient id="ringV14RedStroke" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ff233f" stop-opacity=".05"/>
+                <stop offset=".42" stop-color="#ff314d" stop-opacity=".82"/>
+                <stop offset=".56" stop-color="#fff1f1" stop-opacity=".50"/>
+                <stop offset="1" stop-color="#ff233f" stop-opacity=".06"/>
+              </linearGradient>
+            </defs>
+
+            <g class="ring-v14-halo">
+              <circle cx="300" cy="300" r="249"/>
+              <circle cx="300" cy="300" r="214"/>
+            </g>
+
+            <g class="ring-v14-segments ring-v14-segments-a">
+              <circle cx="300" cy="300" r="255" pathLength="1000"/>
+            </g>
+
+            <g class="ring-v14-segments ring-v14-segments-b">
+              <circle cx="300" cy="300" r="233" pathLength="1000"/>
+            </g>
+
+            <g class="ring-v14-ticks ring-v14-ticks-a">
+              <circle cx="300" cy="300" r="272" pathLength="720"/>
+            </g>
+
+            <g class="ring-v14-ticks ring-v14-ticks-b">
+              <circle cx="300" cy="300" r="194" pathLength="720"/>
+            </g>
+
+            <g class="ring-v14-scanner">
+              <circle cx="300" cy="300" r="260" pathLength="1000"/>
+            </g>
+
+            <g class="ring-v14-data-flow ring-v14-flow-a">
+              <circle cx="300" cy="300" r="282" pathLength="1000"/>
+            </g>
+            <g class="ring-v14-data-flow ring-v14-flow-b">
+              <circle cx="300" cy="300" r="176" pathLength="1000"/>
+            </g>
+
+            <g class="ring-v14-crosshair">
+              <path d="M300 20 L300 76"/>
+              <path d="M300 524 L300 580"/>
+              <path d="M20 300 L76 300"/>
+              <path d="M524 300 L580 300"/>
+            </g>
+          </svg>
+
+          <span class="ring-v14-node node-a"></span>
+          <span class="ring-v14-node node-b"></span>
+          <span class="ring-v14-node node-c"></span>
+          <span class="ring-v14-node node-d"></span>
+          <span class="ring-v14-node node-e"></span>
+          <span class="ring-v14-node node-f"></span>
+        </div>
 
         <div class="ring-tech-layer"></div>
         <div class="ring-data-layer"></div>
@@ -74,7 +148,8 @@
     </section>
   </main>
 
-  <script src="./scripts/main.js?v=13"></script>
-  <script src="./scripts/hud-ring.js?v=13"></script>
+  <script src="./scripts/main.js"></script>
+  <script src="./scripts/hud-ring.js"></script>
+  <script src="./scripts/ring-effects-v14.js?v=14"></script>
 </body>
 </html>
