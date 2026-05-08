@@ -617,3 +617,405 @@
     transition: none !important;
   }
 }
+
+
+
+/* =========================================================
+   BASTION — VISIBLE PREMIUM EFFECTS v18
+   ФІКС: v17 частково не працював, бо стилі били по неіснуючих
+   класах .hero-center / .bastion-wordmark / .hero-logo.
+   Актуальні класи сторінки:
+   .hud-ring, .ring-center, .brand-mark, .brand-name,
+   .brand-subtitle, .signal-line, .enter-link
+   ========================================================= */
+
+/* ---------- actual center core ---------- */
+
+.ring-center {
+  position: absolute;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  will-change: transform, filter;
+}
+
+/* ---------- 3D ring tilt: stronger, visible ---------- */
+
+.hud-ring {
+  transform:
+    perspective(1200px)
+    translate3d(var(--ring-parallax-x, 0px), var(--ring-parallax-y, 0px), 0)
+    rotateX(var(--ring-tilt-x, 0deg))
+    rotateY(var(--ring-tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition:
+    transform .18s cubic-bezier(.2,.8,.2,1),
+    filter .25s ease;
+  will-change: transform, filter;
+}
+
+.hud-ring.is-ring-awake {
+  filter:
+    drop-shadow(0 0 16px rgba(255, 58, 78, .24))
+    drop-shadow(0 0 52px rgba(255, 20, 50, .14));
+}
+
+/* ---------- logo: pseudo-elements do not work on img, so JS injects real layers ---------- */
+
+.brand-mark {
+  position: relative;
+  z-index: 5;
+  animation: bastionLogoBreathV18 5.8s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 8px rgba(255, 190, 24, .38))
+    drop-shadow(0 0 22px rgba(255, 120, 0, .18));
+}
+
+.logo-burst-v18,
+.logo-sweep-v18 {
+  position: absolute;
+  left: 50%;
+  top: var(--logo-v18-top, 16%);
+  width: 128px;
+  height: 128px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 4;
+  mix-blend-mode: screen;
+}
+
+.logo-burst-v18 {
+  opacity: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle,
+      rgba(255, 224, 84, .88) 0%,
+      rgba(255, 150, 22, .32) 28%,
+      rgba(255, 50, 20, .08) 48%,
+      transparent 68%);
+  filter: blur(12px);
+  animation: bastionLogoGoldBurstV18 8.2s ease-in-out infinite;
+}
+
+.logo-sweep-v18 {
+  opacity: 0;
+  overflow: hidden;
+  clip-path: polygon(16% 0, 100% 0, 84% 100%, 0 100%);
+}
+
+.logo-sweep-v18::before {
+  content: "";
+  position: absolute;
+  inset: -15% 0;
+  width: 42%;
+  background:
+    linear-gradient(105deg,
+      transparent 0%,
+      rgba(255,255,255,.0) 22%,
+      rgba(255,255,255,.92) 48%,
+      rgba(255,196,50,.44) 60%,
+      transparent 82%);
+  transform: translateX(-130%) skewX(-18deg);
+  animation: bastionLogoShardSweepV18 8.2s cubic-bezier(.55,0,.22,1) infinite;
+}
+
+/* ---------- BASTION metallic sweep: actual class .brand-name ---------- */
+
+.brand-name {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.brand-name::before {
+  content: "";
+  position: absolute;
+  top: -38%;
+  bottom: -38%;
+  width: 22%;
+  left: -32%;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(105deg,
+      transparent 0%,
+      rgba(255,255,255,0) 28%,
+      rgba(255,255,255,.92) 47%,
+      rgba(255,72,72,.34) 55%,
+      transparent 74%);
+  transform: skewX(-18deg);
+  filter: blur(.35px);
+  mix-blend-mode: screen;
+  animation: bastionBrandSweepV18 6.8s cubic-bezier(.55,0,.22,1) infinite;
+}
+
+.brand-name::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(255, 55, 64, .0),
+      rgba(255, 245, 240, .65),
+      rgba(255, 55, 64, .30),
+      transparent);
+  box-shadow:
+    0 0 8px rgba(255,255,255,.18),
+    0 0 24px rgba(255,45,65,.22);
+  animation: bastionBrandCoreFlashV18 8.2s ease-in-out infinite;
+}
+
+/* ---------- scan line: actual injected node ---------- */
+
+.core-scan-line-v18 {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: min(720px, 64vw);
+  height: 1px;
+  transform: translate(-50%, -50%) scaleX(.45);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(255, 40, 66, .18),
+      rgba(255, 255, 255, .68),
+      rgba(255, 40, 66, .18),
+      transparent);
+  box-shadow:
+    0 0 10px rgba(255,255,255,.26),
+    0 0 32px rgba(255,32,60,.22);
+  animation: bastionCoreScanV18 9.2s ease-in-out infinite;
+}
+
+/* ---------- ring sparks: more visible but contained ---------- */
+
+.ring-v17-sparks {
+  inset: 6%;
+  z-index: 20;
+  opacity: 1;
+  mix-blend-mode: screen;
+}
+
+.ring-v17-spark {
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 238, 228, .98);
+  box-shadow:
+    0 0 9px rgba(255, 238, 228, .75),
+    0 0 24px rgba(255, 48, 72, .42);
+}
+
+/* ---------- ring wake: stronger scanner/ticks ---------- */
+
+.hud-ring.is-ring-awake .ring-v14-segments-a circle {
+  opacity: .58 !important;
+  stroke-width: 2.8 !important;
+}
+
+.hud-ring.is-ring-awake .ring-v14-segments-b circle {
+  opacity: .52 !important;
+  stroke-width: 1.35 !important;
+}
+
+.hud-ring.is-ring-awake .ring-v14-scanner circle {
+  opacity: .82 !important;
+  stroke-width: 2.2 !important;
+}
+
+.hud-ring.is-ring-awake .ring-v14-ticks-a circle,
+.hud-ring.is-ring-awake .ring-v14-ticks-b circle {
+  opacity: .46 !important;
+}
+
+/* ---------- Ukrainian UI text wake ---------- */
+
+.brand-subtitle {
+  position: relative;
+  transition:
+    color .25s ease,
+    text-shadow .25s ease,
+    letter-spacing .25s ease;
+}
+
+.hud-ring.is-ring-awake .brand-subtitle {
+  color: rgba(255, 94, 78, .96) !important;
+  text-shadow:
+    0 0 8px rgba(255, 52, 70, .28),
+    0 0 24px rgba(255, 52, 70, .18);
+}
+
+.enter-link {
+  position: relative;
+  isolation: isolate;
+  cursor: pointer;
+  transition:
+    color .22s ease,
+    text-shadow .22s ease,
+    filter .22s ease,
+    letter-spacing .22s ease;
+}
+
+.enter-link::before {
+  content: "";
+  position: absolute;
+  left: -42px;
+  right: -42px;
+  top: 50%;
+  height: 34px;
+  transform: translateY(-50%) scaleX(.72);
+  opacity: 0;
+  pointer-events: none;
+  border-left: 1px solid rgba(255, 68, 86, .82);
+  border-right: 1px solid rgba(255, 68, 86, .82);
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(255, 42, 70, .12),
+      transparent);
+  box-shadow:
+    inset 0 0 18px rgba(255, 42, 70, .06),
+    0 0 18px rgba(255, 42, 70, .08);
+  transition:
+    opacity .25s ease,
+    transform .25s ease;
+}
+
+.enter-link:hover,
+.hud-ring.is-ring-awake .enter-link {
+  color: rgba(255,255,255,.95) !important;
+  text-shadow:
+    0 0 8px rgba(255,255,255,.28),
+    0 0 24px rgba(255, 50, 72, .28);
+  filter: brightness(1.12);
+}
+
+.enter-link:hover::before {
+  opacity: 1;
+  transform: translateY(-50%) scaleX(1);
+}
+
+.access-dot {
+  display: inline-block;
+  color: rgba(255, 46, 62, .98);
+  text-shadow:
+    0 0 8px rgba(255, 38, 62, .75),
+    0 0 20px rgba(255, 38, 62, .38);
+  animation: bastionAccessDotPulseV18 1.8s ease-in-out infinite;
+}
+
+/* ---------- temporary diagnostic mode disabled by default ----------
+   Додай клас show-effect-debug на body, якщо хочеш побачити зони ефектів.
+*/
+body.show-effect-debug .logo-burst-v18,
+body.show-effect-debug .core-scan-line-v18 {
+  outline: 1px solid rgba(0,255,0,.55);
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes bastionLogoBreathV18 {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 8px rgba(255, 190, 24, .34))
+      drop-shadow(0 0 22px rgba(255, 120, 0, .16));
+    transform: translateZ(0) scale(1);
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 15px rgba(255, 225, 70, .70))
+      drop-shadow(0 0 42px rgba(255, 140, 0, .36));
+    transform: translateZ(10px) scale(1.035);
+  }
+}
+
+@keyframes bastionLogoGoldBurstV18 {
+  0%, 54%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(.62); }
+  59% { opacity: .32; transform: translate(-50%, -50%) scale(.88); }
+  63% { opacity: .86; transform: translate(-50%, -50%) scale(1.16); }
+  72% { opacity: .10; transform: translate(-50%, -50%) scale(1.58); }
+}
+
+@keyframes bastionLogoShardSweepV18 {
+  0%, 55%, 100% { opacity: 0; }
+  59% { opacity: .45; }
+  67% { opacity: .95; }
+  76% { opacity: 0; }
+}
+
+@keyframes bastionLogoShardSweepV18 {
+  0%, 55%, 100% { opacity: 0; }
+  59% { opacity: .45; }
+  67% { opacity: .95; }
+  76% { opacity: 0; }
+}
+
+.logo-sweep-v18::before {
+  animation-name: bastionLogoShardMoveV18;
+}
+
+@keyframes bastionLogoShardMoveV18 {
+  0%, 55%, 100% { transform: translateX(-150%) skewX(-18deg); }
+  68% { transform: translateX(245%) skewX(-18deg); }
+}
+
+@keyframes bastionBrandSweepV18 {
+  0%, 46%, 100% { left: -32%; opacity: 0; }
+  52% { opacity: .26; }
+  60% { opacity: .86; }
+  72% { left: 114%; opacity: .18; }
+  78% { opacity: 0; }
+}
+
+@keyframes bastionBrandCoreFlashV18 {
+  0%, 63%, 100% { opacity: 0; transform: scaleX(.3); }
+  68% { opacity: .42; transform: scaleX(.75); }
+  73% { opacity: .18; transform: scaleX(1.05); }
+  80% { opacity: 0; transform: scaleX(1.2); }
+}
+
+@keyframes bastionCoreScanV18 {
+  0%, 70%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(.42);
+  }
+  75% {
+    opacity: .56;
+    transform: translate(-50%, -50%) scaleX(.78);
+  }
+  83% {
+    opacity: .18;
+    transform: translate(-50%, -50%) scaleX(1.16);
+  }
+  88% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scaleX(1.28);
+  }
+}
+
+@keyframes bastionAccessDotPulseV18 {
+  0%, 100% { opacity: .52; transform: scale(.86); }
+  50% { opacity: 1; transform: scale(1.22); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark,
+  .brand-name::before,
+  .brand-name::after,
+  .logo-burst-v18,
+  .logo-sweep-v18,
+  .logo-sweep-v18::before,
+  .core-scan-line-v18,
+  .ring-v17-spark,
+  .access-dot {
+    animation: none !important;
+    transition: none !important;
+  }
+}
