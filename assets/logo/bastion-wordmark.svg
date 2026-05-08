@@ -1,13 +1,93 @@
-<svg width="1200" height="240" viewBox="0 0 1200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="1200" height="240" fill="transparent"/>
-<g fill="#E6E6E6">
-<path d="M60 40H180L150 70H90V95H160V125H90V170H180V200H60V40Z"/>
-<path d="M260 200L350 40H410L500 200H450L390 95L310 200H260Z"/>
-<path d="M560 40H720L690 70H590V170H720V200H560V40Z"/>
-<path d="M780 40H940L910 70H870V200H840V70H780V40Z"/>
-<path d="M1010 40H1040V200H1010V40Z"/>
-</g>
-<g fill="#FF3C3C">
-<path d="M1090 40H1180V200H1090V40ZM1120 70V170H1150V70H1120Z"/>
-</g>
+<svg class="bastion-wordmark-svg" width="1280" height="230" viewBox="0 0 1280 230" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="БАСТІОН">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="16%" stop-color="#DADDE0"/>
+      <stop offset="45%" stop-color="#7F858D"/>
+      <stop offset="58%" stop-color="#F3F4F5"/>
+      <stop offset="100%" stop-color="#585D66"/>
+    </linearGradient>
+
+    <linearGradient id="edgeRed" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF784B" stop-opacity="0"/>
+      <stop offset="48%" stop-color="#FF4A36" stop-opacity=".95"/>
+      <stop offset="100%" stop-color="#FF2339" stop-opacity="0"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-15%" y="-60%" width="130%" height="220%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.8" flood-color="#ffffff" flood-opacity=".15"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="#ff2938" flood-opacity=".18"/>
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000000" flood-opacity=".6"/>
+    </filter>
+
+    <filter id="redGlow" x="-60%" y="-500%" width="220%" height="1000%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <pattern id="grain" width="90" height="90" patternUnits="userSpaceOnUse">
+      <path d="M4 8h18M48 13h9M16 61h28M71 44h11M52 80h20" stroke="#fff" stroke-opacity=".08" stroke-width="1"/>
+      <circle cx="31" cy="28" r="1" fill="#fff" fill-opacity=".05"/>
+      <circle cx="67" cy="69" r="1" fill="#fff" fill-opacity=".045"/>
+    </pattern>
+  </defs>
+
+  <g filter="url(#softShadow)" transform="translate(24 28)">
+    <!-- Б -->
+    <g class="wm-glyph wm-b">
+      <path fill="url(#metal)" d="M0 0H154L129 27H30V54H132L105 81H30V112H151L125 140H0V0Z"/>
+      <path fill="#111318" opacity=".82" d="M30 82H102L81 105H30V82Z"/>
+      <path fill="#FF4A36" d="M0 68H20V88H0V68Z"/>
+      <path fill="url(#edgeRed)" opacity=".9" d="M9 134H120V139H9V134Z"/>
+    </g>
+
+    <!-- А -->
+    <g class="wm-glyph wm-a" transform="translate(212 0)">
+      <path fill="url(#metal)" d="M36 140H0L100 0H156L256 140H214L132 28L90 87H138L158 114H70L36 140Z"/>
+      <path fill="url(#edgeRed)" opacity=".85" d="M86 107H155V112H86V107Z"/>
+    </g>
+
+    <!-- С -->
+    <g class="wm-glyph wm-s" transform="translate(520 0)">
+      <path fill="url(#metal)" d="M0 0H170L143 28H31V112H170L143 140H0V0Z"/>
+      <path fill="url(#edgeRed)" opacity=".5" d="M10 134H144V139H10V134Z"/>
+    </g>
+
+    <!-- Т -->
+    <g class="wm-glyph wm-t" transform="translate(748 0)">
+      <path fill="url(#metal)" d="M0 0H190L162 28H111V140H78V28H0V0Z"/>
+      <path fill="#FF4A36" opacity=".9" d="M83 116H105V140H83V116Z"/>
+      <path fill="url(#edgeRed)" opacity=".8" d="M72 112H116V117H72V112Z"/>
+    </g>
+
+    <!-- І -->
+    <g class="wm-glyph wm-i" transform="translate(985 0)">
+      <path fill="url(#metal)" d="M0 0H32V140H0V0Z"/>
+    </g>
+
+    <!-- О -->
+    <g class="wm-glyph wm-o" transform="translate(1082 0)">
+      <path fill="url(#metal)" d="M0 0H150L178 28V112L150 140H0V0ZM34 28V112H135L144 103V37L135 28H34Z"/>
+      <path fill="#111318" opacity=".75" d="M60 54H114L86 86L60 54Z"/>
+      <path fill="url(#edgeRed)" opacity=".95" d="M25 0H145L172 27H42L25 0Z"/>
+      <path fill="url(#edgeRed)" opacity=".9" d="M149 28H178V112H149V28Z"/>
+    </g>
+
+    <!-- Н -->
+    <g class="wm-glyph wm-n" transform="translate(1318 0) scale(.78 1)">
+      <path fill="url(#metal)" d="M0 0H36V56H137V0H173V140H137V84H36V140H0V0Z"/>
+      <path fill="url(#edgeRed)" opacity=".85" d="M36 66H137V75H36V66Z"/>
+    </g>
+
+    <rect x="0" y="0" width="1465" height="140" fill="url(#grain)" opacity=".42" style="mix-blend-mode:screen"/>
+  </g>
+
+  <g class="wm-scan">
+    <rect x="126" y="110" width="245" height="2" fill="url(#edgeRed)" filter="url(#redGlow)"/>
+    <rect x="804" y="28" width="190" height="2" fill="url(#edgeRed)" filter="url(#redGlow)"/>
+    <rect x="1088" y="32" width="155" height="2" fill="url(#edgeRed)" filter="url(#redGlow)"/>
+  </g>
 </svg>
