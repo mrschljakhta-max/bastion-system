@@ -1,7 +1,7 @@
-/* ===== BASTION LOGO V2 ===== */
-/* Main idea: the mark is the hero artifact, not a pasted square image. */
+/* ===== BASTION LOGO V2 — OPTICAL CENTER FIX ===== */
 
 .brand-mark {
+  --logo-optical-x: -7px;
   width: clamp(92px, 6.6vw, 126px);
   height: auto;
   object-fit: contain;
@@ -16,7 +16,6 @@
   animation: bastionLogoFloat 6.8s ease-in-out infinite;
 }
 
-/* Gold reactor aura behind logo */
 .ring-center::before {
   content: "";
   position: absolute;
@@ -24,7 +23,7 @@
   height: clamp(116px, 8vw, 156px);
   top: clamp(4px, 2.3vw, 22px);
   left: 50%;
-  translate: -50% 0;
+  translate: calc(-50% - 7px) 0;
   border-radius: 50%;
   background:
     radial-gradient(circle,
@@ -37,7 +36,6 @@
   pointer-events: none;
 }
 
-/* Metallic scanning glint */
 .ring-center::after {
   content: "";
   position: absolute;
@@ -45,7 +43,7 @@
   height: 1px;
   top: clamp(66px, 6.2vw, 92px);
   left: 50%;
-  translate: -50% 0;
+  translate: calc(-50% - 7px) 0;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), rgba(255, 225, 122, .42), transparent);
   opacity: 0;
   filter:
@@ -55,7 +53,6 @@
   pointer-events: none;
 }
 
-/* Make the text lower than the mark, so the emblem breathes */
 .ring-center {
   gap: 12px;
 }
@@ -66,7 +63,7 @@
 
 @keyframes bastionLogoFloat {
   0%, 100% {
-    transform: translateY(0) scale(1);
+    transform: translateX(var(--logo-optical-x)) translateY(0) scale(1);
     filter:
       drop-shadow(0 0 10px rgba(255, 203, 0, .34))
       drop-shadow(0 0 24px rgba(255, 203, 0, .12))
@@ -74,7 +71,7 @@
   }
 
   50% {
-    transform: translateY(-3px) scale(1.025);
+    transform: translateX(var(--logo-optical-x)) translateY(-3px) scale(1.025);
     filter:
       drop-shadow(0 0 13px rgba(255, 203, 0, .46))
       drop-shadow(0 0 30px rgba(255, 203, 0, .18))

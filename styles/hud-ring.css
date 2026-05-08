@@ -1,13 +1,4 @@
-/* ===== BASTION HUD RING — COMPACT PREMIUM VERSION ===== */
-
-/*
-  Ідея:
-  - кільце менше;
-  - легше;
-  - без товстої "неонової труби";
-  - центр BASTION головний;
-  - кільце — обрамлення, а не головний об'єкт.
-*/
+/* ===== BASTION HUD RING — CENTER + SECTOR FIX ===== */
 
 .hud-ring {
   position: relative;
@@ -19,7 +10,6 @@
   filter: drop-shadow(0 0 22px rgba(255, 40, 60, .14));
 }
 
-/* Базові шари кільця */
 .ring-tech-layer,
 .ring-data-layer,
 .ring-inner-layer,
@@ -31,21 +21,18 @@
   pointer-events: none;
 }
 
-/* Основне зовнішнє кільце — тонше і спокійніше */
 .ring-tech-layer {
+  z-index: 1;
   background:
     conic-gradient(
       from -90deg,
       transparent 0deg 26deg,
-      rgba(255, 65, 88, .56) 26deg 112deg,
-
-      transparent 112deg 146deg,
-      rgba(255, 65, 88, .48) 146deg 232deg,
-
-      transparent 232deg 266deg,
-      rgba(255, 65, 88, .44) 266deg 352deg,
-
-      transparent 352deg 360deg
+      rgba(255, 65, 88, .54) 26deg 102deg,
+      transparent 102deg 146deg,
+      rgba(255, 65, 88, .44) 146deg 226deg,
+      transparent 226deg 268deg,
+      rgba(255, 65, 88, .40) 268deg 346deg,
+      transparent 346deg 360deg
     );
 
   -webkit-mask:
@@ -64,17 +51,16 @@
       transparent 69%
     );
 
-  filter: drop-shadow(0 0 16px rgba(255, 46, 77, .30));
-  animation: ringRotateSlow 58s linear infinite;
+  filter: drop-shadow(0 0 16px rgba(255, 46, 77, .28));
 }
 
-/* Дрібні HUD-поділки */
 .ring-data-layer {
+  z-index: 1;
   inset: 8%;
-  opacity: .36;
+  opacity: .32;
   background:
     repeating-conic-gradient(
-      rgba(255,255,255,.20) 0deg .6deg,
+      rgba(255,255,255,.18) 0deg .6deg,
       transparent .6deg 5deg
     );
 
@@ -94,11 +80,11 @@
       transparent 76.6%
     );
 
-  animation: ringRotateReverse 95s linear infinite;
+  animation: ringRotateReverse 120s linear infinite;
 }
 
-/* Внутрішнє скляне кільце */
 .ring-inner-layer {
+  z-index: 1;
   inset: 27%;
   border: 1px solid rgba(255, 70, 90, .13);
   box-shadow:
@@ -107,17 +93,17 @@
   animation: pulseRing 7s ease-in-out infinite;
 }
 
-/* Активна дуга залежно від режиму */
 .ring-active-layer {
-  opacity: .68;
+  z-index: 1;
+  opacity: .58;
   background:
     conic-gradient(
       from var(--active-angle, -126deg),
       transparent 0deg,
       rgba(255,46,77,.0) 8deg,
-      rgba(255,46,77,.62) 18deg,
-      rgba(255,130,140,.22) 42deg,
-      rgba(255,46,77,.56) 72deg,
+      rgba(255,46,77,.48) 18deg,
+      rgba(255,130,140,.18) 42deg,
+      rgba(255,46,77,.44) 72deg,
       rgba(255,46,77,.0) 84deg,
       transparent 105deg 360deg
     );
@@ -138,7 +124,7 @@
       transparent 70%
     );
 
-  filter: drop-shadow(0 0 18px rgba(255,46,77,.38));
+  filter: drop-shadow(0 0 16px rgba(255,46,77,.30));
   animation: activeSectorBreath 4.4s ease-in-out infinite;
 }
 
@@ -160,20 +146,20 @@
       from var(--active-angle),
       transparent 0deg,
       rgba(245,189,53,.0) 8deg,
-      rgba(245,189,53,.42) 18deg,
-      rgba(255,225,120,.18) 42deg,
-      rgba(245,189,53,.36) 72deg,
+      rgba(245,189,53,.36) 18deg,
+      rgba(255,225,120,.15) 42deg,
+      rgba(245,189,53,.32) 72deg,
       rgba(245,189,53,.0) 84deg,
       transparent 105deg 360deg
     );
 
-  filter: drop-shadow(0 0 14px rgba(245,189,53,.28));
+  filter: drop-shadow(0 0 14px rgba(245,189,53,.24));
 }
 
-/* Легкий скляний відблиск */
 .ring-glass-layer {
+  z-index: 2;
   inset: 13%;
-  opacity: .11;
+  opacity: .09;
   background:
     linear-gradient(
       112deg,
@@ -202,37 +188,24 @@
   animation: glassReflection 12s ease-in-out infinite;
 }
 
-/* Центр */
 .ring-center {
   position: relative;
-  z-index: 3;
+  z-index: 4;
   width: 47%;
   aspect-ratio: 1;
   border-radius: 50%;
-
   display: grid;
   place-items: center;
   align-content: center;
   gap: 13px;
-
   background:
     radial-gradient(circle,
       rgba(0,0,0,.48) 0%,
       rgba(0,0,0,.16) 58%,
       transparent 100%
     );
-
   text-align: center;
   text-shadow: 0 0 22px rgba(0,0,0,.85);
-}
-
-.brand-mark {
-  width: 74px;
-  height: auto;
-  filter:
-    drop-shadow(0 0 14px rgba(245, 189, 53, .34))
-    drop-shadow(0 0 30px rgba(245, 189, 53, .10));
-  animation: emblemFloat 6.5s ease-in-out infinite;
 }
 
 .brand-name {
@@ -287,26 +260,20 @@
   text-shadow: 0 0 15px rgba(255, 46, 77, .5);
 }
 
-/* Сектори */
 .ring-sector {
   position: absolute;
-  z-index: 4;
-
+  z-index: 6;
   display: grid;
   place-items: center;
   gap: 5px;
-
-  min-width: 190px;
-  padding: 10px 12px;
-
+  min-width: 198px;
+  padding: 11px 14px;
   color: rgba(255,255,255,.84);
   background: transparent;
   border: 0;
   cursor: pointer;
-
   text-align: center;
   text-transform: uppercase;
-
   transition:
     transform .32s ease,
     text-shadow .32s ease,
@@ -317,20 +284,25 @@
 .ring-sector::before {
   content: "";
   position: absolute;
-  inset: 2px 12px;
-  opacity: 0;
-  border: 1px solid rgba(255,46,77,.32);
-  background: rgba(45, 0, 9, .13);
+  inset: -3px 4px;
+  opacity: .74;
+  border: 1px solid rgba(255,46,77,.22);
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255,46,77,.12), transparent 58%),
+    linear-gradient(180deg, rgba(18, 0, 5, .82), rgba(6, 0, 2, .42));
   clip-path: polygon(13% 0, 87% 0, 100% 50%, 87% 100%, 13% 100%, 0 50%);
-  filter: drop-shadow(0 0 14px rgba(255,46,77,.20));
-  transition: opacity .32s ease;
+  box-shadow:
+    0 0 24px rgba(0,0,0,.72),
+    inset 0 0 18px rgba(255,46,77,.045);
+  backdrop-filter: blur(3px);
+  transition: opacity .32s ease, border-color .32s ease, box-shadow .32s ease;
 }
 
 .ring-sector::after {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: 4px;
+  bottom: 5px;
   width: 0;
   height: 1px;
   transform: translateX(-50%);
@@ -348,7 +320,12 @@
 
 .ring-sector:hover::before,
 .ring-sector.is-active::before {
-  opacity: .68;
+  opacity: .92;
+  border-color: rgba(255,46,77,.42);
+  box-shadow:
+    0 0 26px rgba(0,0,0,.78),
+    0 0 18px rgba(255,46,77,.16),
+    inset 0 0 18px rgba(255,46,77,.08);
 }
 
 .ring-sector:hover::after,
@@ -358,19 +335,19 @@
 }
 
 .sector-login {
-  top: 5%;
+  top: 5.8%;
   left: 50%;
   translate: -50% 0;
 }
 
 .sector-register {
-  right: 3%;
-  bottom: 21%;
+  right: 0%;
+  bottom: 20.5%;
 }
 
 .sector-dev {
-  left: 3%;
-  bottom: 21%;
+  left: 0%;
+  bottom: 20.5%;
 }
 
 .sector-num {
@@ -397,10 +374,13 @@
   color: rgba(255, 72, 92, .80);
 }
 
-/* Адаптив */
 @media (max-width: 1000px) {
   .hud-ring {
     width: min(88vw, 600px);
+  }
+
+  .ring-sector {
+    min-width: 174px;
   }
 
   .sector-register {
