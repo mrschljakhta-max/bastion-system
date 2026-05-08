@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>BASTION — Access Node</title>
 
   <link rel="icon" href="./assets/logo/bastion-favicon.svg" type="image/svg+xml" />
@@ -14,7 +15,227 @@
   <link rel="stylesheet" href="./styles/hud-ring.css" />
   <link rel="stylesheet" href="./styles/logo.css" />
   <link rel="stylesheet" href="./styles/start.css" />
-  <link rel="stylesheet" href="styles/bastion-wordmark.css">
+  <link rel="stylesheet" href="./styles/bastion-wordmark.css" />
+
+  <style>
+    .ring-sector {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      text-align: center;
+
+      z-index: 25;
+
+      user-select: none;
+      cursor: pointer;
+
+      transition:
+        transform .35s ease,
+        opacity .35s ease,
+        filter .35s ease;
+    }
+
+    .ring-sector:hover {
+      transform: scale(1.04);
+      filter: brightness(1.15);
+    }
+
+    .sector-num {
+      font-size: .95rem;
+      letter-spacing: .35em;
+      color: rgba(255,255,255,.75);
+      margin-bottom: 10px;
+    }
+
+    .sector-title {
+      font-size: 3.3rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      line-height: 1;
+
+      color: #fff;
+
+      text-transform: uppercase;
+
+      text-shadow:
+        0 0 12px rgba(255,255,255,.12),
+        0 0 35px rgba(255,40,40,.18);
+    }
+
+    .sector-sub {
+      margin-top: 12px;
+
+      font-size: .85rem;
+      letter-spacing: .45em;
+      text-transform: uppercase;
+
+      color: rgba(255,70,70,.92);
+    }
+
+    .sector-login {
+      top: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .sector-register {
+      bottom: 6%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .sector-dev {
+      display: none;
+    }
+
+    .sector-login::after,
+    .sector-register::after {
+      content: "";
+
+      width: 240px;
+      height: 1px;
+
+      margin-top: 18px;
+
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,40,40,.95),
+        transparent
+      );
+
+      box-shadow:
+        0 0 12px rgba(255,40,40,.75),
+        0 0 30px rgba(255,40,40,.35);
+    }
+
+    .ring-center.hero-core {
+      position: absolute;
+
+      top: 50%;
+      left: 50%;
+
+      transform: translate(-50%, -50%);
+
+      width: 100%;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      text-align: center;
+
+      z-index: 20;
+    }
+
+    .brand-mark {
+      width: 120px;
+      height: auto;
+
+      margin-bottom: 28px;
+
+      filter:
+        drop-shadow(0 0 25px rgba(255,180,0,.45))
+        drop-shadow(0 0 60px rgba(255,120,0,.18));
+    }
+
+    .brand-name {
+      font-family: "Orbitron", sans-serif;
+
+      font-size: clamp(5rem, 7vw, 8rem);
+      font-weight: 300;
+
+      letter-spacing: .14em;
+      line-height: 1;
+
+      text-transform: uppercase;
+
+      color: #d8d8d8;
+
+      position: relative;
+
+      text-shadow:
+        0 0 10px rgba(255,255,255,.12),
+        0 0 40px rgba(255,40,40,.18);
+    }
+
+    .brand-name::before {
+      content: "";
+
+      position: absolute;
+
+      left: 10%;
+      right: 10%;
+      top: 50%;
+
+      height: 2px;
+
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,40,40,.95),
+        transparent
+      );
+
+      box-shadow:
+        0 0 12px rgba(255,40,40,.8),
+        0 0 30px rgba(255,40,40,.35);
+
+      transform: translateY(-50%);
+    }
+
+    .brand-subtitle {
+      margin-top: 22px;
+
+      font-size: .95rem;
+      letter-spacing: .42em;
+
+      text-transform: uppercase;
+
+      color: rgba(255,90,90,.8);
+    }
+
+    .signal-line {
+      width: 120px;
+      height: 1px;
+
+      margin: 24px auto;
+
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.9),
+        transparent
+      );
+
+      opacity: .7;
+    }
+
+    .enter-link {
+      font-size: 1.1rem;
+      letter-spacing: .35em;
+
+      text-transform: uppercase;
+
+      color: #fff;
+
+      text-decoration: none;
+
+      transition: .3s ease;
+    }
+
+    .enter-link:hover {
+      color: #ff5050;
+
+      text-shadow:
+        0 0 12px rgba(255,50,50,.7),
+        0 0 25px rgba(255,50,50,.3);
+    }
+  </style>
 </head>
 
 <body>
@@ -23,10 +244,12 @@
 
     <div class="premium-fog fog-low"></div>
     <div class="premium-fog fog-horizon"></div>
+
     <div class="field-light-wave"></div>
 
     <div class="bg-layer bg-vignette"></div>
     <div class="bg-layer bg-noise"></div>
+
     <div class="embers" id="embers"></div>
 
     <header class="corner-ui corner-left">
@@ -35,49 +258,80 @@
     </header>
 
     <header class="corner-ui corner-right">
-      <span class="corner-title">SECURE CONNECTION <i></i></span>
+      <span class="corner-title">
+        SECURE CONNECTION <i></i>
+      </span>
+
       <span class="corner-sub">EST. 2026</span>
     </header>
 
     <section class="access-shell" aria-label="BASTION access menu">
       <div class="hud-ring" id="hudRing">
+
         <div class="ring-tech-layer"></div>
         <div class="ring-data-layer"></div>
         <div class="ring-inner-layer"></div>
         <div class="ring-active-layer"></div>
         <div class="ring-glass-layer"></div>
 
-        <button class="ring-sector sector-login is-active" data-mode="login" aria-label="Вхід">
+        <!-- ВХІД -->
+        <button
+          class="ring-sector sector-login is-active"
+          data-mode="login"
+          aria-label="Вхід"
+        >
           <span class="sector-num">01</span>
-          <span class="sector-title">Вхід</span>
-          <span class="sector-sub">Login</span>
+          <span class="sector-title">ВХІД</span>
+          <span class="sector-sub">LOGIN</span>
         </button>
 
-        <button class="ring-sector sector-register" data-mode="register" aria-label="Реєстрація">
+        <!-- РЕЄСТРАЦІЯ -->
+        <button
+          class="ring-sector sector-register"
+          data-mode="register"
+          aria-label="Реєстрація"
+        >
           <span class="sector-num">02</span>
-          <span class="sector-title">Реєстрація</span>
-          <span class="sector-sub">Register</span>
+          <span class="sector-title">РЕЄСТРАЦІЯ</span>
+          <span class="sector-sub">REGISTER</span>
         </button>
 
-        <button class="ring-sector sector-dev" data-mode="developer" aria-label="Розробник">
-          <span class="sector-num">03</span>
-          <span class="sector-title">Розробник</span>
-          <span class="sector-sub">Developer</span>
-        </button>
-
+        <!-- CENTER -->
         <div class="ring-center hero-core">
-          <img src="./assets/logo/bastion-mark.svg" alt="BASTION mark" class="brand-mark" />
+          <img
+            src="./assets/logo/bastion-mark.svg"
+            alt="BASTION mark"
+            class="brand-mark"
+          />
+
           <div class="brand-name">BASTION</div>
-          <div class="brand-subtitle" id="modeSubtitle">Authorized access node</div>
+
+          <div class="brand-subtitle" id="modeSubtitle">
+            Authorized access node
+          </div>
+
           <div class="signal-line"></div>
-          <a href="./pages/login.html" class="enter-link" id="enterLink">Enter system</a>
+
+          <a
+            href="./pages/login.html"
+            class="enter-link"
+            id="enterLink"
+          >
+            Enter system
+          </a>
         </div>
+
       </div>
     </section>
 
     <footer class="status-left">
-      <span>STATUS: <b>STANDBY</b></span>
-      <span>ALL SYSTEMS NOMINAL</span>
+      <span>
+        STATUS: <b>STANDBY</b>
+      </span>
+
+      <span>
+        ALL SYSTEMS NOMINAL
+      </span>
     </footer>
 
     <footer class="status-right">
