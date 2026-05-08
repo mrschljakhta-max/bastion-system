@@ -1054,3 +1054,40 @@
   margin-top: 22px !important;
 }
 /* ===== END BASTION CLEAN ACCESS V8 ===== */
+
+
+/* ===== BASTION HUD RING RESTORE V10 ===== */
+
+/* Прибираємо саме активний “ghost arc / банан”, не ламаючи геометрію кільця. */
+.hud-ring .ring-active-layer {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Після видалення ВХІД / РЕЄСТРАЦІЯ залишаємо чисту центральну сцену. */
+.hud-ring .ring-sector,
+.hud-ring .sector-login,
+.hud-ring .sector-register,
+.hud-ring .sector-dev {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Єдина центральна вісь для логотипу, BASTION і кнопки входу. */
+.hud-ring {
+  --core-shift-x: 0px !important;
+  --core-shift-y: -4px !important;
+}
+
+.hud-ring .ring-center.hero-core,
+.hud-ring .ring-center {
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) translate(0, var(--core-shift-y)) !important;
+}
+
+/* Не чіпаємо основну геометрію hud-ring.css — тільки чистимо зайве. */
+/* ===== END BASTION HUD RING RESTORE V10 ===== */
