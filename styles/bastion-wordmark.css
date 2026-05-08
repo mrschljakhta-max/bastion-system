@@ -1,178 +1,140 @@
 @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
-:root {
-  --bastion-red: #ff3a22;
-  --bastion-red-soft: rgba(255, 58, 34, 0.32);
-  --bastion-metal-light: #f4f4f5;
-  --bastion-metal-mid: #c4c7cd;
-  --bastion-metal-dark: #676d77;
-}
-
-.brand-wordmark-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 10;
-}
-
-.brand-logo {
-  width: clamp(72px, 5vw, 120px);
-  height: auto;
-  object-fit: contain;
-  margin-bottom: 8px;
-  filter:
-    drop-shadow(0 0 14px rgba(255, 196, 0, .18))
-    drop-shadow(0 0 34px rgba(255, 196, 0, .12));
-}
+/* =====================================================
+   BASTION WORDMARK — SAFE PATCH
+   Не змінює структуру сторінки. Стилізує тільки .brand-name.
+   ===================================================== */
 
 .brand-name {
   position: relative;
+  display: inline-block;
 
-  font-family: 'Michroma', 'Rajdhani', sans-serif;
-  font-size: clamp(52px, 5vw, 96px);
-  font-weight: 400;
-  line-height: .9;
+  font-family: "Michroma", "Rajdhani", sans-serif !important;
+  font-weight: 400 !important;
+  line-height: .92;
 
-  letter-spacing: .34em;
-  text-transform: uppercase;
-
+  font-size: clamp(44px, 4.2vw, 86px) !important;
+  letter-spacing: .34em !important;
   padding-left: .34em;
+
+  text-transform: uppercase;
 
   background:
     linear-gradient(
       180deg,
-      var(--bastion-metal-light) 0%,
-      var(--bastion-metal-mid) 48%,
-      var(--bastion-metal-dark) 100%
+      #f7f7f8 0%,
+      #d3d5da 34%,
+      #777d86 72%,
+      #eef0f2 100%
     );
 
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
+  color: transparent !important;
 
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
 
   filter:
-    drop-shadow(0 0 10px rgba(255,255,255,.08))
-    drop-shadow(0 0 24px rgba(255,58,34,.14))
-    drop-shadow(0 12px 24px rgba(0,0,0,.55));
+    drop-shadow(0 0 8px rgba(255, 255, 255, .09))
+    drop-shadow(0 0 20px rgba(255, 58, 34, .16))
+    drop-shadow(0 14px 26px rgba(0, 0, 0, .58));
 
-  animation: bastionFloat 7s ease-in-out infinite;
+  animation: bastionWordFloat 7s ease-in-out infinite;
 }
 
 .brand-name::after {
   content: "";
-
   position: absolute;
-  left: 16%;
-  right: 16%;
-  top: 53%;
+  left: 12%;
+  right: 12%;
+  top: 54%;
 
   height: 2px;
+  pointer-events: none;
 
   background:
     linear-gradient(
       90deg,
-      transparent,
-      rgba(255,58,34,.15),
-      rgba(255,58,34,.95),
-      rgba(255,58,34,.15),
-      transparent
+      transparent 0%,
+      rgba(255, 58, 34, .08) 24%,
+      rgba(255, 58, 34, .92) 49%,
+      rgba(255, 58, 34, .20) 66%,
+      transparent 100%
     );
 
-  opacity: .88;
-
+  opacity: .86;
   filter:
-    blur(.2px)
-    drop-shadow(0 0 10px rgba(255,58,34,.9));
+    blur(.15px)
+    drop-shadow(0 0 10px rgba(255, 58, 34, .85));
 
-  animation: bastionScan 5.5s ease-in-out infinite;
+  animation: bastionScanLine 5.6s ease-in-out infinite;
 }
 
 .brand-name::before {
   content: "";
-
   position: absolute;
+  top: 53%;
+  left: 24%;
 
-  top: 52%;
-  left: 18%;
-
-  width: 120px;
+  width: 110px;
   height: 2px;
+  pointer-events: none;
 
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      #ff3a22,
-      transparent
-    );
+  background: linear-gradient(90deg, transparent, #ff3a22, transparent);
 
-  opacity: .95;
+  opacity: .92;
+  filter: drop-shadow(0 0 14px #ff3a22);
 
-  filter:
-    drop-shadow(0 0 14px #ff3a22);
-
-  animation: bastionPulse 3.6s ease-in-out infinite;
+  animation: bastionHotPoint 3.8s ease-in-out infinite;
 }
 
-.brand-subtitle {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 13px;
-  letter-spacing: .48em;
-  text-transform: uppercase;
-
-  color: rgba(255, 76, 56, .88);
-
-  opacity: .82;
-}
-
-@keyframes bastionFloat {
+@keyframes bastionWordFloat {
   0%, 100% {
-    transform: translateY(0px);
+    transform: translateY(0);
   }
-
   50% {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
   }
 }
 
-@keyframes bastionScan {
+@keyframes bastionScanLine {
   0%, 100% {
     opacity: .18;
-    transform: scaleX(.82);
+    transform: scaleX(.72);
   }
-
   50% {
-    opacity: 1;
+    opacity: .9;
     transform: scaleX(1);
   }
 }
 
-@keyframes bastionPulse {
+@keyframes bastionHotPoint {
   0%, 100% {
-    opacity: .35;
-    transform: translateX(-20px);
+    opacity: .32;
+    transform: translateX(-22px);
   }
-
   50% {
     opacity: 1;
-    transform: translateX(18px);
+    transform: translateX(20px);
   }
+}
+
+/* Прибирає можливі поламані картинки з попередніх спроб */
+.brand-wordmark,
+.bastion-glyph-wordmark,
+.brand-name-img {
+  display: none !important;
 }
 
 @media (max-width: 900px) {
   .brand-name {
-    font-size: clamp(38px, 10vw, 64px);
-    letter-spacing: .22em;
+    font-size: clamp(34px, 9vw, 58px) !important;
+    letter-spacing: .22em !important;
     padding-left: .22em;
   }
 
   .brand-name::before {
-    width: 72px;
+    width: 70px;
   }
 }
