@@ -1,7 +1,8 @@
 /* =========================================================
-   BASTION — SVG RING CORE EFFECTS v14
-   Якісні ефекти саме для кільця: SVG-сегменти, scanner arc,
-   data-flow, energy nodes, harmonic pulse, mouse parallax.
+   BASTION — SVG RING CORE EFFECTS v15
+   FIX: сегменти більше не “розлітаються”.
+   Ідея: SVG-ефекти працюють як тонкий внутрішній живий шар,
+   а не як друге велике кільце поверх основного HUD.
    ========================================================= */
 
 .hud-ring {
@@ -12,9 +13,10 @@
   perspective: 1200px;
 }
 
+/* ВАЖЛИВО: було inset:-6% — через це частини кільця вилітали за основну геометрію */
 .ring-v14-core {
   position: absolute;
-  inset: -6%;
+  inset: 2.5%;
   z-index: 3;
   pointer-events: none;
   transform-style: preserve-3d;
@@ -23,6 +25,7 @@
     rotateY(var(--ringTiltY));
   transition: transform .35s ease-out;
   mix-blend-mode: screen;
+  opacity: .82;
 }
 
 .ring-v14-svg {
@@ -37,171 +40,171 @@
 .ring-v14-svg path {
   fill: none;
   vector-effect: non-scaling-stroke;
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
+  transform-box: view-box;
+  transform-origin: 300px 300px;
 }
 
-/* глибокий енергетичний обʼєм */
+/* Мʼякий енергетичний обʼєм — не домінує над основним кільцем */
 .ring-v14-halo circle:nth-child(1) {
-  stroke: rgba(255, 35, 63, .09);
-  stroke-width: 22;
+  stroke: rgba(255, 35, 63, .055);
+  stroke-width: 14;
   filter: url(#ringV14SoftGlow);
-  animation: ringV14Breath 8.5s ease-in-out infinite;
+  animation: ringV15Breath 9.5s ease-in-out infinite;
 }
 
 .ring-v14-halo circle:nth-child(2) {
-  stroke: rgba(255, 95, 105, .055);
-  stroke-width: 36;
+  stroke: rgba(255, 95, 105, .035);
+  stroke-width: 22;
   filter: url(#ringV14SoftGlow);
-  animation: ringV14Breath 11s ease-in-out infinite reverse;
+  animation: ringV15Breath 12s ease-in-out infinite reverse;
 }
 
-/* основні сегменти — не суцільне кільце, а engineered geometry */
+/* Основні SVG-сегменти стали тоншими і ближчими до центру */
 .ring-v14-segments-a {
-  animation: ringV14RotateSlow 86s linear infinite;
+  animation: ringV15RotateSlow 104s linear infinite;
 }
 
 .ring-v14-segments-a circle {
   stroke: url(#ringV14RedStroke);
-  stroke-width: 5.8;
+  stroke-width: 3.2;
   stroke-linecap: butt;
-  stroke-dasharray: 92 18 38 26 128 34 48 20 162 40 36 358;
+  stroke-dasharray: 76 34 112 48 58 40 138 64 92 338;
   filter: url(#ringV14Glow);
-  opacity: .72;
+  opacity: .36;
 }
 
 .ring-v14-segments-b {
-  animation: ringV14RotateReverse 118s linear infinite;
+  animation: ringV15RotateReverse 132s linear infinite;
 }
 
 .ring-v14-segments-b circle {
-  stroke: rgba(255, 84, 96, .34);
-  stroke-width: 2.1;
+  stroke: rgba(255, 84, 96, .24);
+  stroke-width: 1.35;
   stroke-linecap: square;
-  stroke-dasharray: 22 16 68 26 14 38 106 40 54 24 32 560;
-  filter: drop-shadow(0 0 7px rgba(255, 48, 72, .24));
-  opacity: .7;
+  stroke-dasharray: 18 22 54 42 12 48 84 66 44 610;
+  filter: drop-shadow(0 0 5px rgba(255, 48, 72, .14));
+  opacity: .42;
 }
 
-/* точні мітки */
+/* Мітки — тонко, без “розсипання” по краях */
 .ring-v14-ticks-a {
-  animation: ringV14RotateTicks 70s linear infinite;
+  animation: ringV15RotateTicks 92s linear infinite;
 }
 
 .ring-v14-ticks-a circle {
-  stroke: rgba(255,255,255,.24);
-  stroke-width: 2.4;
-  stroke-dasharray: 1.5 10.5;
-  opacity: .34;
+  stroke: rgba(255,255,255,.18);
+  stroke-width: 1.55;
+  stroke-dasharray: 1.1 11.4;
+  opacity: .28;
 }
 
 .ring-v14-ticks-b {
-  animation: ringV14RotateReverse 52s linear infinite;
+  animation: ringV15RotateReverse 68s linear infinite;
 }
 
 .ring-v14-ticks-b circle {
-  stroke: rgba(255, 54, 76, .30);
-  stroke-width: 1.2;
-  stroke-dasharray: 1 17;
-  opacity: .38;
+  stroke: rgba(255, 54, 76, .24);
+  stroke-width: .9;
+  stroke-dasharray: .8 18.2;
+  opacity: .30;
 }
 
-/* tactical scanner arc */
+/* Scanner arc — тепер коротший і не білий “уламок” */
 .ring-v14-scanner {
-  animation: ringV14ScannerRotate 6.7s linear infinite;
+  animation: ringV15ScannerRotate 8.8s linear infinite;
 }
 
 .ring-v14-scanner circle {
-  stroke: rgba(255, 238, 238, .86);
-  stroke-width: 3.2;
+  stroke: rgba(255, 210, 210, .58);
+  stroke-width: 2.15;
   stroke-linecap: round;
-  stroke-dasharray: 34 966;
+  stroke-dasharray: 22 978;
   filter:
-    drop-shadow(0 0 8px rgba(255, 245, 245, .62))
-    drop-shadow(0 0 22px rgba(255, 38, 66, .52));
-  opacity: .78;
+    drop-shadow(0 0 5px rgba(255, 225, 225, .34))
+    drop-shadow(0 0 14px rgba(255, 38, 66, .30));
+  opacity: .52;
 }
 
-/* data-flow доріжки */
+/* Data-flow — дрібні іскри, а не окремі дуги */
 .ring-v14-data-flow circle {
   stroke-linecap: round;
-  filter: drop-shadow(0 0 12px rgba(255, 42, 64, .42));
+  filter: drop-shadow(0 0 8px rgba(255, 42, 64, .24));
 }
 
 .ring-v14-flow-a {
-  animation: ringV14DataFlow 3.9s linear infinite;
+  animation: ringV15DataFlow 5.1s linear infinite;
 }
 
 .ring-v14-flow-a circle {
-  stroke: rgba(255, 74, 86, .62);
-  stroke-width: 2.2;
-  stroke-dasharray: 7 993;
+  stroke: rgba(255, 74, 86, .44);
+  stroke-width: 1.45;
+  stroke-dasharray: 4 996;
 }
 
 .ring-v14-flow-b {
-  animation: ringV14DataFlowReverse 5.2s linear infinite;
+  animation: ringV15DataFlowReverse 6.7s linear infinite;
 }
 
 .ring-v14-flow-b circle {
-  stroke: rgba(255, 220, 210, .42);
-  stroke-width: 1.6;
-  stroke-dasharray: 5 995;
+  stroke: rgba(255, 220, 210, .30);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 997;
 }
 
 .ring-v14-crosshair path {
-  stroke: rgba(255, 70, 88, .18);
-  stroke-width: 1.2;
-  filter: drop-shadow(0 0 8px rgba(255, 40, 62, .22));
-  animation: ringV14CrosshairPulse 7.4s ease-in-out infinite;
+  stroke: rgba(255, 70, 88, .105);
+  stroke-width: .8;
+  filter: drop-shadow(0 0 6px rgba(255, 40, 62, .16));
+  animation: ringV15CrosshairPulse 8.4s ease-in-out infinite;
 }
 
-/* energy nodes */
+/* Energy nodes — привʼязані до відсоткової геометрії кільця, не до px за межами */
 .ring-v14-node {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  margin-top: -2.5px;
   border-radius: 999px;
-  background: rgba(255, 240, 235, .82);
+  background: rgba(255, 235, 232, .72);
   box-shadow:
-    0 0 8px rgba(255,255,255,.65),
-    0 0 18px rgba(255, 44, 68, .62),
-    0 0 42px rgba(255, 44, 68, .26);
-  opacity: .78;
+    0 0 6px rgba(255,255,255,.42),
+    0 0 14px rgba(255, 44, 68, .42),
+    0 0 30px rgba(255, 44, 68, .18);
+  opacity: .55;
 }
 
-.node-a { animation: ringV14NodeOrbitA 9s linear infinite; }
-.node-b { animation: ringV14NodeOrbitB 13s linear infinite; width:5px; height:5px; opacity:.55; }
-.node-c { animation: ringV14NodeOrbitC 17s linear infinite; width:4px; height:4px; opacity:.50; }
-.node-d { animation: ringV14NodeOrbitD 11s linear infinite reverse; width:6px; height:6px; opacity:.66; }
-.node-e { animation: ringV14NodeOrbitE 15s linear infinite reverse; width:4px; height:4px; opacity:.44; }
-.node-f { animation: ringV14NodeOrbitF 20s linear infinite; width:3px; height:3px; opacity:.40; }
+.node-a { animation: ringV15NodeOrbitA 11s linear infinite; }
+.node-b { animation: ringV15NodeOrbitB 15s linear infinite; width:4px; height:4px; opacity:.44; }
+.node-c { animation: ringV15NodeOrbitC 19s linear infinite; width:3px; height:3px; opacity:.40; }
+.node-d { animation: ringV15NodeOrbitD 13s linear infinite reverse; width:4px; height:4px; opacity:.48; }
+.node-e { animation: ringV15NodeOrbitE 17s linear infinite reverse; width:3px; height:3px; opacity:.36; }
+.node-f { animation: ringV15NodeOrbitF 22s linear infinite; width:3px; height:3px; opacity:.34; }
 
-/* hover / mouse реакція */
 .hud-ring:hover .ring-v14-segments-a circle,
 .hud-ring.is-ring-reactive .ring-v14-segments-a circle {
-  opacity: .92;
-  stroke-width: 6.5;
+  opacity: .52;
+  stroke-width: 3.6;
 }
 
 .hud-ring:hover .ring-v14-scanner circle,
 .hud-ring.is-ring-reactive .ring-v14-scanner circle {
-  opacity: .98;
+  opacity: .72;
 }
 
 .hud-ring:hover .ring-v14-halo circle:nth-child(1),
 .hud-ring.is-ring-reactive .ring-v14-halo circle:nth-child(1) {
-  stroke: rgba(255, 35, 63, .14);
+  stroke: rgba(255, 35, 63, .075);
 }
 
-/* щоб старий ghost arc не повертався */
+/* Старий active-layer не прибираємо повністю, але не даємо йому стати “бананом” */
 .hud-ring .ring-active-layer {
-  opacity: .22 !important;
-  filter: drop-shadow(0 0 7px rgba(255, 54, 72, .10)) !important;
+  opacity: .16 !important;
+  filter: drop-shadow(0 0 5px rgba(255, 54, 72, .08)) !important;
 }
 
-/* українська micro-типографіка у центрі */
 .hud-ring .brand-subtitle,
 .hud-ring .enter-link {
   font-family: "Rajdhani", "Exo 2", system-ui, sans-serif !important;
@@ -218,47 +221,47 @@
   color: rgba(245, 247, 255, .86) !important;
 }
 
-@keyframes ringV14RotateSlow { to { transform: rotate(360deg); } }
-@keyframes ringV14RotateReverse { to { transform: rotate(-360deg); } }
-@keyframes ringV14RotateTicks { to { transform: rotate(360deg); } }
-@keyframes ringV14ScannerRotate { to { transform: rotate(360deg); } }
-@keyframes ringV14DataFlow { to { transform: rotate(360deg); } }
-@keyframes ringV14DataFlowReverse { to { transform: rotate(-360deg); } }
+@keyframes ringV15RotateSlow { to { transform: rotate(360deg); } }
+@keyframes ringV15RotateReverse { to { transform: rotate(-360deg); } }
+@keyframes ringV15RotateTicks { to { transform: rotate(360deg); } }
+@keyframes ringV15ScannerRotate { to { transform: rotate(360deg); } }
+@keyframes ringV15DataFlow { to { transform: rotate(360deg); } }
+@keyframes ringV15DataFlowReverse { to { transform: rotate(-360deg); } }
 
-@keyframes ringV14Breath {
-  0%, 100% { opacity: .55; }
-  48% { opacity: .95; }
-  62% { opacity: .68; }
-}
-
-@keyframes ringV14CrosshairPulse {
-  0%, 100% { opacity: .20; }
-  50% { opacity: .44; }
+@keyframes ringV15Breath {
+  0%, 100% { opacity: .42; }
+  48% { opacity: .72; }
+  62% { opacity: .50; }
 }
 
-@keyframes ringV14NodeOrbitA {
-  from { transform: rotate(18deg) translateX(302px) rotate(-18deg); }
-  to { transform: rotate(378deg) translateX(302px) rotate(-378deg); }
+@keyframes ringV15CrosshairPulse {
+  0%, 100% { opacity: .14; }
+  50% { opacity: .28; }
 }
-@keyframes ringV14NodeOrbitB {
-  from { transform: rotate(142deg) translateX(282px) rotate(-142deg); }
-  to { transform: rotate(502deg) translateX(282px) rotate(-502deg); }
+
+@keyframes ringV15NodeOrbitA {
+  from { transform: rotate(18deg) translateX(38%) rotate(-18deg); }
+  to { transform: rotate(378deg) translateX(38%) rotate(-378deg); }
 }
-@keyframes ringV14NodeOrbitC {
-  from { transform: rotate(244deg) translateX(255px) rotate(-244deg); }
-  to { transform: rotate(604deg) translateX(255px) rotate(-604deg); }
+@keyframes ringV15NodeOrbitB {
+  from { transform: rotate(142deg) translateX(35%) rotate(-142deg); }
+  to { transform: rotate(502deg) translateX(35%) rotate(-502deg); }
 }
-@keyframes ringV14NodeOrbitD {
-  from { transform: rotate(306deg) translateX(224px) rotate(-306deg); }
-  to { transform: rotate(666deg) translateX(224px) rotate(-666deg); }
+@keyframes ringV15NodeOrbitC {
+  from { transform: rotate(244deg) translateX(32%) rotate(-244deg); }
+  to { transform: rotate(604deg) translateX(32%) rotate(-604deg); }
 }
-@keyframes ringV14NodeOrbitE {
-  from { transform: rotate(76deg) translateX(196px) rotate(-76deg); }
-  to { transform: rotate(436deg) translateX(196px) rotate(-436deg); }
+@keyframes ringV15NodeOrbitD {
+  from { transform: rotate(306deg) translateX(29%) rotate(-306deg); }
+  to { transform: rotate(666deg) translateX(29%) rotate(-666deg); }
 }
-@keyframes ringV14NodeOrbitF {
-  from { transform: rotate(198deg) translateX(176px) rotate(-198deg); }
-  to { transform: rotate(558deg) translateX(176px) rotate(-558deg); }
+@keyframes ringV15NodeOrbitE {
+  from { transform: rotate(76deg) translateX(25%) rotate(-76deg); }
+  to { transform: rotate(436deg) translateX(25%) rotate(-436deg); }
+}
+@keyframes ringV15NodeOrbitF {
+  from { transform: rotate(198deg) translateX(22%) rotate(-198deg); }
+  to { transform: rotate(558deg) translateX(22%) rotate(-558deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -273,10 +276,6 @@
 }
 
 @media (max-width: 900px) {
-  .ring-v14-core {
-    inset: -4%;
-  }
-  .ring-v14-node {
-    transform: scale(.82);
-  }
+  .ring-v14-core { inset: 4%; }
+  .ring-v14-node { transform: scale(.82); }
 }
