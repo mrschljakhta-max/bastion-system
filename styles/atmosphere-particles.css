@@ -1,0 +1,234 @@
+/* =========================================================
+   BASTION — ATMOSPHERE PARTICLES v19
+   Ефекти сцени:
+   - попіл / іскри вгору;
+   - глибина з 3 шарами частинок;
+   - плазмові streaks;
+   - енергетичний пил біля HUD-кільця;
+   - мʼякі спалахи без canvas/WebGL.
+   ========================================================= */
+
+.bastion-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.embers,
+.embers-layer,
+.ash-layer,
+.plasma-layer,
+.ring-dust-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Старий контейнер embers використовуємо як background-particle layer */
+.embers {
+  z-index: 12;
+  overflow: hidden;
+}
+
+.embers-layer.back { z-index: 1; opacity: .58; filter: blur(.2px); }
+.embers-layer.mid { z-index: 2; opacity: .82; }
+.embers-layer.front { z-index: 3; opacity: .52; filter: blur(1.4px); }
+.ash-layer { z-index: 4; opacity: .34; }
+.plasma-layer { z-index: 5; opacity: .58; mix-blend-mode: screen; }
+.ring-dust-layer { z-index: 22; mix-blend-mode: screen; }
+
+.ember-particle,
+.ash-particle {
+  position: absolute;
+  left: var(--x);
+  bottom: -8vh;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate3d(0, 0, 0) scale(.4);
+  will-change: transform, opacity;
+}
+
+.ember-particle {
+  background: radial-gradient(circle,
+    rgba(255, 244, 222, .95) 0%,
+    rgba(255, 130, 54, .72) 32%,
+    rgba(255, 42, 62, .28) 62%,
+    transparent 76%);
+  box-shadow:
+    0 0 8px rgba(255, 182, 82, .40),
+    0 0 18px rgba(255, 44, 70, .22);
+  animation: emberRiseV19 var(--duration) linear infinite;
+  animation-delay: var(--delay);
+}
+
+.embers-layer.front .ember-particle {
+  box-shadow:
+    0 0 12px rgba(255, 205, 120, .42),
+    0 0 28px rgba(255, 50, 72, .20);
+}
+
+.ash-particle {
+  background: rgba(35, 28, 29, .62);
+  box-shadow: 0 0 10px rgba(255, 42, 66, .08);
+  animation: ashFloatV19 var(--duration) linear infinite;
+  animation-delay: var(--delay);
+}
+
+.plasma-streak {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--length);
+  height: 1px;
+  opacity: 0;
+  transform: rotate(var(--angle)) translateX(-40vw);
+  transform-origin: 50% 50%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 58, 78, .0) 10%,
+    rgba(255, 235, 224, .72) 45%,
+    rgba(255, 58, 78, .26) 64%,
+    transparent);
+  filter:
+    drop-shadow(0 0 6px rgba(255, 235, 224, .22))
+    drop-shadow(0 0 16px rgba(255, 40, 66, .18));
+  animation: plasmaStreakV19 var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+/* Енергетичний пил, який ніби тримається магнітним полем кільця */
+.ring-dust-layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(680px, 78vmin);
+  height: min(680px, 78vmin);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: 18;
+}
+
+.ring-dust {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  opacity: 0;
+  background: rgba(255, 232, 220, .90);
+  box-shadow:
+    0 0 6px rgba(255, 232, 220, .46),
+    0 0 16px rgba(255, 50, 74, .30);
+  transform:
+    rotate(var(--angle))
+    translateX(var(--radius))
+    rotate(calc(var(--angle) * -1));
+  animation: ringDustOrbitV19 var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+/* Hover/wake — трохи підсилюємо атмосферу біля ядра */
+.access-shell:hover ~ .bastion-atmosphere .ring-dust,
+.start-page:has(.hud-ring.is-ring-awake) .ring-dust {
+  animation-duration: calc(var(--duration) * .72);
+}
+
+/* Fallback: якщо :has не підтримується — JS додасть body клас */
+body.bastion-awake .ring-dust {
+  animation-duration: calc(var(--duration) * .72);
+}
+
+body.bastion-awake .plasma-layer {
+  opacity: .72;
+}
+
+/* Keyframes */
+@keyframes emberRiseV19 {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(.28);
+  }
+  8% { opacity: var(--alpha); }
+  52% { opacity: calc(var(--alpha) * .82); }
+  100% {
+    opacity: 0;
+    transform:
+      translate3d(var(--drift), calc(var(--rise) * -1), 0)
+      scale(var(--scale));
+  }
+}
+
+@keyframes ashFloatV19 {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -6vh, 0) rotate(0deg) scale(.6);
+  }
+  14% { opacity: var(--alpha); }
+  72% { opacity: calc(var(--alpha) * .6); }
+  100% {
+    opacity: 0;
+    transform:
+      translate3d(var(--drift), calc(var(--rise) * -1), 0)
+      rotate(var(--spin))
+      scale(var(--scale));
+  }
+}
+
+@keyframes plasmaStreakV19 {
+  0%, 72%, 100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(-48vw) scaleX(.55);
+  }
+  78% { opacity: .20; }
+  83% {
+    opacity: .76;
+    transform: rotate(var(--angle)) translateX(0) scaleX(1);
+  }
+  90% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(46vw) scaleX(.72);
+  }
+}
+
+@keyframes ringDustOrbitV19 {
+  0%, 100% {
+    opacity: 0;
+    transform:
+      rotate(var(--angle))
+      translateX(calc(var(--radius) - 14px))
+      rotate(calc(var(--angle) * -1))
+      scale(.4);
+  }
+  18% { opacity: var(--alpha); }
+  50% {
+    opacity: calc(var(--alpha) * 1.2);
+    transform:
+      rotate(calc(var(--angle) + 38deg))
+      translateX(var(--radius))
+      rotate(calc((var(--angle) + 38deg) * -1))
+      scale(1);
+  }
+  82% { opacity: calc(var(--alpha) * .45); }
+}
+
+@media (max-width: 900px) {
+  .embers-layer.front { display: none; }
+  .plasma-layer { opacity: .32; }
+  .ring-dust-layer { opacity: .62; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-particle,
+  .ash-particle,
+  .plasma-streak,
+  .ring-dust {
+    animation: none !important;
+    opacity: .12 !important;
+  }
+}
