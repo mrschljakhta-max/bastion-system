@@ -14,8 +14,14 @@
 }
 
 @keyframes cameraBreath {
-  0%, 100% { filter: saturate(1.16) contrast(1.08) brightness(1.08); }
-  50% { filter: saturate(1.22) contrast(1.10) brightness(1.11); }
+  0%, 100% {
+    transform: scale(1.035);
+    filter: saturate(1.16) contrast(1.08) brightness(1.08);
+  }
+  50% {
+    transform: scale(1.048);
+    filter: saturate(1.19) contrast(1.09) brightness(1.10);
+  }
 }
 
 @keyframes noiseDrift {
@@ -23,70 +29,39 @@
   100% { transform: translate(-80px, 40px); }
 }
 
-@keyframes skyDepthFar {
+@keyframes fogLowDrift {
   0%, 100% {
-    transform: translate3d(-1.2%, -.5%, 0) scale(1.045);
+    transform: translate3d(-4%, 1%, 0) scaleX(1.05);
+    opacity: .13;
   }
   50% {
-    transform: translate3d(1.8%, .7%, 0) scale(1.075);
+    transform: translate3d(5%, -2%, 0) scaleX(1.18);
+    opacity: .20;
   }
 }
 
-@keyframes skyDepthNear {
+@keyframes fogHorizonDrift {
   0%, 100% {
-    transform: translate3d(2.1%, .7%, 0) scale(1.035);
-  }
-  50% {
-    transform: translate3d(-2.8%, -.9%, 0) scale(1.07);
-  }
-}
-
-@keyframes livingFieldMid {
-  0%, 100% {
-    transform: translate3d(.6%, .1%, 0) skewX(.45deg) scaleY(1.01);
-  }
-  35% {
-    transform: translate3d(-1.2%, -.65%, 0) skewX(-.65deg) scaleY(1.026);
-  }
-  65% {
-    transform: translate3d(.9%, -.35%, 0) skewX(.75deg) scaleY(1.018);
-  }
-}
-
-@keyframes livingFieldFront {
-  0%, 100% {
-    transform: translate3d(-1.1%, .4%, 0) skewX(-.85deg) scaleY(1.012);
-  }
-  35% {
-    transform: translate3d(1.7%, -1%, 0) skewX(1.15deg) scaleY(1.045);
-  }
-  68% {
-    transform: translate3d(-.8%, -.45%, 0) skewX(-.65deg) scaleY(1.028);
-  }
-}
-
-@keyframes cinematicLightSweep {
-  0%, 58%, 100% {
-    opacity: 0;
-    transform: translateX(0) rotate(-8deg);
-  }
-  66% {
-    opacity: .62;
-  }
-  82% {
+    transform: translate3d(3%, 0, 0) scaleX(1.04);
     opacity: .08;
-    transform: translateX(145vw) rotate(-8deg);
+  }
+  50% {
+    transform: translate3d(-4%, -1%, 0) scaleX(1.16);
+    opacity: .14;
   }
 }
 
-@keyframes heatShimmer {
-  0%, 100% {
-    transform: translate3d(-1%, 0, 0) skewX(-1deg);
-    opacity: .055;
+@keyframes fieldLightSweep {
+  0%, 62%, 100% {
+    opacity: 0;
+    transform: translateX(-65vw) skewX(-8deg);
   }
-  50% {
-    transform: translate3d(1.4%, -2%, 0) skewX(1.4deg);
-    opacity: .12;
+  70% {
+    opacity: .42;
+  }
+  86% {
+    opacity: .10;
+    transform: translateX(125vw) skewX(-8deg);
   }
 }
 
@@ -95,16 +70,16 @@
   width: 2px;
   height: 2px;
   border-radius: 999px;
-  background: rgba(255, 46, 77, .72);
-  box-shadow: 0 0 9px rgba(255, 46, 77, .72);
+  background: rgba(255, 46, 77, .60);
+  box-shadow: 0 0 8px rgba(255, 46, 77, .60);
   animation: emberFloat linear infinite;
 }
 
 @keyframes emberFloat {
-  from { transform: translateY(30vh) translateX(0); opacity: 0; }
-  15% { opacity: .62; }
-  85% { opacity: .46; }
-  to { transform: translateY(-105vh) translateX(28px); opacity: 0; }
+  from { transform: translateY(25vh) translateX(0); opacity: 0; }
+  15% { opacity: .52; }
+  85% { opacity: .38; }
+  to { transform: translateY(-105vh) translateX(24px); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
