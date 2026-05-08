@@ -1,0 +1,178 @@
+@import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bastion-red: #ff3a22;
+  --bastion-red-soft: rgba(255, 58, 34, 0.32);
+  --bastion-metal-light: #f4f4f5;
+  --bastion-metal-mid: #c4c7cd;
+  --bastion-metal-dark: #676d77;
+}
+
+.brand-wordmark-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+}
+
+.brand-logo {
+  width: clamp(72px, 5vw, 120px);
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 8px;
+  filter:
+    drop-shadow(0 0 14px rgba(255, 196, 0, .18))
+    drop-shadow(0 0 34px rgba(255, 196, 0, .12));
+}
+
+.brand-name {
+  position: relative;
+
+  font-family: 'Michroma', 'Rajdhani', sans-serif;
+  font-size: clamp(52px, 5vw, 96px);
+  font-weight: 400;
+  line-height: .9;
+
+  letter-spacing: .34em;
+  text-transform: uppercase;
+
+  padding-left: .34em;
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--bastion-metal-light) 0%,
+      var(--bastion-metal-mid) 48%,
+      var(--bastion-metal-dark) 100%
+    );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+
+  filter:
+    drop-shadow(0 0 10px rgba(255,255,255,.08))
+    drop-shadow(0 0 24px rgba(255,58,34,.14))
+    drop-shadow(0 12px 24px rgba(0,0,0,.55));
+
+  animation: bastionFloat 7s ease-in-out infinite;
+}
+
+.brand-name::after {
+  content: "";
+
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  top: 53%;
+
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,58,34,.15),
+      rgba(255,58,34,.95),
+      rgba(255,58,34,.15),
+      transparent
+    );
+
+  opacity: .88;
+
+  filter:
+    blur(.2px)
+    drop-shadow(0 0 10px rgba(255,58,34,.9));
+
+  animation: bastionScan 5.5s ease-in-out infinite;
+}
+
+.brand-name::before {
+  content: "";
+
+  position: absolute;
+
+  top: 52%;
+  left: 18%;
+
+  width: 120px;
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #ff3a22,
+      transparent
+    );
+
+  opacity: .95;
+
+  filter:
+    drop-shadow(0 0 14px #ff3a22);
+
+  animation: bastionPulse 3.6s ease-in-out infinite;
+}
+
+.brand-subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  letter-spacing: .48em;
+  text-transform: uppercase;
+
+  color: rgba(255, 76, 56, .88);
+
+  opacity: .82;
+}
+
+@keyframes bastionFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes bastionScan {
+  0%, 100% {
+    opacity: .18;
+    transform: scaleX(.82);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes bastionPulse {
+  0%, 100% {
+    opacity: .35;
+    transform: translateX(-20px);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateX(18px);
+  }
+}
+
+@media (max-width: 900px) {
+  .brand-name {
+    font-size: clamp(38px, 10vw, 64px);
+    letter-spacing: .22em;
+    padding-left: .22em;
+  }
+
+  .brand-name::before {
+    width: 72px;
+  }
+}
