@@ -1,92 +1,188 @@
-<!doctype html>
-<html lang="uk">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BASTION — Access Node</title>
+  <title>BASTION SYSTEMS</title>
 
-  <link rel="icon" href="./assets/logo/bastion-favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles/bastion-wordmark.css">
 
-  <link rel="stylesheet" href="./styles/fonts.css" />
-  <link rel="stylesheet" href="./styles/theme.css" />
-  <link rel="stylesheet" href="./styles/base.css" />
-  <link rel="stylesheet" href="./styles/animations.css" />
-  <link rel="stylesheet" href="./styles/hud-ring.css" />
-  <link rel="stylesheet" href="./styles/logo.css" />
-  <link rel="stylesheet" href="./styles/start.css" />
-  <link rel="stylesheet" href="styles/bastion-glyph.css">
+  <style>
+    body{
+      margin:0;
+      overflow:hidden;
+      background:#050505;
+      color:white;
+      font-family:Arial,sans-serif;
+    }
+
+    .scene{
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at center, rgba(255,0,0,.16), transparent 35%),
+        linear-gradient(to bottom,#040404,#140303 52%,#240000 100%);
+    }
+
+    .center-core{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+    }
+
+    .ring{
+      position:absolute;
+      width:min(62vw,720px);
+      height:min(62vw,720px);
+      border-radius:50%;
+      border:7px solid rgba(255,72,90,.48);
+      border-top-color:transparent;
+      border-bottom-color:transparent;
+      animation:rotateRing 24s linear infinite;
+      filter:
+        blur(.2px)
+        drop-shadow(0 0 24px rgba(255,50,70,.24));
+    }
+
+    @keyframes rotateRing{
+      from{transform:rotate(0deg);}
+      to{transform:rotate(360deg);}
+    }
+
+    .menu-item{
+      position:absolute;
+      text-align:center;
+      font-family:'Rajdhani',sans-serif;
+      z-index:5;
+    }
+
+    .menu-item h3{
+      margin:0;
+      font-size:42px;
+      letter-spacing:.12em;
+      font-weight:600;
+    }
+
+    .menu-item span{
+      font-size:12px;
+      letter-spacing:.45em;
+      color:#ff5544;
+      opacity:.82;
+    }
+
+    .menu-top{
+      top:14%;
+    }
+
+    .menu-left{
+      left:18%;
+      bottom:24%;
+    }
+
+    .menu-right{
+      right:18%;
+      bottom:24%;
+    }
+
+    .hud-top-left,
+    .hud-top-right,
+    .hud-bottom-left,
+    .hud-bottom-right{
+      position:absolute;
+      font-family:'Rajdhani',sans-serif;
+      letter-spacing:.28em;
+      font-size:14px;
+      opacity:.82;
+      z-index:6;
+    }
+
+    .hud-top-left{
+      top:48px;
+      left:54px;
+    }
+
+    .hud-top-right{
+      top:48px;
+      right:54px;
+      text-align:right;
+    }
+
+    .hud-bottom-left{
+      bottom:42px;
+      left:54px;
+    }
+
+    .hud-bottom-right{
+      bottom:42px;
+      right:54px;
+      text-align:right;
+    }
+
+  </style>
 </head>
-
 <body>
-  <main class="start-page mode-login">
-    <div class="bg-layer bg-main"></div>
 
-    <div class="premium-fog fog-low"></div>
-    <div class="premium-fog fog-horizon"></div>
-    <div class="field-light-wave"></div>
+<div class="scene"></div>
 
-    <div class="bg-layer bg-vignette"></div>
-    <div class="bg-layer bg-noise"></div>
-    <div class="embers" id="embers"></div>
+<div class="hud-top-left">
+  BASTION SYSTEMS<br>
+  v.0.1.0
+</div>
 
-    <header class="corner-ui corner-left">
-      <span class="corner-title">BASTION SYSTEMS</span>
-      <span class="corner-sub">v.0.1.0</span>
-    </header>
+<div class="hud-top-right">
+  SECURE CONNECTION<br>
+  EST. 2026
+</div>
 
-    <header class="corner-ui corner-right">
-      <span class="corner-title">SECURE CONNECTION <i></i></span>
-      <span class="corner-sub">EST. 2026</span>
-    </header>
+<div class="hud-bottom-left">
+  STATUS: STANDBY
+</div>
 
-    <section class="access-shell" aria-label="BASTION access menu">
-      <div class="hud-ring" id="hudRing">
-        <div class="ring-tech-layer"></div>
-        <div class="ring-data-layer"></div>
-        <div class="ring-inner-layer"></div>
-        <div class="ring-active-layer"></div>
-        <div class="ring-glass-layer"></div>
+<div class="hud-bottom-right">
+  © 2026 BASTION SYSTEMS
+</div>
 
-        <button class="ring-sector sector-login is-active" data-mode="login" aria-label="Вхід">
-          <span class="sector-num">01</span>
-          <span class="sector-title">Вхід</span>
-          <span class="sector-sub">Login</span>
-        </button>
+<div class="center-core">
 
-        <button class="ring-sector sector-register" data-mode="register" aria-label="Реєстрація">
-          <span class="sector-num">02</span>
-          <span class="sector-title">Реєстрація</span>
-          <span class="sector-sub">Register</span>
-        </button>
+  <div class="ring"></div>
 
-        <button class="ring-sector sector-dev" data-mode="developer" aria-label="Розробник">
-          <span class="sector-num">03</span>
-          <span class="sector-title">Розробник</span>
-          <span class="sector-sub">Developer</span>
-        </button>
+  <div class="menu-item menu-top">
+    <h3>ВХІД</h3>
+    <span>LOGIN</span>
+  </div>
 
-        <div class="ring-center">
-          <img src="./assets/logo/bastion-mark.svg" alt="BASTION mark" class="brand-mark" />
-          <img class="bastion-glyph-wordmark" src="assets/logo/bastion-glyph-wordmark.svg" alt="БАСТІОН">
-          <div class="brand-subtitle" id="modeSubtitle">Authorized access node</div>
-          <div class="signal-line"></div>
-          <a href="./pages/login.html" class="enter-link" id="enterLink">Enter system</a>
-        </div>
-      </div>
-    </section>
+  <div class="menu-item menu-left">
+    <h3>РОЗРОБНИК</h3>
+    <span>DEVELOPER</span>
+  </div>
 
-    <footer class="status-left">
-      <span>STATUS: <b>STANDBY</b></span>
-      <span>ALL SYSTEMS NOMINAL</span>
-    </footer>
+  <div class="menu-item menu-right">
+    <h3>РЕЄСТРАЦІЯ</h3>
+    <span>REGISTER</span>
+  </div>
 
-    <footer class="status-right">
-      <span>© 2026 BASTION SYSTEMS</span>
-      <span>ALL RIGHTS RESERVED</span>
-    </footer>
-  </main>
+  <div class="brand-wordmark-wrap">
 
-  <script src="./scripts/main.js"></script>
-  <script src="./scripts/hud-ring.js"></script>
+    <img
+      class="brand-logo"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
+      alt="Bastion Logo"
+    >
+
+    <div class="brand-name">
+      BASTION
+    </div>
+
+    <div class="brand-subtitle">
+      AUTHORIZED ACCESS NODE
+    </div>
+
+  </div>
+
+</div>
+
 </body>
 </html>
