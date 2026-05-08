@@ -1091,44 +1091,28 @@
 
 /* Не чіпаємо основну геометрію hud-ring.css — тільки чистимо зайве. */
 /* ===== END BASTION HUD RING RESTORE V10 ===== */
+
 /* =========================================================
-   BASTION — CLEAN CINEMATIC CORNERS
-   прибираємо кутові HUD-написи
+   BASTION — CLEAN CINEMATIC CORNERS v11
+   страховка: навіть якщо HTML повернеться, кути не показуються
    ========================================================= */
 
-.hud-corner,
-.corner-label,
-.corner-meta,
-.system-label,
-.system-status,
-.status-block,
-.status-line,
-.footer-meta,
-.footer-copy,
-.top-left-meta,
-.top-right-meta,
-.bottom-left-meta,
-.bottom-right-meta {
+.corner-ui,
+.corner-left,
+.corner-right,
+.status-left,
+.status-right {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
-/* Якщо кутові блоки мають стару структуру */
-.hero-corner,
-.hero-meta,
-.hero-status,
-.hero-footer,
-.hud-top-left,
-.hud-top-right,
-.hud-bottom-left,
-.hud-bottom-right {
-  display: none !important;
-}
-
-/* Залишаємо центральну сцену чистою */
-.hero-scene,
-.hero-center,
-.bastion-core,
-.bastion-wordmark,
-.hud-ring {
+/* центральна сцена залишається інтерактивною */
+.access-shell,
+.hud-ring,
+.ring-center,
+.hero-core,
+.enter-link {
   pointer-events: auto;
 }
