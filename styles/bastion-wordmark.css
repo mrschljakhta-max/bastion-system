@@ -186,3 +186,106 @@
     width: 62px;
   }
 }
+
+
+/* =====================================================
+   RING ROTATION PATCH
+   Крутяться тільки візуальні шари кільця.
+   Кнопки, логотип і BASTION лишаються нерухомими.
+   ===================================================== */
+
+.hud-ring .ring-tech-layer,
+.hud-ring .ring-data-layer,
+.hud-ring .ring-inner-layer,
+.hud-ring .ring-active-layer,
+.hud-ring .ring-glass-layer {
+  transform-origin: 50% 50% !important;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Основне червоне кільце — повільне преміальне обертання */
+.hud-ring .ring-active-layer {
+  animation: bastionRingRotateMain 34s linear infinite !important;
+}
+
+/* Технічна розмітка — ще повільніше */
+.hud-ring .ring-tech-layer {
+  animation: bastionRingRotateTech 74s linear infinite !important;
+}
+
+/* Data/dots layer — у протилежний бік */
+.hud-ring .ring-data-layer {
+  animation: bastionRingRotateReverse 58s linear infinite !important;
+}
+
+/* Внутрішній шар — майже непомітний рух */
+.hud-ring .ring-inner-layer {
+  animation: bastionRingRotateInner 96s linear infinite !important;
+}
+
+/* Скляний шар — дуже повільне зміщення, щоб не було "пластиковості" */
+.hud-ring .ring-glass-layer {
+  animation: bastionRingRotateGlass 120s linear infinite !important;
+}
+
+@keyframes bastionRingRotateMain {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bastionRingRotateTech {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bastionRingRotateReverse {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes bastionRingRotateInner {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes bastionRingRotateGlass {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Пауза для користувачів, які вимкнули анімації в системі */
+@media (prefers-reduced-motion: reduce) {
+  .hud-ring .ring-tech-layer,
+  .hud-ring .ring-data-layer,
+  .hud-ring .ring-inner-layer,
+  .hud-ring .ring-active-layer,
+  .hud-ring .ring-glass-layer {
+    animation: none !important;
+  }
+}
