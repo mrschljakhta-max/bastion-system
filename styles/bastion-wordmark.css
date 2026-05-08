@@ -868,3 +868,146 @@
   }
 }
 /* ===== END BASTION ACCESS SECTORS V5 ===== */
+
+
+/* =========================================================
+   BASTION CENTERLINE V6 — SINGLE AXIS ALIGNMENT
+   Головна правка: прибираємо різні “центри” для кільця,
+   секторів і центрального бренду. Усі ключові елементи
+   прив’язані до однієї осі HUD: 50% / 50%.
+   ========================================================= */
+
+.hud-ring {
+  --core-shift-x: 0px !important;
+  --core-shift-y: -4px !important;
+  --sector-w: clamp(190px, 16vw, 252px) !important;
+  --sector-h: clamp(66px, 6.1vw, 90px) !important;
+  --login-optical-shift-x: 0px !important;
+  --register-optical-shift-x: 0px !important;
+  --bastion-center-x: 50% !important;
+}
+
+/* Єдина вертикальна вісь для центрального блоку */
+.hud-ring .ring-center.hero-core,
+.hud-ring .ring-center {
+  left: var(--bastion-center-x) !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) translate(0, var(--core-shift-y)) !important;
+}
+
+/* Внутрішні елементи центрального блоку теж не мають власних зсувів */
+.hud-ring .brand-mark,
+.hud-ring .brand-name,
+.hud-ring .brand-subtitle,
+.hud-ring .signal-line,
+.hud-ring .enter-link {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  transform: none !important;
+  text-align: center !important;
+}
+
+/* Компенсація letter-spacing: без padding-left текст здається зміщеним */
+.hud-ring .brand-name {
+  padding-left: 0 !important;
+  text-indent: .125em !important;
+}
+
+/* Єдина вісь для ВХІД */
+.hud-ring .sector-login {
+  left: var(--bastion-center-x) !important;
+  right: auto !important;
+  top: 1.9% !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+}
+
+/* Єдина вісь для РЕЄСТРАЦІЯ */
+.hud-ring .sector-register {
+  left: var(--bastion-center-x) !important;
+  right: auto !important;
+  bottom: 1.9% !important;
+  top: auto !important;
+  transform: translateX(-50%) !important;
+}
+
+.hud-ring .sector-login:hover,
+.hud-ring .sector-login.is-active {
+  transform: translateX(-50%) translateY(-2px) scale(1.016) !important;
+}
+
+.hud-ring .sector-register:hover,
+.hud-ring .sector-register.is-active {
+  transform: translateX(-50%) translateY(2px) scale(1.016) !important;
+}
+
+/* Сектори стають симетричнішими, щоб центр був не лише математичний, а й оптичний */
+.hud-ring .ring-sector::before {
+  clip-path: polygon(12% 0, 88% 0, 100% 42%, 88% 100%, 12% 100%, 0 42%) !important;
+  transform: none !important;
+}
+
+.hud-ring .ring-sector::after {
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 74% !important;
+}
+
+/* Текст усередині секторів: прибираємо приховані зсуви від padding-left */
+.hud-ring .ring-sector .sector-title,
+.hud-ring .ring-sector .sector-sub,
+.hud-ring .ring-sector .sector-num {
+  padding-left: 0 !important;
+  text-align: center !important;
+}
+
+.hud-ring .ring-sector .sector-title {
+  text-indent: .10em !important;
+}
+
+.hud-ring .ring-sector .sector-sub {
+  text-indent: .40em !important;
+}
+
+/* Нижній сектор трохи ширший, бо слово довше; центр при цьому лишається той самий */
+.hud-ring .sector-register {
+  width: clamp(230px, 18.5vw, 308px) !important;
+}
+
+/* Допоміжна debug-вісь: увімкнути клас .debug-centerline на .start-page, якщо треба перевірити центр */
+.start-page.debug-centerline .hud-ring::selection { background: transparent; }
+.start-page.debug-centerline .hud-ring::marker { color: transparent; }
+.start-page.debug-centerline .hud-ring .ring-center::after {
+  content: "";
+  position: fixed;
+  left: 50vw;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(0,255,80,.7);
+  box-shadow: 0 0 10px rgba(0,255,80,.9);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@media (max-width: 900px) {
+  .hud-ring {
+    --core-shift-x: 0px !important;
+    --login-optical-shift-x: 0px !important;
+    --register-optical-shift-x: 0px !important;
+    --sector-w: clamp(170px, 48vw, 218px) !important;
+    --sector-h: 74px !important;
+  }
+
+  .hud-ring .sector-login {
+    left: 50% !important;
+    top: 1.2% !important;
+  }
+
+  .hud-ring .sector-register {
+    left: 50% !important;
+    bottom: 1.2% !important;
+    width: clamp(220px, 58vw, 292px) !important;
+  }
+}
+/* ===== END BASTION CENTERLINE V6 ===== */
