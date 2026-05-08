@@ -1,4 +1,4 @@
-/* BASTION visible motion update */
+/* BASTION atmosphere update: depth, fog canvas, light sweep */
 .start-page {
   position: relative;
   width: 100vw;
@@ -7,12 +7,13 @@
   background:
     radial-gradient(circle at 50% 64%, rgba(213, 20, 45, .16), transparent 36%),
     linear-gradient(180deg, #050407 0%, #080306 54%, #120308 100%);
+  --px: 0px;
+  --py: 0px;
 }
 
 .bg-layer,
-.fog-layer,
-.sky-drift,
-.field-motion {
+.sky-depth,
+.field-depth {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -22,83 +23,117 @@
   z-index: 0;
   background:
     radial-gradient(circle at 50% 86%, rgba(255, 46, 77, .12), transparent 34%),
-    linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.26)),
+    linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.23)),
     url("../assets/images/bg-bastion-hero.webp") center center / cover no-repeat;
-  transform: scale(1.035);
-  animation: cameraBreath 20s ease-in-out infinite;
+  transform:
+    translate3d(calc(var(--px) * .10), calc(var(--py) * .10), 0)
+    scale(1.04);
+  animation: cameraBreath 22s ease-in-out infinite;
   filter: saturate(1.16) contrast(1.08) brightness(1.08);
 }
 
-.sky-drift {
+.sky-depth {
   z-index: 1;
-  opacity: .105;
   background: url("../assets/images/bg-bastion-hero.webp") center top / cover no-repeat;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0 42%, transparent 68%);
-  mask-image: linear-gradient(to bottom, #000 0 42%, transparent 68%);
-  filter: blur(1.2px) saturate(1.12) brightness(1.06);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 48%, transparent 70%);
+  mask-image: linear-gradient(to bottom, #000 0 48%, transparent 70%);
+  mix-blend-mode: screen;
 }
 
-.sky-drift-a {
-  animation: cloudsDriftA 74s ease-in-out infinite;
+.sky-depth-far {
+  opacity: .055;
+  filter: blur(1.4px) saturate(1.15) brightness(1.10);
+  animation: skyDepthFar 118s ease-in-out infinite;
 }
 
-.sky-drift-b {
-  opacity: .07;
-  animation: cloudsDriftB 112s ease-in-out infinite;
+.sky-depth-near {
+  opacity: .075;
+  filter: blur(2.1px) saturate(1.18) brightness(1.08);
+  animation: skyDepthNear 86s ease-in-out infinite;
 }
 
-.field-motion {
+.field-depth {
   z-index: 2;
   top: auto;
-  bottom: -4vh;
-  height: 48vh;
+  bottom: -5vh;
+  height: 50vh;
   background: url("../assets/images/bg-bastion-hero.webp") center bottom / cover no-repeat;
-  -webkit-mask-image: linear-gradient(to top, #000 0 58%, rgba(0,0,0,.55) 72%, transparent 100%);
-  mask-image: linear-gradient(to top, #000 0 58%, rgba(0,0,0,.55) 72%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, #000 0 48%, rgba(0,0,0,.68) 64%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0 48%, rgba(0,0,0,.68) 64%, transparent 100%);
   transform-origin: 50% 100%;
-  filter: blur(.8px) saturate(1.18) contrast(1.04);
 }
 
-.field-back {
+.field-depth-mid {
   opacity: .10;
-  height: 34vh;
-  animation: fieldWaveBack 16s ease-in-out infinite;
+  filter: blur(.7px) saturate(1.16);
+  animation: livingFieldMid 12s ease-in-out infinite;
 }
 
-.field-mid {
-  opacity: .145;
-  height: 41vh;
-  animation: fieldWaveMid 11s ease-in-out infinite;
+.field-depth-front {
+  opacity: .13;
+  height: 56vh;
+  filter: blur(1.15px) saturate(1.24) contrast(1.03);
+  animation: livingFieldFront 8.5s ease-in-out infinite;
 }
 
-.field-front {
-  opacity: .18;
-  height: 52vh;
-  filter: blur(1.4px) saturate(1.2) contrast(1.04);
-  animation: fieldWaveFront 8s ease-in-out infinite;
-}
-
-.field-front::after,
-.field-mid::after {
-  content: "";
+.atmosphere-canvas {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(105deg,
-      transparent 0 12%,
-      rgba(255, 45, 67, .12) 19%,
-      transparent 28% 45%,
-      rgba(255, 45, 67, .09) 54%,
-      transparent 65% 100%);
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
   mix-blend-mode: screen;
-  opacity: .55;
+}
+
+.light-sweep {
+  position: absolute;
+  z-index: 5;
+  left: -38vw;
+  bottom: 9vh;
+  width: 58vw;
+  height: 28vh;
+  pointer-events: none;
+  opacity: 0;
+  transform: rotate(-8deg);
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 38, 62, .00) 22%,
+      rgba(255, 88, 104, .12) 47%,
+      rgba(255, 255, 255, .075) 52%,
+      rgba(255, 38, 62, .08) 58%,
+      transparent 100%);
+  filter: blur(18px);
+  animation: cinematicLightSweep 17s ease-in-out infinite;
+}
+
+.heat-haze {
+  position: absolute;
+  z-index: 6;
+  left: 0;
+  right: 0;
+  top: 48vh;
+  height: 18vh;
+  pointer-events: none;
+  opacity: .09;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 32px,
+      rgba(255,255,255,.05) 36px,
+      transparent 42px
+    );
+  filter: blur(9px);
+  mix-blend-mode: screen;
+  animation: heatShimmer 8s ease-in-out infinite;
 }
 
 .bg-vignette {
   z-index: 8;
   background:
-    radial-gradient(circle at 50% 54%, transparent 0 45%, rgba(0,0,0,.12) 76%, rgba(0,0,0,.45) 100%),
-    linear-gradient(90deg, rgba(0,0,0,.35), transparent 22% 78%, rgba(0,0,0,.35));
+    radial-gradient(circle at 50% 54%, transparent 0 48%, rgba(0,0,0,.10) 78%, rgba(0,0,0,.42) 100%),
+    linear-gradient(90deg, rgba(0,0,0,.32), transparent 22% 78%, rgba(0,0,0,.32));
 }
 
 .bg-noise {
@@ -109,13 +144,6 @@
     repeating-radial-gradient(circle at 20% 30%, rgba(255,255,255,.36) 0 1px, transparent 1px 3px);
   background-size: 180px 180px;
   animation: noiseDrift 12s steps(8) infinite;
-}
-
-.embers {
-  position: absolute;
-  inset: 0;
-  z-index: 11;
-  pointer-events: none;
 }
 
 .corner-ui {

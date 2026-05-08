@@ -1,4 +1,3 @@
-/* BASTION visible motion animations */
 @keyframes rotateSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -15,8 +14,8 @@
 }
 
 @keyframes cameraBreath {
-  0%, 100% { transform: scale(1.035) translate3d(0, 0, 0); }
-  50% { transform: scale(1.055) translate3d(0, -5px, 0); }
+  0%, 100% { filter: saturate(1.16) contrast(1.08) brightness(1.08); }
+  50% { filter: saturate(1.22) contrast(1.10) brightness(1.11); }
 }
 
 @keyframes noiseDrift {
@@ -24,84 +23,71 @@
   100% { transform: translate(-80px, 40px); }
 }
 
-@keyframes cloudsDriftA {
-  0%, 100% { transform: translate3d(-1.8%, -.6%, 0) scale(1.035); }
-  50% { transform: translate3d(2.2%, .6%, 0) scale(1.065); }
+@keyframes skyDepthFar {
+  0%, 100% {
+    transform: translate3d(-1.2%, -.5%, 0) scale(1.045);
+  }
+  50% {
+    transform: translate3d(1.8%, .7%, 0) scale(1.075);
+  }
 }
 
-@keyframes cloudsDriftB {
-  0%, 100% { transform: translate3d(2.6%, .8%, 0) scale(1.025); }
-  50% { transform: translate3d(-3.2%, -.8%, 0) scale(1.06); }
+@keyframes skyDepthNear {
+  0%, 100% {
+    transform: translate3d(2.1%, .7%, 0) scale(1.035);
+  }
+  50% {
+    transform: translate3d(-2.8%, -.9%, 0) scale(1.07);
+  }
 }
 
-@keyframes fieldWaveBack {
-  0%, 100% { transform: translate3d(-.7%, .1%, 0) skewX(-.55deg) scaleY(1.005); }
-  50% { transform: translate3d(.9%, -.5%, 0) skewX(.65deg) scaleY(1.018); }
+@keyframes livingFieldMid {
+  0%, 100% {
+    transform: translate3d(.6%, .1%, 0) skewX(.45deg) scaleY(1.01);
+  }
+  35% {
+    transform: translate3d(-1.2%, -.65%, 0) skewX(-.65deg) scaleY(1.026);
+  }
+  65% {
+    transform: translate3d(.9%, -.35%, 0) skewX(.75deg) scaleY(1.018);
+  }
 }
 
-@keyframes fieldWaveMid {
-  0%, 100% { transform: translate3d(1.1%, .15%, 0) skewX(.9deg) scaleY(1.01); }
-  50% { transform: translate3d(-1.55%, -.9%, 0) skewX(-1deg) scaleY(1.032); }
+@keyframes livingFieldFront {
+  0%, 100% {
+    transform: translate3d(-1.1%, .4%, 0) skewX(-.85deg) scaleY(1.012);
+  }
+  35% {
+    transform: translate3d(1.7%, -1%, 0) skewX(1.15deg) scaleY(1.045);
+  }
+  68% {
+    transform: translate3d(-.8%, -.45%, 0) skewX(-.65deg) scaleY(1.028);
+  }
 }
 
-@keyframes fieldWaveFront {
-  0%, 100% { transform: translate3d(-1.7%, .45%, 0) skewX(-1.25deg) scaleY(1.015); }
-  50% { transform: translate3d(2.05%, -1.25%, 0) skewX(1.35deg) scaleY(1.052); }
+@keyframes cinematicLightSweep {
+  0%, 58%, 100% {
+    opacity: 0;
+    transform: translateX(0) rotate(-8deg);
+  }
+  66% {
+    opacity: .62;
+  }
+  82% {
+    opacity: .08;
+    transform: translateX(145vw) rotate(-8deg);
+  }
 }
 
-.fog-layer {
-  z-index: 4;
-  pointer-events: none;
-  mix-blend-mode: screen;
-}
-
-.fog-horizon {
-  opacity: .18;
-  filter: blur(24px);
-  background:
-    radial-gradient(ellipse at 50% 62%, rgba(255, 70, 86, .22), transparent 48%),
-    linear-gradient(90deg, transparent, rgba(255,255,255,.065), transparent);
-  animation: fogHorizonMove 50s ease-in-out infinite;
-}
-
-.fog-field-a {
-  top: auto;
-  bottom: 3vh;
-  height: 38vh;
-  opacity: .21;
-  filter: blur(18px);
-  background:
-    radial-gradient(ellipse at 18% 62%, rgba(255, 72, 88, .22), transparent 36%),
-    radial-gradient(ellipse at 78% 56%, rgba(255, 72, 88, .17), transparent 42%),
-    linear-gradient(90deg, transparent, rgba(255,255,255,.075), transparent);
-  animation: fogFieldA 30s ease-in-out infinite;
-}
-
-.fog-field-b {
-  top: auto;
-  bottom: 0;
-  height: 45vh;
-  opacity: .13;
-  filter: blur(30px);
-  background:
-    radial-gradient(ellipse at 38% 72%, rgba(255,255,255,.105), transparent 42%),
-    radial-gradient(ellipse at 66% 62%, rgba(255, 46, 77, .19), transparent 44%);
-  animation: fogFieldB 42s ease-in-out infinite;
-}
-
-@keyframes fogHorizonMove {
-  0%, 100% { transform: translate3d(-3%, 0, 0) scale(1.04); }
-  50% { transform: translate3d(3%, -1%, 0) scale(1.08); }
-}
-
-@keyframes fogFieldA {
-  0%, 100% { transform: translate3d(-5%, 2%, 0) scaleX(1.08); }
-  50% { transform: translate3d(4%, -2%, 0) scaleX(1.16); }
-}
-
-@keyframes fogFieldB {
-  0%, 100% { transform: translate3d(5%, 1%, 0) scaleX(1.12); }
-  50% { transform: translate3d(-6%, -1%, 0) scaleX(1.2); }
+@keyframes heatShimmer {
+  0%, 100% {
+    transform: translate3d(-1%, 0, 0) skewX(-1deg);
+    opacity: .055;
+  }
+  50% {
+    transform: translate3d(1.4%, -2%, 0) skewX(1.4deg);
+    opacity: .12;
+  }
 }
 
 .ember {
