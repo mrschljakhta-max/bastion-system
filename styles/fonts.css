@@ -1,62 +1,6 @@
-/* ===== BASTION FONT SYSTEM ===== */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap');
 
-/*
-  Рівень 1 — бренд / логотип:
-  Використовується для BASTION, splash, hero-назв.
-
-  Рівень 2 — UI / HUD:
-  Кнопки, підписи секторів, navbar, системні label.
-
-  Рівень 3 — текст:
-  Абзаци, форми, таблиці, описи.
-*/
-
-/* Тимчасові Google Fonts. Потім замінимо на локальні .woff2 */
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Michroma&family=Oxanium:wght@300;400;500;600;700&family=Syncopate:wght@400;700&display=swap');
-
-/* Локальні файли, які можна буде додати пізніше */
-@font-face {
-  font-family: "BastionBrandLocal";
-  src: url("../assets/fonts/bastion-brand.woff2") format("woff2");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "BastionUILocal";
-  src: url("../assets/fonts/bastion-ui.woff2") format("woff2");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "BastionTextLocal";
-  src: url("../assets/fonts/bastion-text.woff2") format("woff2");
-  font-display: swap;
-}
-
-:root {
-  --font-brand: "BastionBrandLocal", "Syncopate", "Michroma", sans-serif;
-  --font-ui: "BastionUILocal", "Oxanium", "Rajdhani", sans-serif;
-  --font-text: "BastionTextLocal", "Manrope", "Inter", sans-serif;
-}
-
-/* Брендовий рівень */
-.brand-name {
-  font-family: var(--font-brand);
-  font-weight: 400;
-  text-transform: uppercase;
-}
-
-/* UI-рівень */
-.ring-sector,
-.corner-ui,
-.status-left,
-.status-right,
-.enter-link,
-.brand-subtitle {
-  font-family: var(--font-ui);
-}
-
-/* Текстовий рівень */
-body {
-  font-family: var(--font-text);
+:root{
+  --font-ui:'Rajdhani',sans-serif;
+  --font-text:'Manrope',sans-serif;
 }
