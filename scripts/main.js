@@ -1,2 +1,16 @@
-// Minimal legacy particles are disabled because atmosphere.js now handles cinematic particles.
-// This file is kept for compatibility with existing index.html structure.
+const embersRoot = document.getElementById("embers");
+
+if (embersRoot) {
+  const count = 34;
+
+  for (let i = 0; i < count; i += 1) {
+    const ember = document.createElement("span");
+    ember.className = "ember";
+    ember.style.left = `${Math.random() * 100}%`;
+    ember.style.bottom = `${Math.random() * 100}%`;
+    ember.style.animationDuration = `${18 + Math.random() * 26}s`;
+    ember.style.animationDelay = `${Math.random() * 18}s`;
+    ember.style.opacity = `${0.14 + Math.random() * 0.38}`;
+    embersRoot.appendChild(ember);
+  }
+}
