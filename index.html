@@ -14,24 +14,22 @@
 </head>
 
 <body>
-  <main class="start-page">
-    <div class="bg-layer bg-main"></div>
+  <main class="start-page" id="startPage">
+    <div class="bg-layer bg-main" data-depth="0.10"></div>
 
-    <!-- Живі атмосферні шари. Вони не міняють сам фон, тільки додають рух. -->
-    <div class="sky-drift sky-drift-a"></div>
-    <div class="sky-drift sky-drift-b"></div>
+    <div class="sky-depth sky-depth-far" data-depth="0.18"></div>
+    <div class="sky-depth sky-depth-near" data-depth="0.28"></div>
 
-    <div class="field-motion field-back"></div>
-    <div class="field-motion field-mid"></div>
-    <div class="field-motion field-front"></div>
+    <div class="field-depth field-depth-mid" data-depth="0.36"></div>
+    <div class="field-depth field-depth-front" data-depth="0.58"></div>
 
-    <div class="fog-layer fog-horizon"></div>
-    <div class="fog-layer fog-field-a"></div>
-    <div class="fog-layer fog-field-b"></div>
+    <canvas class="atmosphere-canvas" id="atmosphereCanvas" aria-hidden="true"></canvas>
+
+    <div class="light-sweep"></div>
+    <div class="heat-haze"></div>
 
     <div class="bg-layer bg-vignette"></div>
     <div class="bg-layer bg-noise"></div>
-    <div class="embers" id="embers"></div>
 
     <header class="corner-ui corner-left">
       <span class="corner-title">BASTION SYSTEMS</span>
@@ -44,7 +42,7 @@
     </header>
 
     <section class="access-shell" aria-label="BASTION access menu">
-      <div class="hud-ring" id="hudRing">
+      <div class="hud-ring" id="hudRing" data-depth="0.04">
         <div class="ring ring-outer"></div>
         <div class="ring ring-mid"></div>
         <div class="ring ring-inner"></div>
@@ -91,6 +89,7 @@
   </main>
 
   <script src="./scripts/main.js"></script>
+  <script src="./scripts/atmosphere.js"></script>
   <script src="./scripts/hud-ring.js"></script>
 </body>
 </html>
