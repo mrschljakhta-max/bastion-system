@@ -1,40 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Michroma&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
-/* =====================================================
-   BASTION — CENTER + CURVED SECTOR PATCH
-   ===================================================== */
+/* BASTION — CLEAN RING + TEXT NODES PATCH */
 
 .hud-ring {
   --core-shift-x: 14px;
   --core-shift-y: -4px;
-
-  --sector-width: 270px;
-  --sector-height: 112px;
-  --sector-red: rgba(255, 52, 72, .78);
-  --sector-bg: rgba(70, 8, 18, .26);
 }
 
-/* ================= CENTER CORE ================= */
+/* CENTER CORE */
 
 .hud-ring .ring-center.hero-core,
 .hud-ring .ring-center {
   position: absolute !important;
   left: 50% !important;
   top: 50% !important;
-
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-
   width: max-content !important;
   max-width: none !important;
   text-align: center !important;
-
-  transform:
-    translate(-50%, -50%)
-    translate(var(--core-shift-x), var(--core-shift-y)) !important;
-
+  transform: translate(-50%, -50%) translate(var(--core-shift-x), var(--core-shift-y)) !important;
   z-index: 20 !important;
 }
 
@@ -44,7 +31,6 @@
   height: auto !important;
   margin: 0 auto 12px auto !important;
   transform: none !important;
-
   filter:
     drop-shadow(0 0 14px rgba(255, 196, 0, .18))
     drop-shadow(0 0 34px rgba(255, 196, 0, .12)) !important;
@@ -53,30 +39,17 @@
 .hud-ring .brand-name {
   position: relative !important;
   display: inline-block !important;
-
   font-family: "Michroma", "Rajdhani", sans-serif !important;
   font-size: clamp(40px, 3.55vw, 68px) !important;
   font-weight: 400 !important;
   line-height: .92 !important;
-
   letter-spacing: .125em !important;
   padding-left: .125em !important;
-
   text-transform: uppercase !important;
-
-  background:
-    linear-gradient(
-      180deg,
-      #f7f7f8 0%,
-      #d3d5da 34%,
-      #777d86 72%,
-      #eef0f2 100%
-    ) !important;
-
+  background: linear-gradient(180deg, #f7f7f8 0%, #d3d5da 34%, #777d86 72%, #eef0f2 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
-
   filter:
     drop-shadow(0 0 8px rgba(255,255,255,.08))
     drop-shadow(0 0 18px rgba(255,58,34,.12))
@@ -90,22 +63,9 @@
   right: 11%;
   top: 54%;
   height: 2px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255,58,34,.12),
-      rgba(255,58,34,.96),
-      rgba(255,58,34,.16),
-      transparent
-    );
-
+  background: linear-gradient(90deg, transparent, rgba(255,58,34,.12), rgba(255,58,34,.96), rgba(255,58,34,.16), transparent);
   opacity: .82;
-
-  filter:
-    blur(.2px)
-    drop-shadow(0 0 10px rgba(255,58,34,.85));
+  filter: blur(.2px) drop-shadow(0 0 10px rgba(255,58,34,.85));
 }
 
 .hud-ring .brand-name::before {
@@ -115,9 +75,7 @@
   left: 26%;
   width: 76px;
   height: 2px;
-
   background: linear-gradient(90deg, transparent, #ff3a22, transparent);
-
   opacity: .88;
   filter: drop-shadow(0 0 14px #ff3a22);
 }
@@ -132,7 +90,7 @@
   opacity: .82 !important;
 }
 
-/* ================= RING ROTATION ================= */
+/* TECH RING STYLE */
 
 .hud-ring .ring-tech-layer,
 .hud-ring .ring-data-layer,
@@ -145,220 +103,160 @@
 }
 
 .hud-ring .ring-active-layer {
+  opacity: .72 !important;
+  filter: drop-shadow(0 0 12px rgba(255, 54, 72, .34)) drop-shadow(0 0 28px rgba(255, 54, 72, .16)) !important;
   animation: bastionRingRotateMain 34s linear infinite !important;
 }
 
 .hud-ring .ring-tech-layer {
+  opacity: .38 !important;
   animation: bastionRingRotateTech 74s linear infinite !important;
 }
 
 .hud-ring .ring-data-layer {
+  opacity: .48 !important;
   animation: bastionRingRotateReverse 58s linear infinite !important;
 }
 
 .hud-ring .ring-inner-layer {
+  opacity: .34 !important;
   animation: bastionRingRotateInner 96s linear infinite !important;
 }
 
 .hud-ring .ring-glass-layer {
+  opacity: .42 !important;
   animation: bastionRingRotateGlass 120s linear infinite !important;
 }
 
-@keyframes bastionRingRotateMain {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.hud-ring::before {
+  content: "";
+  position: absolute;
+  inset: 8.5%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 64, 78, .26);
+  border-left-color: rgba(255, 64, 78, .08);
+  border-right-color: rgba(255, 64, 78, .08);
+  box-shadow: inset 0 0 28px rgba(255, 36, 58, .045), 0 0 20px rgba(255, 36, 58, .06);
+  pointer-events: none;
+  animation: bastionRingRotateReverse 88s linear infinite;
 }
 
-@keyframes bastionRingRotateTech {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.hud-ring::after {
+  content: "";
+  position: absolute;
+  inset: 3.8%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 64, 78, .34) 0deg, rgba(255, 64, 78, .34) .55deg, transparent .55deg, transparent 3.2deg);
+  mask: radial-gradient(circle, transparent 66%, #000 66.4%, #000 68%, transparent 68.4%);
+  -webkit-mask: radial-gradient(circle, transparent 66%, #000 66.4%, #000 68%, transparent 68.4%);
+  opacity: .34;
+  pointer-events: none;
+  animation: bastionRingRotateTech 64s linear infinite;
 }
 
-@keyframes bastionRingRotateReverse {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
+@keyframes bastionRingRotateMain { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes bastionRingRotateTech { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes bastionRingRotateReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes bastionRingRotateInner { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+@keyframes bastionRingRotateGlass { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-@keyframes bastionRingRotateInner {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-360deg); }
-}
+/* TEXT NODES WITHOUT PLAQUES */
 
-@keyframes bastionRingRotateGlass {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* ================= CURVED SECTOR PLAQUES ================= */
-
-/* Базова плашка — тепер це сектор кільця */
 .hud-ring .ring-sector {
   position: absolute !important;
-
-  width: var(--sector-width) !important;
-  height: var(--sector-height) !important;
-
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  clip-path: none !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-
-  border: 1px solid rgba(255, 66, 82, .18) !important;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 70, 88, .22), transparent 62%),
-    linear-gradient(180deg, rgba(70, 8, 18, .34), rgba(18, 2, 7, .22)) !important;
-
-  box-shadow:
-    inset 0 0 28px rgba(255, 39, 58, .08),
-    0 0 22px rgba(255, 39, 58, .10) !important;
-
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-
-  z-index: 18 !important;
-  overflow: hidden;
-
-  cursor: pointer;
+  text-align: center !important;
+  overflow: visible !important;
+  z-index: 26 !important;
 }
 
-/* Тонка лінія, яка повторює край кільця */
-.hud-ring .ring-sector::before {
-  content: "";
-  position: absolute;
-  left: 18px;
-  right: 18px;
-  height: 2px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 62, 76, .88),
-      transparent
-    );
-
-  filter: drop-shadow(0 0 10px rgba(255, 62, 76, .75));
-  opacity: .72;
-}
-
-/* Glass highlight */
+.hud-ring .ring-sector::before,
 .hud-ring .ring-sector::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background:
-    linear-gradient(
-      115deg,
-      transparent 0%,
-      rgba(255,255,255,.055) 38%,
-      transparent 70%
-    );
-
-  opacity: .65;
-  pointer-events: none;
+  display: none !important;
 }
 
-/* Верхня плашка: увігнута вниз, ніби лежить на верхній дузі */
 .hud-ring .sector-login {
   left: 50% !important;
-  top: 6px !important;
-
+  top: 5.8% !important;
   transform: translateX(-50%) !important;
-
-  border-radius: 0 0 48% 48% / 0 0 34% 34% !important;
-
-  clip-path: polygon(
-    8% 0%,
-    92% 0%,
-    100% 18%,
-    94% 82%,
-    78% 100%,
-    22% 100%,
-    6% 82%,
-    0% 18%
-  ) !important;
 }
 
-.hud-ring .sector-login::before {
-  bottom: 8px;
-}
-
-/* Нижня плашка: дзеркальна до верхньої */
 .hud-ring .sector-register {
   left: 50% !important;
-  bottom: 6px !important;
-
+  bottom: 6.4% !important;
   transform: translateX(-50%) !important;
-
-  border-radius: 48% 48% 0 0 / 34% 34% 0 0 !important;
-
-  clip-path: polygon(
-    22% 0%,
-    78% 0%,
-    94% 18%,
-    100% 82%,
-    92% 100%,
-    8% 100%,
-    0% 82%,
-    6% 18%
-  ) !important;
 }
 
-.hud-ring .sector-register::before {
-  top: 8px;
-}
-
-/* Розробника прибираємо */
 .hud-ring .sector-dev {
   display: none !important;
 }
 
-/* Текст всередині плашок */
 .hud-ring .ring-sector .sector-num {
+  display: block !important;
   font-family: "Rajdhani", sans-serif !important;
   font-size: 15px !important;
   font-weight: 600 !important;
-  letter-spacing: .20em !important;
+  line-height: 1 !important;
+  letter-spacing: .18em !important;
   color: rgba(255,255,255,.82) !important;
-  margin-bottom: 4px;
+  margin-bottom: 7px !important;
+  text-shadow: 0 0 10px rgba(255,255,255,.10), 0 0 18px rgba(255, 64, 78, .12) !important;
 }
 
 .hud-ring .ring-sector .sector-title {
+  display: block !important;
   font-family: "Rajdhani", sans-serif !important;
-  font-size: 31px !important;
+  font-size: clamp(28px, 2vw, 38px) !important;
   font-weight: 600 !important;
-  line-height: .95 !important;
+  line-height: .92 !important;
   letter-spacing: .12em !important;
-  color: rgba(255,255,255,.92) !important;
   text-transform: uppercase !important;
+  color: rgba(255,255,255,.92) !important;
+  text-shadow: 0 0 12px rgba(255,255,255,.10), 0 0 22px rgba(255, 64, 78, .10) !important;
 }
 
 .hud-ring .ring-sector .sector-sub {
-  margin-top: 8px;
+  display: block !important;
+  margin-top: 9px !important;
   font-family: "Rajdhani", sans-serif !important;
   font-size: 11px !important;
   font-weight: 500 !important;
+  line-height: 1 !important;
   letter-spacing: .42em !important;
-  color: rgba(255, 66, 82, .82) !important;
   text-transform: uppercase !important;
+  color: rgba(255, 66, 82, .84) !important;
 }
 
-/* Hover / active */
-.hud-ring .ring-sector:hover,
-.hud-ring .ring-sector.is-active {
-  border-color: rgba(255, 76, 92, .38) !important;
-
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 70, 88, .32), transparent 62%),
-    linear-gradient(180deg, rgba(88, 10, 22, .42), rgba(18, 2, 7, .24)) !important;
-
-  box-shadow:
-    inset 0 0 32px rgba(255, 39, 58, .12),
-    0 0 28px rgba(255, 39, 58, .18) !important;
+.hud-ring .sector-login .sector-sub::after,
+.hud-ring .sector-register .sector-sub::after {
+  content: "";
+  display: block;
+  width: 155px;
+  height: 1px;
+  margin: 12px auto 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 60, 76, .68), transparent);
+  filter: drop-shadow(0 0 8px rgba(255, 60, 76, .55));
 }
 
-/* ENTER та лінія залишаються по центру */
+.hud-ring .ring-sector:hover .sector-title,
+.hud-ring .ring-sector.is-active .sector-title {
+  color: rgba(255,255,255,.98) !important;
+  text-shadow: 0 0 14px rgba(255,255,255,.16), 0 0 26px rgba(255, 64, 78, .18) !important;
+}
+
 .hud-ring .signal-line,
 .hud-ring .enter-link {
   transform: none !important;
@@ -366,21 +264,16 @@
   margin-right: auto !important;
 }
 
-/* Прибирає старі невдалі SVG/IMG wordmark, якщо лишилися */
 .brand-wordmark,
 .bastion-glyph-wordmark,
 .brand-name-img {
   display: none !important;
 }
 
-/* ================= MOBILE ================= */
-
 @media (max-width: 900px) {
   .hud-ring {
     --core-shift-x: 4px;
     --core-shift-y: -4px;
-    --sector-width: 210px;
-    --sector-height: 92px;
   }
 
   .hud-ring .brand-name {
@@ -393,8 +286,16 @@
     width: 72px !important;
   }
 
+  .hud-ring .sector-login {
+    top: 5.2% !important;
+  }
+
+  .hud-ring .sector-register {
+    bottom: 5.8% !important;
+  }
+
   .hud-ring .ring-sector .sector-title {
-    font-size: 25px !important;
+    font-size: 26px !important;
   }
 
   .hud-ring .ring-sector .sector-sub {
@@ -407,7 +308,9 @@
   .hud-ring .ring-data-layer,
   .hud-ring .ring-inner-layer,
   .hud-ring .ring-active-layer,
-  .hud-ring .ring-glass-layer {
+  .hud-ring .ring-glass-layer,
+  .hud-ring::before,
+  .hud-ring::after {
     animation: none !important;
   }
 }
