@@ -1,4 +1,3 @@
-
 @keyframes rotateSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -30,34 +29,107 @@
   100% { transform: translate(-80px, 40px); }
 }
 
+/* Хмари — дуже повільний рух, щоб не було ефекту таймлапсу. */
+@keyframes cloudsDriftA {
+  0%, 100% {
+    transform: translate3d(-2.4%, -1.2%, 0) scale(1.04);
+  }
+  50% {
+    transform: translate3d(2.8%, .8%, 0) scale(1.07);
+  }
+}
+
+@keyframes cloudsDriftB {
+  0%, 100% {
+    transform: translate3d(2.5%, .8%, 0) scaleX(-1) scale(1.02);
+  }
+  50% {
+    transform: translate3d(-3.6%, -1.2%, 0) scaleX(-1) scale(1.06);
+  }
+}
+
+/* Макове поле — не рухаємо всю картинку, а створюємо відчуття хвиль вітру. */
+@keyframes fieldWaveBack {
+  0%, 100% {
+    transform: translate3d(-1.2%, 0, 0) skewX(-1deg) scaleY(1);
+  }
+  50% {
+    transform: translate3d(1.6%, -1.1%, 0) skewX(1.2deg) scaleY(1.035);
+  }
+}
+
+@keyframes fieldWaveMid {
+  0%, 100% {
+    transform: translate3d(1.6%, .2%, 0) skewX(1.2deg) scaleY(1.01);
+  }
+  50% {
+    transform: translate3d(-2.2%, -1.4%, 0) skewX(-1.5deg) scaleY(1.05);
+  }
+}
+
+@keyframes fieldWaveFront {
+  0%, 100% {
+    transform: translate3d(-2.4%, .8%, 0) skewX(-1.8deg) scaleY(1.02);
+  }
+  50% {
+    transform: translate3d(2.7%, -1.8%, 0) skewX(1.8deg) scaleY(1.075);
+  }
+}
+
+/* Димка над полем: легка, червонувата, без зміни світла фону. */
 .fog-layer {
-  z-index: 2;
-  opacity: .10;
-  filter: blur(22px);
+  z-index: 4;
+  pointer-events: none;
   mix-blend-mode: screen;
+}
+
+.fog-horizon {
+  opacity: .13;
+  filter: blur(24px);
   background:
-    radial-gradient(ellipse at 18% 70%, rgba(255,46,77,.24), transparent 38%),
-    radial-gradient(ellipse at 78% 66%, rgba(255,46,77,.18), transparent 40%),
-    radial-gradient(ellipse at 50% 78%, rgba(255,255,255,.06), transparent 52%);
+    radial-gradient(ellipse at 50% 62%, rgba(255, 70, 86, .18), transparent 48%),
+    linear-gradient(90deg, transparent, rgba(255,255,255,.05), transparent);
+  animation: fogHorizonMove 58s ease-in-out infinite;
 }
 
-.fog-a {
-  animation: fogMoveA 42s ease-in-out infinite;
+.fog-field-a {
+  top: auto;
+  bottom: 3vh;
+  height: 38vh;
+  opacity: .16;
+  filter: blur(18px);
+  background:
+    radial-gradient(ellipse at 18% 62%, rgba(255, 72, 88, .18), transparent 36%),
+    radial-gradient(ellipse at 78% 56%, rgba(255, 72, 88, .13), transparent 42%),
+    linear-gradient(90deg, transparent, rgba(255,255,255,.055), transparent);
+  animation: fogFieldA 36s ease-in-out infinite;
 }
 
-.fog-b {
-  opacity: .065;
-  animation: fogMoveB 56s ease-in-out infinite;
+.fog-field-b {
+  top: auto;
+  bottom: 0;
+  height: 45vh;
+  opacity: .09;
+  filter: blur(30px);
+  background:
+    radial-gradient(ellipse at 38% 72%, rgba(255,255,255,.08), transparent 42%),
+    radial-gradient(ellipse at 66% 62%, rgba(255, 46, 77, .15), transparent 44%);
+  animation: fogFieldB 49s ease-in-out infinite;
 }
 
-@keyframes fogMoveA {
-  0%, 100% { transform: translateX(-4%) translateY(2%); }
-  50% { transform: translateX(5%) translateY(-1%); }
+@keyframes fogHorizonMove {
+  0%, 100% { transform: translate3d(-3%, 0, 0) scale(1.04); }
+  50% { transform: translate3d(3%, -1%, 0) scale(1.08); }
 }
 
-@keyframes fogMoveB {
-  0%, 100% { transform: translateX(5%) translateY(0); }
-  50% { transform: translateX(-6%) translateY(2%); }
+@keyframes fogFieldA {
+  0%, 100% { transform: translate3d(-5%, 2%, 0) scaleX(1.08); }
+  50% { transform: translate3d(4%, -2%, 0) scaleX(1.16); }
+}
+
+@keyframes fogFieldB {
+  0%, 100% { transform: translate3d(5%, 1%, 0) scaleX(1.12); }
+  50% { transform: translate3d(-6%, -1%, 0) scaleX(1.2); }
 }
 
 .ember {
@@ -80,5 +152,15 @@
   to {
     transform: translateY(-105vh) translateX(28px);
     opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
 }
