@@ -1,0 +1,112 @@
+<svg width="1600" height="280" viewBox="0 0 1600 280" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="БАСТІОН">
+  <defs>
+    <linearGradient id="bsg-metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FAFAFA"/>
+      <stop offset="12%" stop-color="#C9CCD1"/>
+      <stop offset="35%" stop-color="#777C84"/>
+      <stop offset="52%" stop-color="#F2F3F4"/>
+      <stop offset="72%" stop-color="#9EA3AA"/>
+      <stop offset="100%" stop-color="#4A4F58"/>
+    </linearGradient>
+
+    <linearGradient id="bsg-edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF2E3C" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#FF6A38" stop-opacity=".95"/>
+      <stop offset="65%" stop-color="#FF2E3C" stop-opacity=".95"/>
+      <stop offset="100%" stop-color="#FF2E3C" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="bsg-darkcut" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06070A"/>
+      <stop offset="100%" stop-color="#1A1D24"/>
+    </linearGradient>
+
+    <filter id="bsg-glow" x="-10%" y="-45%" width="120%" height="190%">
+      <feDropShadow dx="0" dy="0" stdDeviation="1.3" flood-color="#FFFFFF" flood-opacity=".28"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#FF3445" flood-opacity=".22"/>
+      <feDropShadow dx="0" dy="13" stdDeviation="18" flood-color="#000000" flood-opacity=".85"/>
+    </filter>
+
+    <filter id="bsg-hot" x="-100%" y="-900%" width="300%" height="1800%">
+      <feGaussianBlur stdDeviation="4.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <pattern id="bsg-grain" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M5 12h20M34 8h8M11 48h29M42 39h17M7 57h8" stroke="#fff" stroke-width="1" stroke-opacity=".075"/>
+      <circle cx="22" cy="29" r="1" fill="#fff" fill-opacity=".055"/>
+      <circle cx="51" cy="18" r="1" fill="#fff" fill-opacity=".05"/>
+      <circle cx="44" cy="58" r="1" fill="#fff" fill-opacity=".045"/>
+    </pattern>
+
+    <clipPath id="bsg-word-clip">
+      <rect x="0" y="0" width="1600" height="280"/>
+    </clipPath>
+  </defs>
+
+  <g filter="url(#bsg-glow)" clip-path="url(#bsg-word-clip)" transform="translate(70 52)">
+    <!-- Б -->
+    <g>
+      <path fill="url(#bsg-metal)" d="M0 0H205L174 34H39V67H178L146 101H39V139H204L171 176H0V0Z"/>
+      <path fill="url(#bsg-darkcut)" d="M39 101H137L113 126H39V101Z" opacity=".92"/>
+      <path fill="#FF3C39" d="M0 82H27V109H0V82Z"/>
+      <path fill="url(#bsg-edge)" d="M12 169H164V176H12V169Z" opacity=".75"/>
+      <path fill="url(#bsg-edge)" d="M6 0H196V5H6V0Z" opacity=".34"/>
+    </g>
+
+    <!-- А -->
+    <g transform="translate(270 0)">
+      <path fill="url(#bsg-metal)" d="M0 176L130 0H199L329 176H277L164 34L112 104H173L203 139H86L58 176H0Z"/>
+      <path fill="url(#bsg-darkcut)" d="M128 104H173L190 128H111L128 104Z" opacity=".92"/>
+      <path fill="url(#bsg-edge)" d="M80 139H214V146H80V139Z" opacity=".75"/>
+    </g>
+
+    <!-- С -->
+    <g transform="translate(665 0)">
+      <path fill="url(#bsg-metal)" d="M0 0H220L185 36H42V140H220L185 176H0V0Z"/>
+      <path fill="url(#bsg-edge)" d="M15 169H187V176H15V169Z" opacity=".52"/>
+      <path fill="url(#bsg-edge)" d="M12 0H215V5H12V0Z" opacity=".35"/>
+    </g>
+
+    <!-- Т -->
+    <g transform="translate(945 0)">
+      <path fill="url(#bsg-metal)" d="M0 0H250L213 36H145V176H103V36H0V0Z"/>
+      <path fill="#FF3C39" d="M112 145H138V176H112V145Z" opacity=".88"/>
+      <path fill="url(#bsg-edge)" d="M94 137H157V144H94V137Z" opacity=".9"/>
+    </g>
+
+    <!-- І -->
+    <g transform="translate(1250 0)">
+      <path fill="url(#bsg-metal)" d="M0 0H42V176H0V0Z"/>
+      <path fill="url(#bsg-edge)" d="M0 169H42V176H0V169Z" opacity=".45"/>
+    </g>
+
+    <!-- О -->
+    <g transform="translate(1370 0)">
+      <path fill="url(#bsg-metal)" d="M0 0H178L214 36V140L178 176H0V0ZM42 36V140H156L172 124V52L156 36H42Z"/>
+      <path fill="url(#bsg-darkcut)" d="M74 68H137L105 108L74 68Z" opacity=".92"/>
+      <path fill="url(#bsg-edge)" d="M38 0H178L214 36H69L38 0Z" opacity=".86"/>
+      <path fill="url(#bsg-edge)" d="M172 36H214V140H172V36Z" opacity=".78"/>
+    </g>
+
+    <!-- Н -->
+    <g transform="translate(1632 0)">
+      <path fill="url(#bsg-metal)" d="M0 0H42V67H158V0H200V176H158V108H42V176H0V0Z"/>
+      <path fill="url(#bsg-edge)" d="M42 84H158V93H42V84Z" opacity=".82"/>
+    </g>
+
+    <rect x="0" y="0" width="1832" height="176" fill="url(#bsg-grain)" opacity=".5" style="mix-blend-mode:screen"/>
+  </g>
+
+  <!-- hot scanning sparks -->
+  <g opacity=".95" filter="url(#bsg-hot)">
+    <rect x="347" y="180" width="178" height="2" fill="url(#bsg-edge)"/>
+    <rect x="1056" y="197" width="86" height="2" fill="url(#bsg-edge)"/>
+    <rect x="1442" y="56" width="174" height="2" fill="url(#bsg-edge)"/>
+    <circle cx="372" cy="181" r="2.3" fill="#FF5A36"/>
+    <circle cx="1452" cy="57" r="2.1" fill="#FF5A36"/>
+  </g>
+</svg>
