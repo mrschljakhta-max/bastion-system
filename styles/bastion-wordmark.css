@@ -537,19 +537,19 @@
 }
 
 /* =========================================================
-   BASTION ACCESS SECTORS V4 — POLISHED CUTOUT HUD
-   Мета: не важкі плашки, а легкі інтегровані вирізи в HUD-кільці.
+   BASTION ACCESS SECTORS V3 — INTEGRATED HUD MODULES
+   Це фінальний override: сектори ВХІД / РЕЄСТРАЦІЯ стають
+   частиною кільця, а не текстом поверх нього.
    ========================================================= */
 
 .hud-ring {
-  --sector-w: clamp(196px, 16.6vw, 252px);
-  --sector-h: clamp(66px, 5.4vw, 86px);
-  --sector-red: rgba(255, 58, 78, .68);
-  --sector-red-soft: rgba(255, 58, 78, .15);
-  --sector-red-dim: rgba(255, 58, 78, .052);
+  --sector-w: clamp(210px, 20vw, 286px);
+  --sector-h: clamp(86px, 8.2vw, 116px);
+  --sector-red: rgba(255, 52, 72, .72);
+  --sector-red-soft: rgba(255, 52, 72, .18);
+  --sector-red-dim: rgba(255, 52, 72, .075);
 }
 
-/* Сектор тепер легший, нижчий і не забирає увагу у BASTION */
 .hud-ring .ring-sector {
   width: var(--sector-w) !important;
   min-width: 0 !important;
@@ -560,261 +560,311 @@
   border: 0 !important;
   outline: 0 !important;
   background: transparent !important;
-
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: clamp(3px, .28vw, 5px) !important;
-
-  opacity: .88 !important;
-  filter: drop-shadow(0 0 10px rgba(255, 46, 77, .10)) !important;
-  transition:
-    opacity .28s ease,
-    filter .28s ease,
-    transform .28s ease !important;
+  gap: clamp(5px, .45vw, 8px) !important;
+  opacity: .92 !important;
+  filter: drop-shadow(0 0 16px rgba(255, 46, 77, .14)) !important;
+  transition: opacity .28s ease, filter .28s ease, transform .28s ease !important;
 }
 
-/* Верхній сектор — на центральній осі, але не тисне на логотип */
+/* Верхній сектор — оптично точно по центральній осі кільця */
 .hud-ring .sector-login {
   left: 50% !important;
   right: auto !important;
-  top: .9% !important;
+  top: -1.8% !important;
   bottom: auto !important;
   transform: translateX(-50%) !important;
 }
 
-/* Нижній сектор — аналогічна інтеграція в нижню дугу */
+/* Нижній сектор — та сама вісь, симетрія з верхнім сектором */
 .hud-ring .sector-register {
   left: 50% !important;
   right: auto !important;
-  bottom: .7% !important;
+  bottom: -1.8% !important;
   top: auto !important;
   transform: translateX(-50%) !important;
 }
 
 .hud-ring .sector-login:hover,
 .hud-ring .sector-login.is-active {
-  transform: translateX(-50%) translateY(-1px) scale(1.012) !important;
+  transform: translateX(-50%) translateY(-2px) scale(1.025) !important;
 }
 
 .hud-ring .sector-register:hover,
 .hud-ring .sector-register.is-active {
-  transform: translateX(-50%) translateY(1px) scale(1.012) !important;
+  transform: translateX(-50%) translateY(2px) scale(1.025) !important;
 }
 
-/* Основний корпус: майже прозорий cutout, а не кнопка */
+/* Основний корпус HUD-сектора */
 .hud-ring .ring-sector::before {
   content: "" !important;
   display: block !important;
   position: absolute !important;
   inset: 0 !important;
   z-index: -2 !important;
-
-  opacity: .82 !important;
-  border: 1px solid rgba(255, 58, 78, .22) !important;
-
+  opacity: .94 !important;
+  border: 1px solid rgba(255, 58, 78, .36) !important;
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(255, 70, 90, .105), transparent 55%),
-    linear-gradient(180deg, rgba(25, 2, 7, .50), rgba(6, 0, 3, .24) 72%, rgba(0, 0, 0, .04)),
-    linear-gradient(90deg, transparent, rgba(255, 58, 78, .045), transparent) !important;
-
+    radial-gradient(ellipse at 50% 0%, rgba(255, 70, 90, .22), transparent 56%),
+    linear-gradient(180deg, rgba(31, 3, 9, .86), rgba(9, 0, 4, .44) 68%, rgba(0, 0, 0, .16)),
+    linear-gradient(90deg, transparent, rgba(255, 58, 78, .075), transparent) !important;
   box-shadow:
-    inset 0 0 14px rgba(255, 46, 77, .045),
-    inset 0 -8px 18px rgba(255, 46, 77, .035),
-    0 0 14px rgba(255, 46, 77, .060),
-    0 10px 28px rgba(0, 0, 0, .34) !important;
-
-  backdrop-filter: blur(3px) saturate(1.05) !important;
-  -webkit-backdrop-filter: blur(3px) saturate(1.05) !important;
-
-  clip-path: polygon(
-    15% 0,
-    85% 0,
-    96% 31%,
-    90% 100%,
-    10% 100%,
-    4% 31%
-  ) !important;
-
-  transition:
-    border-color .28s ease,
-    box-shadow .28s ease,
-    opacity .28s ease,
-    background .28s ease !important;
+    inset 0 0 20px rgba(255, 46, 77, .075),
+    inset 0 -12px 28px rgba(255, 46, 77, .055),
+    0 0 24px rgba(255, 46, 77, .11),
+    0 16px 44px rgba(0, 0, 0, .42) !important;
+  backdrop-filter: blur(5px) saturate(1.12) !important;
+  -webkit-backdrop-filter: blur(5px) saturate(1.12) !important;
+  clip-path: polygon(12% 0, 88% 0, 100% 40%, 91% 100%, 9% 100%, 0 40%) !important;
+  transition: border-color .28s ease, box-shadow .28s ease, opacity .28s ease, background .28s ease !important;
 }
 
-/* Дуга-замок: тонкий системний контур замість жирної лінії */
+/* Технічна нижня/верхня дуга сектора */
 .hud-ring .ring-sector::after {
   content: "" !important;
   display: block !important;
   position: absolute !important;
   left: 50% !important;
-  width: 70% !important;
-  height: 16px !important;
+  width: 78% !important;
+  height: 22px !important;
   z-index: -1 !important;
-  opacity: .58 !important;
-
-  border-left: 1px solid rgba(255, 58, 78, .16) !important;
-  border-right: 1px solid rgba(255, 58, 78, .16) !important;
-
+  opacity: .76 !important;
+  border-left: 1px solid rgba(255, 58, 78, .26) !important;
+  border-right: 1px solid rgba(255, 58, 78, .26) !important;
   background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 58, 78, .22),
-      rgba(255, 255, 255, .10),
-      rgba(255, 58, 78, .22),
-      transparent
-    ) center / 100% 1px no-repeat !important;
-
-  filter: drop-shadow(0 0 6px rgba(255, 46, 77, .24)) !important;
+    linear-gradient(90deg, transparent, rgba(255, 58, 78, .42), rgba(255, 255, 255, .20), rgba(255, 58, 78, .42), transparent) center / 100% 1px no-repeat !important;
+  filter: drop-shadow(0 0 9px rgba(255, 46, 77, .42)) !important;
   transition: opacity .28s ease, width .28s ease, filter .28s ease !important;
 }
 
 .hud-ring .sector-login::after {
-  bottom: 8px !important;
+  bottom: 10px !important;
   transform: translateX(-50%) !important;
 }
 
 .hud-ring .sector-register::after {
-  top: 8px !important;
+  top: 10px !important;
   transform: translateX(-50%) !important;
 }
 
-/* Бокові мікро-лінії — коротші, щоб не шуміли */
+/* Маленькі бокові “замки”, щоб сектор виглядав як частина механіки кільця */
 .hud-ring .ring-sector .sector-num::before,
 .hud-ring .ring-sector .sector-num::after {
   content: "";
   position: absolute;
   top: 50%;
-  width: clamp(18px, 2.1vw, 34px);
+  width: clamp(28px, 3.2vw, 48px);
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 58, 78, .42));
-  filter: drop-shadow(0 0 5px rgba(255, 46, 77, .30));
+  background: linear-gradient(90deg, transparent, rgba(255, 58, 78, .55));
+  filter: drop-shadow(0 0 7px rgba(255, 46, 77, .48));
 }
 
 .hud-ring .ring-sector .sector-num::before {
-  right: calc(100% + 10px);
+  right: calc(100% + 12px);
 }
 
 .hud-ring .ring-sector .sector-num::after {
-  left: calc(100% + 10px);
+  left: calc(100% + 12px);
   transform: scaleX(-1);
 }
 
 .hud-ring .ring-sector .sector-num {
   position: relative !important;
   margin: 0 !important;
-
-  font-family: "Rajdhani", sans-serif !important;
-  font-size: clamp(12px, .92vw, 14px) !important;
+  font-size: clamp(13px, 1.1vw, 16px) !important;
   font-weight: 700 !important;
   line-height: 1 !important;
-  letter-spacing: .14em !important;
-
-  color: rgba(255, 255, 255, .72) !important;
-  text-shadow:
-    0 0 8px rgba(255, 255, 255, .10),
-    0 0 12px rgba(255, 46, 77, .12) !important;
+  letter-spacing: .16em !important;
+  color: rgba(255, 255, 255, .78) !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, .12), 0 0 16px rgba(255, 46, 77, .18) !important;
 }
 
 .hud-ring .ring-sector .sector-title {
   margin: 0 !important;
-
-  font-family: "Rajdhani", sans-serif !important;
-  font-size: clamp(24px, 1.78vw, 34px) !important;
+  font-size: clamp(25px, 2.05vw, 38px) !important;
   font-weight: 700 !important;
   line-height: .88 !important;
-  letter-spacing: .095em !important;
-  padding-left: .095em !important;
-  text-transform: uppercase !important;
-
-  color: rgba(255, 255, 255, .94) !important;
-
+  letter-spacing: .105em !important;
+  padding-left: .105em !important;
+  color: rgba(255, 255, 255, .96) !important;
   text-shadow:
-    0 0 10px rgba(255, 255, 255, .11),
-    0 0 18px rgba(255, 46, 77, .11),
-    0 2px 12px rgba(0, 0, 0, .64) !important;
+    0 0 12px rgba(255, 255, 255, .14),
+    0 0 26px rgba(255, 46, 77, .16),
+    0 2px 14px rgba(0, 0, 0, .68) !important;
 }
 
 .hud-ring .ring-sector .sector-sub {
   margin: 0 !important;
-
-  font-family: "Rajdhani", sans-serif !important;
-  font-size: clamp(8px, .62vw, 10px) !important;
+  font-size: clamp(8px, .72vw, 11px) !important;
   font-weight: 600 !important;
   line-height: 1 !important;
-  letter-spacing: .38em !important;
-  padding-left: .38em !important;
-  text-transform: uppercase !important;
-
-  color: rgba(255, 68, 86, .74) !important;
-  text-shadow: 0 0 8px rgba(255, 46, 77, .20) !important;
+  letter-spacing: .44em !important;
+  padding-left: .44em !important;
+  color: rgba(255, 68, 86, .88) !important;
+  text-shadow: 0 0 11px rgba(255, 46, 77, .28) !important;
 }
 
-/* Стару тонку лінію вимикаємо — тепер лінія інтегрована в сектор */
+/* Стару тонку лінію вимикаємо — тепер лінія інтегрована в корпус сектора */
 .hud-ring .sector-login .sector-sub::after,
 .hud-ring .sector-register .sector-sub::after {
   display: none !important;
 }
 
-/* Hover/active — тільки легка активація, без неонового банера */
 .hud-ring .ring-sector:hover,
 .hud-ring .ring-sector.is-active {
   opacity: 1 !important;
   filter:
-    drop-shadow(0 0 12px rgba(255, 46, 77, .18))
-    drop-shadow(0 0 28px rgba(255, 46, 77, .055)) !important;
+    drop-shadow(0 0 18px rgba(255, 46, 77, .26))
+    drop-shadow(0 0 42px rgba(255, 46, 77, .10)) !important;
 }
 
 .hud-ring .ring-sector:hover::before,
 .hud-ring .ring-sector.is-active::before {
-  opacity: .92 !important;
-  border-color: rgba(255, 82, 98, .36) !important;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(255, 70, 90, .14), transparent 56%),
-    linear-gradient(180deg, rgba(28, 2, 8, .56), rgba(8, 0, 4, .27) 72%, rgba(0, 0, 0, .05)),
-    linear-gradient(90deg, transparent, rgba(255, 58, 78, .060), transparent) !important;
+  border-color: rgba(255, 82, 98, .58) !important;
   box-shadow:
-    inset 0 0 16px rgba(255, 46, 77, .062),
-    inset 0 -8px 20px rgba(255, 46, 77, .046),
-    0 0 18px rgba(255, 46, 77, .09),
-    0 10px 30px rgba(0, 0, 0, .38) !important;
+    inset 0 0 24px rgba(255, 46, 77, .12),
+    inset 0 -12px 32px rgba(255, 46, 77, .085),
+    0 0 28px rgba(255, 46, 77, .18),
+    0 18px 48px rgba(0, 0, 0, .46) !important;
 }
 
 .hud-ring .ring-sector:hover::after,
 .hud-ring .ring-sector.is-active::after {
-  width: 78% !important;
-  opacity: .82 !important;
-  filter: drop-shadow(0 0 9px rgba(255, 46, 77, .36)) !important;
+  width: 88% !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 14px rgba(255, 46, 77, .62)) !important;
 }
 
 .hud-ring .ring-sector:hover .sector-title,
 .hud-ring .ring-sector.is-active .sector-title {
   color: #fff !important;
   text-shadow:
-    0 0 12px rgba(255, 255, 255, .15),
-    0 0 24px rgba(255, 46, 77, .16),
-    0 2px 13px rgba(0, 0, 0, .70) !important;
+    0 0 16px rgba(255, 255, 255, .22),
+    0 0 34px rgba(255, 46, 77, .24),
+    0 2px 16px rgba(0, 0, 0, .70) !important;
 }
 
-/* На малих екранах сектор має лишатись легким і не перекривати центр */
+/* На малих екранах сектори не повинні давити на центр */
 @media (max-width: 900px) {
   .hud-ring {
-    --sector-w: clamp(168px, 50vw, 218px);
-    --sector-h: 72px;
+    --sector-w: clamp(176px, 54vw, 230px);
+    --sector-h: 82px;
   }
 
   .hud-ring .sector-login {
-    top: -1.4% !important;
+    top: -3.2% !important;
   }
 
   .hud-ring .sector-register {
-    bottom: -1.4% !important;
-  }
-
-  .hud-ring .ring-sector .sector-title {
-    font-size: 24px !important;
+    bottom: -3.2% !important;
   }
 }
+
+/* =========================================================
+   BASTION ACCESS SECTORS V5 — OPTICAL CENTER FIX
+   Виправлення головної проблеми: верхній сектор “ВХІД” більше
+   не сидить зліва. Він прив’язаний до оптичної осі кільця/бренду.
+   ========================================================= */
+
+.hud-ring {
+  --sector-w: clamp(188px, 17.4vw, 252px);
+  --sector-h: clamp(68px, 6.5vw, 92px);
+  --login-optical-shift-x: clamp(64px, 6.1vw, 106px);
+  --register-optical-shift-x: 0px;
+}
+
+/* ВХІД — оптично по центру HUD, з легким зсувом вправо від математичної осі */
+.hud-ring .sector-login {
+  left: calc(50% + var(--login-optical-shift-x)) !important;
+  top: 2.8% !important;
+  transform: translateX(-50%) !important;
+}
+
+.hud-ring .sector-login:hover,
+.hud-ring .sector-login.is-active {
+  transform: translateX(-50%) translateY(-2px) scale(1.018) !important;
+}
+
+/* РЕЄСТРАЦІЯ лишається на центральній осі, але стає трохи легшою */
+.hud-ring .sector-register {
+  left: calc(50% + var(--register-optical-shift-x)) !important;
+  bottom: 2.3% !important;
+  transform: translateX(-50%) !important;
+}
+
+.hud-ring .sector-register:hover,
+.hud-ring .sector-register.is-active {
+  transform: translateX(-50%) translateY(2px) scale(1.018) !important;
+}
+
+/* Менше “плашки”, більше інтегрованого HUD-модуля */
+.hud-ring .ring-sector::before {
+  opacity: .78 !important;
+  border-color: rgba(255, 58, 78, .24) !important;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 70, 90, .13), transparent 58%),
+    linear-gradient(180deg, rgba(31, 3, 9, .46), rgba(9, 0, 4, .22) 68%, rgba(0, 0, 0, .08)),
+    linear-gradient(90deg, transparent, rgba(255, 58, 78, .045), transparent) !important;
+  box-shadow:
+    inset 0 0 16px rgba(255, 46, 77, .045),
+    inset 0 -9px 22px rgba(255, 46, 77, .035),
+    0 0 18px rgba(255, 46, 77, .07),
+    0 12px 34px rgba(0, 0, 0, .34) !important;
+  backdrop-filter: blur(4px) saturate(1.06) !important;
+  -webkit-backdrop-filter: blur(4px) saturate(1.06) !important;
+  clip-path: polygon(14% 0, 86% 0, 100% 38%, 90% 100%, 10% 100%, 0 38%) !important;
+}
+
+.hud-ring .ring-sector::after {
+  width: 72% !important;
+  opacity: .58 !important;
+  filter: drop-shadow(0 0 7px rgba(255, 46, 77, .30)) !important;
+}
+
+.hud-ring .ring-sector .sector-title {
+  font-size: clamp(24px, 1.84vw, 34px) !important;
+  letter-spacing: .10em !important;
+  padding-left: .10em !important;
+}
+
+.hud-ring .sector-register .sector-title {
+  font-size: clamp(24px, 1.75vw, 32px) !important;
+}
+
+.hud-ring .ring-sector .sector-sub {
+  letter-spacing: .40em !important;
+  padding-left: .40em !important;
+}
+
+.hud-ring .ring-sector .sector-num::before,
+.hud-ring .ring-sector .sector-num::after {
+  opacity: .62 !important;
+}
+
+/* На менших екранах зсув зменшується, щоб сектор не тікав вправо */
+@media (max-width: 1200px) {
+  .hud-ring {
+    --login-optical-shift-x: clamp(36px, 5.2vw, 74px);
+  }
+}
+
+@media (max-width: 900px) {
+  .hud-ring {
+    --sector-w: clamp(170px, 50vw, 218px);
+    --sector-h: 76px;
+    --login-optical-shift-x: 0px;
+  }
+
+  .hud-ring .sector-login {
+    left: 50% !important;
+    top: 1.6% !important;
+  }
+
+  .hud-ring .sector-register {
+    bottom: 1.6% !important;
+  }
+}
+/* ===== END BASTION ACCESS SECTORS V5 ===== */
