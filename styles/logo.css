@@ -1,0 +1,73 @@
+/* ===== BASTION LOGO POLISH ===== */
+
+.brand-mark {
+  width: 88px;
+  height: auto;
+  object-fit: contain;
+  background: transparent !important;
+  border: 0;
+  border-radius: 0;
+  filter:
+    drop-shadow(0 0 10px rgba(245, 189, 53, .42))
+    drop-shadow(0 0 24px rgba(245, 189, 53, .16))
+    drop-shadow(0 0 36px rgba(255, 46, 77, .10));
+  animation: bastionLogoFloat 6.5s ease-in-out infinite;
+}
+
+.ring-center::before {
+  content: "";
+  position: absolute;
+  width: 132px;
+  height: 132px;
+  top: 18px;
+  left: 50%;
+  translate: -50% 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle,
+      rgba(245, 189, 53, .14) 0%,
+      rgba(245, 189, 53, .055) 34%,
+      rgba(255, 46, 77, .035) 56%,
+      transparent 72%);
+  filter: blur(8px);
+  opacity: .85;
+  pointer-events: none;
+}
+
+.ring-center::after {
+  content: "";
+  position: absolute;
+  width: 112px;
+  height: 1px;
+  top: 82px;
+  left: 50%;
+  translate: -50% 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.62), transparent);
+  opacity: 0;
+  filter: drop-shadow(0 0 10px rgba(245, 189, 53, .5));
+  animation: bastionLogoShine 7.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes bastionLogoFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.025);
+  }
+}
+
+@keyframes bastionLogoShine {
+  0%, 18%, 100% {
+    opacity: 0;
+    transform: translateX(-42px);
+  }
+  25% {
+    opacity: .75;
+  }
+  38% {
+    opacity: 0;
+    transform: translateX(42px);
+  }
+}

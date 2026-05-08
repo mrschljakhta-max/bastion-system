@@ -1,0 +1,37 @@
+<svg width="620" height="300" viewBox="0 0 620 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="620" height="300" fill="transparent"/>
+  <g transform="translate(200 20) scale(.82)">
+    <g filter="url(#goldGlow)">
+      <path d="M110 31L170 64L137 83L110 68L83 83L50 64L110 31Z" fill="url(#goldA)"/>
+      <path d="M50 87L110 121L137 105L170 124L110 159L50 125L83 106L110 122L137 106L110 90L83 106L50 87Z" fill="url(#goldB)"/>
+    </g>
+  </g>
+
+  <text x="310" y="205" text-anchor="middle" fill="#F4F7FF"
+        font-family="Syncopate, Michroma, Arial, sans-serif"
+        font-size="38" letter-spacing="18">BASTION</text>
+
+  <text x="310" y="245" text-anchor="middle" fill="#FF3A55"
+        font-family="Oxanium, Arial, sans-serif"
+        font-size="11" letter-spacing="8">AUTHORIZED ACCESS NODE</text>
+
+  <defs>
+    <linearGradient id="goldA" x1="50" y1="31" x2="170" y2="159" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF1A8"/>
+      <stop offset=".34" stop-color="#F7C84B"/>
+      <stop offset=".68" stop-color="#D99116"/>
+      <stop offset="1" stop-color="#F6C94F"/>
+    </linearGradient>
+    <linearGradient id="goldB" x1="50" y1="31" x2="170" y2="159" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE88A"/>
+      <stop offset=".45" stop-color="#F2B72D"/>
+      <stop offset=".78" stop-color="#C77610"/>
+      <stop offset="1" stop-color="#FFE17A"/>
+    </linearGradient>
+    <filter id="goldGlow" x="18" y="8" width="184" height="184" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#F5BD35" flood-opacity=".34"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#F5BD35" flood-opacity=".16"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="28" flood-color="#FF2E4D" flood-opacity=".10"/>
+    </filter>
+  </defs>
+</svg>
