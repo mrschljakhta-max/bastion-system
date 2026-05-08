@@ -1,3 +1,4 @@
+/* BASTION visible motion animations */
 @keyframes rotateSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -9,14 +10,8 @@
 }
 
 @keyframes pulseRing {
-  0%, 100% {
-    opacity: .50;
-    transform: scale(1);
-  }
-  50% {
-    opacity: .78;
-    transform: scale(1.014);
-  }
+  0%, 100% { opacity: .50; transform: scale(1); }
+  50% { opacity: .78; transform: scale(1.014); }
 }
 
 @keyframes cameraBreath {
@@ -29,54 +24,31 @@
   100% { transform: translate(-80px, 40px); }
 }
 
-/* Хмари — дуже повільний рух, щоб не було ефекту таймлапсу. */
 @keyframes cloudsDriftA {
-  0%, 100% {
-    transform: translate3d(-2.4%, -1.2%, 0) scale(1.04);
-  }
-  50% {
-    transform: translate3d(2.8%, .8%, 0) scale(1.07);
-  }
+  0%, 100% { transform: translate3d(-1.8%, -.6%, 0) scale(1.035); }
+  50% { transform: translate3d(2.2%, .6%, 0) scale(1.065); }
 }
 
 @keyframes cloudsDriftB {
-  0%, 100% {
-    transform: translate3d(2.5%, .8%, 0) scaleX(-1) scale(1.02);
-  }
-  50% {
-    transform: translate3d(-3.6%, -1.2%, 0) scaleX(-1) scale(1.06);
-  }
+  0%, 100% { transform: translate3d(2.6%, .8%, 0) scale(1.025); }
+  50% { transform: translate3d(-3.2%, -.8%, 0) scale(1.06); }
 }
 
-/* Макове поле — не рухаємо всю картинку, а створюємо відчуття хвиль вітру. */
 @keyframes fieldWaveBack {
-  0%, 100% {
-    transform: translate3d(-1.2%, 0, 0) skewX(-1deg) scaleY(1);
-  }
-  50% {
-    transform: translate3d(1.6%, -1.1%, 0) skewX(1.2deg) scaleY(1.035);
-  }
+  0%, 100% { transform: translate3d(-.7%, .1%, 0) skewX(-.55deg) scaleY(1.005); }
+  50% { transform: translate3d(.9%, -.5%, 0) skewX(.65deg) scaleY(1.018); }
 }
 
 @keyframes fieldWaveMid {
-  0%, 100% {
-    transform: translate3d(1.6%, .2%, 0) skewX(1.2deg) scaleY(1.01);
-  }
-  50% {
-    transform: translate3d(-2.2%, -1.4%, 0) skewX(-1.5deg) scaleY(1.05);
-  }
+  0%, 100% { transform: translate3d(1.1%, .15%, 0) skewX(.9deg) scaleY(1.01); }
+  50% { transform: translate3d(-1.55%, -.9%, 0) skewX(-1deg) scaleY(1.032); }
 }
 
 @keyframes fieldWaveFront {
-  0%, 100% {
-    transform: translate3d(-2.4%, .8%, 0) skewX(-1.8deg) scaleY(1.02);
-  }
-  50% {
-    transform: translate3d(2.7%, -1.8%, 0) skewX(1.8deg) scaleY(1.075);
-  }
+  0%, 100% { transform: translate3d(-1.7%, .45%, 0) skewX(-1.25deg) scaleY(1.015); }
+  50% { transform: translate3d(2.05%, -1.25%, 0) skewX(1.35deg) scaleY(1.052); }
 }
 
-/* Димка над полем: легка, червонувата, без зміни світла фону. */
 .fog-layer {
   z-index: 4;
   pointer-events: none;
@@ -84,37 +56,37 @@
 }
 
 .fog-horizon {
-  opacity: .13;
+  opacity: .18;
   filter: blur(24px);
   background:
-    radial-gradient(ellipse at 50% 62%, rgba(255, 70, 86, .18), transparent 48%),
-    linear-gradient(90deg, transparent, rgba(255,255,255,.05), transparent);
-  animation: fogHorizonMove 58s ease-in-out infinite;
+    radial-gradient(ellipse at 50% 62%, rgba(255, 70, 86, .22), transparent 48%),
+    linear-gradient(90deg, transparent, rgba(255,255,255,.065), transparent);
+  animation: fogHorizonMove 50s ease-in-out infinite;
 }
 
 .fog-field-a {
   top: auto;
   bottom: 3vh;
   height: 38vh;
-  opacity: .16;
+  opacity: .21;
   filter: blur(18px);
   background:
-    radial-gradient(ellipse at 18% 62%, rgba(255, 72, 88, .18), transparent 36%),
-    radial-gradient(ellipse at 78% 56%, rgba(255, 72, 88, .13), transparent 42%),
-    linear-gradient(90deg, transparent, rgba(255,255,255,.055), transparent);
-  animation: fogFieldA 36s ease-in-out infinite;
+    radial-gradient(ellipse at 18% 62%, rgba(255, 72, 88, .22), transparent 36%),
+    radial-gradient(ellipse at 78% 56%, rgba(255, 72, 88, .17), transparent 42%),
+    linear-gradient(90deg, transparent, rgba(255,255,255,.075), transparent);
+  animation: fogFieldA 30s ease-in-out infinite;
 }
 
 .fog-field-b {
   top: auto;
   bottom: 0;
   height: 45vh;
-  opacity: .09;
+  opacity: .13;
   filter: blur(30px);
   background:
-    radial-gradient(ellipse at 38% 72%, rgba(255,255,255,.08), transparent 42%),
-    radial-gradient(ellipse at 66% 62%, rgba(255, 46, 77, .15), transparent 44%);
-  animation: fogFieldB 49s ease-in-out infinite;
+    radial-gradient(ellipse at 38% 72%, rgba(255,255,255,.105), transparent 42%),
+    radial-gradient(ellipse at 66% 62%, rgba(255, 46, 77, .19), transparent 44%);
+  animation: fogFieldB 42s ease-in-out infinite;
 }
 
 @keyframes fogHorizonMove {
@@ -143,22 +115,14 @@
 }
 
 @keyframes emberFloat {
-  from {
-    transform: translateY(30vh) translateX(0);
-    opacity: 0;
-  }
+  from { transform: translateY(30vh) translateX(0); opacity: 0; }
   15% { opacity: .62; }
   85% { opacity: .46; }
-  to {
-    transform: translateY(-105vh) translateX(28px);
-    opacity: 0;
-  }
+  to { transform: translateY(-105vh) translateX(28px); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;

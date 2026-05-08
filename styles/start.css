@@ -1,3 +1,4 @@
+/* BASTION visible motion update */
 .start-page {
   position: relative;
   width: 100vw;
@@ -28,67 +29,71 @@
   filter: saturate(1.16) contrast(1.08) brightness(1.08);
 }
 
-/* Ледь помітний рух хмар. Не змінює кольори фону, тільки додає живий drift. */
 .sky-drift {
   z-index: 1;
-  opacity: .13;
-  mix-blend-mode: screen;
-  filter: blur(14px);
-  background:
-    radial-gradient(ellipse at 22% 22%, rgba(255, 76, 92, .15), transparent 34%),
-    radial-gradient(ellipse at 76% 18%, rgba(255, 76, 92, .12), transparent 38%),
-    radial-gradient(ellipse at 50% 34%, rgba(255, 255, 255, .045), transparent 44%);
+  opacity: .105;
+  background: url("../assets/images/bg-bastion-hero.webp") center top / cover no-repeat;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 42%, transparent 68%);
+  mask-image: linear-gradient(to bottom, #000 0 42%, transparent 68%);
+  filter: blur(1.2px) saturate(1.12) brightness(1.06);
 }
 
 .sky-drift-a {
-  animation: cloudsDriftA 92s ease-in-out infinite;
+  animation: cloudsDriftA 74s ease-in-out infinite;
 }
 
 .sky-drift-b {
-  opacity: .08;
-  transform: scaleX(-1);
-  animation: cloudsDriftB 126s ease-in-out infinite;
+  opacity: .07;
+  animation: cloudsDriftB 112s ease-in-out infinite;
 }
 
-/* Імітація хвилі по маковому полю: темно-червоні світлові смуги рухаються по низу сцени. */
 .field-motion {
   z-index: 2;
   top: auto;
-  height: 42vh;
   bottom: -4vh;
+  height: 48vh;
+  background: url("../assets/images/bg-bastion-hero.webp") center bottom / cover no-repeat;
+  -webkit-mask-image: linear-gradient(to top, #000 0 58%, rgba(0,0,0,.55) 72%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0 58%, rgba(0,0,0,.55) 72%, transparent 100%);
   transform-origin: 50% 100%;
-  mix-blend-mode: screen;
-  filter: blur(10px);
-  opacity: .18;
-  background:
-    linear-gradient(110deg,
-      transparent 0 10%,
-      rgba(255, 38, 61, .12) 17%,
-      transparent 25% 42%,
-      rgba(255, 56, 76, .10) 52%,
-      transparent 62% 100%);
+  filter: blur(.8px) saturate(1.18) contrast(1.04);
 }
 
 .field-back {
   opacity: .10;
-  height: 35vh;
-  animation: fieldWaveBack 18s ease-in-out infinite;
+  height: 34vh;
+  animation: fieldWaveBack 16s ease-in-out infinite;
 }
 
 .field-mid {
-  opacity: .14;
-  height: 38vh;
-  animation: fieldWaveMid 13s ease-in-out infinite;
+  opacity: .145;
+  height: 41vh;
+  animation: fieldWaveMid 11s ease-in-out infinite;
 }
 
 .field-front {
   opacity: .18;
-  height: 46vh;
-  filter: blur(13px);
-  animation: fieldWaveFront 9s ease-in-out infinite;
+  height: 52vh;
+  filter: blur(1.4px) saturate(1.2) contrast(1.04);
+  animation: fieldWaveFront 8s ease-in-out infinite;
 }
 
-/* Дуже легка віньєтка, щоб не душити фон. */
+.field-front::after,
+.field-mid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(105deg,
+      transparent 0 12%,
+      rgba(255, 45, 67, .12) 19%,
+      transparent 28% 45%,
+      rgba(255, 45, 67, .09) 54%,
+      transparent 65% 100%);
+  mix-blend-mode: screen;
+  opacity: .55;
+}
+
 .bg-vignette {
   z-index: 8;
   background:
