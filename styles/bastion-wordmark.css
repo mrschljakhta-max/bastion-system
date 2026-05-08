@@ -138,3 +138,68 @@
     width: 70px;
   }
 }
+
+
+/* =====================================================
+   ALIGNMENT PATCH — logo/name optical centering
+   Вирівнює знак і назву відносно центру кільця.
+   ===================================================== */
+
+/* Центральний знак BASTION: трохи вліво і нижче, щоб співпав з оптичною віссю */
+.brand-logo,
+.logo-mark,
+.brand-mark,
+.center-logo,
+.hero-logo {
+  transform: translateX(-12px) translateY(10px) !important;
+}
+
+/* Назва BASTION: менше розтягування і менший штучний зсув вправо */
+.brand-name {
+  font-size: clamp(40px, 3.85vw, 76px) !important;
+  letter-spacing: .20em !important;
+  padding-left: .20em !important;
+  transform: translateX(-4px) translateY(18px);
+}
+
+/* Скан-лінії всередині назви під нову ширину */
+.brand-name::after {
+  left: 10%;
+  right: 10%;
+}
+
+.brand-name::before {
+  left: 22%;
+  width: 92px;
+}
+
+/* Підпис під назвою теж оптично підводимо під центр */
+.brand-subtitle,
+.brand-caption,
+.brand-kicker {
+  transform: translateY(18px);
+}
+
+/* Якщо центральний блок має власний контейнер — м'яко опускаємо все ядро */
+.brand-wordmark-wrap,
+.center-brand,
+.brand-core {
+  transform: translateY(12px);
+}
+
+@media (max-width: 900px) {
+  .brand-name {
+    font-size: clamp(34px, 8vw, 56px) !important;
+    letter-spacing: .16em !important;
+    padding-left: .16em !important;
+    transform: translateX(-2px) translateY(14px);
+  }
+
+  .brand-logo,
+  .logo-mark,
+  .brand-mark,
+  .center-logo,
+  .hero-logo {
+    transform: translateX(-8px) translateY(8px) !important;
+  }
+}
