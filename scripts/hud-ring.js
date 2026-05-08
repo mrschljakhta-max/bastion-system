@@ -1,6 +1,7 @@
 const sectors = document.querySelectorAll(".ring-sector");
 const subtitle = document.getElementById("modeSubtitle");
 const enterLink = document.getElementById("enterLink");
+const startPage = document.querySelector(".start-page");
 
 const modes = {
   login: {
@@ -20,20 +21,35 @@ const modes = {
   }
 };
 
-sectors.forEach((sector) => {
-  sector.addEventListener("mouseenter", () => {
-    const mode = sector.dataset.mode;
-    const data = modes[mode];
+let switchTimer = null;
 
-    sectors.forEach((item) => item.classList.remove("is-active"));
-    sector.classList.add("is-active");
+function setMode(mode) {
+  const data = modes[mode];
+  if (!data || !startPage) return;
 
-    if (subtitle && data) subtitle.textContent = data.subtitle;
-    if (enterLink && data) {
-      enterLink.href = data.href;
-      enterLink.textContent = data.label;
-    }
+  sectors.forEach((item) => {
+    item.classList.toggle("is-active", item.dataset.mode === mode);
   });
+
+  startPage.classList.remove("mode-login", "mode-register", "mode-developer");
+  startPage.classList.add(`mode-${mode}`, "is-switching");
+
+  window.clearTimeout(switchTimer);
+  switchTimer = window.setTimeout(() => {
+    startPage.classList.remove("is-switching");
+  }, 420);
+
+  if (subtitle) subtitle.textContent = data.subtitle;
+
+  if (enterLink) {
+    enterLink.href = data.href;
+    enterLink.textContent = data.label;
+  }
+}
+
+sectors.forEach((sector) => {
+  sector.addEventListener("mouseenter", () => setMode(sector.dataset.mode));
+  sector.addEventListener("focus", () => setMode(sector.dataset.mode));
 
   sector.addEventListener("click", () => {
     const mode = sector.dataset.mode;
@@ -44,3 +60,5 @@ sectors.forEach((sector) => {
     }
   });
 });
+
+setMode("login");
