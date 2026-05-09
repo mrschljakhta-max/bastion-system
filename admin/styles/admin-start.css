@@ -1,5 +1,5 @@
 /* =========================================================
-   BASTION — Admin Start Page v5 clean
+   BASTION — Admin Start Page v6 typography premium
    ========================================================= */
 
 * { box-sizing: border-box; }
@@ -10,7 +10,7 @@
   overflow: hidden;
   background: #020203;
   color: rgba(255,255,255,.94);
-  font-family: var(--font-main, system-ui, sans-serif);
+  font-family: "Rajdhani", var(--font-main, system-ui, sans-serif);
 }
 
 .admin-start-screen {
@@ -74,12 +74,14 @@
 }
 
 .admin-mark {
-  font-size: clamp(42px, 6vw, 78px);
-  line-height: .92;
-  letter-spacing: .34em;
-  text-indent: .34em;
-  font-weight: 300;
-  color: rgba(255,255,255,.92);
+  font-family: "Syncopate", system-ui, sans-serif;
+  font-size: clamp(44px, 6.2vw, 82px);
+  line-height: .9;
+  letter-spacing: .205em;
+  text-indent: .205em;
+  font-weight: 400;
+  color: rgba(255,255,255,.95);
+  transform: scaleX(1.04);
   text-shadow:
     0 0 28px rgba(255,255,255,.12),
     0 0 54px rgba(255,37,59,.12);
@@ -89,15 +91,16 @@
   position: relative;
   margin-top: 14px;
   min-width: 252px;
-  padding: 16px 28px;
+  padding: 15px 30px;
   border: 1px solid rgba(255,255,255,.24);
   background: rgba(8, 5, 8, .30);
   color: rgba(255,255,255,.94);
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: .34em;
-  font-weight: 800;
-  font-size: 14px;
+  font-family: "Rajdhani", system-ui, sans-serif;
+  letter-spacing: .28em;
+  font-weight: 700;
+  font-size: 16px;
   box-shadow:
     inset 0 0 24px rgba(255,255,255,.035),
     0 0 36px rgba(255,40,58,.10);
@@ -132,8 +135,9 @@
 @media (max-width: 760px) {
   .admin-mark {
     font-size: 40px;
-    letter-spacing: .20em;
-    text-indent: .20em;
+    letter-spacing: .14em;
+    text-indent: .14em;
+    transform: scaleX(1.02);
   }
 
   .admin-enter { min-width: 210px; }
