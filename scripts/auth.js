@@ -308,26 +308,10 @@ async function verifyTotpCode(factorId, challengeId, code) {
 }
 
 async function prepareMfaAfterRegister() {
-  const verifiedFactor = await getVerifiedTotpFactor();
-
-  if (verifiedFactor) {
-    const challenge = await challengeTotpFactor(verifiedFactor.id);
-
-    if (!challenge?.success) {
-      return false;
-    }
-
-    return {
-      success: true,
-      mode: "login",
-      factorId: verifiedFactor.id,
-      challengeId: challenge.challengeId,
-      qrCode: "",
-      qrImageSrc: "",
-      secret: ""
-    };
-  }
-
+  // ВАЖЛИВО:
+  // Реєстраційний сценарій завжди має показувати QR-код.
+  // Тому тут НЕ перевіряємо verified factor першим.
+  // Інакше Supabase може знайти старий/попередній factor і одразу показати поле коду.
   const enrollment = await enrollTotpFactor();
 
   if (!enrollment?.success) {
@@ -354,27 +338,27 @@ async function prepareMfaAfterRegister() {
 async function prepareMfaAfterLogin() {
   const factor = await getVerifiedTotpFactor();
 
-  if (!factor) {
-    // Якщо користувач уже існує, але 2FA ще не підключено —
-    // показуємо QR-код, а не просто поле коду.
-    return await prepareMfaAfterRegister();
+  if (factor) {
+    const challenge = await challengeTotpFactor(factor.id);
+
+    if (!challenge?.success) {
+      return false;
+    }
+
+    return {
+      success: true,
+      mode: "login",
+      factorId: factor.id,
+      challengeId: challenge.challengeId,
+      qrCode: "",
+      qrImageSrc: "",
+      secret: ""
+    };
   }
 
-  const challenge = await challengeTotpFactor(factor.id);
-
-  if (!challenge?.success) {
-    return false;
-  }
-
-  return {
-    success: true,
-    mode: "login",
-    factorId: factor.id,
-    challengeId: challenge.challengeId,
-    qrCode: "",
-    qrImageSrc: "",
-    secret: ""
-  };
+  // Якщо користувач уже існує, але 2FA ще не підключено —
+  // показуємо QR-код, а не просто поле коду.
+  return await prepareMfaAfterRegister();
 }
 
 async function signOut() {

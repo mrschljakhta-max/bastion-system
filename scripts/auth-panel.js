@@ -144,8 +144,9 @@
     currentStep = "mfa";
     panel.dataset.step = "mfa";
 
-    const isRegister = context?.mode === "register";
-    const data = isRegister ? config.mfaRegister : config.mfaLogin;
+    const hasQr = Boolean(context?.qrImageSrc || context?.qrCode || context?.secret);
+    const isRegister = hasQr || context?.mode === "register";
+    const data = hasQr ? config.mfaRegister : config.mfaLogin;
 
     title.textContent = data.title;
     kicker.textContent = data.kicker;
@@ -170,7 +171,7 @@
 
     if (isRegister && context.qrCode) {
       qrWrap.hidden = false;
-      qrImage.src = context.qrImageSrc || window.BastionAuth?.toQrImageSrc?.(context.qrCode) || context.qrCode;
+      qrImage.src = context.qrImageSrc || window.BastionAuth?.toQrImageSrc?.(context.qrCode) || context.qrCode || "";
       secret.textContent = context.secret ? `SECRET: ${context.secret}` : "";
       loginHint.hidden = true;
     } else {
