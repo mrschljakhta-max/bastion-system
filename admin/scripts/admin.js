@@ -1,5 +1,5 @@
 /* =========================================================
-   BASTION — Admin Control v2
+   BASTION — Admin Control v4
    Uses separate admin session token, no Supabase Auth / 2FA
    ========================================================= */
 
@@ -7,6 +7,7 @@
   const STORAGE_KEY = 'BASTION_ADMIN_SESSION_TOKEN';
   const START_URL = './start.html?v=5';
   const LOGIN_URL = './login.html?v=1';
+  const ACTIVE_TAB_KEY = 'BASTION_ADMIN_ACTIVE_TAB';
 
   const profileBox = document.getElementById('adminProfile');
   const inviteForm = document.getElementById('inviteForm');
@@ -211,12 +212,29 @@
     window.location.href = buildMailto(lastInvite);
   });
 
+  function activateTab(tabName, save = true) {
+    const tab = document.getElementById(`tab-${tabName}`);
+    const btn = document.querySelector(`[data-admin-tab="${tabName}"]`);
+    if (!tab || !btn) return;
+
+    document.querySelectorAll('[data-admin-tab]').forEach((b) => b.classList.remove('is-active'));
+    document.querySelectorAll('.admin-tab').forEach((item) => item.classList.remove('is-active'));
+
+    btn.classList.add('is-active');
+    tab.classList.add('is-active');
+
+    const title = tab.dataset.title || btn.textContent.trim() || 'Керування доступом';
+    const titleEl = document.getElementById('adminPageTitle');
+    const eyebrowEl = document.getElementById('adminEyebrow');
+    if (titleEl) titleEl.textContent = title;
+    if (eyebrowEl) eyebrowEl.textContent = 'ADMIN CONTROL NODE';
+
+    if (save) localStorage.setItem(ACTIVE_TAB_KEY, tabName);
+  }
+
   document.querySelectorAll('[data-admin-tab]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-admin-tab]').forEach((b) => b.classList.remove('is-active'));
-      document.querySelectorAll('.admin-tab').forEach((tab) => tab.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      document.getElementById(`tab-${btn.dataset.adminTab}`)?.classList.add('is-active');
+      activateTab(btn.dataset.adminTab);
     });
   });
 
@@ -255,6 +273,10 @@
 
       adminSession = row;
       setProfile(`${row.admin_login} · ${row.role}`);
+
+      const savedTab = localStorage.getItem(ACTIVE_TAB_KEY) || 'invite';
+      activateTab(savedTab, false);
+
       refreshUsers();
       refreshRequests();
       refreshLogs();

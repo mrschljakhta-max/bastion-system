@@ -8,37 +8,54 @@
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="./styles/admin.css?v=2" />
+  <link rel="stylesheet" href="./styles/admin.css?v=4" />
 </head>
 <body class="admin-body">
   <main class="admin-shell">
-    <aside class="admin-sidebar">
-      <div class="admin-logo">
+    <aside class="admin-sidebar" aria-label="BASTION admin navigation">
+      <div class="admin-logo" title="BASTION Admin">
         <img src="../assets/logo/bastion-mark.svg" alt="BASTION" />
-        <div>
+        <div class="admin-logo-text">
           <strong>BASTION</strong>
           <span>ADMIN CONTROL</span>
         </div>
       </div>
-      <nav>
-        <button class="is-active" data-admin-tab="invite">Надати доступ</button>
-        <button data-admin-tab="users">Користувачі</button>
-        <button data-admin-tab="requests">Заявки</button>
-        <button data-admin-tab="logs">Логування</button>
+
+      <nav class="admin-nav">
+        <button class="admin-nav-btn is-active" data-admin-tab="invite" title="Надати доступ">
+          <span class="admin-nav-icon">＋</span>
+          <span class="admin-nav-label">Надати доступ</span>
+        </button>
+        <button class="admin-nav-btn" data-admin-tab="users" title="Користувачі">
+          <span class="admin-nav-icon">◎</span>
+          <span class="admin-nav-label">Користувачі</span>
+        </button>
+        <button class="admin-nav-btn" data-admin-tab="requests" title="Заявки">
+          <span class="admin-nav-icon">◇</span>
+          <span class="admin-nav-label">Заявки</span>
+        </button>
+        <button class="admin-nav-btn" data-admin-tab="logs" title="Логування">
+          <span class="admin-nav-icon">≋</span>
+          <span class="admin-nav-label">Логування</span>
+        </button>
       </nav>
-      <button class="admin-ghost" id="adminLogout">Вийти</button>
+
+      <button class="admin-ghost" id="adminLogout" title="Вийти">
+        <span class="admin-nav-icon">↩</span>
+        <span class="admin-nav-label">Вийти</span>
+      </button>
     </aside>
 
     <section class="admin-content">
       <header class="admin-header">
         <div>
-          <p>CONTROL NODE</p>
-          <h1>Керування доступом</h1>
+          <p id="adminEyebrow">CONTROL NODE</p>
+          <h1 id="adminPageTitle">Керування доступом</h1>
         </div>
         <div class="admin-profile" id="adminProfile">Перевірка admin-сесії…</div>
       </header>
 
-      <section class="admin-tab is-active" id="tab-invite">
+      <section class="admin-tab is-active" id="tab-invite" data-title="Надати доступ">
         <div class="admin-card admin-card-wide">
           <h2>Надати доступ користувачу</h2>
           <p class="admin-muted">Заповніть email, роль і створіть персональне setup-посилання для першого входу.</p>
@@ -80,26 +97,41 @@
         </div>
       </section>
 
-      <section class="admin-tab" id="tab-users">
-        <div class="admin-card">
-          <h2>Користувачі</h2>
-          <button id="refreshUsers">Оновити список</button>
+      <section class="admin-tab" id="tab-users" data-title="Користувачі">
+        <div class="admin-card admin-card-wide">
+          <div class="admin-card-head">
+            <div>
+              <h2>Користувачі</h2>
+              <p class="admin-muted">Перелік дозволених користувачів основного сайту.</p>
+            </div>
+            <button id="refreshUsers">Оновити</button>
+          </div>
           <div class="admin-table-wrap"><table id="usersTable"></table></div>
         </div>
       </section>
 
-      <section class="admin-tab" id="tab-requests">
-        <div class="admin-card">
-          <h2>Заявки на доступ</h2>
-          <button id="refreshRequests">Оновити заявки</button>
+      <section class="admin-tab" id="tab-requests" data-title="Заявки">
+        <div class="admin-card admin-card-wide">
+          <div class="admin-card-head">
+            <div>
+              <h2>Заявки на доступ</h2>
+              <p class="admin-muted">Заявки, створені користувачами через стартову сторінку.</p>
+            </div>
+            <button id="refreshRequests">Оновити</button>
+          </div>
           <div class="admin-table-wrap"><table id="requestsTable"></table></div>
         </div>
       </section>
 
-      <section class="admin-tab" id="tab-logs">
-        <div class="admin-card">
-          <h2>Activity logs</h2>
-          <button id="refreshLogs">Оновити логування</button>
+      <section class="admin-tab" id="tab-logs" data-title="Логування">
+        <div class="admin-card admin-card-wide">
+          <div class="admin-card-head">
+            <div>
+              <h2>Activity logs</h2>
+              <p class="admin-muted">Останні події access-control системи.</p>
+            </div>
+            <button id="refreshLogs">Оновити</button>
+          </div>
           <div class="admin-table-wrap"><table id="logsTable"></table></div>
         </div>
       </section>
@@ -108,6 +140,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../scripts/config.js?v=28"></script>
-  <script src="./scripts/admin.js?v=2"></script>
+  <script src="./scripts/admin.js?v=4"></script>
 </body>
 </html>
