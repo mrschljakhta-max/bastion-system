@@ -1,23 +1,53 @@
 /* =========================================================
-   BASTION — Admin Control v1
+   BASTION — Admin Control v2
+   Uses separate admin session token, no Supabase Auth / 2FA
    ========================================================= */
 
 (function () {
-  const profileBox = document.getElementById("adminProfile");
-  const inviteForm = document.getElementById("inviteForm");
-  const inviteEmail = document.getElementById("inviteEmail");
-  const inviteRole = document.getElementById("inviteRole");
-  const inviteNote = document.getElementById("inviteNote");
-  const inviteSubmit = document.getElementById("inviteSubmit");
-  const sendEmailBtn = document.getElementById("sendEmailBtn");
-  const inviteResult = document.getElementById("inviteResult");
-  const inviteUrl = document.getElementById("inviteUrl");
-  const copyInviteUrl = document.getElementById("copyInviteUrl");
-  const mailtoInvite = document.getElementById("mailtoInvite");
+  const STORAGE_KEY = 'BASTION_ADMIN_SESSION_TOKEN';
+  const START_URL = './start.html?v=5';
+  const LOGIN_URL = './login.html?v=1';
+
+  const profileBox = document.getElementById('adminProfile');
+  const inviteForm = document.getElementById('inviteForm');
+  const inviteEmail = document.getElementById('inviteEmail');
+  const inviteRole = document.getElementById('inviteRole');
+  const inviteNote = document.getElementById('inviteNote');
+  const inviteSubmit = document.getElementById('inviteSubmit');
+  const sendEmailBtn = document.getElementById('sendEmailBtn');
+  const inviteResult = document.getElementById('inviteResult');
+  const inviteUrl = document.getElementById('inviteUrl');
+  const copyInviteUrl = document.getElementById('copyInviteUrl');
+  const mailtoInvite = document.getElementById('mailtoInvite');
+
   let lastInvite = null;
+  let adminSession = null;
+
+  const client = window.supabase.createClient(
+    window.BASTION_CONFIG.SUPABASE_URL,
+    window.BASTION_CONFIG.SUPABASE_ANON_KEY
+  );
+
+  function getAdminToken() {
+    return localStorage.getItem(STORAGE_KEY);
+  }
+
+  function clearAdminSession() {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('BASTION_ADMIN_LOGIN');
+  }
 
   function setProfile(message) {
-    profileBox.textContent = message;
+    if (profileBox) profileBox.textContent = message;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
   }
 
   function renderTable(tableId, rows, columns) {
@@ -25,74 +55,93 @@
     if (!table) return;
 
     if (!rows?.length) {
-      table.innerHTML = `<tr><td>Даних немає або RPC ще не налаштовано.</td></tr>`;
+      table.innerHTML = `<tr><td>Даних немає.</td></tr>`;
       return;
     }
 
     table.innerHTML = `
-      <thead><tr>${columns.map((c) => `<th>${c.label}</th>`).join("")}</tr></thead>
+      <thead><tr>${columns.map((c) => `<th>${escapeHtml(c.label)}</th>`).join('')}</tr></thead>
       <tbody>
         ${rows.map((row) => `
-          <tr>${columns.map((c) => `<td>${c.render ? c.render(row) : row[c.key] ?? ""}</td>`).join("")}</tr>
-        `).join("")}
+          <tr>${columns.map((c) => `<td>${c.render ? c.render(row) : escapeHtml(row[c.key])}</td>`).join('')}</tr>
+        `).join('')}
       </tbody>
     `;
   }
 
-  async function adminRpc(name) {
-    const { data, error } = await window.BastionAuth.supabaseClient.rpc(name);
+  async function adminRpc(name, args = {}) {
+    const token = getAdminToken();
+    if (!token) {
+      window.location.href = START_URL;
+      return [];
+    }
+
+    const { data, error } = await client.rpc(name, {
+      p_admin_token: token,
+      ...args
+    });
+
     if (error) throw error;
     return data || [];
   }
 
   async function refreshUsers() {
     try {
-      const rows = await adminRpc("admin_list_allowed_users");
-      renderTable("usersTable", rows, [
-        { key: "email", label: "Email" },
-        { key: "role", label: "Роль" },
-        { key: "status", label: "Статус" },
-        { key: "is_active", label: "Активний" },
-        { key: "created_at", label: "Створено" }
+      const rows = await adminRpc('admin_list_allowed_users');
+      renderTable('usersTable', rows, [
+        { key: 'email', label: 'Email' },
+        { key: 'role', label: 'Роль' },
+        { key: 'status', label: 'Статус' },
+        { key: 'is_active', label: 'Активний' },
+        { key: 'created_at', label: 'Створено' }
       ]);
     } catch (error) {
       console.warn(error);
-      renderTable("usersTable", [], []);
+      renderTable('usersTable', [], []);
     }
   }
 
   async function refreshRequests() {
     try {
-      const rows = await adminRpc("admin_list_access_requests");
-      renderTable("requestsTable", rows, [
-        { key: "email", label: "Email" },
-        { key: "status", label: "Статус" },
-        { key: "requested_at", label: "Дата" },
-        { key: "note", label: "Нотатка" }
+      const rows = await adminRpc('admin_list_access_requests');
+      renderTable('requestsTable', rows, [
+        { key: 'email', label: 'Email' },
+        { key: 'status', label: 'Статус' },
+        { key: 'requested_at', label: 'Дата' },
+        { key: 'note', label: 'Нотатка' }
       ]);
     } catch (error) {
       console.warn(error);
-      renderTable("requestsTable", [], []);
+      renderTable('requestsTable', [], []);
     }
   }
 
   async function refreshLogs() {
     try {
-      const rows = await adminRpc("admin_list_activity_logs");
-      renderTable("logsTable", rows, [
-        { key: "created_at", label: "Дата" },
-        { key: "email", label: "Email" },
-        { key: "action", label: "Дія" },
-        { key: "details", label: "Details", render: (row) => `<code>${JSON.stringify(row.details || {})}</code>` }
+      const rows = await adminRpc('admin_list_activity_logs');
+      renderTable('logsTable', rows, [
+        { key: 'created_at', label: 'Дата' },
+        { key: 'email', label: 'Email/Login' },
+        { key: 'action', label: 'Дія' },
+        {
+          key: 'details',
+          label: 'Details',
+          render: (row) => `<code>${escapeHtml(JSON.stringify(row.details || {}))}</code>`
+        }
       ]);
     } catch (error) {
       console.warn(error);
-      renderTable("logsTable", [], []);
+      renderTable('logsTable', [], []);
     }
   }
 
+  function makeSetupUrl(token) {
+    const root = window.location.href.split('/admin/')[0];
+    return `${root}/setup-account.html?token=${encodeURIComponent(token)}`;
+  }
+
   function buildMailto(invite) {
-    const subject = encodeURIComponent("BASTION — доступ до системи");
+    const subject = encodeURIComponent('BASTION — доступ до системи');
     const body = encodeURIComponent(
 `Вам надано доступ до BASTION.
 
@@ -111,122 +160,108 @@
     return `mailto:${encodeURIComponent(invite.email)}?subject=${subject}&body=${body}`;
   }
 
-  inviteForm?.addEventListener("submit", async (event) => {
+  inviteForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     inviteSubmit.disabled = true;
-    inviteSubmit.textContent = "Створюю…";
+    inviteSubmit.textContent = 'Створюю…';
 
     try {
-      lastInvite = await window.BastionAccess.createInvite({
-        email: inviteEmail.value,
-        role: inviteRole.value,
-        note: inviteNote.value
+      const rows = await adminRpc('admin_create_user_invite', {
+        p_email: inviteEmail.value,
+        p_role: inviteRole.value,
+        p_note: inviteNote.value || null
       });
+
+      const row = Array.isArray(rows) ? rows[0] : rows;
+      if (!row?.invite_token) throw new Error('Invite token не створено.');
+
+      lastInvite = {
+        email: row.email,
+        role: row.role,
+        token: row.invite_token,
+        setup_url: makeSetupUrl(row.invite_token)
+      };
 
       inviteUrl.textContent = lastInvite.setup_url;
       mailtoInvite.href = buildMailto(lastInvite);
       inviteResult.hidden = false;
       sendEmailBtn.disabled = false;
-      inviteSubmit.textContent = "Доступ створено";
+      inviteSubmit.textContent = 'Доступ створено';
+
+      refreshUsers();
+      refreshLogs();
     } catch (error) {
       console.error(error);
-      alert(error.message || "Не вдалося створити доступ.");
-      inviteSubmit.textContent = "Створити доступ";
+      alert(error.message || 'Не вдалося створити доступ.');
+      inviteSubmit.textContent = 'Створити доступ';
     } finally {
       inviteSubmit.disabled = false;
     }
   });
 
-  copyInviteUrl?.addEventListener("click", async () => {
+  copyInviteUrl?.addEventListener('click', async () => {
     if (!lastInvite?.setup_url) return;
     await navigator.clipboard.writeText(lastInvite.setup_url);
-    copyInviteUrl.textContent = "Скопійовано";
-    setTimeout(() => (copyInviteUrl.textContent = "Скопіювати"), 1200);
+    copyInviteUrl.textContent = 'Скопійовано';
+    setTimeout(() => (copyInviteUrl.textContent = 'Скопіювати'), 1200);
   });
 
-  sendEmailBtn?.addEventListener("click", async () => {
+  sendEmailBtn?.addEventListener('click', () => {
     if (!lastInvite) return;
-    sendEmailBtn.disabled = true;
-    sendEmailBtn.textContent = "Надсилаю…";
-
-    try {
-      await window.BastionAccess.sendInviteEmail({
-        email: lastInvite.email,
-        role: lastInvite.role,
-        setupUrl: lastInvite.setup_url
-      });
-      sendEmailBtn.textContent = "Лист надіслано";
-    } catch (error) {
-      console.warn(error);
-      alert("Edge Function для email ще не налаштована. Використай копіювання посилання або mailto.");
-      sendEmailBtn.textContent = "Надіслати лист";
-    } finally {
-      sendEmailBtn.disabled = false;
-    }
+    window.location.href = buildMailto(lastInvite);
   });
 
-  document.querySelectorAll("[data-admin-tab]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-admin-tab]").forEach((b) => b.classList.remove("is-active"));
-      document.querySelectorAll(".admin-tab").forEach((tab) => tab.classList.remove("is-active"));
-      btn.classList.add("is-active");
-      document.getElementById(`tab-${btn.dataset.adminTab}`)?.classList.add("is-active");
+  document.querySelectorAll('[data-admin-tab]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-admin-tab]').forEach((b) => b.classList.remove('is-active'));
+      document.querySelectorAll('.admin-tab').forEach((tab) => tab.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      document.getElementById(`tab-${btn.dataset.adminTab}`)?.classList.add('is-active');
     });
   });
 
-  document.getElementById("refreshUsers")?.addEventListener("click", refreshUsers);
-  document.getElementById("refreshRequests")?.addEventListener("click", refreshRequests);
-  document.getElementById("refreshLogs")?.addEventListener("click", refreshLogs);
+  document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
+  document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);
+  document.getElementById('refreshLogs')?.addEventListener('click', refreshLogs);
 
-  document.getElementById("adminLogout")?.addEventListener("click", async () => {
-    await window.BastionAuth.signOut();
-    window.location.href = "../index.html";
+  document.getElementById('adminLogout')?.addEventListener('click', async () => {
+    const token = getAdminToken();
+    try {
+      if (token) await client.rpc('admin_logout', { p_token: token });
+    } catch (error) {
+      console.warn(error);
+    }
+    clearAdminSession();
+    window.location.href = START_URL;
   });
 
   async function init() {
+    const token = getAdminToken();
+    if (!token) {
+      window.location.href = START_URL;
+      return;
+    }
+
     try {
-      if (!window.BastionAuth || !window.BastionAccess) {
-        setProfile("Помилка завантаження auth/access JS. Перевір шляхи до scripts/config.js, scripts/auth.js, scripts/access.js.");
-        console.error("BASTION ADMIN: missing globals", {
-          BastionAuth: !!window.BastionAuth,
-          BastionAccess: !!window.BastionAccess
-        });
+      const { data, error } = await client.rpc('admin_verify_session', { p_token: token });
+      if (error) throw error;
+
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row?.valid) {
+        clearAdminSession();
+        window.location.href = LOGIN_URL;
         return;
       }
 
-      const session = await window.BastionAuth.getCurrentSession();
-      console.log("BASTION ADMIN session:", session);
-
-      if (!session) {
-        setProfile("Немає активної сесії. Спочатку увійдіть через стартову сторінку, потім відкрийте /admin/.");
-        return;
-      }
-
-      const profile = await window.BastionAccess.getMyAccessProfile();
-      console.log("BASTION ADMIN profile:", profile);
-
-      if (!profile) {
-        setProfile("Профіль доступу не знайдено в allowed_users для поточного email.");
-        return;
-      }
-
-      if (!profile.is_active || profile.status !== "active") {
-        setProfile(`${profile.email} · доступ неактивний`);
-        return;
-      }
-
-      if (profile.role !== "admin") {
-        setProfile(`${profile.email} · роль ${profile.role}. Потрібна роль admin.`);
-        return;
-      }
-
-      setProfile(`${profile.email} · ${profile.role}`);
+      adminSession = row;
+      setProfile(`${row.admin_login} · ${row.role}`);
       refreshUsers();
       refreshRequests();
       refreshLogs();
     } catch (error) {
-      console.error("BASTION ADMIN init error:", error);
-      setProfile("Admin-доступ не підтверджено. Дивись помилку в Console.");
+      console.error(error);
+      clearAdminSession();
+      window.location.href = LOGIN_URL;
     }
   }
 

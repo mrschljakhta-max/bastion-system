@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="./styles/admin.css?v=1" />
+  <link rel="stylesheet" href="./styles/admin.css?v=2" />
 </head>
 <body class="admin-body">
   <main class="admin-shell">
@@ -35,7 +35,7 @@
           <p>CONTROL NODE</p>
           <h1>Керування доступом</h1>
         </div>
-        <div class="admin-profile" id="adminProfile">Перевірка admin-доступу…</div>
+        <div class="admin-profile" id="adminProfile">Перевірка admin-сесії…</div>
       </header>
 
       <section class="admin-tab is-active" id="tab-invite">
@@ -83,7 +83,6 @@
       <section class="admin-tab" id="tab-users">
         <div class="admin-card">
           <h2>Користувачі</h2>
-          <p class="admin-muted">Після SQL-патча цей блок читає allowed_users через admin RPC.</p>
           <button id="refreshUsers">Оновити список</button>
           <div class="admin-table-wrap"><table id="usersTable"></table></div>
         </div>
@@ -109,8 +108,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../scripts/config.js?v=28"></script>
-  <script src="../scripts/auth.js?v=28"></script>
-  <script src="../scripts/access.js?v=1"></script>
   <script src="./scripts/admin.js?v=2"></script>
 </body>
 </html>
