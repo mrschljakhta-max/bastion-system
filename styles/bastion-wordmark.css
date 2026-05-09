@@ -1566,3 +1566,123 @@
 .auth-field-confirm {
   display: none !important;
 }
+
+
+/* =========================================================
+   BASTION — MFA PANEL v24
+   QR-код + код Google Authenticator
+   ========================================================= */
+
+.auth-panel[data-step="mfa"] {
+  width: min(460px, 82vw);
+}
+
+.auth-panel[data-step="mfa"] .auth-panel-head {
+  margin-bottom: 8px;
+}
+
+.mfa-panel {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  margin: 2px 0 4px;
+  animation: mfaPanelInV24 .34s ease both;
+}
+
+.mfa-panel[hidden] {
+  display: none !important;
+}
+
+.mfa-qr-wrap {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.mfa-qr-wrap[hidden],
+.mfa-login-hint[hidden] {
+  display: none !important;
+}
+
+.mfa-qr-frame {
+  width: 172px;
+  height: 172px;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.95), rgba(235,235,238,.95));
+  border: 1px solid rgba(255, 76, 90, .38);
+  box-shadow:
+    0 0 18px rgba(255, 52, 72, .18),
+    inset 0 0 18px rgba(255, 52, 72, .05);
+
+  clip-path: polygon(
+    7% 0%,
+    93% 0%,
+    100% 7%,
+    100% 93%,
+    93% 100%,
+    7% 100%,
+    0% 93%,
+    0% 7%
+  );
+}
+
+.mfa-qr-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mfa-secret {
+  max-width: 100%;
+  font-family: "Rajdhani", "Exo 2", system-ui, sans-serif;
+  font-size: 10px;
+  line-height: 1.35;
+  letter-spacing: .12em;
+  color: rgba(255, 118, 126, .76);
+  word-break: break-all;
+  text-align: center;
+}
+
+.mfa-hint {
+  max-width: 360px;
+  font-family: "Rajdhani", "Exo 2", system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(245, 247, 255, .62);
+  text-align: center;
+}
+
+.mfa-code-field {
+  width: 100%;
+}
+
+.mfa-code-field input {
+  height: 44px;
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: .42em;
+  padding-left: .42em;
+}
+
+.auth-panel[data-step="mfa"] .auth-switch {
+  color: rgba(255, 126, 132, .76);
+}
+
+@keyframes mfaPanelInV24 {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

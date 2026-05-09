@@ -9,8 +9,6 @@ function normalizeEmail(email) {
 
 function showAuthMessage(message, type = "info") {
   console.log(`[BASTION AUTH][${type}]`, message);
-
-  // Поки залишаємо alert, далі замінимо на красивий HUD-message у формі.
   alert(message);
 }
 
@@ -94,11 +92,6 @@ async function handleRegister(email, password) {
 
   console.log("REGISTER:", data);
 
-  showAuthMessage(
-    "Реєстрація успішна. Наступний крок — підключення двофакторної автентифікації.",
-    "success"
-  );
-
   return {
     success: true,
     mode: "register",
@@ -143,15 +136,142 @@ async function handleLogin(email, password) {
 
   console.log("LOGIN:", data);
 
-  showAuthMessage(
-    "Вхід успішний. Наступний крок — перевірка двофакторної автентифікації.",
-    "success"
-  );
-
   return {
     success: true,
     mode: "login",
     data
+  };
+}
+
+/* =========================================================
+   BASTION MFA / TOTP
+   Google Authenticator через Supabase Auth MFA
+   ========================================================= */
+
+async function getAuthenticatorFactors() {
+  const { data, error } = await supabaseClient.auth.mfa.listFactors();
+
+  if (error) {
+    console.error("Помилка отримання MFA factors:", error);
+    return [];
+  }
+
+  return data?.totp || [];
+}
+
+async function getVerifiedTotpFactor() {
+  const factors = await getAuthenticatorFactors();
+  return factors.find((factor) => factor.status === "verified") || null;
+}
+
+async function enrollTotpFactor() {
+  const { data, error } = await supabaseClient.auth.mfa.enroll({
+    factorType: "totp",
+    friendlyName: "BASTION"
+  });
+
+  if (error) {
+    console.error("Помилка створення MFA factor:", error);
+    showAuthMessage(error.message || "Не вдалося створити QR-код 2FA.", "error");
+    return false;
+  }
+
+  return {
+    success: true,
+    factorId: data.id,
+    qrCode: data.totp?.qr_code || "",
+    secret: data.totp?.secret || ""
+  };
+}
+
+async function challengeTotpFactor(factorId) {
+  const { data, error } = await supabaseClient.auth.mfa.challenge({
+    factorId
+  });
+
+  if (error) {
+    console.error("Помилка MFA challenge:", error);
+    showAuthMessage(error.message || "Не вдалося створити MFA challenge.", "error");
+    return false;
+  }
+
+  return {
+    success: true,
+    challengeId: data.id
+  };
+}
+
+async function verifyTotpCode(factorId, challengeId, code) {
+  const token = String(code || "").trim();
+
+  if (!factorId || !challengeId || !token) {
+    showAuthMessage("Введіть код автентифікатора.", "warning");
+    return false;
+  }
+
+  const { data, error } = await supabaseClient.auth.mfa.verify({
+    factorId,
+    challengeId,
+    code: token
+  });
+
+  if (error) {
+    console.error("Помилка MFA verify:", error);
+    showAuthMessage("Невірний код автентифікатора.", "error");
+    return false;
+  }
+
+  return {
+    success: true,
+    data
+  };
+}
+
+async function prepareMfaAfterRegister() {
+  const enrollment = await enrollTotpFactor();
+
+  if (!enrollment?.success) {
+    return false;
+  }
+
+  const challenge = await challengeTotpFactor(enrollment.factorId);
+
+  if (!challenge?.success) {
+    return false;
+  }
+
+  return {
+    success: true,
+    mode: "register",
+    factorId: enrollment.factorId,
+    challengeId: challenge.challengeId,
+    qrCode: enrollment.qrCode,
+    secret: enrollment.secret
+  };
+}
+
+async function prepareMfaAfterLogin() {
+  const factor = await getVerifiedTotpFactor();
+
+  if (!factor) {
+    // Користувач увійшов, але ще не має підтвердженого 2FA.
+    // Для безпеки змушуємо пройти enroll.
+    return await prepareMfaAfterRegister();
+  }
+
+  const challenge = await challengeTotpFactor(factor.id);
+
+  if (!challenge?.success) {
+    return false;
+  }
+
+  return {
+    success: true,
+    mode: "login",
+    factorId: factor.id,
+    challengeId: challenge.challengeId,
+    qrCode: "",
+    secret: ""
   };
 }
 
@@ -184,6 +304,13 @@ window.BastionAuth = {
   requestAccess,
   handleRegister,
   handleLogin,
+  getAuthenticatorFactors,
+  getVerifiedTotpFactor,
+  enrollTotpFactor,
+  challengeTotpFactor,
+  verifyTotpCode,
+  prepareMfaAfterRegister,
+  prepareMfaAfterLogin,
   signOut,
   getCurrentSession
 };
