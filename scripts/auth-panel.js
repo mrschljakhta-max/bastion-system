@@ -33,11 +33,11 @@
       passwordAutocomplete: "current-password"
     },
     register: {
-      title: "РЕЄСТРАЦІЯ",
-      kicker: "НОВИЙ ОПЕРАТОР",
-      submit: "ЗАРЕЄСТРУВАТИСЬ",
+      title: "ЗАПИТ ДОСТУПУ",
+      kicker: "НОВИЙ КОРИСТУВАЧ",
+      submit: "НАДІСЛАТИ ЗАЯВКУ",
       switcher: "ПЕРЕЙТИ ДО ВХОДУ",
-      subtitle: "СТВОРЕННЯ ОБЛІКОВОГО ЗАПИСУ",
+      subtitle: "ЗАЯВКА НА ДОСТУП ДО СИСТЕМИ",
       passwordAutocomplete: "new-password"
     },
     mfaRegister: {
@@ -132,7 +132,10 @@
     if (mfaPanel) mfaPanel.hidden = true;
 
     login.required = true;
-    password.required = true;
+    password.required = authMode !== "register";
+    if (password?.closest(".auth-field")) {
+      password.closest(".auth-field").hidden = authMode === "register";
+    }
     submit.textContent = config[authMode].submit;
     switcher.textContent = config[authMode].switcher;
   }
@@ -229,7 +232,7 @@
         currentStep === "mfa"
           ? "ПЕРЕВІРКА..."
           : mode === "register"
-            ? "РЕЄСТРАЦІЯ..."
+            ? "НАДСИЛАННЯ..."
             : "ПЕРЕВІРКА...";
     } else {
       if (currentStep === "mfa") {
@@ -256,29 +259,34 @@
       return;
     }
 
-    if (!email || !pass) {
+    if (!email || (authMode !== "register" && !pass)) {
       shakePanel();
-      alert("Введіть email та пароль.");
+      alert(authMode === "register" ? "Введіть email." : "Введіть email та пароль.");
       return;
     }
 
     setLoading(true, authMode);
 
     try {
-      const result =
-        authMode === "register"
-          ? await window.BastionAuth.handleRegister(email, pass)
-          : await window.BastionAuth.handleLogin(email, pass);
+      if (authMode === "register") {
+        const ok = await window.BastionAuth.requestAccess(email);
+        if (!ok) {
+          shakePanel();
+          return;
+        }
+        alert("Заявку на доступ надіслано. Дочекайтесь рішення адміністратора.");
+        closePanel();
+        return;
+      }
+
+      const result = await window.BastionAuth.handleLogin(email, pass);
 
       if (!result?.success) {
         shakePanel();
         return;
       }
 
-      const mfa =
-        authMode === "register"
-          ? await window.BastionAuth.prepareMfaAfterRegister()
-          : await window.BastionAuth.prepareMfaAfterLogin();
+      const mfa = await window.BastionAuth.prepareMfaAfterLogin();
 
       if (!mfa?.success) {
         shakePanel();
@@ -321,9 +329,15 @@
       if (subtitle) subtitle.textContent = "ДОСТУП ДОЗВОЛЕНО";
       submit.textContent = "ДОСТУП ВІДКРИТО";
 
-      // Тут можна змінити шлях на головну сторінку системи.
-      setTimeout(() => {
-        window.location.href = "./pages/app.html";
+      setTimeout(async () => {
+        try {
+          const profile = await window.BastionAccess?.getMyAccessProfile?.();
+          const target = window.BastionAccess?.routeForRole?.(profile?.role) || "./pages/app.html";
+          window.location.href = target;
+        } catch (error) {
+          console.warn("Не вдалося визначити роль, відкриваю app:", error);
+          window.location.href = "./pages/app.html";
+        }
       }, 650);
     } catch (error) {
       console.error("Помилка MFA:", error);

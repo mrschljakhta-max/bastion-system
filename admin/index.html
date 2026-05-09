@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BASTION — Admin Control</title>
+  <link rel="icon" href="../assets/logo/bastion-favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../styles/fonts.css" />
+  <link rel="stylesheet" href="../styles/theme.css" />
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="./styles/admin.css?v=1" />
+</head>
+<body class="admin-body">
+  <main class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="admin-logo">
+        <img src="../assets/logo/bastion-mark.svg" alt="BASTION" />
+        <div>
+          <strong>BASTION</strong>
+          <span>ADMIN CONTROL</span>
+        </div>
+      </div>
+      <nav>
+        <button class="is-active" data-admin-tab="invite">Надати доступ</button>
+        <button data-admin-tab="users">Користувачі</button>
+        <button data-admin-tab="requests">Заявки</button>
+        <button data-admin-tab="logs">Логування</button>
+      </nav>
+      <button class="admin-ghost" id="adminLogout">Вийти</button>
+    </aside>
+
+    <section class="admin-content">
+      <header class="admin-header">
+        <div>
+          <p>CONTROL NODE</p>
+          <h1>Керування доступом</h1>
+        </div>
+        <div class="admin-profile" id="adminProfile">Перевірка admin-доступу…</div>
+      </header>
+
+      <section class="admin-tab is-active" id="tab-invite">
+        <div class="admin-card admin-card-wide">
+          <h2>Надати доступ користувачу</h2>
+          <p class="admin-muted">Заповніть email, роль і створіть персональне setup-посилання для першого входу.</p>
+
+          <form class="admin-form" id="inviteForm">
+            <label>
+              <span>Email користувача</span>
+              <input id="inviteEmail" type="email" placeholder="operator@example.com" required />
+            </label>
+
+            <label>
+              <span>Роль</span>
+              <select id="inviteRole" required>
+                <option value="demo">demo — демо-користувач</option>
+                <option value="user">user — користувач</option>
+                <option value="supervisor">supervisor — супервайзер</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Нотатка</span>
+              <textarea id="inviteNote" placeholder="За потреби: підрозділ, причина доступу, примітка"></textarea>
+            </label>
+
+            <div class="admin-actions">
+              <button type="submit" id="inviteSubmit">Створити доступ</button>
+              <button type="button" class="admin-secondary" id="sendEmailBtn" disabled>Надіслати лист</button>
+            </div>
+          </form>
+
+          <div class="invite-result" id="inviteResult" hidden>
+            <span>Setup-посилання</span>
+            <code id="inviteUrl"></code>
+            <div class="admin-actions">
+              <button type="button" id="copyInviteUrl">Скопіювати</button>
+              <a id="mailtoInvite" class="admin-link" href="#">Відкрити лист у пошті</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-tab" id="tab-users">
+        <div class="admin-card">
+          <h2>Користувачі</h2>
+          <p class="admin-muted">Після SQL-патча цей блок читає allowed_users через admin RPC.</p>
+          <button id="refreshUsers">Оновити список</button>
+          <div class="admin-table-wrap"><table id="usersTable"></table></div>
+        </div>
+      </section>
+
+      <section class="admin-tab" id="tab-requests">
+        <div class="admin-card">
+          <h2>Заявки на доступ</h2>
+          <button id="refreshRequests">Оновити заявки</button>
+          <div class="admin-table-wrap"><table id="requestsTable"></table></div>
+        </div>
+      </section>
+
+      <section class="admin-tab" id="tab-logs">
+        <div class="admin-card">
+          <h2>Activity logs</h2>
+          <button id="refreshLogs">Оновити логування</button>
+          <div class="admin-table-wrap"><table id="logsTable"></table></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/config.js?v=28"></script>
+  <script src="../scripts/auth.js?v=28"></script>
+  <script src="../scripts/access.js?v=1"></script>
+  <script src="./scripts/admin.js?v=1"></script>
+</body>
+</html>

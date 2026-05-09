@@ -7,12 +7,12 @@ const modes = {
   login: {
     subtitle: "ВИКОНАЙТЕ ВХІД У СИСТЕМУ",
     href: "./pages/login.html",
-    label: "ВХІД • РЕЄСТРАЦІЯ"
+    label: "ВХІД • ЗАПИТ ДОСТУПУ"
   },
   register: {
-    subtitle: "СТВОРЕННЯ НОВОГО ДОСТУПУ",
+    subtitle: "ЗАЯВКА НА ДОСТУП",
     href: "./pages/register.html",
-    label: "РЕЄСТРАЦІЯ"
+    label: "ЗАПИТ ДОСТУПУ"
   },
   developer: {
     subtitle: "ТЕРМІНАЛ РОЗРОБНИКА",
