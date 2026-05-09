@@ -1,21 +1,24 @@
 /* =========================================================
-   BASTION — Admin Start Guard
+   BASTION — Admin Start Guard v3
    ========================================================= */
 
 (function () {
   const statusBox = document.getElementById("adminStartStatus");
+  const stateBox = document.getElementById("adminStartState");
 
   function setStatus(text, state) {
-    if (!statusBox) return;
-    statusBox.textContent = text;
-    statusBox.classList.remove("is-ok", "is-warn");
-    if (state) statusBox.classList.add(state);
+    if (statusBox) statusBox.textContent = text;
+    if (stateBox) {
+      stateBox.textContent = state === "is-ok" ? "STANDBY" : "WARNING";
+      stateBox.classList.remove("is-ok", "is-warn");
+      stateBox.classList.add(state || "is-warn");
+    }
   }
 
   async function init() {
     try {
       if (!window.BastionAuth?.supabaseClient) {
-        setStatus("Помилка: Supabase client не ініціалізовано.", "is-warn");
+        setStatus("Supabase client не ініціалізовано", "is-warn");
         return;
       }
 
@@ -33,7 +36,7 @@
 
       const profile = Array.isArray(data) ? data[0] : data;
       if (!profile) {
-        setStatus(`${session.user?.email || "Користувач"}: профіль доступу не знайдено.`, "is-warn");
+        setStatus(`${session.user?.email || "Користувач"}: профіль доступу не знайдено`, "is-warn");
         return;
       }
 

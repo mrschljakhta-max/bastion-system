@@ -3,66 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BASTION — Admin Access Node</title>
+  <title>BASTION — Admin Start</title>
   <link rel="icon" href="../assets/logo/bastion-favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="./styles/admin-start.css?v=1" />
+  <link rel="stylesheet" href="./styles/admin-start.css?v=3" />
 </head>
 <body class="admin-start-body">
-  <div class="admin-start-bg"></div>
-  <main class="admin-start-shell">
-    <section class="admin-start-hero">
-      <div class="admin-start-logo">
-        <img src="../assets/logo/bastion-mark.svg" alt="BASTION" />
-        <div>
-          <strong>BASTION</strong>
-          <span>ADMIN CONTROL</span>
-        </div>
+  <main class="admin-start-screen" aria-label="BASTION admin стартова сторінка">
+    <div class="admin-bg" aria-hidden="true"></div>
+    <div class="admin-noise" aria-hidden="true"></div>
+
+    <header class="admin-topline">
+      <div class="admin-version">
+        <span>BASTION SYSTEMS</span>
+        <small>v.2.5.7</small>
       </div>
-
-      <p class="admin-start-kicker">CONTROL ACCESS NODE</p>
-      <h1>Адміністративний контур</h1>
-      <p class="admin-start-subtitle">
-        Окрема зона керування доступами, ролями користувачів, заявками та логуванням системи.
-      </p>
-
-      <div class="admin-start-status" id="adminStartStatus">Перевірка admin-сесії…</div>
-
-      <div class="admin-start-actions">
-        <a class="admin-start-primary" href="./index.html?v=2">Увійти в адмін-панель</a>
-        <a class="admin-start-secondary" href="../index.html">Повернутись на стартову</a>
+      <div class="admin-secure">
+        <span>SECURE CONNECTION</span>
+        <small>ADMIN NODE</small>
       </div>
+    </header>
+
+    <section class="admin-center-panel">
+      <div class="admin-mark">BASTION</div>
+      <div class="admin-access">AUTHORIZED ADMIN ACCESS ONLY</div>
+      <a class="admin-enter" href="./index.html?v=2">ENTER ADMIN</a>
     </section>
 
-    <section class="admin-start-grid" aria-label="Можливості адмін-панелі">
-      <article>
-        <span>01</span>
-        <h2>Надання доступу</h2>
-        <p>Email, роль, персональне setup-посилання для першого входу.</p>
-      </article>
-      <article>
-        <span>02</span>
-        <h2>Ролі</h2>
-        <p>demo, user, supervisor і admin з чітким розділенням прав.</p>
-      </article>
-      <article>
-        <span>03</span>
-        <h2>Заявки</h2>
-        <p>Контроль запитів доступу та їх статусів.</p>
-      </article>
-      <article>
-        <span>04</span>
-        <h2>Логування</h2>
-        <p>Перегляд ключових дій у системі через activity logs.</p>
-      </article>
-    </section>
+    <nav class="admin-side-link admin-side-left" aria-label="Демо режим">
+      <a href="../index.html">03<br><strong>USER<br>START</strong></a>
+    </nav>
+
+    <nav class="admin-side-link admin-side-right" aria-label="Адмін панель">
+      <a href="./index.html?v=2">04<br><strong>ADMIN<br>PANEL</strong></a>
+    </nav>
+
+    <footer class="admin-footer">
+      <div>
+        <span>STATUS: <b id="adminStartState">CHECKING</b></span>
+        <small id="adminStartStatus">Перевірка admin-сесії…</small>
+      </div>
+      <div>
+        <span>© 2026 BASTION SYSTEMS</span>
+        <small>ACCESS CONTROL NODE</small>
+      </div>
+    </footer>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../scripts/config.js?v=28"></script>
   <script src="../scripts/auth.js?v=28"></script>
-  <script src="./scripts/admin-start.js?v=1"></script>
+  <script src="./scripts/admin-start.js?v=3"></script>
 </body>
 </html>
