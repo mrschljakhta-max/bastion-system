@@ -3,66 +3,119 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BASTION — Налаштування доступу</title>
+  <title>BASTION — Setup Access</title>
   <link rel="icon" href="./assets/logo/bastion-favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles/fonts.css" />
   <link rel="stylesheet" href="./styles/theme.css" />
   <link rel="stylesheet" href="./styles/base.css" />
-  <link rel="stylesheet" href="./styles/setup-account.css?v=1" />
+  <link rel="stylesheet" href="./styles/setup-account.css?v=3" />
 </head>
 <body class="setup-body">
+  <div class="setup-bg" aria-hidden="true"></div>
+  <div class="setup-grid" aria-hidden="true"></div>
+
   <main class="setup-shell">
+    <section class="setup-hero">
+      <a class="setup-brand" href="./index.html" aria-label="BASTION start">
+        <img src="./assets/logo/bastion-mark.svg" alt="" />
+        <span>BASTION</span>
+      </a>
+
+      <div class="setup-kicker">AUTHORIZED ACCESS INITIALIZATION</div>
+      <h1>Налаштування доступу</h1>
+      <p class="setup-lead">
+        Персональне запрошення підтверджується через Supabase. Створіть пароль, підключіть Google Authenticator і активуйте доступ.
+      </p>
+
+      <div class="setup-steps" aria-label="Етапи налаштування">
+        <div class="setup-step is-active" data-step-marker="invite"><b>01</b><span>Invite</span></div>
+        <div class="setup-step" data-step-marker="password"><b>02</b><span>Password</span></div>
+        <div class="setup-step" data-step-marker="mfa"><b>03</b><span>2FA</span></div>
+      </div>
+    </section>
+
     <section class="setup-card" id="setupCard">
-      <div class="setup-brand">
-        <img src="./assets/logo/bastion-mark.svg" alt="BASTION" />
+      <div class="setup-card-glow" aria-hidden="true"></div>
+
+      <div class="setup-panel-head">
         <div>
-          <p>BASTION ACCESS</p>
-          <h1>Перше налаштування</h1>
+          <p>ACCESS NODE</p>
+          <h2 id="setupTitle">Перевірка запрошення</h2>
         </div>
+        <div class="setup-led" id="setupLed"></div>
       </div>
 
-      <div class="setup-status" id="setupStatus">Перевіряю запрошення…</div>
+      <div class="setup-status" id="setupStatus">Перевіряю invite-token…</div>
 
       <form class="setup-form" id="setupForm" hidden>
-        <label>
-          <span>Email</span>
-          <input id="setupEmail" type="email" readonly />
-        </label>
+        <div class="setup-row">
+          <label>
+            <span>Email користувача</span>
+            <input id="setupEmail" type="email" readonly />
+          </label>
+          <label>
+            <span>Роль</span>
+            <input id="setupRole" type="text" readonly />
+          </label>
+        </div>
 
         <label>
-          <span>Роль</span>
-          <input id="setupRole" type="text" readonly />
+          <span>Новий пароль</span>
+          <div class="setup-password-wrap">
+            <input id="setupPassword" type="password" autocomplete="new-password" placeholder="Мінімум 8 символів" />
+            <button type="button" id="togglePassword" aria-label="Показати пароль">Показати</button>
+          </div>
         </label>
 
-        <label>
-          <span>Створіть пароль</span>
-          <input id="setupPassword" type="password" autocomplete="new-password" placeholder="Мінімум 8 символів" />
-        </label>
+        <div class="setup-password-rules">
+          <span id="ruleLength">мін. 8 символів</span>
+          <span id="ruleLetter">літера</span>
+          <span id="ruleNumber">цифра</span>
+        </div>
 
-        <button type="submit" id="setupSubmit">Створити акаунт і показати QR</button>
+        <button class="setup-primary" type="submit" id="setupSubmit">Створити акаунт</button>
       </form>
 
       <section class="setup-mfa" id="setupMfa" hidden>
         <h2>Підключіть Google Authenticator</h2>
-        <div class="setup-qr-frame">
-          <img id="setupQr" alt="QR-код 2FA" />
+        <p>Відскануйте QR-код у застосунку Google Authenticator або введіть SECRET вручну.</p>
+
+        <div class="setup-qr-layout">
+          <div class="setup-qr-frame">
+            <img id="setupQr" alt="QR-код 2FA" />
+          </div>
+          <div class="setup-mfa-side">
+            <div class="setup-secret-box">
+              <span>SECRET</span>
+              <code id="setupSecret">—</code>
+              <button type="button" id="copySecret">Скопіювати</button>
+            </div>
+            <label>
+              <span>Код з Authenticator</span>
+              <input id="setupCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" />
+            </label>
+            <button class="setup-primary" type="button" id="setupVerify">Підтвердити 2FA</button>
+          </div>
         </div>
-        <p id="setupSecret" class="setup-secret"></p>
-        <label>
-          <span>Код з Authenticator</span>
-          <input id="setupCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" />
-        </label>
-        <button type="button" id="setupVerify">Підтвердити 2FA</button>
       </section>
 
-      <a class="setup-link" href="./index.html">Повернутися на стартову сторінку</a>
+      <section class="setup-complete" id="setupComplete" hidden>
+        <div class="setup-complete-icon">✓</div>
+        <h2>Доступ активовано</h2>
+        <p>Тепер відкрийте стартову сторінку BASTION і натисніть «Вхід».</p>
+        <a class="setup-primary setup-link-button" href="./index.html">Перейти до входу</a>
+      </section>
+
+      <div class="setup-footer-actions">
+        <a href="./index.html">Повернутися на стартову</a>
+      </div>
     </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./scripts/config.js?v=28"></script>
   <script src="./scripts/auth.js?v=28"></script>
-  <script src="./scripts/access.js?v=1"></script>
-  <script src="./scripts/setup-account.js?v=1"></script>
+  <script src="./scripts/access.js?v=3"></script>
+  <script src="./scripts/setup-account.js?v=3"></script>
 </body>
 </html>
