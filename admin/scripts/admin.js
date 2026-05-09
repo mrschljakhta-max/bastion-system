@@ -185,21 +185,48 @@
 
   async function init() {
     try {
-      const session = await window.BastionAuth.getCurrentSession();
-      if (!session) {
-        setProfile("Увійдіть через стартову сторінку як admin.");
+      if (!window.BastionAuth || !window.BastionAccess) {
+        setProfile("Помилка завантаження auth/access JS. Перевір шляхи до scripts/config.js, scripts/auth.js, scripts/access.js.");
+        console.error("BASTION ADMIN: missing globals", {
+          BastionAuth: !!window.BastionAuth,
+          BastionAccess: !!window.BastionAccess
+        });
         return;
       }
 
-      const profile = await window.BastionAccess.requireRole("admin", "../index.html");
-      if (!profile) return;
+      const session = await window.BastionAuth.getCurrentSession();
+      console.log("BASTION ADMIN session:", session);
+
+      if (!session) {
+        setProfile("Немає активної сесії. Спочатку увійдіть через стартову сторінку, потім відкрийте /admin/.");
+        return;
+      }
+
+      const profile = await window.BastionAccess.getMyAccessProfile();
+      console.log("BASTION ADMIN profile:", profile);
+
+      if (!profile) {
+        setProfile("Профіль доступу не знайдено в allowed_users для поточного email.");
+        return;
+      }
+
+      if (!profile.is_active || profile.status !== "active") {
+        setProfile(`${profile.email} · доступ неактивний`);
+        return;
+      }
+
+      if (profile.role !== "admin") {
+        setProfile(`${profile.email} · роль ${profile.role}. Потрібна роль admin.`);
+        return;
+      }
+
       setProfile(`${profile.email} · ${profile.role}`);
       refreshUsers();
       refreshRequests();
       refreshLogs();
     } catch (error) {
-      console.error(error);
-      setProfile("Admin-доступ не підтверджено.");
+      console.error("BASTION ADMIN init error:", error);
+      setProfile("Admin-доступ не підтверджено. Дивись помилку в Console.");
     }
   }
 
