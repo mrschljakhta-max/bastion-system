@@ -170,7 +170,7 @@
 
     if (isRegister && context.qrCode) {
       qrWrap.hidden = false;
-      qrImage.src = context.qrCode;
+      qrImage.src = context.qrImageSrc || window.BastionAuth?.toQrImageSrc?.(context.qrCode) || context.qrCode;
       secret.textContent = context.secret ? `SECRET: ${context.secret}` : "";
       loginHint.hidden = true;
     } else {

@@ -12,6 +12,36 @@ function showAuthMessage(message, type = "info") {
   alert(message);
 }
 
+function isAlreadyRegisteredError(error) {
+  const message = String(error?.message || "").toLowerCase();
+
+  return (
+    message.includes("already registered") ||
+    message.includes("already exists") ||
+    message.includes("user already")
+  );
+}
+
+function toQrImageSrc(qrCode) {
+  const value = String(qrCode || "").trim();
+
+  if (!value) return "";
+
+  if (
+    value.startsWith("data:image") ||
+    value.startsWith("http://") ||
+    value.startsWith("https://")
+  ) {
+    return value;
+  }
+
+  if (value.startsWith("<svg")) {
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(value)}`;
+  }
+
+  return value;
+}
+
 async function checkAllowedEmail(email) {
   const normalizedEmail = normalizeEmail(email);
 
@@ -71,7 +101,10 @@ async function handleRegister(email, password) {
       "warning"
     );
 
-    return false;
+    return {
+      success: false,
+      pendingApproval: true
+    };
   }
 
   const { data, error } = await supabaseClient.auth.signUp({
@@ -79,7 +112,17 @@ async function handleRegister(email, password) {
     password
   });
 
-  if (error) {
+  if (!error) {
+    console.log("REGISTER:", data);
+
+    return {
+      success: true,
+      mode: "register",
+      data
+    };
+  }
+
+  if (!isAlreadyRegisteredError(error)) {
     console.error("Помилка реєстрації:", error);
 
     showAuthMessage(
@@ -90,12 +133,31 @@ async function handleRegister(email, password) {
     return false;
   }
 
-  console.log("REGISTER:", data);
+  // Якщо користувач уже створений у Supabase Auth, але ще не налаштована 2FA:
+  // повторна реєстрація з правильним паролем має пустити його до QR-коду.
+  const loginResult = await supabaseClient.auth.signInWithPassword({
+    email: normalizedEmail,
+    password
+  });
+
+  if (loginResult.error) {
+    console.error("Користувач уже існує, але пароль не підійшов:", loginResult.error);
+
+    showAuthMessage(
+      "Цей email уже зареєстрований. Введіть правильний пароль або перейдіть до входу.",
+      "warning"
+    );
+
+    return false;
+  }
+
+  console.log("REGISTER EXISTING USER LOGIN:", loginResult.data);
 
   return {
     success: true,
     mode: "register",
-    data
+    existingUser: true,
+    data: loginResult.data
   };
 }
 
@@ -164,7 +226,24 @@ async function getVerifiedTotpFactor() {
   return factors.find((factor) => factor.status === "verified") || null;
 }
 
+async function removeUnverifiedTotpFactors() {
+  const factors = await getAuthenticatorFactors();
+  const unverified = factors.filter((factor) => factor.status !== "verified");
+
+  for (const factor of unverified) {
+    const { error } = await supabaseClient.auth.mfa.unenroll({
+      factorId: factor.id
+    });
+
+    if (error) {
+      console.warn("Не вдалося прибрати старий unverified MFA factor:", error);
+    }
+  }
+}
+
 async function enrollTotpFactor() {
+  await removeUnverifiedTotpFactors();
+
   const { data, error } = await supabaseClient.auth.mfa.enroll({
     factorType: "totp",
     friendlyName: "BASTION"
@@ -180,6 +259,7 @@ async function enrollTotpFactor() {
     success: true,
     factorId: data.id,
     qrCode: data.totp?.qr_code || "",
+    qrImageSrc: toQrImageSrc(data.totp?.qr_code || ""),
     secret: data.totp?.secret || ""
   };
 }
@@ -228,6 +308,26 @@ async function verifyTotpCode(factorId, challengeId, code) {
 }
 
 async function prepareMfaAfterRegister() {
+  const verifiedFactor = await getVerifiedTotpFactor();
+
+  if (verifiedFactor) {
+    const challenge = await challengeTotpFactor(verifiedFactor.id);
+
+    if (!challenge?.success) {
+      return false;
+    }
+
+    return {
+      success: true,
+      mode: "login",
+      factorId: verifiedFactor.id,
+      challengeId: challenge.challengeId,
+      qrCode: "",
+      qrImageSrc: "",
+      secret: ""
+    };
+  }
+
   const enrollment = await enrollTotpFactor();
 
   if (!enrollment?.success) {
@@ -246,6 +346,7 @@ async function prepareMfaAfterRegister() {
     factorId: enrollment.factorId,
     challengeId: challenge.challengeId,
     qrCode: enrollment.qrCode,
+    qrImageSrc: enrollment.qrImageSrc,
     secret: enrollment.secret
   };
 }
@@ -254,8 +355,8 @@ async function prepareMfaAfterLogin() {
   const factor = await getVerifiedTotpFactor();
 
   if (!factor) {
-    // Користувач увійшов, але ще не має підтвердженого 2FA.
-    // Для безпеки змушуємо пройти enroll.
+    // Якщо користувач уже існує, але 2FA ще не підключено —
+    // показуємо QR-код, а не просто поле коду.
     return await prepareMfaAfterRegister();
   }
 
@@ -271,6 +372,7 @@ async function prepareMfaAfterLogin() {
     factorId: factor.id,
     challengeId: challenge.challengeId,
     qrCode: "",
+    qrImageSrc: "",
     secret: ""
   };
 }
@@ -300,12 +402,14 @@ async function getCurrentSession() {
 window.BastionAuth = {
   supabaseClient,
   normalizeEmail,
+  toQrImageSrc,
   checkAllowedEmail,
   requestAccess,
   handleRegister,
   handleLogin,
   getAuthenticatorFactors,
   getVerifiedTotpFactor,
+  removeUnverifiedTotpFactors,
   enrollTotpFactor,
   challengeTotpFactor,
   verifyTotpCode,

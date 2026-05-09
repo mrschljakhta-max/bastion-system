@@ -1686,3 +1686,22 @@
     transform: translateY(0) scale(1);
   }
 }
+
+
+/* =========================================================
+   BASTION — MFA REGISTER FLOW FIX v25
+   ========================================================= */
+
+.auth-field[hidden],
+.auth-panel [hidden] {
+  display: none !important;
+}
+
+.mfa-qr-image[src=""],
+.mfa-qr-image:not([src]) {
+  display: none !important;
+}
+
+.mfa-qr-frame:has(.mfa-qr-image[src=""]) {
+  opacity: .35;
+}
