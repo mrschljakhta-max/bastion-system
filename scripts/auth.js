@@ -1,74 +1,73 @@
-/* =========================================================
-   BASTION — SUPABASE AUTH BRIDGE v21
-   Перший етап: перевірка email у whitelist allowed_users.
-   Далі сюди додамо signUp/signIn + MFA TOTP.
-   ========================================================= */
+const supabaseClient = supabase.createClient(
+  window.SUPABASE_URL,
+  window.SUPABASE_ANON_KEY
+);
 
-(function () {
-  if (!window.supabase || !window.SUPABASE_URL || !window.SUPABASE_ANON_KEY) {
-    console.warn("Supabase config не знайдено або SDK не підключено.");
-    return;
+async function checkAllowedEmail(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    return false;
   }
 
-  const supabaseClient = window.supabase.createClient(
-    window.SUPABASE_URL,
-    window.SUPABASE_ANON_KEY
-  );
+  const { data, error } = await supabaseClient.rpc("is_email_allowed", {
+    input_email: normalizedEmail
+  });
 
-  async function checkAllowedEmail(email) {
-    const normalizedEmail = String(email || "").trim().toLowerCase();
-
-    if (!normalizedEmail) {
-      return { allowed: false, reason: "empty_email" };
-    }
-
-    const { data, error } = await supabaseClient
-      .from("allowed_users")
-      .select("email, role, status")
-      .ilike("email", normalizedEmail)
-      .eq("status", "active")
-      .maybeSingle();
-
-    if (error) {
-      console.error("allowed_users check error:", error);
-      return { allowed: false, reason: "query_error", error };
-    }
-
-    if (!data) {
-      return { allowed: false, reason: "not_allowed" };
-    }
-
-    return { allowed: true, user: data };
+  if (error) {
+    console.error("Помилка перевірки email:", error);
+    return false;
   }
 
-  async function handleRegister(email, password) {
-    const check = await checkAllowedEmail(email);
+  return data === true;
+}
 
-    if (!check.allowed) {
-      alert("Цей email ще не доданий адміністратором до списку дозволених користувачів.");
-      return false;
-    }
+async function requestAccess(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
 
-    alert("Email підтверджено. Наступним кроком підключимо реєстрацію та QR-код 2FA.");
-    return true;
+  const { error } = await supabaseClient
+    .from("access_requests")
+    .insert({
+      email: normalizedEmail,
+      status: "pending"
+    });
+
+  if (error) {
+    console.error("Помилка створення заявки:", error);
+    return false;
   }
 
-  async function handleLogin(email, password) {
-    const check = await checkAllowedEmail(email);
+  return true;
+}
 
-    if (!check.allowed) {
-      alert("Користувача не знайдено у списку дозволених.");
-      return false;
-    }
+async function handleRegister(email, password) {
+  const allowed = await checkAllowedEmail(email);
 
-    alert("Email підтверджено. Наступним кроком підключимо вхід та код 2FA.");
-    return true;
+  if (!allowed) {
+    await requestAccess(email);
+    alert("Ваш email ще не підтверджений адміністратором. Заявку на доступ надіслано.");
+    return false;
   }
 
-  window.BastionAuth = {
-    client: supabaseClient,
-    checkAllowedEmail,
-    handleRegister,
-    handleLogin
-  };
-})();
+  alert("Email підтверджено. Наступний крок — реєстрація та 2FA.");
+  return true;
+}
+
+async function handleLogin(email, password) {
+  const allowed = await checkAllowedEmail(email);
+
+  if (!allowed) {
+    alert("Користувача не знайдено або доступ ще не підтверджено.");
+    return false;
+  }
+
+  alert("Користувача знайдено. Наступний крок — пароль та 2FA.");
+  return true;
+}
+
+window.BastionAuth = {
+  checkAllowedEmail,
+  requestAccess,
+  handleRegister,
+  handleLogin
+};
