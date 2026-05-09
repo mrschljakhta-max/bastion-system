@@ -14,7 +14,6 @@
   const submit = document.getElementById("authSubmit");
   const login = document.getElementById("authLogin");
   const password = document.getElementById("authPassword");
-  const confirm = document.getElementById("authPasswordConfirm");
   const subtitle = document.getElementById("modeSubtitle");
   const ring = document.getElementById("hudRing");
 
@@ -51,7 +50,6 @@
 
     if (subtitle) subtitle.textContent = data.subtitle;
     if (password) password.autocomplete = data.passwordAutocomplete;
-    if (confirm) confirm.required = nextMode === "register";
   }
 
   function openPanel(mode) {
@@ -96,29 +94,45 @@
     setTimeout(() => login?.focus(), 80);
   });
 
-  panel.addEventListener("submit", (event) => {
+  panel.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const mode = panel.dataset.mode === "register" ? "register" : "login";
 
-    if (mode === "register" && password?.value !== confirm?.value) {
-      confirm?.focus();
+    const email = login?.value?.trim();
+    const pass = password?.value;
+
+    if (!email || !pass) {
+      login?.focus();
       panel.classList.remove("auth-shake");
       void panel.offsetWidth;
       panel.classList.add("auth-shake");
       return;
     }
 
-    // Тут пізніше підключимо реальну авторизацію.
-    // Поки що показуємо стан очікування, щоб форма виглядала живою.
     const original = submit.textContent;
-    submit.textContent = mode === "register" ? "СТВОРЕННЯ..." : "ПЕРЕВІРКА...";
+    submit.textContent = mode === "register" ? "ПЕРЕВІРКА..." : "ПЕРЕВІРКА...";
     submit.disabled = true;
 
-    setTimeout(() => {
+    try {
+      if (window.BastionAuth) {
+        if (mode === "register") {
+          await window.BastionAuth.handleRegister(email, pass);
+        } else {
+          await window.BastionAuth.handleLogin(email, pass);
+        }
+      } else {
+        console.warn("BastionAuth не підключено");
+      }
+    } catch (error) {
+      console.error(error);
+      panel.classList.remove("auth-shake");
+      void panel.offsetWidth;
+      panel.classList.add("auth-shake");
+    } finally {
       submit.textContent = original;
       submit.disabled = false;
-    }, 900);
+    }
   });
 
   document.addEventListener("keydown", (event) => {

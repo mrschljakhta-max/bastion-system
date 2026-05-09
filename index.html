@@ -21,9 +21,6 @@
   <!-- Start page visual styles moved to styles/hud-ring.css -->
 
 </head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="scripts/config.js"></script>
-<script src="scripts/auth.js"></script>
 <body>
   <main class="start-page mode-login">
     <div class="bg-layer bg-main"></div>
@@ -156,17 +153,12 @@
 
               <label class="auth-field">
                 <span>ЛОГІН</span>
-                <input id="authLogin" name="login" type="text" autocomplete="username" spellcheck="false" />
+                <input id="authLogin" name="login" type="email" placeholder="example@gmail.com" autocomplete="email" spellcheck="false" />
               </label>
 
               <label class="auth-field">
                 <span>ПАРОЛЬ</span>
-                <input id="authPassword" name="password" type="password" autocomplete="current-password" />
-              </label>
-
-              <label class="auth-field auth-field-confirm" id="authConfirmField">
-                <span>ПОВТОРІТЬ ПАРОЛЬ</span>
-                <input id="authPasswordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" />
+                <input id="authPassword" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
               </label>
 
               <button type="submit" class="auth-submit" id="authSubmit">УВІЙТИ</button>
@@ -185,6 +177,9 @@
   <script src="./scripts/main.js"></script>
   <script src="./scripts/hud-ring.js"></script>
   <script src="./scripts/ring-effects-v14.js?v=18"></script>
-  <script src="./scripts/auth-panel.js?v=20"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./scripts/config.js"></script>
+  <script src="./scripts/auth.js?v=21"></script>
+  <script src="./scripts/auth-panel.js?v=21"></script>
 </body>
 </html>
