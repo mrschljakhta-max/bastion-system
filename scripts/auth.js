@@ -3,8 +3,19 @@ const supabaseClient = supabase.createClient(
   window.SUPABASE_ANON_KEY
 );
 
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function showAuthMessage(message, type = "info") {
+  console.log(`[BASTION AUTH][${type}]`, message);
+
+  // Поки залишаємо alert, далі замінимо на красивий HUD-message у формі.
+  alert(message);
+}
+
 async function checkAllowedEmail(email) {
-  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const normalizedEmail = normalizeEmail(email);
 
   if (!normalizedEmail) {
     return false;
@@ -23,7 +34,11 @@ async function checkAllowedEmail(email) {
 }
 
 async function requestAccess(email) {
-  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail) {
+    return false;
+  }
 
   const { error } = await supabaseClient
     .from("access_requests")
@@ -41,33 +56,134 @@ async function requestAccess(email) {
 }
 
 async function handleRegister(email, password) {
-  const allowed = await checkAllowedEmail(email);
+  const normalizedEmail = normalizeEmail(email);
 
-  if (!allowed) {
-    await requestAccess(email);
-    alert("Ваш email ще не підтверджений адміністратором. Заявку на доступ надіслано.");
+  if (!normalizedEmail || !password) {
+    showAuthMessage("Введіть email та пароль.", "warning");
     return false;
   }
 
-  alert("Email підтверджено. Наступний крок — реєстрація та 2FA.");
-  return true;
+  const allowed = await checkAllowedEmail(normalizedEmail);
+
+  if (!allowed) {
+    await requestAccess(normalizedEmail);
+
+    showAuthMessage(
+      "Ваш email ще не підтверджений адміністратором. Заявку на доступ надіслано.",
+      "warning"
+    );
+
+    return false;
+  }
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: normalizedEmail,
+    password
+  });
+
+  if (error) {
+    console.error("Помилка реєстрації:", error);
+
+    showAuthMessage(
+      error.message || "Не вдалося створити обліковий запис.",
+      "error"
+    );
+
+    return false;
+  }
+
+  console.log("REGISTER:", data);
+
+  showAuthMessage(
+    "Реєстрація успішна. Наступний крок — підключення двофакторної автентифікації.",
+    "success"
+  );
+
+  return {
+    success: true,
+    mode: "register",
+    data
+  };
 }
 
 async function handleLogin(email, password) {
-  const allowed = await checkAllowedEmail(email);
+  const normalizedEmail = normalizeEmail(email);
 
-  if (!allowed) {
-    alert("Користувача не знайдено або доступ ще не підтверджено.");
+  if (!normalizedEmail || !password) {
+    showAuthMessage("Введіть email та пароль.", "warning");
     return false;
   }
 
-  alert("Користувача знайдено. Наступний крок — пароль та 2FA.");
+  const allowed = await checkAllowedEmail(normalizedEmail);
+
+  if (!allowed) {
+    showAuthMessage(
+      "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
+      "warning"
+    );
+
+    return false;
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: normalizedEmail,
+    password
+  });
+
+  if (error) {
+    console.error("Помилка входу:", error);
+
+    showAuthMessage(
+      "Невірний email або пароль.",
+      "error"
+    );
+
+    return false;
+  }
+
+  console.log("LOGIN:", data);
+
+  showAuthMessage(
+    "Вхід успішний. Наступний крок — перевірка двофакторної автентифікації.",
+    "success"
+  );
+
+  return {
+    success: true,
+    mode: "login",
+    data
+  };
+}
+
+async function signOut() {
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    console.error("Помилка виходу:", error);
+    return false;
+  }
+
   return true;
 }
 
+async function getCurrentSession() {
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    console.error("Помилка отримання сесії:", error);
+    return null;
+  }
+
+  return data?.session || null;
+}
+
 window.BastionAuth = {
+  supabaseClient,
+  normalizeEmail,
   checkAllowedEmail,
   requestAccess,
   handleRegister,
-  handleLogin
+  handleLogin,
+  signOut,
+  getCurrentSession
 };
