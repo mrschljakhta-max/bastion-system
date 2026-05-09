@@ -17,7 +17,6 @@
   <link rel="stylesheet" href="./styles/start.css" />
   <link rel="stylesheet" href="./styles/bastion-wordmark.css?v=14" />
   <link rel="stylesheet" href="./styles/ring-effects-v14.css?v=18" />
-  <link rel="stylesheet" href="./styles/atmosphere-particles.css?v=19" />
 
   <!-- Start page visual styles moved to styles/hud-ring.css -->
 
@@ -136,13 +135,45 @@
 
           <div class="signal-line"></div>
 
-          <a
-            href="./pages/login.html"
-            class="enter-link"
-            id="enterLink"
-          >
-            ВХІД • РЕЄСТРАЦІЯ
-          </a>
+          <div class="access-auth-zone" id="accessAuthZone">
+            <div class="access-choice" id="accessChoice" aria-label="Вибір режиму доступу">
+              <button type="button" class="access-choice-btn" data-auth-mode="login">ВХІД</button>
+              <span class="access-dot" aria-hidden="true">•</span>
+              <button type="button" class="access-choice-btn" data-auth-mode="register">РЕЄСТРАЦІЯ</button>
+            </div>
+
+            <form class="auth-panel" id="authPanel" data-mode="login" hidden>
+              <button type="button" class="auth-back" id="authBack" aria-label="Повернутись до стартового вигляду">
+                ← НАЗАД
+              </button>
+
+              <div class="auth-panel-head">
+                <span class="auth-kicker" id="authKicker">РЕЖИМ ДОСТУПУ</span>
+                <h2 class="auth-title" id="authTitle">ВХІД У СИСТЕМУ</h2>
+              </div>
+
+              <label class="auth-field">
+                <span>ЛОГІН</span>
+                <input id="authLogin" name="login" type="text" autocomplete="username" spellcheck="false" />
+              </label>
+
+              <label class="auth-field">
+                <span>ПАРОЛЬ</span>
+                <input id="authPassword" name="password" type="password" autocomplete="current-password" />
+              </label>
+
+              <label class="auth-field auth-field-confirm" id="authConfirmField">
+                <span>ПОВТОРІТЬ ПАРОЛЬ</span>
+                <input id="authPasswordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" />
+              </label>
+
+              <button type="submit" class="auth-submit" id="authSubmit">УВІЙТИ</button>
+
+              <button type="button" class="auth-switch" id="authSwitch">
+                СТВОРИТИ ОБЛІКОВИЙ ЗАПИС
+              </button>
+            </form>
+          </div>
         </div>
 
       </div>
@@ -152,6 +183,6 @@
   <script src="./scripts/main.js"></script>
   <script src="./scripts/hud-ring.js"></script>
   <script src="./scripts/ring-effects-v14.js?v=18"></script>
-  <script src="./scripts/atmosphere-particles.js?v=19"></script>
+  <script src="./scripts/auth-panel.js?v=20"></script>
 </body>
 </html>
