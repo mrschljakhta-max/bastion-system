@@ -19,7 +19,6 @@
   const inviteResult = document.getElementById('inviteResult');
   const inviteUrl = document.getElementById('inviteUrl');
   const copyInviteUrl = document.getElementById('copyInviteUrl');
-  const mailtoInvite = document.getElementById('mailtoInvite');
 
   let lastInvite = null;
   let adminSession = null;
@@ -141,27 +140,7 @@
     return `${root}/setup-account.html?token=${encodeURIComponent(token)}`;
   }
 
-  function buildMailto(invite) {
-    const subject = encodeURIComponent('BASTION — доступ до системи');
-    const body = encodeURIComponent(
-`Вам надано доступ до BASTION.
-
-Роль: ${invite.role}
-
-Інструкція:
-1. Перейдіть за посиланням: ${invite.setup_url}
-2. Створіть пароль.
-3. Відскануйте QR-код у Google Authenticator.
-4. Підтвердіть 2FA.
-5. Після активації відкрийте стартову сторінку BASTION і натисніть "Вхід".
-
-Не передавайте це посилання іншим особам.`
-    );
-
-    return `mailto:${encodeURIComponent(invite.email)}?subject=${subject}&body=${body}`;
-  }
-
-  inviteForm?.addEventListener('submit', async (event) => {
+    inviteForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     inviteSubmit.disabled = true;
     inviteSubmit.textContent = 'Створюю…';
@@ -184,7 +163,6 @@
       };
 
       inviteUrl.textContent = lastInvite.setup_url;
-      mailtoInvite.href = buildMailto(lastInvite);
       inviteResult.hidden = false;
       sendEmailBtn.disabled = false;
       inviteSubmit.textContent = 'Доступ створено';
@@ -233,9 +211,9 @@
       sendEmailBtn.textContent = 'Лист надіслано';
       refreshLogs();
     } catch (error) {
-      console.warn('Edge Function email failed, opening mailto fallback:', error);
-      sendEmailBtn.textContent = 'Відкриваю пошту…';
-      window.location.href = buildMailto(lastInvite);
+      console.error(error);
+      alert(error.message || 'Помилка відправки листа.');
+      sendEmailBtn.textContent = 'Помилка';
     } finally {
       setTimeout(() => {
         sendEmailBtn.disabled = false;
