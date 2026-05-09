@@ -1,6 +1,6 @@
-window.SUPABASE_URL =
-  "https://vfshxogiuaefrgppuypt.supabase.co";
+window.BASTION_CONFIG = {
+  SUPABASE_URL: "https://iczselzwtfbarjcspmpp.supabase.co",
 
-window.SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZmc2h4b2dpdWFlZnJncHB1eXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NDYyNDksImV4cCI6MjA4OTQyMjI0OX0.5y0CIogdEmKvFCgrT2ePeXwC8scfrJXwfQbVfj1c9js";
- 
+  SUPABASE_ANON_KEY:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljenNlbHp3dGZiYXJqY3NwbXBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyODY2OTgsImV4cCI6MjA5Mzg2MjY5OH0.-L4F0dbxnDLNdrJ95mt4YOJg7x32nKAjzx7tTYpuj_k"
+};
