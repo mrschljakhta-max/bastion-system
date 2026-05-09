@@ -1,11 +1,11 @@
 /* =========================================================
-   BASTION — Admin Control v4
+   BASTION — Admin Control v5
    Uses separate admin session token, no Supabase Auth / 2FA
    ========================================================= */
 
 (function () {
   const STORAGE_KEY = 'BASTION_ADMIN_SESSION_TOKEN';
-  const START_URL = './start.html?v=5';
+  const START_URL = './start.html?v=6';
   const LOGIN_URL = './login.html?v=1';
   const ACTIVE_TAB_KEY = 'BASTION_ADMIN_ACTIVE_TAB';
 
@@ -207,9 +207,41 @@
     setTimeout(() => (copyInviteUrl.textContent = 'Скопіювати'), 1200);
   });
 
-  sendEmailBtn?.addEventListener('click', () => {
+  async function sendInviteEmail(invite) {
+    const token = getAdminToken();
+    const { data, error } = await client.functions.invoke('send-invite-email', {
+      body: {
+        admin_token: token,
+        email: invite.email,
+        role: invite.role,
+        setup_url: invite.setup_url
+      }
+    });
+
+    if (error) throw error;
+    return data;
+  }
+
+  sendEmailBtn?.addEventListener('click', async () => {
     if (!lastInvite) return;
-    window.location.href = buildMailto(lastInvite);
+
+    sendEmailBtn.disabled = true;
+    sendEmailBtn.textContent = 'Надсилаю…';
+
+    try {
+      await sendInviteEmail(lastInvite);
+      sendEmailBtn.textContent = 'Лист надіслано';
+      refreshLogs();
+    } catch (error) {
+      console.warn('Edge Function email failed, opening mailto fallback:', error);
+      sendEmailBtn.textContent = 'Відкриваю пошту…';
+      window.location.href = buildMailto(lastInvite);
+    } finally {
+      setTimeout(() => {
+        sendEmailBtn.disabled = false;
+        sendEmailBtn.textContent = 'Надіслати лист';
+      }, 1600);
+    }
   });
 
   function activateTab(tabName, save = true) {

@@ -1,6 +1,6 @@
 /* =========================================================
-   BASTION — Admin Control UI v4
-   Collapsible left navbar / hover expand
+   BASTION — Admin Control UI v5
+   Collapsible left navbar / refined scale / palette-ready
    ========================================================= */
 
 :root {
@@ -185,7 +185,7 @@
   min-width: 0;
   height: 100vh;
   overflow: auto;
-  padding: 48px 54px 60px;
+  padding: 42px 54px 60px;
   transition: padding-left .28s ease;
 }
 
@@ -199,7 +199,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 34px;
+  margin-bottom: 26px;
 }
 
 .admin-header p {
@@ -212,9 +212,9 @@
 
 .admin-header h1 {
   margin: 0;
-  font-size: clamp(38px, 5vw, 72px);
-  line-height: .96;
-  letter-spacing: .025em;
+  font-size: clamp(30px, 3.8vw, 54px);
+  line-height: 1.02;
+  letter-spacing: .018em;
   text-transform: uppercase;
   text-shadow: 0 0 45px rgba(255,49,88,.14);
 }
@@ -439,4 +439,80 @@
   .admin-content { grid-column: 1; height: auto; min-height: 100vh; padding: 32px 18px 110px; }
   .admin-header { display: block; }
   .admin-profile { display: inline-flex; margin-top: 18px; }
+}
+
+
+/* =========================
+   Palette preview / visual lab
+   ========================= */
+.palette-lab-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.palette-card {
+  min-height: 190px;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.14);
+  padding: 22px;
+  overflow: hidden;
+  position: relative;
+  background: #050507;
+  box-shadow: 0 24px 80px rgba(0,0,0,.34);
+}
+.palette-card::before {
+  content: "";
+  position: absolute;
+  inset: -40% -20%;
+  opacity: .75;
+  pointer-events: none;
+}
+.palette-card h3 { margin: 0 0 8px; text-transform: uppercase; letter-spacing: .16em; }
+.palette-card p { margin: 0; color: rgba(255,255,255,.62); line-height: 1.55; }
+.palette-swatches { display:flex; gap:8px; margin-top:22px; }
+.palette-swatches span { width:34px; height:34px; border-radius:999px; border:1px solid rgba(255,255,255,.26); }
+.palette-red::before { background: radial-gradient(circle at 12% 15%, rgba(255,49,88,.28), transparent 32%), radial-gradient(circle at 78% 30%, rgba(255,194,26,.12), transparent 28%); }
+.palette-amber::before { background: radial-gradient(circle at 15% 20%, rgba(255,180,40,.24), transparent 34%), radial-gradient(circle at 80% 70%, rgba(255,70,36,.16), transparent 32%); }
+.palette-ice::before { background: radial-gradient(circle at 15% 20%, rgba(79,184,255,.19), transparent 34%), radial-gradient(circle at 84% 72%, rgba(255,49,88,.11), transparent 34%); }
+.palette-graphite::before { background: radial-gradient(circle at 22% 15%, rgba(255,255,255,.12), transparent 28%), radial-gradient(circle at 82% 65%, rgba(255,49,88,.10), transparent 34%); }
+.palette-emerald::before { background: radial-gradient(circle at 18% 20%, rgba(42,255,167,.13), transparent 32%), radial-gradient(circle at 84% 65%, rgba(255,49,88,.12), transparent 32%); }
+.palette-violet::before { background: radial-gradient(circle at 16% 18%, rgba(156,99,255,.20), transparent 34%), radial-gradient(circle at 78% 70%, rgba(255,49,88,.15), transparent 32%); }
+.palette-card > * { position: relative; z-index: 1; }
+
+/* =========================
+   Embedded email concept
+   ========================= */
+.email-preview {
+  max-width: 680px;
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,.13);
+  background: linear-gradient(180deg, rgba(12,12,16,.95), rgba(3,3,6,.98));
+  box-shadow: 0 30px 110px rgba(0,0,0,.45);
+  overflow: hidden;
+}
+.email-preview-hero {
+  padding: 34px;
+  background: radial-gradient(circle at 50% 0%, rgba(255,49,88,.25), transparent 60%), linear-gradient(135deg, rgba(255,49,88,.14), rgba(255,194,26,.06));
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+.email-preview-brand { display:flex; align-items:center; gap:14px; text-transform:uppercase; letter-spacing:.22em; font-weight:900; }
+.email-preview-brand img { width:42px; height:42px; }
+.email-preview-body { padding: 34px; }
+.email-preview-body h3 { font-size: 28px; margin: 0 0 14px; text-transform: uppercase; letter-spacing: .08em; }
+.email-preview-body p { color: rgba(255,255,255,.68); line-height: 1.65; }
+.email-preview-cta { display:inline-flex; margin-top:16px; padding:16px 24px; border-radius:14px; color:#fff; text-decoration:none; text-transform:uppercase; letter-spacing:.16em; font-weight:900; background: linear-gradient(135deg, #ff3158, #ff7a2d); box-shadow:0 16px 48px rgba(255,49,88,.24); }
+.email-preview-code { margin-top:24px; padding:16px; border:1px solid rgba(255,255,255,.12); border-radius:14px; color:rgba(255,255,255,.66); word-break:break-all; background:rgba(255,255,255,.04); }
+
+@media (max-width: 920px) {
+  .palette-lab-grid { grid-template-columns: 1fr; }
+  .admin-header h1 { font-size: clamp(28px, 9vw, 44px); }
+}
+
+.admin-mini-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 14px 0 24px;
 }

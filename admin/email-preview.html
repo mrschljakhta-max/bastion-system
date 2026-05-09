@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BASTION — Invite Email Preview</title>
+  <link rel="icon" href="../assets/logo/bastion-favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../styles/fonts.css" />
+  <link rel="stylesheet" href="../styles/theme.css" />
+  <link rel="stylesheet" href="../styles/base.css" />
+  <link rel="stylesheet" href="./styles/admin.css?v=5" />
+</head>
+<body class="admin-body">
+  <main class="admin-content" style="grid-column: 1 / -1; height:auto; min-height:100vh; overflow:visible;">
+    <header class="admin-header">
+      <div>
+        <p>MAIL TEMPLATE</p>
+        <h1>Лист доступу</h1>
+      </div>
+      <a class="admin-link" href="./index.html?v=5">Назад в admin</a>
+    </header>
+
+    <section class="email-preview">
+      <div class="email-preview-hero">
+        <div class="email-preview-brand">
+          <img src="../assets/logo/bastion-mark.svg" alt="BASTION" />
+          <span>BASTION ACCESS NODE</span>
+        </div>
+      </div>
+      <div class="email-preview-body">
+        <h3>Вам надано доступ</h3>
+        <p>Адміністратор створив для вас персональне setup-посилання. Перейдіть за ним, створіть пароль, відскануйте QR-код у Google Authenticator і підтвердіть перший вхід.</p>
+        <a class="email-preview-cta" href="#">Активувати доступ</a>
+        <p>Не передавайте це посилання іншим особам. Воно персональне та має обмежений термін дії.</p>
+        <div class="email-preview-code">{{SETUP_URL}}</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
