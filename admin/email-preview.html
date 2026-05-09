@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="./styles/admin.css?v=5" />
+  <link rel="stylesheet" href="./styles/admin.css?v=6" />
 </head>
 <body class="admin-body">
   <main class="admin-content" style="grid-column: 1 / -1; height:auto; min-height:100vh; overflow:visible;">
@@ -17,23 +17,31 @@
         <p>MAIL TEMPLATE</p>
         <h1>Лист доступу</h1>
       </div>
-      <a class="admin-link" href="./index.html?v=5">Назад в admin</a>
+      <a class="admin-link" href="./index.html?v=6">Назад в admin</a>
     </header>
 
-    <section class="email-preview">
-      <div class="email-preview-hero">
-        <div class="email-preview-brand">
-          <img src="../assets/logo/bastion-mark.svg" alt="BASTION" />
-          <span>BASTION ACCESS NODE</span>
+    <section class="email-preview-shell">
+      <div class="email-preview">
+        <div class="email-preview-hero">
+          <div class="email-preview-brand">
+            <img src="../assets/logo/bastion-mark.svg" alt="BASTION" />
+            <span>BASTION ACCESS NODE</span>
+          </div>
+        </div>
+        <div class="email-preview-body">
+          <h3>Доступ активовано</h3>
+          <p>Адміністратор створив для вас персональне setup-посилання. Перейдіть за ним, створіть пароль, відскануйте QR-код у Google Authenticator і підтвердіть перший вхід.</p>
+          <a class="email-preview-cta" href="#">Активувати доступ</a>
+          <p>Не передавайте це посилання іншим особам. Воно персональне та має обмежений термін дії.</p>
+          <div class="email-preview-code">https://bastion-system.com/setup-account.html?token={{TOKEN}}</div>
         </div>
       </div>
-      <div class="email-preview-body">
-        <h3>Вам надано доступ</h3>
-        <p>Адміністратор створив для вас персональне setup-посилання. Перейдіть за ним, створіть пароль, відскануйте QR-код у Google Authenticator і підтвердіть перший вхід.</p>
-        <a class="email-preview-cta" href="#">Активувати доступ</a>
-        <p>Не передавайте це посилання іншим особам. Воно персональне та має обмежений термін дії.</p>
-        <div class="email-preview-code">{{SETUP_URL}}</div>
-      </div>
+
+      <aside class="email-preview-note">
+        <h3>Що змінено</h3>
+        <p>У реальному листі використовується корпоративний відправник <b>access@bastion-system.com</b>, темний card-layout, CTA-кнопка, fallback-посилання і preheader для нормального превʼю у Gmail.</p>
+        <p>Лого у листі зроблено як текстовий знак, бо Gmail не завжди стабільно показує SVG. Це надійніше для email-клієнтів.</p>
+      </aside>
     </section>
   </main>
 </body>

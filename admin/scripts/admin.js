@@ -1,5 +1,5 @@
 /* =========================================================
-   BASTION — Admin Control v5
+   BASTION — Admin Control v6
    Uses separate admin session token, no Supabase Auth / 2FA
    ========================================================= */
 
@@ -19,6 +19,7 @@
   const inviteResult = document.getElementById('inviteResult');
   const inviteUrl = document.getElementById('inviteUrl');
   const copyInviteUrl = document.getElementById('copyInviteUrl');
+  const mailtoInvite = document.getElementById('mailtoInvite');
 
   let lastInvite = null;
   let adminSession = null;
@@ -27,6 +28,17 @@
     window.BASTION_CONFIG.SUPABASE_URL,
     window.BASTION_CONFIG.SUPABASE_ANON_KEY
   );
+
+  function applyStoredPalette() {
+    const palette = localStorage.getItem('BASTION_ADMIN_PALETTE') || 'crimson';
+    document.body.dataset.palette = palette;
+  }
+
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'BASTION_ADMIN_PALETTE') applyStoredPalette();
+  });
+
+  applyStoredPalette();
 
   function getAdminToken() {
     return localStorage.getItem(STORAGE_KEY);
@@ -140,7 +152,27 @@
     return `${root}/setup-account.html?token=${encodeURIComponent(token)}`;
   }
 
-    inviteForm?.addEventListener('submit', async (event) => {
+  function buildMailto(invite) {
+    const subject = encodeURIComponent('BASTION — доступ до системи');
+    const body = encodeURIComponent(
+`Вам надано доступ до BASTION.
+
+Роль: ${invite.role}
+
+Інструкція:
+1. Перейдіть за посиланням: ${invite.setup_url}
+2. Створіть пароль.
+3. Відскануйте QR-код у Google Authenticator.
+4. Підтвердіть 2FA.
+5. Після активації відкрийте стартову сторінку BASTION і натисніть "Вхід".
+
+Не передавайте це посилання іншим особам.`
+    );
+
+    return `mailto:${encodeURIComponent(invite.email)}?subject=${subject}&body=${body}`;
+  }
+
+  inviteForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     inviteSubmit.disabled = true;
     inviteSubmit.textContent = 'Створюю…';
@@ -163,6 +195,7 @@
       };
 
       inviteUrl.textContent = lastInvite.setup_url;
+      mailtoInvite.href = buildMailto(lastInvite);
       inviteResult.hidden = false;
       sendEmailBtn.disabled = false;
       inviteSubmit.textContent = 'Доступ створено';
@@ -211,9 +244,9 @@
       sendEmailBtn.textContent = 'Лист надіслано';
       refreshLogs();
     } catch (error) {
-      console.error(error);
-      alert(error.message || 'Помилка відправки листа.');
-      sendEmailBtn.textContent = 'Помилка';
+      console.error('Edge Function email failed:', error);
+      alert(error?.message || 'Помилка відправки листа через Edge Function. Перевір Logs у Supabase.');
+      sendEmailBtn.textContent = 'Помилка відправки';
     } finally {
       setTimeout(() => {
         sendEmailBtn.disabled = false;

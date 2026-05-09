@@ -8,55 +8,78 @@
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="./styles/admin.css?v=5" />
+  <link rel="stylesheet" href="./styles/admin.css?v=6" />
 </head>
-<body class="admin-body">
+<body class="admin-body" data-palette="crimson">
   <main class="admin-content" style="grid-column: 1 / -1; height:auto; min-height:100vh; overflow:visible;">
     <header class="admin-header">
       <div>
         <p>VISUAL SYSTEM</p>
         <h1>Підбір кольорів</h1>
       </div>
-      <a class="admin-link" href="./index.html?v=5">Назад в admin</a>
+      <a class="admin-link" href="./index.html?v=6">Назад в admin</a>
     </header>
 
     <section class="admin-card admin-card-wide">
       <h2>6 напрямків палітри для BASTION Admin</h2>
-      <p class="admin-muted">Візуальний підбір для майбутнього UI: картки, кнопки, glow, акценти і стани.</p>
+      <p class="admin-muted">Натисни картку — палітра збережеться і застосовується на головній адмін-сторінці.</p>
 
       <div class="palette-lab-grid">
-        <article class="palette-card palette-red">
+        <article class="palette-card palette-red" data-palette-value="crimson">
           <h3>Crimson Command</h3>
-          <p>Поточна логіка: червоний + золото. Найбільш агресивний military sci-fi.</p>
+          <p>Поточна логіка: червоний + золото. Агресивний military sci-fi.</p>
           <div class="palette-swatches"><span style="background:#ff3158"></span><span style="background:#ffc21a"></span><span style="background:#050507"></span></div>
+          <span class="palette-apply">Застосувати</span>
         </article>
-        <article class="palette-card palette-amber">
+        <article class="palette-card palette-amber" data-palette-value="solar">
           <h3>Solar Bastion</h3>
-          <p>Тепліший преміальний варіант: менше небезпеки, більше статусності й command center.</p>
+          <p>Тепліший преміальний варіант: більше статусності й command center.</p>
           <div class="palette-swatches"><span style="background:#ffb02e"></span><span style="background:#ff4f2e"></span><span style="background:#090604"></span></div>
+          <span class="palette-apply">Застосувати</span>
         </article>
-        <article class="palette-card palette-ice">
+        <article class="palette-card palette-ice" data-palette-value="cold">
           <h3>Cold Access</h3>
-          <p>Холодний security-вигляд. Добре для логів, статусів і технічних сторінок.</p>
+          <p>Холодний security-вигляд. Добре для логів і статусів.</p>
           <div class="palette-swatches"><span style="background:#4fb8ff"></span><span style="background:#ff3158"></span><span style="background:#04070b"></span></div>
+          <span class="palette-apply">Застосувати</span>
         </article>
-        <article class="palette-card palette-graphite">
+        <article class="palette-card palette-graphite" data-palette-value="graphite">
           <h3>Graphite Elite</h3>
-          <p>Найдорожчий, стриманий варіант: темний графіт, білий текст, мінімум акцентів.</p>
+          <p>Стриманий варіант: темний графіт, білий текст, мінімум акцентів.</p>
           <div class="palette-swatches"><span style="background:#e8e8e8"></span><span style="background:#ff3158"></span><span style="background:#111116"></span></div>
+          <span class="palette-apply">Застосувати</span>
         </article>
-        <article class="palette-card palette-emerald">
+        <article class="palette-card palette-emerald" data-palette-value="emerald">
           <h3>Secure Green</h3>
-          <p>Для access-control статусів. Добре працює як вторинний акцент, не як основа.</p>
+          <p>Для access-control статусів. Гарний secondary accent.</p>
           <div class="palette-swatches"><span style="background:#2affa7"></span><span style="background:#ff3158"></span><span style="background:#030806"></span></div>
+          <span class="palette-apply">Застосувати</span>
         </article>
-        <article class="palette-card palette-violet">
+        <article class="palette-card palette-violet" data-palette-value="violet">
           <h3>Deep Signal</h3>
-          <p>Більш футуристично й нестандартно. Може підійти для supervisor/analytics режиму.</p>
+          <p>Футуристичний варіант для supervisor / analytics режиму.</p>
           <div class="palette-swatches"><span style="background:#9c63ff"></span><span style="background:#ff3158"></span><span style="background:#070411"></span></div>
+          <span class="palette-apply">Застосувати</span>
         </article>
       </div>
     </section>
   </main>
+
+  <script>
+    const cards = [...document.querySelectorAll('.palette-card')];
+    const saved = localStorage.getItem('BASTION_ADMIN_PALETTE') || 'crimson';
+
+    function applyPalette(name) {
+      document.body.dataset.palette = name;
+      localStorage.setItem('BASTION_ADMIN_PALETTE', name);
+      cards.forEach(card => card.classList.toggle('is-selected', card.dataset.paletteValue === name));
+    }
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => applyPalette(card.dataset.paletteValue));
+    });
+
+    applyPalette(saved);
+  </script>
 </body>
 </html>
