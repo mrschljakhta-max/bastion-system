@@ -1,6 +1,8 @@
 /* =========================================================
-   BASTION — AUTH PANEL v20
-   Перемикає стартовий напис на форму входу / реєстрації
+   BASTION — AUTH PANEL v23
+   Підключено до scripts/auth.js:
+   - login → BastionAuth.handleLogin()
+   - register → BastionAuth.handleRegister()
    ========================================================= */
 
 (function () {
@@ -77,12 +79,34 @@
       if (subtitle) subtitle.textContent = config.login.subtitle;
 
       panel.reset();
+      setMode("login");
     }, 260);
+  }
+
+  function setLoading(isLoading, mode) {
+    submit.disabled = isLoading;
+    login.disabled = isLoading;
+    password.disabled = isLoading;
+    switcher.disabled = isLoading;
+    back.disabled = isLoading;
+
+    if (isLoading) {
+      submit.textContent = mode === "register" ? "РЕЄСТРАЦІЯ..." : "ПЕРЕВІРКА...";
+    } else {
+      submit.textContent = config[mode].submit;
+    }
+  }
+
+  function shakePanel() {
+    panel.classList.remove("auth-shake");
+    void panel.offsetWidth;
+    panel.classList.add("auth-shake");
   }
 
   choice.addEventListener("click", (event) => {
     const btn = event.target.closest("[data-auth-mode]");
     if (!btn) return;
+
     openPanel(btn.dataset.authMode);
   });
 
@@ -90,7 +114,11 @@
 
   switcher?.addEventListener("click", () => {
     const current = panel.dataset.mode === "register" ? "register" : "login";
-    setMode(current === "register" ? "login" : "register");
+    const next = current === "register" ? "login" : "register";
+
+    panel.reset();
+    setMode(next);
+
     setTimeout(() => login?.focus(), 80);
   });
 
@@ -98,40 +126,48 @@
     event.preventDefault();
 
     const mode = panel.dataset.mode === "register" ? "register" : "login";
+    const email = login.value.trim();
+    const pass = password.value;
 
-    const email = login?.value?.trim();
-    const pass = password?.value;
-
-    if (!email || !pass) {
-      login?.focus();
-      panel.classList.remove("auth-shake");
-      void panel.offsetWidth;
-      panel.classList.add("auth-shake");
+    if (!window.BastionAuth) {
+      console.error("BastionAuth не знайдено. Перевір підключення scripts/auth.js");
+      alert("Модуль авторизації не підключено.");
       return;
     }
 
-    const original = submit.textContent;
-    submit.textContent = mode === "register" ? "ПЕРЕВІРКА..." : "ПЕРЕВІРКА...";
-    submit.disabled = true;
+    if (!email || !pass) {
+      shakePanel();
+      alert("Введіть email та пароль.");
+      return;
+    }
 
     try {
-      if (window.BastionAuth) {
-        if (mode === "register") {
-          await window.BastionAuth.handleRegister(email, pass);
-        } else {
-          await window.BastionAuth.handleLogin(email, pass);
-        }
-      } else {
-        console.warn("BastionAuth не підключено");
+      setLoading(true, mode);
+
+      const result =
+        mode === "register"
+          ? await window.BastionAuth.handleRegister(email, pass)
+          : await window.BastionAuth.handleLogin(email, pass);
+
+      if (!result?.success) {
+        shakePanel();
+        return;
       }
+
+      console.log("AUTH OK:", result);
+
+      // Наступний крок: тут підключимо екран 2FA / QR-код.
+      subtitle.textContent =
+        mode === "register"
+          ? "ПІДКЛЮЧЕННЯ ДВОФАКТОРНОЇ АВТЕНТИФІКАЦІЇ"
+          : "ПЕРЕВІРКА ДВОФАКТОРНОЇ АВТЕНТИФІКАЦІЇ";
+
     } catch (error) {
-      console.error(error);
-      panel.classList.remove("auth-shake");
-      void panel.offsetWidth;
-      panel.classList.add("auth-shake");
+      console.error("Помилка auth-panel:", error);
+      shakePanel();
+      alert("Помилка авторизації. Перевір консоль браузера.");
     } finally {
-      submit.textContent = original;
-      submit.disabled = false;
+      setLoading(false, mode);
     }
   });
 
