@@ -1,6 +1,22 @@
+const BASTION_SUPABASE_URL =
+  window.BASTION_CONFIG?.SUPABASE_URL ||
+  window.SUPABASE_URL;
+
+const BASTION_SUPABASE_ANON_KEY =
+  window.BASTION_CONFIG?.SUPABASE_ANON_KEY ||
+  window.SUPABASE_ANON_KEY;
+
+if (!window.supabase) {
+  console.error("Supabase CDN не завантажився. Перевір підключення @supabase/supabase-js у index.html");
+}
+
+if (!BASTION_SUPABASE_URL || !BASTION_SUPABASE_ANON_KEY) {
+  console.error("BASTION config не знайдено. Перевір scripts/config.js");
+}
+
 const supabaseClient = supabase.createClient(
-  window.SUPABASE_URL,
-  window.SUPABASE_ANON_KEY
+  BASTION_SUPABASE_URL,
+  BASTION_SUPABASE_ANON_KEY
 );
 
 function normalizeEmail(email) {
