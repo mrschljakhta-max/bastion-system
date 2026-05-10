@@ -7,13 +7,13 @@
   <title>BASTION — Налаштування облікового запису</title>
 
   <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg" />
-  <link rel="stylesheet" href="./styles/setup-account.css?v=23" />
+  <link rel="stylesheet" href="./styles/setup-account.css?v=24" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./scripts/config.js?v=23" defer></script>
-  <script src="./scripts/auth.js?v=23" defer></script>
-  <script src="./scripts/access.js?v=23" defer></script>
-  <script src="./scripts/setup-account.js?v=23" defer></script>
+  <script src="./scripts/config.js?v=24" defer></script>
+  <script src="./scripts/auth.js?v=24" defer></script>
+  <script src="./scripts/access.js?v=24" defer></script>
+  <script src="./scripts/setup-account.js?v=24" defer></script>
 </head>
 
 <body class="setup-account-page">
@@ -22,7 +22,7 @@
   <main class="setup-shell">
     <section class="setup-left" aria-label="Опис налаштування доступу">
       <a class="setup-logo" href="./index.html" aria-label="BASTION">
-        <img src="./assets/logo/bastion-logo-full.svg" alt="BASTION" />
+        <img src="./assets/logo/bastion-glyph-wordmark.svg" alt="BASTION" />
       </a>
 
       <div class="setup-left-copy">
@@ -90,9 +90,7 @@
           </div>
         </div>
 
-        <div id="setupStatus" class="setup-status" data-type="info">
-          Створіть надійний пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.
-        </div>
+        <div id="setupStatus" class="setup-status" data-type="info" aria-live="polite"></div>
 
         <form id="setupForm" class="setup-form" autocomplete="off">
           <input id="setupLogin" name="login" type="text" value="" readonly hidden />
@@ -139,10 +137,6 @@
           <button id="setupSubmit" class="activate-btn" type="submit">
             АКТИВУВАТИ ДОСТУП <span>→</span>
           </button>
-
-          <div class="setup-note">
-            Ваш доступ буде активовано після успішного створення пароля.
-          </div>
         </form>
 
         <section id="setupMfa" class="mfa-panel" hidden>
