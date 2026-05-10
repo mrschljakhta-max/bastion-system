@@ -89,7 +89,7 @@
     };
   }
 
-  async function sendInviteEmail({ email, role, setupUrl }) {
+  async function sendInviteEmail({ email, role, setupUrl, setup_url }) {
     const fnUrl = `${(window.BASTION_CONFIG?.SUPABASE_URL || window.SUPABASE_URL).replace(/\/$/, "")}/functions/v1/send-invite-email`;
     const { data: sessionData } = await getClient().auth.getSession();
     const jwt = sessionData?.session?.access_token;
@@ -102,7 +102,7 @@
         "content-type": "application/json",
         authorization: `Bearer ${jwt}`
       },
-      body: JSON.stringify({ email, role, setup_url: setupUrl, setupUrl })
+      body: JSON.stringify({ email, role, setup_url: setup_url || setupUrl })
     });
 
     const payload = await response.json().catch(() => ({}));
