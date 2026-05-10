@@ -3,77 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BASTION — Setup Access</title>
+  <title>BASTION — Налаштування доступу</title>
   <link rel="icon" href="./assets/logo/bastion-favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles/fonts.css" />
   <link rel="stylesheet" href="./styles/theme.css" />
   <link rel="stylesheet" href="./styles/base.css" />
-  <link rel="stylesheet" href="./styles/setup-account.css?v=3" />
+  <link rel="stylesheet" href="./styles/setup-account.css?v=10" />
 </head>
 <body class="setup-body">
   <div class="setup-bg" aria-hidden="true"></div>
   <div class="setup-grid" aria-hidden="true"></div>
+  <div class="setup-vignette" aria-hidden="true"></div>
 
   <main class="setup-shell">
-    <section class="setup-hero">
+    <section class="setup-hero" aria-label="Інформація про налаштування доступу">
       <a class="setup-brand" href="./index.html" aria-label="BASTION start">
         <img src="./assets/logo/bastion-mark.svg" alt="" />
         <span>BASTION</span>
       </a>
 
-      <div class="setup-kicker">AUTHORIZED ACCESS INITIALIZATION</div>
-      <h1>Налаштування доступу</h1>
+      <div class="setup-kicker">ACCESS NODE</div>
+      <h1><span>Налаштування</span><strong>доступу</strong></h1>
       <p class="setup-lead">
-        Персональне запрошення підтверджується через Supabase. Створіть пароль, підключіть Google Authenticator і активуйте доступ.
+        Ви майже готові. Створіть надійний пароль для свого акаунта та активуйте доступ до системи <b>BASTION</b>.
       </p>
 
       <div class="setup-steps" aria-label="Етапи налаштування">
-        <div class="setup-step is-active" data-step-marker="invite"><b>01</b><span>Invite</span></div>
-        <div class="setup-step" data-step-marker="password"><b>02</b><span>Password</span></div>
-        <div class="setup-step" data-step-marker="mfa"><b>03</b><span>2FA</span></div>
+        <div class="setup-step is-done" data-step-marker="invite">
+          <b>✓</b>
+          <span>
+            <strong>Запрошення прийнято</strong>
+            <small>Ваш запит на доступ підтверджено</small>
+          </span>
+        </div>
+        <div class="setup-step is-active" data-step-marker="password">
+          <b>02</b>
+          <span>
+            <strong>Налаштування акаунта</strong>
+            <small>Створіть пароль для входу</small>
+          </span>
+        </div>
+        <div class="setup-step" data-step-marker="mfa">
+          <b>03</b>
+          <span>
+            <strong>Доступ активовано</strong>
+            <small>Після збереження пароля</small>
+          </span>
+        </div>
+      </div>
+
+      <div class="setup-help">
+        <i>?</i>
+        <div>
+          <strong>Потрібна допомога?</strong>
+          <span>Зверніться до <b>адміністратора системи</b>.</span>
+        </div>
       </div>
     </section>
 
-    <section class="setup-card" id="setupCard">
+    <section class="setup-card" id="setupCard" aria-label="Форма створення пароля">
       <div class="setup-card-glow" aria-hidden="true"></div>
 
       <div class="setup-panel-head">
         <div>
-          <p>ACCESS NODE</p>
+          <p><i>🛡</i> ACCESS NODE</p>
           <h2 id="setupTitle">Перевірка запрошення</h2>
         </div>
-        <div class="setup-led" id="setupLed"></div>
+        <div class="setup-led" id="setupLed" aria-live="polite">Захищено</div>
       </div>
 
-      <div class="setup-status" id="setupStatus">Перевіряю invite-token…</div>
+      <div class="setup-status" id="setupStatus">
+        <i>🔒</i>
+        <span>Перевіряю invite-token…</span>
+      </div>
 
       <form class="setup-form" id="setupForm" hidden>
-        <div class="setup-row">
-          <label>
-            <span>Email користувача</span>
-            <input id="setupEmail" type="email" readonly />
-          </label>
-          <label>
-            <span>Роль</span>
-            <input id="setupRole" type="text" readonly />
-          </label>
+        <input id="setupEmail" type="email" readonly hidden />
+        <input id="setupRole" type="text" readonly hidden />
+
+        <label class="setup-field setup-field-password">
+          <span>Новий пароль</span>
+          <div class="setup-input-shell">
+            <i aria-hidden="true">♙</i>
+            <input id="setupPassword" type="password" autocomplete="new-password" placeholder="Введіть новий пароль" />
+            <button class="setup-eye" type="button" id="togglePassword" aria-label="Показати пароль">⊗</button>
+          </div>
+        </label>
+
+        <div class="setup-strength" aria-label="Надійність пароля">
+          <div class="setup-strength-bars" id="setupStrengthBars">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <p>Надійність пароля: <b id="setupStrengthText">очікується</b></p>
         </div>
 
-        <label>
-          <span>Новий пароль</span>
-          <div class="setup-password-wrap">
-            <input id="setupPassword" type="password" autocomplete="new-password" placeholder="Мінімум 8 символів" />
-            <button type="button" id="togglePassword" aria-label="Показати пароль">Показати</button>
+        <label class="setup-field setup-field-confirm">
+          <span>Підтвердження пароля</span>
+          <div class="setup-input-shell">
+            <i aria-hidden="true">♙</i>
+            <input id="setupPasswordConfirm" type="password" autocomplete="new-password" placeholder="Повторіть новий пароль" />
+            <button class="setup-eye" type="button" id="togglePasswordConfirm" aria-label="Показати підтвердження пароля">⊗</button>
           </div>
         </label>
 
         <div class="setup-password-rules">
-          <span id="ruleLength">мін. 8 символів</span>
-          <span id="ruleLetter">літера</span>
-          <span id="ruleNumber">цифра</span>
+          <p>Вимоги до пароля</p>
+          <div class="setup-rule-grid">
+            <span id="ruleLength">Мінімум 8 символів</span>
+            <span id="ruleLetter">Мінімум 1 літера</span>
+            <span id="ruleNumber">Мінімум 1 цифра</span>
+            <span id="ruleMatch">Паролі збігаються</span>
+          </div>
         </div>
 
-        <button class="setup-primary" type="submit" id="setupSubmit">Створити акаунт</button>
+        <button class="setup-primary" type="submit" id="setupSubmit">Створити пароль <span>→</span></button>
       </form>
 
       <section class="setup-mfa" id="setupMfa" hidden>
@@ -90,11 +133,14 @@
               <code id="setupSecret">—</code>
               <button type="button" id="copySecret">Скопіювати</button>
             </div>
-            <label>
+            <label class="setup-field">
               <span>Код з Authenticator</span>
-              <input id="setupCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" />
+              <div class="setup-input-shell">
+                <i aria-hidden="true">#</i>
+                <input id="setupCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" />
+              </div>
             </label>
-            <button class="setup-primary" type="button" id="setupVerify">Підтвердити 2FA</button>
+            <button class="setup-primary" type="button" id="setupVerify">Підтвердити 2FA <span>→</span></button>
           </div>
         </div>
       </section>
@@ -107,7 +153,7 @@
       </section>
 
       <div class="setup-footer-actions">
-        <a href="./index.html">Повернутися на стартову</a>
+        <a href="./index.html">← Повернутися назад</a>
       </div>
     </section>
   </main>
@@ -116,6 +162,6 @@
   <script src="./scripts/config.js?v=28"></script>
   <script src="./scripts/auth.js?v=28"></script>
   <script src="./scripts/access.js?v=3"></script>
-  <script src="./scripts/setup-account.js?v=3"></script>
+  <script src="./scripts/setup-account.js?v=10"></script>
 </body>
 </html>

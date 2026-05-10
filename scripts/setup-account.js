@@ -1,6 +1,6 @@
 /* =========================================================
-   BASTION — Setup Account Flow v3
-   invite token → password → TOTP QR → activation
+   BASTION — Setup Account Flow v10
+   invite token → password → optional TOTP QR → activation
    ========================================================= */
 
 (function () {
@@ -15,12 +15,17 @@
   const emailInput = document.getElementById("setupEmail");
   const roleInput = document.getElementById("setupRole");
   const passwordInput = document.getElementById("setupPassword");
+  const passwordConfirmInput = document.getElementById("setupPasswordConfirm");
   const submitBtn = document.getElementById("setupSubmit");
   const togglePassword = document.getElementById("togglePassword");
+  const togglePasswordConfirm = document.getElementById("togglePasswordConfirm");
+  const strength = document.querySelector(".setup-strength");
+  const strengthText = document.getElementById("setupStrengthText");
 
   const ruleLength = document.getElementById("ruleLength");
   const ruleLetter = document.getElementById("ruleLetter");
   const ruleNumber = document.getElementById("ruleNumber");
+  const ruleMatch = document.getElementById("ruleMatch");
 
   const mfaBox = document.getElementById("setupMfa");
   const qr = document.getElementById("setupQr");
@@ -36,15 +41,30 @@
 
   function setStep(step) {
     document.querySelectorAll("[data-step-marker]").forEach((el) => {
-      el.classList.toggle("is-active", el.dataset.stepMarker === step);
+      const marker = el.dataset.stepMarker;
+      el.classList.toggle("is-active", marker === step);
+      el.classList.toggle("is-done", step !== "invite" && marker === "invite");
     });
   }
 
   function setStatus(message, type = "info") {
-    status.textContent = message;
-    status.dataset.type = type;
-    if (led) led.style.background = type === "error" ? "#ff2d55" : type === "success" ? "#6cffaa" : "#ffbd2f";
-    if (led) led.style.boxShadow = `0 0 24px ${led.style.background}`;
+    const icon = type === "error" ? "⚠" : type === "success" ? "✓" : "🔒";
+    if (status) {
+      status.dataset.type = type;
+      status.innerHTML = `<i>${icon}</i><span>${escapeHtml(message)}</span>`;
+    }
+
+    if (!led) return;
+    led.textContent = type === "error" ? "Помилка" : type === "success" ? "Захищено" : "Перевірка";
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
   }
 
   function setTitle(text) {
@@ -55,22 +75,39 @@
     if (submitBtn) submitBtn.disabled = isBusy;
     if (verifyBtn) verifyBtn.disabled = isBusy;
     if (passwordInput) passwordInput.disabled = isBusy;
+    if (passwordConfirmInput) passwordConfirmInput.disabled = isBusy;
     if (codeInput) codeInput.disabled = isBusy;
   }
 
-  function validatePassword(value) {
-    const password = String(value || "");
-    const checks = {
+  function getPasswordChecks() {
+    const password = String(passwordInput?.value || "");
+    const confirm = String(passwordConfirmInput?.value || "");
+    return {
       length: password.length >= 8,
       letter: /[a-zа-яіїєґ]/i.test(password),
-      number: /\d/.test(password)
+      number: /\d/.test(password),
+      match: password.length > 0 && password === confirm,
+      special: /[^a-zа-яіїєґ0-9]/i.test(password),
+      long: password.length >= 12,
     };
+  }
+
+  function updatePasswordUi() {
+    const checks = getPasswordChecks();
+    const baseScore = [checks.length, checks.letter, checks.number, checks.special, checks.long].filter(Boolean).length;
+    const level = Math.min(4, Math.max(0, baseScore - 1));
 
     ruleLength?.classList.toggle("is-ok", checks.length);
     ruleLetter?.classList.toggle("is-ok", checks.letter);
     ruleNumber?.classList.toggle("is-ok", checks.number);
+    ruleMatch?.classList.toggle("is-ok", checks.match);
 
-    return checks.length && checks.letter && checks.number;
+    if (strength) strength.dataset.level = String(level);
+    if (strengthText) {
+      strengthText.textContent = level <= 1 ? "слабкий" : level === 2 ? "середній" : level === 3 ? "надійний" : "дуже надійний";
+    }
+
+    return checks.length && checks.letter && checks.number && checks.match;
   }
 
   async function ensureSession(email, password) {
@@ -79,7 +116,7 @@
 
     const login = await window.BastionAuth.supabaseClient.auth.signInWithPassword({
       email,
-      password
+      password,
     });
 
     if (login.error) throw login.error;
@@ -105,11 +142,11 @@
       }
 
       emailInput.value = invite.email;
-      roleInput.value = invite.role;
+      roleInput.value = invite.role || "user";
       form.hidden = false;
       setStep("password");
-      setTitle("Створення акаунта");
-      setStatus("Запрошення підтверджено. Створіть пароль для акаунта.", "success");
+      setTitle("Створення пароля");
+      setStatus("Створіть надійний пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.", "success");
       setTimeout(() => passwordInput.focus(), 150);
     } catch (error) {
       console.error(error);
@@ -118,20 +155,26 @@
     }
   }
 
-  passwordInput?.addEventListener("input", () => validatePassword(passwordInput.value));
+  passwordInput?.addEventListener("input", updatePasswordUi);
+  passwordConfirmInput?.addEventListener("input", updatePasswordUi);
 
-  togglePassword?.addEventListener("click", () => {
-    const isPassword = passwordInput.type === "password";
-    passwordInput.type = isPassword ? "text" : "password";
-    togglePassword.textContent = isPassword ? "Сховати" : "Показати";
-  });
+  function bindPasswordToggle(button, input) {
+    button?.addEventListener("click", () => {
+      const isPassword = input.type === "password";
+      input.type = isPassword ? "text" : "password";
+      button.textContent = isPassword ? "⊘" : "⊗";
+    });
+  }
+
+  bindPasswordToggle(togglePassword, passwordInput);
+  bindPasswordToggle(togglePasswordConfirm, passwordConfirmInput);
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const password = passwordInput.value;
-    if (!validatePassword(password)) {
-      setStatus("Пароль має містити мінімум 8 символів, літеру і цифру.", "error");
+    if (!updatePasswordUi()) {
+      setStatus("Пароль має містити мінімум 8 символів, літеру, цифру та збігатися з підтвердженням.", "error");
       return;
     }
 
@@ -142,7 +185,7 @@
     try {
       const signup = await window.BastionAuth.supabaseClient.auth.signUp({
         email: invite.email,
-        password
+        password,
       });
 
       if (signup.error) {
@@ -153,20 +196,27 @@
 
       await ensureSession(invite.email, password);
 
-      setTitle("2FA Authenticator");
-      setStatus("Готую QR-код для Google Authenticator…", "info");
+      if (window.BastionAuth.prepareMfaAfterRegister) {
+        setTitle("2FA Authenticator");
+        setStatus("Готую QR-код для Google Authenticator…", "info");
 
-      mfaContext = await window.BastionAuth.prepareMfaAfterRegister();
-      if (!mfaContext?.success) throw new Error("Не вдалося створити QR-код 2FA.");
+        mfaContext = await window.BastionAuth.prepareMfaAfterRegister();
+        if (!mfaContext?.success) throw new Error("Не вдалося створити QR-код 2FA.");
 
-      qr.src = mfaContext.qrImageSrc || window.BastionAuth.toQrImageSrc(mfaContext.qrCode);
-      currentSecret = mfaContext.secret || "";
-      secret.textContent = currentSecret || "SECRET недоступний — використайте QR-код";
-      form.hidden = true;
-      mfaBox.hidden = false;
-      setStep("mfa");
-      setStatus("Відскануйте QR-код і введіть 6-значний код.", "success");
-      setTimeout(() => codeInput.focus(), 150);
+        qr.src = mfaContext.qrImageSrc || window.BastionAuth.toQrImageSrc(mfaContext.qrCode);
+        currentSecret = mfaContext.secret || "";
+        secret.textContent = currentSecret || "SECRET недоступний — використайте QR-код";
+        form.hidden = true;
+        mfaBox.hidden = false;
+        setStep("mfa");
+        setStatus("Відскануйте QR-код і введіть 6-значний код.", "success");
+        setTimeout(() => codeInput.focus(), 150);
+        return;
+      }
+
+      const activated = await window.BastionAccess.activateInvite(token);
+      if (!activated) throw new Error("Не вдалося активувати invite-token.");
+      showComplete();
     } catch (error) {
       console.error(error);
       setStatus(error.message || "Не вдалося створити акаунт.", "error");
@@ -181,6 +231,19 @@
     copySecret.textContent = "Скопійовано";
     setTimeout(() => (copySecret.textContent = "Скопіювати"), 1200);
   });
+
+  function showComplete() {
+    form.hidden = true;
+    mfaBox.hidden = true;
+    completeBox.hidden = false;
+    setStep("mfa");
+    setTitle("Активація завершена");
+    setStatus("Доступ активовано. Можна входити в систему.", "success");
+
+    setTimeout(() => {
+      window.location.href = "./index.html";
+    }, 1800);
+  }
 
   verifyBtn?.addEventListener("click", async () => {
     const code = codeInput.value.trim();
@@ -203,14 +266,7 @@
       const activated = await window.BastionAccess.activateInvite(token);
       if (!activated) throw new Error("Не вдалося активувати invite-token.");
 
-      mfaBox.hidden = true;
-      completeBox.hidden = false;
-      setTitle("Активація завершена");
-      setStatus("Доступ активовано. Можна входити в систему.", "success");
-
-      setTimeout(() => {
-        window.location.href = "./index.html";
-      }, 1800);
+      showComplete();
     } catch (error) {
       console.error(error);
       setStatus(error.message || "Не вдалося активувати доступ.", "error");
