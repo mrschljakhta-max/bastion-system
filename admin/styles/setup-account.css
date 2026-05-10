@@ -1,0 +1,11 @@
+body.setup-account-page{
+    min-height:100vh;
+    background-image:
+        linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.58)),
+        url("../assets/backgrounds/setup-account-clean-bg-v35.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    overflow:hidden;
+}
