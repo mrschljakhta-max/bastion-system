@@ -1,6 +1,6 @@
 /* =========================================================
-   BASTION — Setup Account Flow v10
-   invite token → password → optional TOTP QR → activation
+   BASTION — Setup Account Flow v11
+   invite token → password → TOTP QR → activation
    ========================================================= */
 
 (function () {
@@ -15,17 +15,18 @@
   const emailInput = document.getElementById("setupEmail");
   const roleInput = document.getElementById("setupRole");
   const passwordInput = document.getElementById("setupPassword");
-  const passwordConfirmInput = document.getElementById("setupPasswordConfirm");
+  const confirmInput = document.getElementById("setupConfirm");
+  const loginInput = document.getElementById("setupLogin");
   const submitBtn = document.getElementById("setupSubmit");
   const togglePassword = document.getElementById("togglePassword");
-  const togglePasswordConfirm = document.getElementById("togglePasswordConfirm");
-  const strength = document.querySelector(".setup-strength");
-  const strengthText = document.getElementById("setupStrengthText");
+  const toggleConfirm = document.getElementById("toggleConfirm");
 
   const ruleLength = document.getElementById("ruleLength");
   const ruleLetter = document.getElementById("ruleLetter");
   const ruleNumber = document.getElementById("ruleNumber");
   const ruleMatch = document.getElementById("ruleMatch");
+  const strengthBar = document.querySelector(".setup-strength");
+  const strengthText = document.getElementById("setupStrengthText");
 
   const mfaBox = document.getElementById("setupMfa");
   const qr = document.getElementById("setupQr");
@@ -41,30 +42,15 @@
 
   function setStep(step) {
     document.querySelectorAll("[data-step-marker]").forEach((el) => {
-      const marker = el.dataset.stepMarker;
-      el.classList.toggle("is-active", marker === step);
-      el.classList.toggle("is-done", step !== "invite" && marker === "invite");
+      el.classList.toggle("is-active", el.dataset.stepMarker === step);
     });
   }
 
   function setStatus(message, type = "info") {
-    const icon = type === "error" ? "⚠" : type === "success" ? "✓" : "🔒";
-    if (status) {
-      status.dataset.type = type;
-      status.innerHTML = `<i>${icon}</i><span>${escapeHtml(message)}</span>`;
-    }
-
-    if (!led) return;
-    led.textContent = type === "error" ? "Помилка" : type === "success" ? "Захищено" : "Перевірка";
-  }
-
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+    status.textContent = message;
+    status.dataset.type = type;
+    if (led) led.style.background = type === "error" ? "#ff2d55" : type === "success" ? "#6cffaa" : "#ffbd2f";
+    if (led) led.style.boxShadow = `0 0 24px ${led.style.background}`;
   }
 
   function setTitle(text) {
@@ -75,36 +61,31 @@
     if (submitBtn) submitBtn.disabled = isBusy;
     if (verifyBtn) verifyBtn.disabled = isBusy;
     if (passwordInput) passwordInput.disabled = isBusy;
-    if (passwordConfirmInput) passwordConfirmInput.disabled = isBusy;
+    if (confirmInput) confirmInput.disabled = isBusy;
+    if (loginInput) loginInput.disabled = isBusy;
     if (codeInput) codeInput.disabled = isBusy;
   }
 
-  function getPasswordChecks() {
-    const password = String(passwordInput?.value || "");
-    const confirm = String(passwordConfirmInput?.value || "");
-    return {
+  function validatePassword(value) {
+    const password = String(value || "");
+    const confirm = String(confirmInput?.value || "");
+    const checks = {
       length: password.length >= 8,
       letter: /[a-zа-яіїєґ]/i.test(password),
       number: /\d/.test(password),
-      match: password.length > 0 && password === confirm,
-      special: /[^a-zа-яіїєґ0-9]/i.test(password),
-      long: password.length >= 12,
+      match: Boolean(password) && password === confirm
     };
-  }
-
-  function updatePasswordUi() {
-    const checks = getPasswordChecks();
-    const baseScore = [checks.length, checks.letter, checks.number, checks.special, checks.long].filter(Boolean).length;
-    const level = Math.min(4, Math.max(0, baseScore - 1));
 
     ruleLength?.classList.toggle("is-ok", checks.length);
     ruleLetter?.classList.toggle("is-ok", checks.letter);
     ruleNumber?.classList.toggle("is-ok", checks.number);
     ruleMatch?.classList.toggle("is-ok", checks.match);
 
-    if (strength) strength.dataset.level = String(level);
+    const score = [checks.length, checks.letter, checks.number, password.length >= 12].filter(Boolean).length;
+    if (strengthBar) strengthBar.dataset.level = password ? String(score) : "0";
     if (strengthText) {
-      strengthText.textContent = level <= 1 ? "слабкий" : level === 2 ? "середній" : level === 3 ? "надійний" : "дуже надійний";
+      const label = !password ? "очікується" : score <= 2 ? "слабкий" : score === 3 ? "добрий" : "сильний";
+      strengthText.innerHTML = `Надійність пароля: <b>${label}</b>`;
     }
 
     return checks.length && checks.letter && checks.number && checks.match;
@@ -116,7 +97,7 @@
 
     const login = await window.BastionAuth.supabaseClient.auth.signInWithPassword({
       email,
-      password,
+      password
     });
 
     if (login.error) throw login.error;
@@ -143,6 +124,7 @@
 
       emailInput.value = invite.email;
       roleInput.value = invite.role || "user";
+      if (loginInput) loginInput.value = String(invite.email || "").split("@")[0] || "user";
       form.hidden = false;
       setStep("password");
       setTitle("Створення пароля");
@@ -155,26 +137,27 @@
     }
   }
 
-  passwordInput?.addEventListener("input", updatePasswordUi);
-  passwordConfirmInput?.addEventListener("input", updatePasswordUi);
+  passwordInput?.addEventListener("input", () => validatePassword(passwordInput.value));
+  confirmInput?.addEventListener("input", () => validatePassword(passwordInput.value));
 
-  function bindPasswordToggle(button, input) {
-    button?.addEventListener("click", () => {
-      const isPassword = input.type === "password";
-      input.type = isPassword ? "text" : "password";
-      button.textContent = isPassword ? "⊘" : "⊗";
-    });
-  }
+  togglePassword?.addEventListener("click", () => {
+    const isPassword = passwordInput.type === "password";
+    passwordInput.type = isPassword ? "text" : "password";
+    togglePassword.textContent = isPassword ? "⊗" : "⌧";
+  });
 
-  bindPasswordToggle(togglePassword, passwordInput);
-  bindPasswordToggle(togglePasswordConfirm, passwordConfirmInput);
+  toggleConfirm?.addEventListener("click", () => {
+    const isPassword = confirmInput.type === "password";
+    confirmInput.type = isPassword ? "text" : "password";
+    toggleConfirm.textContent = isPassword ? "⊗" : "⌧";
+  });
 
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const password = passwordInput.value;
-    if (!updatePasswordUi()) {
-      setStatus("Пароль має містити мінімум 8 символів, літеру, цифру та збігатися з підтвердженням.", "error");
+    if (!validatePassword(password)) {
+      setStatus("Пароль має містити мінімум 8 символів, літеру, цифру і збігатися з підтвердженням.", "error");
       return;
     }
 
@@ -185,7 +168,7 @@
     try {
       const signup = await window.BastionAuth.supabaseClient.auth.signUp({
         email: invite.email,
-        password,
+        password
       });
 
       if (signup.error) {
@@ -196,27 +179,20 @@
 
       await ensureSession(invite.email, password);
 
-      if (window.BastionAuth.prepareMfaAfterRegister) {
-        setTitle("2FA Authenticator");
-        setStatus("Готую QR-код для Google Authenticator…", "info");
+      setTitle("2FA Authenticator");
+      setStatus("Готую QR-код для Google Authenticator…", "info");
 
-        mfaContext = await window.BastionAuth.prepareMfaAfterRegister();
-        if (!mfaContext?.success) throw new Error("Не вдалося створити QR-код 2FA.");
+      mfaContext = await window.BastionAuth.prepareMfaAfterRegister();
+      if (!mfaContext?.success) throw new Error("Не вдалося створити QR-код 2FA.");
 
-        qr.src = mfaContext.qrImageSrc || window.BastionAuth.toQrImageSrc(mfaContext.qrCode);
-        currentSecret = mfaContext.secret || "";
-        secret.textContent = currentSecret || "SECRET недоступний — використайте QR-код";
-        form.hidden = true;
-        mfaBox.hidden = false;
-        setStep("mfa");
-        setStatus("Відскануйте QR-код і введіть 6-значний код.", "success");
-        setTimeout(() => codeInput.focus(), 150);
-        return;
-      }
-
-      const activated = await window.BastionAccess.activateInvite(token);
-      if (!activated) throw new Error("Не вдалося активувати invite-token.");
-      showComplete();
+      qr.src = mfaContext.qrImageSrc || window.BastionAuth.toQrImageSrc(mfaContext.qrCode);
+      currentSecret = mfaContext.secret || "";
+      secret.textContent = currentSecret || "SECRET недоступний — використайте QR-код";
+      form.hidden = true;
+      mfaBox.hidden = false;
+      setStep("mfa");
+      setStatus("Відскануйте QR-код і введіть 6-значний код.", "success");
+      setTimeout(() => codeInput.focus(), 150);
     } catch (error) {
       console.error(error);
       setStatus(error.message || "Не вдалося створити акаунт.", "error");
@@ -231,19 +207,6 @@
     copySecret.textContent = "Скопійовано";
     setTimeout(() => (copySecret.textContent = "Скопіювати"), 1200);
   });
-
-  function showComplete() {
-    form.hidden = true;
-    mfaBox.hidden = true;
-    completeBox.hidden = false;
-    setStep("mfa");
-    setTitle("Активація завершена");
-    setStatus("Доступ активовано. Можна входити в систему.", "success");
-
-    setTimeout(() => {
-      window.location.href = "./index.html";
-    }, 1800);
-  }
 
   verifyBtn?.addEventListener("click", async () => {
     const code = codeInput.value.trim();
@@ -266,7 +229,14 @@
       const activated = await window.BastionAccess.activateInvite(token);
       if (!activated) throw new Error("Не вдалося активувати invite-token.");
 
-      showComplete();
+      mfaBox.hidden = true;
+      completeBox.hidden = false;
+      setTitle("Активація завершена");
+      setStatus("Доступ активовано. Можна входити в систему.", "success");
+
+      setTimeout(() => {
+        window.location.href = "./index.html";
+      }, 1800);
     } catch (error) {
       console.error(error);
       setStatus(error.message || "Не вдалося активувати доступ.", "error");
