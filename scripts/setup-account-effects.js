@@ -20,23 +20,73 @@
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  let targetTiltX = 2;
+  let targetTiltY = -7;
+  let currentTiltX = 2;
+  let currentTiltY = -7;
+  let targetBgX = 50;
+  let targetBgY = 50;
+  let currentBgX = 50;
+  let currentBgY = 50;
+
   function setMouseVars(event) {
-    const x = (event.clientX / window.innerWidth) * 100;
-    const y = (event.clientY / window.innerHeight) * 100;
+    const xRatio = event.clientX / window.innerWidth;
+    const yRatio = event.clientY / window.innerHeight;
+    const x = xRatio * 100;
+    const y = yRatio * 100;
+
     root.style.setProperty("--mx", `${x}%`);
     root.style.setProperty("--my", `${y}%`);
 
+    targetBgX = 50 + (xRatio - 0.5) * 1.8;
+    targetBgY = 50 + (yRatio - 0.5) * 1.2;
+
     if (card) {
       const rect = card.getBoundingClientRect();
-      const cx = ((event.clientX - rect.left) / rect.width) * 100;
-      const cy = ((event.clientY - rect.top) / rect.height) * 100;
+      const cxRatio = (event.clientX - rect.left) / rect.width;
+      const cyRatio = (event.clientY - rect.top) / rect.height;
+      const cx = cxRatio * 100;
+      const cy = cyRatio * 100;
+
       card.style.setProperty("--card-x", `${cx}%`);
       card.style.setProperty("--card-y", `${cy}%`);
+
+      const inside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+
+      if (inside) {
+        targetTiltY = -7 + (cxRatio - 0.5) * 9;
+        targetTiltX = 2 - (cyRatio - 0.5) * 7;
+      } else {
+        targetTiltY = -7 + (xRatio - 0.5) * 3.5;
+        targetTiltX = 2 - (yRatio - 0.5) * 2.2;
+      }
     }
+  }
+
+  function animateScene() {
+    if (!prefersReducedMotion) {
+      currentTiltX += (targetTiltX - currentTiltX) * 0.08;
+      currentTiltY += (targetTiltY - currentTiltY) * 0.08;
+      currentBgX += (targetBgX - currentBgX) * 0.035;
+      currentBgY += (targetBgY - currentBgY) * 0.035;
+
+      root.style.setProperty("--tilt-x", `${currentTiltX.toFixed(2)}deg`);
+      root.style.setProperty("--tilt-y", `${currentTiltY.toFixed(2)}deg`);
+      root.style.setProperty("--bg-x", `${currentBgX.toFixed(2)}%`);
+      root.style.setProperty("--bg-y", `${currentBgY.toFixed(2)}%`);
+      card?.classList.add("is-tilting");
+    }
+
+    requestAnimationFrame(animateScene);
   }
 
   if (!prefersReducedMotion) {
     window.addEventListener("pointermove", setMouseVars, { passive: true });
+    animateScene();
   }
 
   function scorePassword(value) {
@@ -133,38 +183,71 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  const particles = Array.from({ length: 42 }, () => ({
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    r: Math.random() * 1.6 + 0.4,
-    vx: Math.random() * 0.18 + 0.03,
-    vy: -(Math.random() * 0.22 + 0.04),
-    a: Math.random() * 0.42 + 0.12,
-  }));
+  const particles = [];
+  const particleCount = 150;
+
+  function createParticle(fromBottom = false) {
+    const typeRoll = Math.random();
+    const isSoft = typeRoll > 0.72;
+    const isBright = typeRoll < 0.20;
+
+    return {
+      x: Math.random() * window.innerWidth,
+      y: fromBottom ? window.innerHeight + Math.random() * 130 : Math.random() * window.innerHeight,
+      r: isSoft ? Math.random() * 5 + 2.2 : Math.random() * 1.9 + 0.45,
+      vx: (Math.random() - 0.38) * (isSoft ? 0.18 : 0.55),
+      vy: -(Math.random() * (isSoft ? 0.35 : 0.95) + (isBright ? 0.35 : 0.12)),
+      a: isSoft ? Math.random() * 0.12 + 0.05 : Math.random() * 0.55 + 0.16,
+      spin: Math.random() * Math.PI * 2,
+      spinSpeed: (Math.random() - 0.5) * 0.04,
+      flicker: Math.random() * Math.PI * 2,
+      bright: isBright,
+      soft: isSoft,
+    };
+  }
+
+  for (let i = 0; i < particleCount; i += 1) {
+    particles.push(createParticle(false));
+  }
 
   function animateParticles() {
     if (!canvas || !ctx || prefersReducedMotion) return;
 
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     ctx.save();
+    ctx.globalCompositeOperation = "lighter";
 
     for (const p of particles) {
-      p.x += p.vx;
+      p.x += p.vx + Math.sin(p.spin) * 0.05;
       p.y += p.vy;
+      p.spin += p.spinSpeed;
+      p.flicker += 0.045;
 
-      if (p.y < -10 || p.x > window.innerWidth + 10) {
-        p.x = Math.random() * window.innerWidth * 0.9;
-        p.y = window.innerHeight + Math.random() * 80;
+      if (p.y < -40 || p.x > window.innerWidth + 80 || p.x < -80) {
+        Object.assign(p, createParticle(true));
       }
 
-      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 5);
-      gradient.addColorStop(0, `rgba(255, 40, 80, ${p.a})`);
-      gradient.addColorStop(1, "rgba(255, 40, 80, 0)");
+      const flickerAlpha = p.a * (0.72 + Math.sin(p.flicker) * 0.28);
+      const radius = p.soft ? p.r * 8 : p.r * (p.bright ? 7 : 4.5);
+
+      const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius);
+      gradient.addColorStop(0, p.bright ? `rgba(255, 95, 95, ${flickerAlpha})` : `rgba(255, 42, 80, ${flickerAlpha})`);
+      gradient.addColorStop(0.35, `rgba(255, 20, 70, ${flickerAlpha * 0.35})`);
+      gradient.addColorStop(1, "rgba(255, 20, 70, 0)");
 
       ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r * 5, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
       ctx.fill();
+
+      if (p.bright && Math.random() > 0.86) {
+        ctx.strokeStyle = `rgba(255, 130, 130, ${flickerAlpha * 0.35})`;
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x - p.vx * 16, p.y - p.vy * 16);
+        ctx.stroke();
+      }
     }
 
     ctx.restore();
