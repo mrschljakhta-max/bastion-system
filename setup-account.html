@@ -6,166 +6,152 @@
 
   <title>BASTION — Налаштування облікового запису</title>
 
-  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg" />
-  <link rel="stylesheet" href="./styles/setup-account.css?v=25" />
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./scripts/config.js?v=25" defer></script>
-  <script src="./scripts/auth.js?v=25" defer></script>
-  <script src="./scripts/access.js?v=25" defer></script>
-  <script src="./scripts/setup-account.js?v=25" defer></script>
+  <link rel="stylesheet" href="styles/setup-account.css" />
+  <link rel="stylesheet" href="styles/setup-account-background-patch.css" />
 </head>
 
-<body class="setup-account-page">
-  <div class="setup-bg-layer" aria-hidden="true"></div>
+<body class="setup-page">
 
   <main class="setup-shell">
-    <section class="setup-left" aria-label="Опис налаштування доступу">
-      <a class="setup-logo" href="./index.html" aria-label="BASTION">
-        <img src="./assets/logo/bastion-mark.svg" alt="" />
-        <span>
-          <b>BASTION</b>
-          <small>AUTHORIZED ACCESS NODE</small>
-        </span>
-      </a>
+    <section class="setup-layout">
 
-      <div class="setup-left-copy">
-        <div class="setup-kicker">ПЕРША РЕЄСТРАЦІЯ</div>
-        <h1 class="setup-main-title">
-          НАЛАШТУВАННЯ
-          <span>ОБЛІКОВОГО ЗАПИСУ</span>
-        </h1>
-        <p class="setup-lead">
-          Ви отримали персональне запрошення для доступу до системи
-          <b>BASTION</b>. Створіть надійний пароль для свого облікового
-          запису та активуйте доступ.
-        </p>
-      </div>
+      <!-- LEFT -->
+      <aside class="setup-left">
 
-      <div class="setup-steps">
-        <article class="setup-step is-active" data-step-marker="invite">
-          <div class="step-index">01</div>
-          <div class="step-icon">▣</div>
-          <div class="step-text">
-            <strong>СТВОРІТЬ ПАРОЛЬ</strong>
-            <span>Введіть надійний пароль для вашого облікового запису</span>
-          </div>
-        </article>
-
-        <article class="setup-step" data-step-marker="password">
-          <div class="step-index">02</div>
-          <div class="step-icon">⬡</div>
-          <div class="step-text">
-            <strong>ПІДТВЕРДІТЬ ПАРОЛЬ</strong>
-            <span>Повторіть пароль для підтвердження</span>
-          </div>
-        </article>
-
-        <article class="setup-step" data-step-marker="mfa">
-          <div class="step-index">03</div>
-          <div class="step-icon">♙</div>
-          <div class="step-text">
-            <strong>АКТИВАЦІЯ ДОСТУПУ</strong>
-            <span>Після збереження пароля доступ буде активовано</span>
-          </div>
-        </article>
-      </div>
-
-      <div class="setup-help">
-        <div class="help-icon">?</div>
-        <div>
-          <strong>ПОТРІБНА ДОПОМОГА?</strong>
-          <span>Якщо у вас виникли проблеми, зверніться до адміністратора системи.</span>
-        </div>
-      </div>
-    </section>
-
-    <section class="setup-right" aria-label="Форма налаштування">
-      <div class="setup-card">
-        <div class="setup-card-head">
-          <div>
-            <div class="setup-kicker">ACCESS NODE</div>
-            <h2 id="setupTitle">Створення пароля</h2>
-          </div>
-
-          <div class="secure-badge">
-            <i id="setupLed"></i>
-            <span>Захищено</span>
-          </div>
+        <div class="setup-brand">
+          <img
+            src="assets/logo/bastion-logo-full.svg"
+            alt="BASTION"
+            class="setup-logo"
+          />
         </div>
 
-        <div id="setupStatus" class="setup-status" data-type="info" aria-live="polite"></div>
+        <div class="setup-copy">
 
-        <form id="setupForm" class="setup-form" autocomplete="off">
-          <input id="setupLogin" name="login" type="text" value="" readonly hidden />
-          <input id="setupEmail" name="email" type="email" value="" readonly hidden />
-          <input id="setupRole" name="role" type="text" value="" readonly hidden />
+          <div class="setup-kicker">
+            ПЕРША РЕЄСТРАЦІЯ
+          </div>
 
-          <div class="field field-full field-first">
-            <label for="setupPassword">НОВИЙ ПАРОЛЬ</label>
-            <div class="input-shell is-active">
-              <span class="input-icon">♙</span>
-              <input id="setupPassword" name="password" type="password" placeholder="Введіть новий пароль" autocomplete="new-password" />
-              <button id="togglePassword" class="ghost-icon" type="button" aria-label="Показати пароль">⌧</button>
+          <h1 class="setup-title">
+            НАЛАШТУВАННЯ<br>
+            <span>ОБЛІКОВОГО<br>ЗАПИСУ</span>
+          </h1>
+
+          <p class="setup-description">
+            Ви отримали персональне запрошення для доступу до системи
+            <strong>BASTION.</strong>
+            Створіть надійний пароль для свого облікового запису та активуйте доступ.
+          </p>
+
+        </div>
+
+        <div class="setup-steps">
+
+          <article class="setup-step active">
+            <div class="setup-step-number">01</div>
+
+            <div class="setup-step-content">
+              <h3>СТВОРІТЬ ПАРОЛЬ</h3>
+              <p>Введіть надійний пароль для вашого облікового запису</p>
+            </div>
+          </article>
+
+          <article class="setup-step">
+            <div class="setup-step-number">02</div>
+
+            <div class="setup-step-content">
+              <h3>ПІДТВЕРДІТЬ ПАРОЛЬ</h3>
+              <p>Повторіть пароль для підтвердження</p>
+            </div>
+          </article>
+
+          <article class="setup-step">
+            <div class="setup-step-number">03</div>
+
+            <div class="setup-step-content">
+              <h3>АКТИВАЦІЯ ДОСТУПУ</h3>
+              <p>Після збереження пароль буде активовано</p>
+            </div>
+          </article>
+
+        </div>
+
+      </aside>
+
+      <!-- RIGHT -->
+      <section class="setup-right">
+
+        <div class="setup-form-card">
+
+          <div class="setup-form-top">
+            <div>
+              <div class="setup-form-kicker">
+                ACCESS NODE
+              </div>
+
+              <h2 class="setup-form-title">
+                Створення пароля
+              </h2>
+            </div>
+
+            <div class="setup-badge">
+              Захищено
             </div>
           </div>
 
-          <div class="field field-full">
-            <label for="setupConfirm">ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
-            <div class="input-shell">
-              <span class="input-icon">♙</span>
-              <input id="setupConfirm" name="confirm" type="password" placeholder="Повторіть новий пароль" autocomplete="new-password" />
-              <button id="toggleConfirm" class="ghost-icon" type="button" aria-label="Показати пароль">⌧</button>
-            </div>
+          <div class="setup-alert">
+            Створіть надійний пароль для вашого акаунта.
+            Використовуйте комбінацію літер і цифр.
           </div>
 
-          <div class="rules-box">
-            <div class="rules-title">ВИМОГИ ДО ПАРОЛЯ</div>
-            <div class="rules-grid">
-              <span id="ruleLength">Мін. 8 символів</span>
-              <span id="ruleLetter">Літера</span>
-              <span id="ruleNumber">Цифра</span>
-              <span id="ruleMatch">Паролі збігаються</span>
-            </div>
-          </div>
+          <form id="setup-account-form">
 
-          <button id="setupSubmit" class="activate-btn" type="submit">
-            АКТИВУВАТИ ДОСТУП <span>→</span>
-          </button>
-        </form>
+            <div class="setup-field">
+              <label>НОВИЙ ПАРОЛЬ</label>
 
-        <section id="setupMfa" class="mfa-panel" hidden>
-          <h3>Підключіть Google Authenticator</h3>
-          <p>Відскануйте QR-код у застосунку Google Authenticator або скопіюйте SECRET вручну.</p>
-
-          <div class="mfa-grid">
-            <div class="qr-box">
-              <img id="setupQr" alt="QR code for 2FA" />
+              <input
+                type="password"
+                id="password"
+                placeholder="Введіть новий пароль"
+                autocomplete="new-password"
+              />
             </div>
 
-            <div class="mfa-side">
-              <label>SECRET</label>
-              <div id="setupSecret" class="secret-box">Очікується...</div>
-              <button id="copySecret" type="button" class="secondary-btn">Скопіювати</button>
+            <div class="setup-field">
+              <label>ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
 
-              <label for="setupCode">КОД З AUTHENTICATOR</label>
-              <input id="setupCode" inputmode="numeric" maxlength="6" placeholder="000000" />
-
-              <button id="setupVerify" type="button" class="activate-btn compact">
-                ПІДТВЕРДИТИ 2FA
-              </button>
+              <input
+                type="password"
+                id="passwordConfirm"
+                placeholder="Повторіть новий пароль"
+                autocomplete="new-password"
+              />
             </div>
-          </div>
-        </section>
 
-        <section id="setupComplete" class="complete-panel" hidden>
-          <div class="complete-icon">✓</div>
-          <h3>Доступ активовано</h3>
-          <p>Тепер відкриється стартова сторінка BASTION.</p>
-          <a href="./index.html" class="activate-btn as-link">ПЕРЕЙТИ ДО ВХОДУ</a>
-        </section>
-      </div>
+            <div class="setup-password-rules">
+              <span>• Мін. 8 символів</span>
+              <span>• Літера</span>
+              <span>• Цифра</span>
+              <span>• Паролі збігаються</span>
+            </div>
+
+            <button type="submit" class="setup-submit">
+              АКТИВУВАТИ ДОСТУП
+            </button>
+
+          </form>
+
+        </div>
+
+      </section>
+
     </section>
   </main>
+
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/access.js"></script>
+  <script src="scripts/setup-account.js"></script>
+
 </body>
 </html>
