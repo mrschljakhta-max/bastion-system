@@ -2,124 +2,124 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>BASTION — Setup Account</title>
+  <title>BASTION — Налаштування облікового запису</title>
 
-  <!-- FIX favicon -->
-  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg">
-  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=30" />
+  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=30" />
 
-  <!-- ONLY ONE CSS FILE -->
-  <link rel="stylesheet" href="./styles/setup-account-v29.css?v=29">
+  <link rel="stylesheet" href="./styles/setup-account-v30.css?v=30" />
 </head>
 
 <body class="setup-page">
 
-<div class="bg-overlay"></div>
+  <main class="setup-shell">
 
-<main class="setup-shell">
+    <section class="setup-left">
 
-  <section class="setup-left">
+      <img
+        src="./assets/logo/bastion-glyph-wordmark.svg?v=30"
+        alt="BASTION"
+        class="setup-logo"
+      />
 
-    <img
-      src="./assets/logo/bastion-glyph-wordmark.svg"
-      class="setup-logo"
-      alt="BASTION"
-    />
+      <div class="setup-kicker">ПЕРША РЕЄСТРАЦІЯ</div>
 
-    <div class="setup-kicker">
-      ПЕРША РЕЄСТРАЦІЯ
-    </div>
+      <h1 class="setup-title">
+        НАЛАШТУВАННЯ<br />
+        <span>ОБЛІКОВОГО<br />ЗАПИСУ</span>
+      </h1>
 
-    <h1 class="setup-title">
-      НАЛАШТУВАННЯ<br>
-      <span>ОБЛІКОВОГО<br>ЗАПИСУ</span>
-    </h1>
+    </section>
 
-    <p class="setup-description">
-      Ви отримали персональне запрошення для доступу до системи
-      <strong>BASTION.</strong>
-      Створіть логін і пароль для свого облікового запису та активуйте доступ.
-    </p>
+    <section class="setup-right">
 
-    <div class="setup-steps">
+      <div class="setup-card">
 
-      <div class="setup-step active">
-        <div class="step-number">01</div>
-
-        <div class="step-content">
-          <h3>СТВОРІТЬ ЛОГІН І ПАРОЛЬ</h3>
-          <p>Введіть логін та надійний пароль для вашого облікового запису</p>
-        </div>
-      </div>
-
-      <div class="setup-step">
-        <div class="step-number">02</div>
-
-        <div class="step-content">
-          <h3>АКТИВУЙТЕ ДОСТУП</h3>
-          <p>Після створення логіна і пароля доступ буде активовано</p>
-        </div>
-      </div>
-
-    </div>
-
-  </section>
-
-  <section class="setup-right">
-
-    <div class="setup-card">
-
-      <div class="setup-card-top">
-
-        <div>
-          <div class="setup-card-kicker">
-            ACCESS NODE
+        <div class="setup-card-head">
+          <div>
+            <div class="setup-card-kicker">ACCESS NODE</div>
+            <h2>СТВОРЕННЯ АКАУНТА</h2>
           </div>
 
-          <h2>
-            СТВОРЕННЯ АКАУНТА
-          </h2>
+          <div class="secure-badge">
+            <span></span>
+            Захищено
+          </div>
         </div>
 
-        <div class="secure-badge">
-          Захищено
+        <div class="setup-alert">
+          <span class="alert-icon">▣</span>
+          <p>
+            Створіть логін і пароль для вашого акаунта.
+            Використовуйте комбінацію літер і цифр.
+          </p>
         </div>
 
+        <form id="setup-account-form" class="setup-form">
+
+          <div class="field">
+            <label for="login">ЛОГІН</label>
+            <div class="input-wrap">
+              <span class="input-icon">♙</span>
+              <input
+                id="login"
+                name="login"
+                type="text"
+                placeholder="Введіть логін"
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">ПАРОЛЬ</label>
+            <div class="input-wrap">
+              <span class="input-icon">♢</span>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Введіть пароль"
+                autocomplete="new-password"
+              />
+              <button
+                class="password-toggle"
+                type="button"
+                data-target="password"
+                aria-label="Показати пароль"
+              >⊘</button>
+            </div>
+          </div>
+
+          <div class="rules">
+            <span id="ruleLength">◎ Мін. 8 символів</span>
+            <span id="ruleLetter">◎ Літера</span>
+            <span id="ruleDigit">◎ Цифра</span>
+            <span id="ruleSaved">◎ Паролі зберігаються</span>
+          </div>
+
+          <button class="submit-btn" type="submit">
+            АКТИВУВАТИ ДОСТУП
+            <span>→</span>
+          </button>
+
+          <p class="setup-note">
+            Ваш доступ буде активовано після успішного створення логіна і пароля.
+          </p>
+
+        </form>
+
       </div>
 
-      <div class="setup-alert">
-        Створіть логін і пароль для вашого акаунта.
-        Використовуйте комбінацію літер і цифр.
-      </div>
+    </section>
 
-      <div class="field">
-        <label>ЛОГІН</label>
-        <input type="text" placeholder="Введіть логін">
-      </div>
+  </main>
 
-      <div class="field">
-        <label>ПАРОЛЬ</label>
-        <input type="password" placeholder="Введіть пароль">
-      </div>
-
-      <div class="rules">
-        <span>◎ Мін. 8 символів</span>
-        <span>◎ Літера</span>
-        <span>◎ Цифра</span>
-        <span>◎ Паролі зберігаються</span>
-      </div>
-
-      <button class="submit-btn">
-        АКТИВУВАТИ ДОСТУП →
-      </button>
-
-    </div>
-
-  </section>
-
-</main>
-
+  <script src="./scripts/config.js?v=30"></script>
+  <script src="./scripts/auth.js?v=30"></script>
+  <script src="./scripts/access.js?v=30"></script>
+  <script src="./scripts/setup-account.js?v=30"></script>
 </body>
 </html>
