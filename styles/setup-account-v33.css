@@ -1,0 +1,336 @@
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  width:100%;
+  min-height:100%;
+  margin:0;
+  padding:0;
+}
+
+body.setup-page{
+  min-height:100vh;
+  overflow:hidden;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0,0,0,.10) 0%,
+      rgba(0,0,0,.03) 40%,
+      rgba(0,0,0,.18) 100%
+    ),
+    url("../assets/backgrounds/setup-account-astronaut-v31.png");
+
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+}
+
+.setup-shell{
+  width:min(1480px,100%);
+  min-height:100vh;
+
+  margin:0 auto;
+
+  padding:44px 54px;
+
+  display:grid;
+  grid-template-columns:minmax(320px,520px) minmax(500px,590px);
+
+  align-items:center;
+  justify-content:space-between;
+
+  gap:100px;
+}
+
+.setup-brand-zone{
+  align-self:start;
+  padding-top:8px;
+}
+
+.setup-logo{
+  width:250px;
+  height:auto;
+  object-fit:contain;
+
+  filter:drop-shadow(0 10px 24px rgba(0,0,0,.42));
+}
+
+.setup-panel-zone{
+  display:flex;
+  justify-content:flex-end;
+}
+
+.setup-card{
+  width:100%;
+  max-width:590px;
+
+  border:1px solid rgba(255,22,87,.66);
+  border-radius:30px;
+
+  padding:34px 36px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(17,12,18,.80),
+      rgba(7,7,12,.76)
+    );
+
+  backdrop-filter:blur(16px);
+
+  box-shadow:
+    0 30px 120px rgba(0,0,0,.45),
+    0 0 80px rgba(255,22,87,.10);
+}
+
+.setup-card-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+
+  gap:22px;
+
+  margin-bottom:28px;
+}
+
+.setup-card-kicker{
+  margin-bottom:12px;
+
+  color:#ff1b5d;
+
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.36em;
+}
+
+.setup-card h1{
+  margin:0;
+
+  color:#fff;
+
+  font-size:44px;
+  line-height:.98;
+  font-weight:950;
+
+  letter-spacing:-.045em;
+
+  text-transform:uppercase;
+}
+
+.secure-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+
+  min-height:50px;
+
+  padding:0 18px;
+
+  border-radius:14px;
+
+  border:1px solid rgba(0,230,180,.30);
+
+  background:rgba(0,155,120,.16);
+
+  color:#6affd0;
+
+  font-size:13px;
+  font-weight:900;
+}
+
+.secure-badge span{
+  width:9px;
+  height:9px;
+
+  border-radius:999px;
+
+  background:#60ffc9;
+}
+
+.setup-alert{
+  display:grid;
+  grid-template-columns:46px 1fr;
+
+  align-items:center;
+
+  gap:18px;
+
+  margin-bottom:26px;
+
+  padding:22px;
+
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+
+  background:rgba(255,255,255,.04);
+}
+
+.alert-icon{
+  color:#ffd21a;
+  font-size:28px;
+}
+
+.setup-alert p{
+  margin:0;
+
+  color:rgba(255,255,255,.94);
+
+  font-size:15px;
+  line-height:1.45;
+  font-weight:650;
+}
+
+.field{
+  margin-bottom:22px;
+}
+
+.field label{
+  display:block;
+
+  margin-bottom:12px;
+
+  color:rgba(255,255,255,.78);
+
+  font-size:12px;
+  font-weight:900;
+
+  letter-spacing:.34em;
+}
+
+.input-wrap{
+  min-height:64px;
+
+  display:grid;
+  grid-template-columns:58px 1fr 48px;
+
+  align-items:center;
+
+  border:1px solid rgba(0,225,200,.45);
+  border-radius:14px;
+
+  background:rgba(5,6,11,.80);
+
+  overflow:hidden;
+}
+
+.input-icon{
+  color:#00e1c7;
+
+  text-align:center;
+
+  font-size:20px;
+}
+
+.input-wrap input{
+  width:100%;
+
+  border:0;
+  outline:0;
+
+  background:transparent;
+
+  color:#fff;
+
+  font-size:15px;
+  font-weight:750;
+}
+
+.input-wrap input::placeholder{
+  color:rgba(255,255,255,.46);
+}
+
+.password-toggle{
+  border:0;
+  background:transparent;
+
+  color:rgba(255,255,255,.78);
+
+  font-size:20px;
+
+  cursor:pointer;
+}
+
+.rules{
+  display:flex;
+  flex-wrap:wrap;
+
+  gap:14px 28px;
+
+  margin:26px 0 32px;
+
+  color:#00e2c7;
+
+  font-size:14px;
+  font-weight:850;
+}
+
+.submit-btn{
+  width:100%;
+  min-height:66px;
+
+  border:0;
+  border-radius:14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e50048,
+      #ff1b5d
+    );
+
+  color:#fff;
+
+  font-size:16px;
+  font-weight:950;
+
+  letter-spacing:.23em;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 22px 70px rgba(255,22,87,.24);
+}
+
+.submit-btn span{
+  margin-left:10px;
+}
+
+.setup-note{
+  margin:18px 0 0;
+
+  color:rgba(255,255,255,.68);
+
+  font-size:13px;
+  line-height:1.4;
+}
+
+@media (max-width:1180px){
+
+  body.setup-page{
+    overflow:auto;
+  }
+
+  .setup-shell{
+    grid-template-columns:1fr;
+
+    gap:48px;
+
+    padding:28px 20px;
+  }
+
+  .setup-brand-zone,
+  .setup-panel-zone{
+    width:min(720px,100%);
+    margin:0 auto;
+  }
+
+  .setup-panel-zone{
+    justify-content:center;
+  }
+}

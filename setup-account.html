@@ -6,19 +6,19 @@
 
   <title>BASTION — Створення акаунта</title>
 
-  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=31" />
-  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=31" />
+  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=33" />
+  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=33" />
 
-  <link rel="stylesheet" href="./styles/setup-account-v31.css?v=31" />
+  <link rel="stylesheet" href="./styles/setup-account-v33.css?v=33" />
 </head>
 
 <body class="setup-page">
 
   <main class="setup-shell">
 
-    <section class="setup-brand-zone" aria-label="BASTION">
+    <section class="setup-brand-zone">
       <img
-        src="./assets/logo/bastion-glyph-wordmark.svg?v=31"
+        src="./assets/logo/bastion-glyph-wordmark.svg?v=33"
         alt="BASTION"
         class="setup-logo"
       />
@@ -48,15 +48,16 @@
           </p>
         </div>
 
-        <form id="setup-account-form" class="setup-form">
+        <form class="setup-form">
 
           <div class="field">
             <label for="login">ЛОГІН</label>
+
             <div class="input-wrap">
               <span class="input-icon">♙</span>
+
               <input
                 id="login"
-                name="login"
                 type="text"
                 placeholder="Введіть логін"
                 autocomplete="username"
@@ -66,29 +67,32 @@
 
           <div class="field">
             <label for="password">ПАРОЛЬ</label>
+
             <div class="input-wrap">
               <span class="input-icon">♢</span>
+
               <input
                 id="password"
-                name="password"
                 type="password"
                 placeholder="Введіть пароль"
                 autocomplete="new-password"
               />
+
               <button
                 class="password-toggle"
                 type="button"
-                data-target="password"
                 aria-label="Показати пароль"
-              >⊘</button>
+              >
+                ⊘
+              </button>
             </div>
           </div>
 
           <div class="rules">
-            <span id="ruleLength">◎ Мін. 8 символів</span>
-            <span id="ruleLetter">◎ Літера</span>
-            <span id="ruleDigit">◎ Цифра</span>
-            <span id="ruleSaved">◎ Паролі зберігаються</span>
+            <span>◎ Мін. 8 символів</span>
+            <span>◎ Літера</span>
+            <span>◎ Цифра</span>
+            <span>◎ Паролі зберігаються</span>
           </div>
 
           <button class="submit-btn" type="submit">
@@ -108,9 +112,5 @@
 
   </main>
 
-  <script src="./scripts/config.js?v=31"></script>
-  <script src="./scripts/auth.js?v=31"></script>
-  <script src="./scripts/access.js?v=31"></script>
-  <script src="./scripts/setup-account.js?v=31"></script>
 </body>
 </html>
