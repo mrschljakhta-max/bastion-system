@@ -1,119 +1,191 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>BASTION — Setup Account</title>
-<link rel="stylesheet" href="setup-account.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BASTION — Налаштування доступу</title>
+
+  <link rel="stylesheet" href="./styles/base.css" />
+  <link rel="stylesheet" href="./styles/fonts.css" />
+  <link rel="stylesheet" href="./styles/setup-account.css?v=13" />
 </head>
-<body>
+<body class="setup-page">
+  <div class="setup-bg" aria-hidden="true"></div>
+  <div class="setup-vignette" aria-hidden="true"></div>
 
-<div class="bg-overlay"></div>
+  <main class="setup-shell">
+    <aside class="setup-aside">
+      <a class="setup-logo" href="./index.html" aria-label="BASTION">
+        <img src="./assets/logo/bastion-glyph-wordmark.svg" alt="BASTION" />
+      </a>
 
-<div class="layout">
+      <section class="setup-aside-copy">
+        <div class="setup-kicker">ACCESS NODE</div>
+        <h1>НАЛАШТУВАННЯ <span>ДОСТУПУ</span></h1>
+        <p>
+          Ви майже готові. Створіть надійний пароль для свого акаунта та активуйте доступ до системи
+          <b>BASTION</b>.
+        </p>
+      </section>
 
-  <section class="left-panel">
-    <div class="logo-wrap">
-      <div class="logo">S</div>
-      <div class="brand">BASTION</div>
-    </div>
-
-    <div class="left-content">
-      <div class="eyebrow">ACCESS NODE</div>
-      <h1>
-        НАЛАШТУВАННЯ<br/>
-        <span>ДОСТУПУ</span>
-      </h1>
-
-      <p>
-        Ви майже готові. Створіть надійний пароль
-        для свого акаунта та активуйте доступ
-        до системи <span class="accent">BASTION</span>.
-      </p>
-
-      <div class="steps">
-        <div class="step active">
-          <div class="step-number">01</div>
-          <div>
+      <section class="setup-steps" aria-label="Етапи налаштування">
+        <article class="setup-step is-done" data-step-marker="invite">
+          <div class="setup-step-index">01</div>
+          <div class="setup-step-body">
             <strong>Запрошення прийнято</strong>
-            <small>Ваш запит підтверджено</small>
+            <span>Ваш запит на доступ підтверджено</span>
           </div>
-        </div>
+        </article>
 
-        <div class="step current">
-          <div class="step-number">02</div>
-          <div>
+        <article class="setup-step is-active" data-step-marker="password">
+          <div class="setup-step-index">02</div>
+          <div class="setup-step-body">
             <strong>Налаштування акаунта</strong>
-            <small>Створіть пароль для входу</small>
+            <span>Створіть пароль для входу</span>
           </div>
-        </div>
+        </article>
 
-        <div class="step">
-          <div class="step-number">03</div>
-          <div>
-            <strong>Доступ активовано</strong>
-            <small>Після підтвердження пароля</small>
+        <article class="setup-step" data-step-marker="mfa">
+          <div class="setup-step-index">03</div>
+          <div class="setup-step-body">
+            <strong>Двофакторний захист</strong>
+            <span>Підключіть Authenticator</span>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
+        </article>
+      </section>
 
-  <section class="right-panel">
-    <div class="card">
-
-      <div class="card-top">
+      <section class="setup-help">
+        <div class="setup-help-icon">?</div>
         <div>
-          <div class="eyebrow">ACCESS NODE</div>
-          <h2>СТВОРЕННЯ ПАРОЛЯ</h2>
+          <strong>Потрібна допомога?</strong>
+          <span>Зверніться до <b>адміністратора системи</b>.</span>
+        </div>
+      </section>
+    </aside>
+
+    <section class="setup-card-wrap">
+      <section class="setup-card" aria-label="Створення пароля">
+        <div class="setup-card-head">
+          <div>
+            <div class="setup-kicker setup-kicker-card">ACCESS NODE</div>
+            <h2 id="setupTitle">Створення пароля</h2>
+          </div>
+          <div class="setup-secure"><span id="setupLed"></span>Захищено</div>
         </div>
 
-        <div class="secure">● Захищено</div>
-      </div>
-
-      <div class="info-box">
-        Створіть надійний пароль для вашого акаунта.
-      </div>
-
-      <div class="grid">
-        <div class="field readonly">
-          <label>ЛОГІН АКАУНТА</label>
-          <input value="mr.schljakhta" readonly/>
+        <div id="setupStatus" class="setup-status" data-type="info">
+          Перевіряю запрошення…
         </div>
 
-        <div class="field">
-          <label>НОВИЙ ПАРОЛЬ</label>
-          <input type="password" placeholder="Введіть пароль"/>
-        </div>
+        <form id="setupForm" class="setup-form" hidden>
+          <div class="setup-form-grid">
+            <label class="setup-field setup-field-login">
+              <span>Логін акаунта</span>
+              <div class="setup-input is-valid">
+                <i>♙</i>
+                <input id="setupLogin" type="text" autocomplete="username" placeholder="login" />
+                <em>✓</em>
+              </div>
+            </label>
 
-        <div class="field full">
-          <label>ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
-          <input type="password" placeholder="Повторіть пароль"/>
-        </div>
+            <label class="setup-field setup-field-password">
+              <span>Новий пароль</span>
+              <div class="setup-input is-focusable">
+                <i>♙</i>
+                <input id="setupPassword" type="password" autocomplete="new-password" placeholder="Введіть новий пароль" />
+                <button id="togglePassword" type="button" aria-label="Показати пароль">⌧</button>
+              </div>
+            </label>
 
-        <div class="field readonly">
-          <label>EMAIL</label>
-          <input value="mr.schljakhta@gmail.com" readonly/>
-        </div>
+            <div class="setup-strength-line" aria-hidden="true">
+              <div class="setup-strength" data-level="0"><span></span><span></span><span></span><span></span></div>
+              <p id="setupStrengthText">Надійність пароля: <b>очікується</b></p>
+            </div>
 
-        <div class="field readonly">
-          <label>РОЛЬ</label>
-          <input value="demo" readonly/>
-        </div>
-      </div>
+            <label class="setup-field setup-field-confirm">
+              <span>Підтвердження пароля</span>
+              <div class="setup-input">
+                <i>♙</i>
+                <input id="setupConfirm" type="password" autocomplete="new-password" placeholder="Повторіть новий пароль" />
+                <button id="toggleConfirm" type="button" aria-label="Показати підтвердження">⌧</button>
+              </div>
+            </label>
 
-      <div class="requirements">
-        <span>• Мін. 8 символів</span>
-        <span>• Літера</span>
-        <span>• Цифра</span>
-      </div>
+            <label class="setup-field setup-field-email is-readonly">
+              <span>Email користувача</span>
+              <div class="setup-input readonly-lock">
+                <i>✉</i>
+                <input id="setupEmail" type="email" readonly />
+                <small>тільки для перегляду</small>
+              </div>
+            </label>
 
-      <button class="btn-main">АКТИВУВАТИ ДОСТУП →</button>
+            <label class="setup-field setup-field-role is-readonly">
+              <span>Роль користувача</span>
+              <div class="setup-input readonly-lock">
+                <i>♙</i>
+                <input id="setupRole" type="text" readonly />
+                <small>тільки для перегляду</small>
+              </div>
+            </label>
+          </div>
 
-    </div>
-  </section>
+          <div class="setup-rules">
+            <div class="setup-rules-title">Вимоги до пароля</div>
+            <div class="setup-rule-list">
+              <span id="ruleLength">Мін. 8 символів</span>
+              <span id="ruleLetter">Літера</span>
+              <span id="ruleNumber">Цифра</span>
+              <span id="ruleMatch">Паролі збігаються</span>
+            </div>
+          </div>
 
-</div>
+          <button id="setupSubmit" class="setup-primary" type="submit">Активувати доступ <b>→</b></button>
+        </form>
 
+        <section id="setupMfa" class="setup-mfa" hidden>
+          <div class="setup-mfa-head">
+            <h3>Підключіть Google Authenticator</h3>
+            <p>Відскануйте QR-код застосунком Authenticator або скопіюйте SECRET вручну.</p>
+          </div>
+
+          <div class="setup-mfa-grid">
+            <div class="setup-qr-box">
+              <img id="setupQr" alt="QR code для Google Authenticator" />
+            </div>
+
+            <div class="setup-secret-box">
+              <span>SECRET</span>
+              <code id="setupSecret">Очікується…</code>
+              <button id="copySecret" type="button">Скопіювати</button>
+            </div>
+          </div>
+
+          <label class="setup-field setup-code-field">
+            <span>Код з Authenticator</span>
+            <div class="setup-input">
+              <input id="setupCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" />
+            </div>
+          </label>
+
+          <button id="setupVerify" class="setup-primary" type="button">Підтвердити 2FA</button>
+        </section>
+
+        <section id="setupComplete" class="setup-complete" hidden>
+          <div class="setup-complete-mark">✓</div>
+          <h3>Доступ активовано</h3>
+          <p>Ваш акаунт налаштовано. Зараз відкриється сторінка входу BASTION.</p>
+          <a class="setup-primary setup-login-link" href="./index.html">Перейти до входу</a>
+        </section>
+
+        <a class="setup-back" href="./index.html">← Повернутися назад</a>
+      </section>
+    </section>
+  </main>
+
+  <script src="./scripts/config.js"></script>
+  <script src="./scripts/auth.js"></script>
+  <script src="./scripts/access.js"></script>
+  <script src="./scripts/setup-account.js?v=13"></script>
 </body>
 </html>
