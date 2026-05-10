@@ -7,13 +7,13 @@
   <title>BASTION — Налаштування облікового запису</title>
 
   <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg" />
-  <link rel="stylesheet" href="./styles/setup-account.css?v=24" />
+  <link rel="stylesheet" href="./styles/setup-account.css?v=25" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./scripts/config.js?v=24" defer></script>
-  <script src="./scripts/auth.js?v=24" defer></script>
-  <script src="./scripts/access.js?v=24" defer></script>
-  <script src="./scripts/setup-account.js?v=24" defer></script>
+  <script src="./scripts/config.js?v=25" defer></script>
+  <script src="./scripts/auth.js?v=25" defer></script>
+  <script src="./scripts/access.js?v=25" defer></script>
+  <script src="./scripts/setup-account.js?v=25" defer></script>
 </head>
 
 <body class="setup-account-page">
@@ -22,7 +22,11 @@
   <main class="setup-shell">
     <section class="setup-left" aria-label="Опис налаштування доступу">
       <a class="setup-logo" href="./index.html" aria-label="BASTION">
-        <img src="./assets/logo/bastion-glyph-wordmark.svg" alt="BASTION" />
+        <img src="./assets/logo/bastion-mark.svg" alt="" />
+        <span>
+          <b>BASTION</b>
+          <small>AUTHORIZED ACCESS NODE</small>
+        </span>
       </a>
 
       <div class="setup-left-copy">
@@ -62,7 +66,7 @@
           <div class="step-icon">♙</div>
           <div class="step-text">
             <strong>АКТИВАЦІЯ ДОСТУПУ</strong>
-            <span>Після збереження пароля ваш доступ буде активовано</span>
+            <span>Після збереження пароля доступ буде активовано</span>
           </div>
         </article>
       </div>
@@ -81,7 +85,7 @@
         <div class="setup-card-head">
           <div>
             <div class="setup-kicker">ACCESS NODE</div>
-            <h2 id="setupTitle">СТВОРЕННЯ ПАРОЛЯ</h2>
+            <h2 id="setupTitle">Створення пароля</h2>
           </div>
 
           <div class="secure-badge">
@@ -101,17 +105,8 @@
             <label for="setupPassword">НОВИЙ ПАРОЛЬ</label>
             <div class="input-shell is-active">
               <span class="input-icon">♙</span>
-              <input id="setupPassword" name="password" type="password" placeholder="Введіть новий пароль" />
+              <input id="setupPassword" name="password" type="password" placeholder="Введіть новий пароль" autocomplete="new-password" />
               <button id="togglePassword" class="ghost-icon" type="button" aria-label="Показати пароль">⌧</button>
-            </div>
-          </div>
-
-          <div class="strength-wrap">
-            <div class="setup-strength" data-level="0">
-              <span></span><span></span><span></span><span></span>
-            </div>
-            <div id="setupStrengthText" class="strength-label">
-              Надійність пароля: <b>очікується</b>
             </div>
           </div>
 
@@ -119,7 +114,7 @@
             <label for="setupConfirm">ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
             <div class="input-shell">
               <span class="input-icon">♙</span>
-              <input id="setupConfirm" name="confirm" type="password" placeholder="Повторіть новий пароль" />
+              <input id="setupConfirm" name="confirm" type="password" placeholder="Повторіть новий пароль" autocomplete="new-password" />
               <button id="toggleConfirm" class="ghost-icon" type="button" aria-label="Показати пароль">⌧</button>
             </div>
           </div>
