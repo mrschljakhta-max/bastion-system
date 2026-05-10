@@ -611,3 +611,235 @@ body[data-palette="violet"] {
 @media (max-width: 980px) {
   .email-preview-shell { grid-template-columns: 1fr; }
 }
+
+/* =========================================================
+   BASTION — Admin invite page visual upgrade v7
+   Clean two-column form, readonly markers, no redundant rows
+   ========================================================= */
+.admin-body {
+  overflow: hidden;
+}
+
+.admin-content::-webkit-scrollbar { width: 10px; }
+.admin-content::-webkit-scrollbar-track { background: rgba(255,255,255,.04); }
+.admin-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255,49,88,.65), rgba(255,255,255,.18));
+  border-radius: 999px;
+}
+
+.admin-header {
+  max-width: 1320px;
+}
+.admin-header p {
+  color: var(--admin-red);
+  font-weight: 800;
+}
+.admin-header h1 {
+  font-size: clamp(38px, 4.6vw, 64px);
+  filter: drop-shadow(0 10px 26px rgba(0,0,0,.52));
+}
+.admin-profile {
+  border-color: rgba(255,49,88,.22);
+  background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+}
+
+.access-card {
+  position: relative;
+  width: min(100%, 1320px);
+  padding: clamp(24px, 3vw, 42px);
+  border-color: rgba(255,49,88,.46);
+  background:
+    radial-gradient(circle at 78% -6%, rgba(255,49,88,.16), transparent 34%),
+    radial-gradient(circle at 10% 0%, rgba(255,255,255,.07), transparent 28%),
+    linear-gradient(180deg, rgba(12,12,18,.86), rgba(4,4,8,.88));
+  box-shadow:
+    0 34px 110px rgba(0,0,0,.58),
+    0 0 0 1px rgba(255,49,88,.08),
+    inset 0 1px 0 rgba(255,255,255,.065);
+  overflow: hidden;
+}
+.access-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 34px auto 34px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,49,88,.22), rgba(255,49,88,.95), transparent);
+  box-shadow: 0 0 22px rgba(255,49,88,.55);
+  pointer-events: none;
+}
+.access-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,49,88,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.026) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(circle at 80% 10%, black 0 30%, transparent 62%);
+  opacity: .42;
+  pointer-events: none;
+}
+.access-card > * { position: relative; z-index: 1; }
+
+.access-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 26px;
+}
+.access-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+.access-title-icon {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 62px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,49,88,.72);
+  color: #fff;
+  font-size: 31px;
+  background: linear-gradient(180deg, rgba(255,49,88,.14), rgba(255,49,88,.03));
+  box-shadow: inset 0 0 22px rgba(255,49,88,.12), 0 0 34px rgba(255,49,88,.13);
+}
+.access-card .admin-muted { margin-bottom: 0; }
+.access-status-pill {
+  flex: 0 0 auto;
+  padding: 13px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(255,255,255,.055);
+  color: rgba(255,255,255,.78);
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+.access-card .admin-mini-links {
+  padding-bottom: 26px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid rgba(255,255,255,.11);
+}
+.access-card .admin-link {
+  min-height: 54px;
+  padding-inline: 22px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ff4669, #c4143a);
+  box-shadow: 0 18px 42px rgba(255,49,88,.2), inset 0 1px 0 rgba(255,255,255,.24);
+}
+
+.access-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  column-gap: 28px;
+  row-gap: 24px;
+}
+.field-wide { grid-column: 1 / -1; }
+.field-shell > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+}
+.field-shell > span::after {
+  content: "ⓘ";
+  font-size: 13px;
+  letter-spacing: 0;
+  color: rgba(255,255,255,.58);
+}
+.field-shell > span em {
+  color: rgba(255,255,255,.54);
+  font-style: normal;
+  letter-spacing: .08em;
+}
+.field-control {
+  position: relative;
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr) auto;
+  align-items: stretch;
+  min-height: 64px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));
+  overflow: hidden;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.field-control:focus-within {
+  border-color: rgba(255,49,88,.72);
+  box-shadow: 0 0 0 4px rgba(255,49,88,.1), 0 0 34px rgba(255,49,88,.1);
+}
+.field-icon {
+  display: grid;
+  place-items: center;
+  border-right: 1px solid rgba(255,255,255,.08);
+  color: rgba(255,255,255,.72);
+  font-size: 22px;
+  background: rgba(255,49,88,.035);
+}
+.field-control input,
+.field-control select,
+.field-control textarea {
+  min-height: 62px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 16px !important;
+  color: #fff;
+}
+.field-control select { cursor: pointer; }
+.field-control textarea {
+  min-height: 100px;
+  padding-top: 22px !important;
+  padding-right: 92px !important;
+}
+.textarea-control { grid-template-columns: 66px minmax(0, 1fr); }
+.is-readonly {
+  border-color: rgba(255,255,255,.12);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.055), rgba(255,255,255,.02)),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,.026) 0 1px, transparent 1px 8px);
+}
+.is-readonly input { color: rgba(255,255,255,.78) !important; }
+.readonly-badge {
+  align-self: center;
+  margin-right: 14px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.09);
+  background: rgba(255,255,255,.065);
+  color: rgba(255,255,255,.58);
+  font-size: 11px;
+  white-space: nowrap;
+  text-transform: lowercase;
+}
+.char-counter {
+  position: absolute;
+  right: 18px;
+  bottom: 15px;
+  color: rgba(255,255,255,.45);
+  font-size: 13px;
+}
+.access-actions {
+  display: grid;
+  grid-template-columns: minmax(180px, 340px) minmax(260px, 1fr) minmax(180px, 260px);
+  gap: 18px;
+  margin-top: 4px;
+}
+.access-actions button {
+  min-height: 62px;
+  border-radius: 14px;
+}
+.access-actions #inviteSubmit {
+  background: linear-gradient(180deg, #ff3158, #c91439);
+  box-shadow: 0 18px 54px rgba(255,49,88,.26), inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+@media (max-width: 1080px) {
+  .access-form { grid-template-columns: 1fr; }
+  .access-actions { grid-template-columns: 1fr; }
+  .access-status-pill { display: none; }
+}

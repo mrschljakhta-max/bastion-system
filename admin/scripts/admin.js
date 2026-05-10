@@ -16,6 +16,9 @@
   const inviteNote = document.getElementById('inviteNote');
   const inviteSubmit = document.getElementById('inviteSubmit');
   const sendEmailBtn = document.getElementById('sendEmailBtn');
+  const inviteLoginPreview = document.getElementById('inviteLoginPreview');
+  const inviteNoteCounter = document.getElementById('inviteNoteCounter');
+  const clearInviteForm = document.getElementById('clearInviteForm');
   const inviteResult = document.getElementById('inviteResult');
   const inviteUrl = document.getElementById('inviteUrl');
   const copyInviteUrl = document.getElementById('copyInviteUrl');
@@ -147,6 +150,34 @@
     }
   }
 
+
+
+  function normalizeLoginFromEmail(email) {
+    const raw = String(email || '').split('@')[0] || '';
+    return raw
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, '')
+      .replace(/^[._-]+|[._-]+$/g, '') || '—';
+  }
+
+  function updateInvitePreview() {
+    if (inviteLoginPreview) inviteLoginPreview.value = normalizeLoginFromEmail(inviteEmail?.value);
+    if (inviteNoteCounter && inviteNote) inviteNoteCounter.textContent = `${inviteNote.value.length} / 255`;
+  }
+
+  inviteEmail?.addEventListener('input', updateInvitePreview);
+  inviteNote?.addEventListener('input', updateInvitePreview);
+  clearInviteForm?.addEventListener('click', () => {
+    inviteForm?.reset();
+    lastInvite = null;
+    if (inviteResult) inviteResult.hidden = true;
+    if (sendEmailBtn) sendEmailBtn.disabled = true;
+    if (inviteSubmit) inviteSubmit.textContent = 'Створити доступ →';
+    updateInvitePreview();
+  });
+
+  updateInvitePreview();
+
   function makeSetupUrl(token) {
     const root = window.location.href.split('/admin/')[0];
     return `${root}/setup-account.html?token=${encodeURIComponent(token)}`;
@@ -198,14 +229,14 @@
       mailtoInvite.href = buildMailto(lastInvite);
       inviteResult.hidden = false;
       sendEmailBtn.disabled = false;
-      inviteSubmit.textContent = 'Доступ створено';
+      inviteSubmit.textContent = 'Доступ створено ✓';
 
       refreshUsers();
       refreshLogs();
     } catch (error) {
       console.error(error);
       alert(error.message || 'Не вдалося створити доступ.');
-      inviteSubmit.textContent = 'Створити доступ';
+      inviteSubmit.textContent = 'Створити доступ →';
     } finally {
       inviteSubmit.disabled = false;
     }
