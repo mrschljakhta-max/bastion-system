@@ -6,8 +6,24 @@
   const strengthCore = document.getElementById("strengthCore");
   const strengthLabel = document.getElementById("strengthLabel");
   const secureBadge = document.getElementById("secureBadge");
-  const submitBtn = document.querySelector(".submit-btn");
+  const secureBadgeText = document.getElementById("secureBadgeText");
+  const submitBtn = document.getElementById("activateAccessBtn");
+  const verifyBtn = document.getElementById("verifyMfaBtn");
   const statusLine = document.getElementById("statusLine");
+  const setupTitle = document.getElementById("setupTitle");
+  const setupMessage = document.getElementById("setupMessage");
+
+  const accountForm = document.getElementById("setup-account-form");
+  const mfaPanel = document.getElementById("mfaPanel");
+  const mfaForm = document.getElementById("mfa-verify-form");
+  const successPanel = document.getElementById("successPanel");
+  const backToAccountBtn = document.getElementById("backToAccountBtn");
+  const qrMount = document.getElementById("qrMount");
+  const mfaSecret = document.getElementById("mfaSecret");
+  const mfaCode = document.getElementById("mfaCode");
+  const progressAccount = document.getElementById("progressAccount");
+  const progressMfa = document.getElementById("progressMfa");
+
   const canvas = document.getElementById("particlesCanvas");
   const ctx = canvas?.getContext("2d");
 
@@ -18,12 +34,158 @@
     special: document.querySelector('[data-rule="special"]'),
   };
 
+  const state = {
+    passwordLevel: 0,
+    inviteToken: new URLSearchParams(location.search).get("token") || "",
+    factorId: null,
+    challengeId: null,
+    verifiedUserId: null,
+  };
+
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let targetBgX = 50;
   let targetBgY = 50;
   let currentBgX = 50;
   let currentBgY = 50;
+
+  function setMessage(text, type = "") {
+    if (!setupMessage) return;
+    setupMessage.textContent = text || "";
+    setupMessage.className = `setup-message${type ? ` is-${type}` : ""}`;
+  }
+
+  function setLoading(button, isLoading, text) {
+    if (!button) return;
+    button.disabled = Boolean(isLoading);
+    const label = button.querySelector(".submit-label");
+    if (label && text) label.textContent = text;
+  }
+
+  function setStep(step) {
+    document.querySelectorAll(".setup-step-panel").forEach((panel) => {
+      const active = panel.dataset.step === step;
+      panel.classList.toggle("is-active", active);
+      panel.setAttribute("aria-hidden", active ? "false" : "true");
+    });
+
+    progressAccount?.classList.toggle("is-done", step === "mfa" || step === "success");
+    progressAccount?.classList.toggle("is-active", step === "account");
+    progressMfa?.classList.toggle("is-active", step === "mfa");
+    progressMfa?.classList.toggle("is-done", step === "success");
+
+    if (step === "account") {
+      setupTitle.innerHTML = "СТВОРЕННЯ<br />АКАУНТА";
+      secureBadgeText.textContent = "Захищено";
+      statusLine.textContent = "Створіть логін і пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.";
+    }
+
+    if (step === "mfa") {
+      setupTitle.innerHTML = "ЗАХИСТ<br />2FA";
+      secureBadgeText.textContent = "MFA";
+      statusLine.textContent = "Другий етап: відскануйте QR-код і підтвердьте Google Authenticator.";
+    }
+
+    if (step === "success") {
+      setupTitle.innerHTML = "ACCESS<br />GRANTED";
+      secureBadgeText.textContent = "Готово";
+      statusLine.textContent = "Акаунт повністю активовано.";
+    }
+  }
+
+  function getSupabaseClient() {
+    if (window.BastionAuth?.client) return window.BastionAuth.client;
+    if (window.supabaseClient) return window.supabaseClient;
+    if (window.supabase) return window.supabase;
+    return null;
+  }
+
+  async function saveAccountToSupabase({ loginValue, passwordValue }) {
+    const client = getSupabaseClient();
+
+    if (!client?.rpc) {
+      throw new Error("Supabase client не знайдено. Перевір scripts/config.js та scripts/auth.js.");
+    }
+
+    const payload = {
+      p_token: state.inviteToken,
+      p_login: loginValue,
+      p_password: passwordValue,
+    };
+
+    const { data, error } = await client.rpc("complete_invite_setup_v2", payload);
+
+    if (error) {
+      throw new Error(error.message || "Не вдалося записати акаунт у Supabase.");
+    }
+
+    return data || {};
+  }
+
+  async function createTotpFactor() {
+    const client = getSupabaseClient();
+
+    if (!client?.auth?.mfa?.enroll) {
+      throw new Error("Supabase MFA API не знайдено. Потрібен supabase-js v2 та увімкнений MFA.");
+    }
+
+    const { data, error } = await client.auth.mfa.enroll({
+      factorType: "totp",
+      friendlyName: "BASTION Google Authenticator",
+    });
+
+    if (error) {
+      throw new Error(error.message || "Не вдалося створити MFA фактор.");
+    }
+
+    const factorId = data?.id || data?.totp?.id || data?.factorId;
+    const qrCode = data?.totp?.qr_code;
+    const secret = data?.totp?.secret;
+
+    if (!factorId || !qrCode) {
+      throw new Error("Supabase не повернув QR-код MFA.");
+    }
+
+    state.factorId = factorId;
+
+    if (qrMount) {
+      qrMount.innerHTML = qrCode.startsWith("<svg") ? qrCode : `<img src="${qrCode}" alt="MFA QR Code" />`;
+    }
+
+    if (mfaSecret) {
+      mfaSecret.textContent = secret || "Secret key приховано Supabase.";
+    }
+
+    const challenge = await client.auth.mfa.challenge({
+      factorId: state.factorId,
+    });
+
+    if (challenge.error) {
+      throw new Error(challenge.error.message || "Не вдалося створити MFA challenge.");
+    }
+
+    state.challengeId = challenge.data?.id;
+  }
+
+  async function verifyTotpCode(code) {
+    const client = getSupabaseClient();
+
+    if (!state.factorId || !state.challengeId) {
+      throw new Error("MFA challenge не створено. Поверніться на попередній етап.");
+    }
+
+    const { data, error } = await client.auth.mfa.verify({
+      factorId: state.factorId,
+      challengeId: state.challengeId,
+      code,
+    });
+
+    if (error) {
+      throw new Error(error.message || "Код Google Authenticator не підтверджено.");
+    }
+
+    return data;
+  }
 
   function setMouseVars(event) {
     const xRatio = event.clientX / window.innerWidth;
@@ -94,6 +256,8 @@
     });
 
     const level = value.length ? Math.max(1, Math.min(5, score)) : 0;
+    state.passwordLevel = level;
+
     strengthCore.dataset.level = String(level);
     strengthCore.classList.remove("is-scanning");
     void strengthCore.offsetWidth;
@@ -115,7 +279,7 @@
     secureBadge?.classList.toggle("is-ready", isReady);
     submitBtn?.classList.toggle("is-ready", isReady);
 
-    if (statusLine) {
+    if (statusLine && document.querySelector('[data-step="account"]').classList.contains("is-active")) {
       statusLine.textContent = isReady
         ? "ACCESS READY. Логін і пароль відповідають базовим вимогам безпеки."
         : "Створіть логін і пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.";
@@ -146,6 +310,84 @@
     });
   });
 
+  accountForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const loginValue = login?.value.trim();
+    const passwordValue = password?.value || "";
+
+    if (!loginValue) {
+      setMessage("Введіть логін.", "error");
+      login?.focus();
+      return;
+    }
+
+    if (state.passwordLevel < 4) {
+      setMessage("Пароль має бути сильним: мінімум 8 символів, літера, цифра і спецсимвол.", "error");
+      password?.focus();
+      return;
+    }
+
+    try {
+      setMessage("Зберігаю логін і пароль у Supabase...", "");
+      setLoading(submitBtn, true, "ЗБЕРЕЖЕННЯ...");
+
+      const result = await saveAccountToSupabase({ loginValue, passwordValue });
+
+      state.verifiedUserId = result?.user_id || result?.id || null;
+
+      setMessage("Акаунт створено. Генерую QR-код Google Authenticator...", "ok");
+      setStep("mfa");
+
+      await createTotpFactor();
+
+      setMessage("Відскануйте QR-код і введіть 6-значний код.", "ok");
+      mfaCode?.focus();
+    } catch (error) {
+      console.error(error);
+      setMessage(error.message || "Помилка створення акаунта.", "error");
+      setStep("account");
+    } finally {
+      setLoading(submitBtn, false, "АКТИВУВАТИ ДОСТУП");
+    }
+  });
+
+  mfaForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const code = (mfaCode?.value || "").replace(/\D/g, "");
+
+    if (code.length !== 6) {
+      setMessage("Введіть 6-значний код з Google Authenticator.", "error");
+      mfaCode?.focus();
+      return;
+    }
+
+    try {
+      setLoading(verifyBtn, true, "ПЕРЕВІРКА...");
+      setMessage("Перевіряю код Google Authenticator...", "");
+
+      await verifyTotpCode(code);
+
+      setMessage("Двофакторний захист активовано.", "ok");
+      setStep("success");
+    } catch (error) {
+      console.error(error);
+      setMessage(error.message || "Код не підтверджено.", "error");
+    } finally {
+      setLoading(verifyBtn, false, "ПІДТВЕРДИТИ 2FA");
+    }
+  });
+
+  mfaCode?.addEventListener("input", () => {
+    mfaCode.value = mfaCode.value.replace(/\D/g, "").slice(0, 6);
+  });
+
+  backToAccountBtn?.addEventListener("click", () => {
+    setStep("account");
+    setMessage("Можна змінити логін або пароль і повторити активацію.", "");
+  });
+
   function resizeCanvas() {
     if (!canvas || !ctx) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -157,7 +399,7 @@
   }
 
   const particles = [];
-  const particleCount = 160;
+  const particleCount = 150;
 
   function createParticle(fromBottom = false) {
     const typeRoll = Math.random();
@@ -231,4 +473,5 @@
   window.addEventListener("resize", resizeCanvas);
   animateParticles();
   updateStrength();
+  setStep("account");
 })();

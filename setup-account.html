@@ -6,10 +6,10 @@
 
   <title>BASTION — Створення акаунта</title>
 
-  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=38" />
-  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=38" />
+  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=39" />
+  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=39" />
 
-  <link rel="stylesheet" href="./styles/setup-account-v38.css?v=38" />
+  <link rel="stylesheet" href="./styles/setup-account-v39.css?v=39" />
 </head>
 
 <body class="setup-page">
@@ -29,7 +29,7 @@
     <section class="setup-brand-zone" aria-label="BASTION">
       <div class="setup-logo-wrap">
         <img
-          src="./assets/logo/bastion-mark.svg?v=38"
+          src="./assets/logo/bastion-mark.svg?v=39"
           alt="BASTION"
           class="setup-logo-mark"
         />
@@ -48,20 +48,26 @@
         <div class="setup-card-head">
           <div>
             <div class="setup-card-kicker">ACCESS NODE</div>
-            <h1>СТВОРЕННЯ<br />АКАУНТА</h1>
+            <h1 id="setupTitle">СТВОРЕННЯ<br />АКАУНТА</h1>
           </div>
 
           <div class="secure-badge" id="secureBadge">
             <span></span>
-            <strong>Захищено</strong>
+            <strong id="secureBadgeText">Захищено</strong>
           </div>
+        </div>
+
+        <div class="setup-progress" aria-label="Прогрес налаштування">
+          <span class="setup-progress-dot is-active" id="progressAccount">01</span>
+          <i></i>
+          <span class="setup-progress-dot" id="progressMfa">02</span>
         </div>
 
         <p class="setup-description" id="statusLine">
           Створіть логін і пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.
         </p>
 
-        <form id="setup-account-form" class="setup-form">
+        <form id="setup-account-form" class="setup-form setup-step-panel is-active" data-step="account">
 
           <div class="field">
             <label for="login">ЛОГІН</label>
@@ -127,16 +133,89 @@
             <span class="rule" data-rule="special" id="ruleSpecial">◎ Спецсимвол</span>
           </div>
 
-          <button class="submit-btn" type="submit">
+          <button class="submit-btn" id="activateAccessBtn" type="submit">
             <span class="submit-label">АКТИВУВАТИ ДОСТУП</span>
             <span class="submit-arrow">→</span>
           </button>
 
           <p class="setup-note" id="setupNote">
-            Ваш доступ буде активовано після успішного створення логіна і пароля.
+            Після збереження даних відкриється другий етап — Google Authenticator.
           </p>
 
         </form>
+
+        <section class="setup-step-panel mfa-panel" id="mfaPanel" data-step="mfa" aria-hidden="true">
+          <div class="mfa-grid">
+            <div class="qr-frame">
+              <div id="qrMount" class="qr-mount">
+                <div class="qr-loader">
+                  <span></span>
+                  <strong>ГЕНЕРАЦІЯ QR</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="mfa-copy">
+              <h2>GOOGLE AUTHENTICATOR</h2>
+              <p>
+                Відскануйте QR-код у Google Authenticator або Microsoft Authenticator,
+                після чого введіть 6-значний код підтвердження.
+              </p>
+
+              <div class="mfa-secret-box">
+                <span>SECRET KEY</span>
+                <code id="mfaSecret">Очікується...</code>
+              </div>
+            </div>
+          </div>
+
+          <form id="mfa-verify-form" class="mfa-verify-form">
+            <div class="field">
+              <label for="mfaCode">КОД ПІДТВЕРДЖЕННЯ</label>
+
+              <div class="input-wrap code-wrap">
+                <span class="input-icon">◆</span>
+                <input
+                  id="mfaCode"
+                  name="mfaCode"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="6"
+                  placeholder="000000"
+                  autocomplete="one-time-code"
+                />
+              </div>
+            </div>
+
+            <button class="submit-btn verify-btn" id="verifyMfaBtn" type="submit">
+              <span class="submit-label">ПІДТВЕРДИТИ 2FA</span>
+              <span class="submit-arrow">✓</span>
+            </button>
+
+            <button class="ghost-btn" id="backToAccountBtn" type="button">
+              ← Повернутися до логіна і пароля
+            </button>
+          </form>
+        </section>
+
+        <section class="setup-step-panel success-panel" id="successPanel" data-step="success" aria-hidden="true">
+          <div class="success-orb">
+            <span>✓</span>
+          </div>
+
+          <h2>ДОСТУП АКТИВОВАНО</h2>
+          <p>
+            Акаунт створено, двофакторний захист підключено.
+            Тепер можна переходити до системи BASTION.
+          </p>
+
+          <a class="submit-btn success-link" href="./index.html">
+            ПЕРЕЙТИ ДО ВХОДУ
+            <span>→</span>
+          </a>
+        </section>
+
+        <div class="setup-message" id="setupMessage" role="status" aria-live="polite"></div>
 
       </div>
 
@@ -144,10 +223,10 @@
 
   </main>
 
-  <script src="./scripts/config.js?v=38"></script>
-  <script src="./scripts/auth.js?v=38"></script>
-  <script src="./scripts/access.js?v=38"></script>
-  <script src="./scripts/setup-account.js?v=38"></script>
-  <script src="./scripts/setup-account-effects.js?v=38"></script>
+  <script src="./scripts/config.js?v=39"></script>
+  <script src="./scripts/auth.js?v=39"></script>
+  <script src="./scripts/access.js?v=39"></script>
+  <script src="./scripts/setup-account.js?v=39"></script>
+  <script src="./scripts/setup-account-effects.js?v=39"></script>
 </body>
 </html>
