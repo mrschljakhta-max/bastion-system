@@ -6,18 +6,17 @@
 
   <title>BASTION — Налаштування облікового запису</title>
 
+  <link rel="icon" href="assets/logo/bastion-favicon.svg" />
   <link rel="stylesheet" href="styles/setup-account.css" />
-  <link rel="stylesheet" href="styles/setup-account-background-patch.css" />
+  <link rel="stylesheet" href="styles/setup-account-background-patch.css?v=26" />
 </head>
 
-<body class="setup-page">
+<body class="setup-page setup-account-page">
 
   <main class="setup-shell">
     <section class="setup-layout">
 
-      <!-- LEFT -->
       <aside class="setup-left">
-
         <div class="setup-brand">
           <img
             src="assets/logo/bastion-logo-full.svg"
@@ -27,14 +26,11 @@
         </div>
 
         <div class="setup-copy">
-
-          <div class="setup-kicker">
-            ПЕРША РЕЄСТРАЦІЯ
-          </div>
+          <div class="setup-kicker">ПЕРША РЕЄСТРАЦІЯ</div>
 
           <h1 class="setup-title">
-            НАЛАШТУВАННЯ<br>
-            <span>ОБЛІКОВОГО<br>ЗАПИСУ</span>
+            НАЛАШТУВАННЯ<br />
+            <span>ОБЛІКОВОГО<br />ЗАПИСУ</span>
           </h1>
 
           <p class="setup-description">
@@ -42,14 +38,12 @@
             <strong>BASTION.</strong>
             Створіть надійний пароль для свого облікового запису та активуйте доступ.
           </p>
-
         </div>
 
         <div class="setup-steps">
-
           <article class="setup-step active">
             <div class="setup-step-number">01</div>
-
+            <div class="setup-step-icon">▣</div>
             <div class="setup-step-content">
               <h3>СТВОРІТЬ ПАРОЛЬ</h3>
               <p>Введіть надійний пароль для вашого облікового запису</p>
@@ -58,7 +52,7 @@
 
           <article class="setup-step">
             <div class="setup-step-number">02</div>
-
+            <div class="setup-step-icon">○</div>
             <div class="setup-step-content">
               <h3>ПІДТВЕРДІТЬ ПАРОЛЬ</h3>
               <p>Повторіть пароль для підтвердження</p>
@@ -67,82 +61,85 @@
 
           <article class="setup-step">
             <div class="setup-step-number">03</div>
-
+            <div class="setup-step-icon">♟</div>
             <div class="setup-step-content">
               <h3>АКТИВАЦІЯ ДОСТУПУ</h3>
               <p>Після збереження пароль буде активовано</p>
             </div>
           </article>
 
+          <article class="setup-help">
+            <div class="setup-help-icon">?</div>
+            <div>
+              <h3>ПОТРІБНА ДОПОМОГА?</h3>
+              <p>Якщо у вас виникли проблеми, зверніться до адміністратора системи.</p>
+            </div>
+          </article>
         </div>
-
       </aside>
 
-      <!-- RIGHT -->
       <section class="setup-right">
-
         <div class="setup-form-card">
-
           <div class="setup-form-top">
             <div>
-              <div class="setup-form-kicker">
-                ACCESS NODE
-              </div>
-
-              <h2 class="setup-form-title">
-                Створення пароля
-              </h2>
+              <div class="setup-form-kicker">ACCESS NODE</div>
+              <h2 class="setup-form-title">Створення пароля</h2>
             </div>
 
             <div class="setup-badge">
+              <span></span>
               Захищено
             </div>
           </div>
 
           <div class="setup-alert">
-            Створіть надійний пароль для вашого акаунта.
-            Використовуйте комбінацію літер і цифр.
+            Створіть надійний пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.
           </div>
 
           <form id="setup-account-form">
-
             <div class="setup-field">
-              <label>НОВИЙ ПАРОЛЬ</label>
-
-              <input
-                type="password"
-                id="password"
-                placeholder="Введіть новий пароль"
-                autocomplete="new-password"
-              />
+              <label for="password">НОВИЙ ПАРОЛЬ</label>
+              <div class="setup-input-wrap">
+                <span class="setup-input-icon">♙</span>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Введіть новий пароль"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="setup-password-toggle" data-target="password" aria-label="Показати пароль">⊠</button>
+              </div>
             </div>
 
             <div class="setup-field">
-              <label>ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
-
-              <input
-                type="password"
-                id="passwordConfirm"
-                placeholder="Повторіть новий пароль"
-                autocomplete="new-password"
-              />
+              <label for="passwordConfirm">ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
+              <div class="setup-input-wrap">
+                <span class="setup-input-icon">♙</span>
+                <input
+                  type="password"
+                  id="passwordConfirm"
+                  name="passwordConfirm"
+                  placeholder="Повторіть новий пароль"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="setup-password-toggle" data-target="passwordConfirm" aria-label="Показати пароль">⊠</button>
+              </div>
             </div>
 
             <div class="setup-password-rules">
-              <span>• Мін. 8 символів</span>
-              <span>• Літера</span>
-              <span>• Цифра</span>
-              <span>• Паролі збігаються</span>
+              <span id="ruleLength">○ Мін. 8 символів</span>
+              <span id="ruleLetter">○ Літера</span>
+              <span id="ruleDigit">○ Цифра</span>
+              <span id="ruleMatch">○ Паролі збігаються</span>
             </div>
 
             <button type="submit" class="setup-submit">
               АКТИВУВАТИ ДОСТУП
+              <span>→</span>
             </button>
-
           </form>
-
         </div>
-
       </section>
 
     </section>
@@ -152,6 +149,5 @@
   <script src="scripts/auth.js"></script>
   <script src="scripts/access.js"></script>
   <script src="scripts/setup-account.js"></script>
-
 </body>
 </html>
