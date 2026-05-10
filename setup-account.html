@@ -7,11 +7,11 @@
 
   <link rel="stylesheet" href="./styles/base.css" />
   <link rel="stylesheet" href="./styles/fonts.css" />
-  <link rel="stylesheet" href="./styles/setup-account.css?v=15" />
+  <link rel="stylesheet" href="./styles/setup-account.css?v=17" />
 </head>
 <body class="setup-page">
   <div class="setup-bg" aria-hidden="true"></div>
-  <div class="setup-vignette" aria-hidden="true"></div>
+  <div class="setup-shade" aria-hidden="true"></div>
 
   <main class="setup-shell">
     <aside class="setup-aside">
@@ -20,36 +20,40 @@
       </a>
 
       <section class="setup-aside-copy">
-        <div class="setup-kicker">ACCESS NODE</div>
-        <h1>НАЛАШТУВАННЯ <span>ДОСТУПУ</span></h1>
+        <div class="setup-kicker">Перша реєстрація</div>
+        <h1>Налаштування <span>облікового запису</span></h1>
         <p>
-          Ви майже готові. Створіть надійний пароль для свого акаунта та активуйте доступ до системи
-          <b>BASTION</b>.
+          Ви отримали персональне запрошення для доступу до системи
+          <b>BASTION</b>. Створіть надійний пароль для свого облікового
+          запису та активуйте доступ.
         </p>
       </section>
 
       <section class="setup-steps" aria-label="Етапи налаштування">
         <article class="setup-step is-done" data-step-marker="invite">
           <div class="setup-step-index">01</div>
+          <div class="setup-step-icon">▣</div>
           <div class="setup-step-body">
-            <strong>Запрошення прийнято</strong>
-            <span>Ваш запит на доступ підтверджено</span>
+            <strong>Створіть пароль</strong>
+            <span>Введіть надійний пароль для вашого облікового запису</span>
           </div>
         </article>
 
         <article class="setup-step is-active" data-step-marker="password">
           <div class="setup-step-index">02</div>
+          <div class="setup-step-icon">⬡</div>
           <div class="setup-step-body">
-            <strong>Налаштування акаунта</strong>
-            <span>Створіть пароль для входу</span>
+            <strong>Підтвердіть пароль</strong>
+            <span>Повторіть пароль для підтвердження</span>
           </div>
         </article>
 
         <article class="setup-step" data-step-marker="mfa">
           <div class="setup-step-index">03</div>
+          <div class="setup-step-icon">♙</div>
           <div class="setup-step-body">
-            <strong>Двофакторний захист</strong>
-            <span>Підключіть Authenticator</span>
+            <strong>Активація доступу</strong>
+            <span>Після збереження пароля ваш доступ буде активовано</span>
           </div>
         </article>
       </section>
@@ -58,7 +62,7 @@
         <div class="setup-help-icon">?</div>
         <div>
           <strong>Потрібна допомога?</strong>
-          <span>Зверніться до <b>адміністратора системи</b>.</span>
+          <span>Якщо у вас виникли проблеми, зверніться до <b>адміністратора системи</b>.</span>
         </div>
       </section>
     </aside>
@@ -67,7 +71,7 @@
       <section class="setup-card" aria-label="Створення пароля">
         <div class="setup-card-head">
           <div>
-            <div class="setup-kicker setup-kicker-card">ACCESS NODE</div>
+            <div class="setup-kicker setup-kicker-card">Access node</div>
             <h2 id="setupTitle">Створення пароля</h2>
           </div>
           <div class="setup-secure"><span id="setupLed"></span>Захищено</div>
@@ -78,57 +82,32 @@
         </div>
 
         <form id="setupForm" class="setup-form" hidden>
-          <div class="setup-form-grid">
-            <label class="setup-field setup-field-login">
-              <span>Логін акаунта</span>
-              <div class="setup-input is-valid">
-                <i>♙</i>
-                <input id="setupLogin" type="text" autocomplete="username" placeholder="login" />
-                <em>✓</em>
-              </div>
-            </label>
+          <input id="setupLogin" type="text" autocomplete="username" hidden />
+          <input id="setupEmail" type="email" readonly hidden />
+          <input id="setupRole" type="text" readonly hidden />
 
-            <label class="setup-field setup-field-password">
-              <span>Новий пароль</span>
-              <div class="setup-input is-focusable">
-                <i>♙</i>
-                <input id="setupPassword" type="password" autocomplete="new-password" placeholder="Введіть новий пароль" />
-                <button id="togglePassword" type="button" aria-label="Показати пароль">⌧</button>
-              </div>
-            </label>
-
-            <div class="setup-strength-line" aria-hidden="true">
-              <div class="setup-strength" data-level="0"><span></span><span></span><span></span><span></span></div>
-              <p id="setupStrengthText">Надійність пароля: <b>очікується</b></p>
+          <label class="setup-field setup-field-password">
+            <span>Новий пароль</span>
+            <div class="setup-input is-focusable">
+              <i>♙</i>
+              <input id="setupPassword" type="password" autocomplete="new-password" placeholder="Введіть новий пароль" />
+              <button id="togglePassword" type="button" aria-label="Показати пароль">⌧</button>
             </div>
+          </label>
 
-            <label class="setup-field setup-field-confirm">
-              <span>Підтвердження пароля</span>
-              <div class="setup-input">
-                <i>♙</i>
-                <input id="setupConfirm" type="password" autocomplete="new-password" placeholder="Повторіть новий пароль" />
-                <button id="toggleConfirm" type="button" aria-label="Показати підтвердження">⌧</button>
-              </div>
-            </label>
-
-            <label class="setup-field setup-field-email is-readonly">
-              <span>Email користувача</span>
-              <div class="setup-input readonly-lock">
-                <i>✉</i>
-                <input id="setupEmail" type="email" readonly />
-                <small>тільки для перегляду</small>
-              </div>
-            </label>
-
-            <label class="setup-field setup-field-role is-readonly">
-              <span>Роль користувача</span>
-              <div class="setup-input readonly-lock">
-                <i>♙</i>
-                <input id="setupRole" type="text" readonly />
-                <small>тільки для перегляду</small>
-              </div>
-            </label>
+          <div class="setup-strength-line" aria-hidden="true">
+            <div class="setup-strength" data-level="0"><span></span><span></span><span></span><span></span><span></span></div>
+            <p id="setupStrengthText">Надійність пароля: <b>очікується</b></p>
           </div>
+
+          <label class="setup-field setup-field-confirm">
+            <span>Підтвердження пароля</span>
+            <div class="setup-input">
+              <i>♙</i>
+              <input id="setupConfirm" type="password" autocomplete="new-password" placeholder="Повторіть новий пароль" />
+              <button id="toggleConfirm" type="button" aria-label="Показати підтвердження">⌧</button>
+            </div>
+          </label>
 
           <div class="setup-rules">
             <div class="setup-rules-title">Вимоги до пароля</div>
@@ -141,6 +120,7 @@
           </div>
 
           <button id="setupSubmit" class="setup-primary" type="submit">Активувати доступ <b>→</b></button>
+          <p class="setup-footnote">Ваш доступ буде активовано після успішного створення пароля.</p>
         </form>
 
         <section id="setupMfa" class="setup-mfa" hidden>
@@ -187,6 +167,6 @@
   <script src="./scripts/config.js"></script>
   <script src="./scripts/auth.js"></script>
   <script src="./scripts/access.js"></script>
-  <script src="./scripts/setup-account.js?v=15"></script>
+  <script src="./scripts/setup-account.js?v=17"></script>
 </body>
 </html>
