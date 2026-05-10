@@ -6,10 +6,10 @@
 
   <title>BASTION — Створення акаунта</title>
 
-  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=40" />
-  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=40" />
+  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=41" />
+  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=41" />
 
-  <link rel="stylesheet" href="./styles/setup-account-v39.css?v=40" />
+  <link rel="stylesheet" href="./styles/setup-account-v41.css?v=41" />
 </head>
 
 <body class="setup-page">
@@ -28,7 +28,7 @@
 
     <section class="setup-brand-zone" aria-label="BASTION">
       <div class="setup-logo-wrap">
-        <img src="./assets/logo/bastion-mark.svg?v=40" alt="BASTION" class="setup-logo-mark" />
+        <img src="./assets/logo/bastion-mark.svg?v=41" alt="BASTION" class="setup-logo-mark" />
         <div class="setup-logo-text">
           <div class="setup-logo-title">BASTION</div>
           <div class="setup-logo-subtitle">AUTHORIZED ACCESS NODE</div>
@@ -58,10 +58,15 @@
         </div>
 
         <p class="setup-description" id="statusLine">
-          Створіть логін і пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.
+          Перевіряю запрошення...
         </p>
 
         <form id="setup-account-form" class="setup-form setup-step-panel is-active" data-step="account">
+          <div class="invite-meta" id="inviteMeta" hidden>
+            <span id="inviteEmail">email</span>
+            <strong id="inviteRole">role</strong>
+          </div>
+
           <div class="field">
             <label for="login">ЛОГІН</label>
             <div class="input-wrap">
@@ -107,7 +112,7 @@
           </button>
 
           <p class="setup-note" id="setupNote">
-            Після збереження даних відкриється другий етап — Google Authenticator.
+            Пароль не передається через URL. Дані буде відправлено напряму в Supabase.
           </p>
         </form>
 
@@ -164,9 +169,9 @@
     </section>
   </main>
 
-  <script src="./scripts/config.js?v=40"></script>
-  <script src="./scripts/auth.js?v=40"></script>
-  <script src="./scripts/access.js?v=40"></script>
-  <script src="./scripts/setup-account-effects.js?v=40"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./scripts/config.js?v=41"></script>
+  <script src="./scripts/supabase-client.js?v=41"></script>
+  <script src="./scripts/setup-account-effects.js?v=41"></script>
 </body>
 </html>

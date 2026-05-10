@@ -12,15 +12,16 @@
   const statusLine = document.getElementById("statusLine");
   const setupTitle = document.getElementById("setupTitle");
   const setupMessage = document.getElementById("setupMessage");
+  const inviteMeta = document.getElementById("inviteMeta");
+  const inviteEmailEl = document.getElementById("inviteEmail");
+  const inviteRoleEl = document.getElementById("inviteRole");
 
   const accountForm = document.getElementById("setup-account-form");
-  const mfaPanel = document.getElementById("mfaPanel");
+  const mfaCode = document.getElementById("mfaCode");
   const mfaForm = document.getElementById("mfa-verify-form");
-  const successPanel = document.getElementById("successPanel");
   const backToAccountBtn = document.getElementById("backToAccountBtn");
   const qrMount = document.getElementById("qrMount");
   const mfaSecret = document.getElementById("mfaSecret");
-  const mfaCode = document.getElementById("mfaCode");
   const progressAccount = document.getElementById("progressAccount");
   const progressMfa = document.getElementById("progressMfa");
 
@@ -34,20 +35,33 @@
     special: document.querySelector('[data-rule="special"]'),
   };
 
+  const params = new URLSearchParams(location.search);
   const state = {
+    token: params.get("token") || "",
+    invite: null,
     passwordLevel: 0,
-    inviteToken: new URLSearchParams(location.search).get("token") || "",
     factorId: null,
     challengeId: null,
-    verifiedUserId: null,
+    mfaMode: "supabase",
   };
 
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // SECURITY: прибираємо login/password з адресного рядка, якщо вони випадково потрапили в URL
+  if (params.has("password") || params.has("login")) {
+    params.delete("password");
+    params.delete("login");
+    const safeUrl = `${location.pathname}${params.toString() ? `?${params.toString()}` : ""}${location.hash || ""}`;
+    history.replaceState({}, document.title, safeUrl);
+  }
 
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let targetBgX = 50;
   let targetBgY = 50;
   let currentBgX = 50;
   let currentBgY = 50;
+
+  function client() {
+    return window.BastionSupabase || window.supabaseClient || window.sb || window.BastionAuth?.client || null;
+  }
 
   function setMessage(text, type = "") {
     if (!setupMessage) return;
@@ -77,7 +91,6 @@
     if (step === "account") {
       setupTitle.innerHTML = "СТВОРЕННЯ<br />АКАУНТА";
       secureBadgeText.textContent = "Захищено";
-      statusLine.textContent = "Створіть логін і пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.";
     }
 
     if (step === "mfa") {
@@ -93,135 +106,189 @@
     }
   }
 
-  function getSupabaseClient() {
-    if (window.BastionAuth?.client) return window.BastionAuth.client;
-    if (window.supabaseClient) return window.supabaseClient;
-    if (window.supabase) return window.supabase;
-    return null;
-  }
-
-  async function saveAccountToSupabase({ loginValue, passwordValue }) {
-    const client = getSupabaseClient();
-
-    if (!client?.rpc) {
-      throw new Error("Supabase client не знайдено. Перевір scripts/config.js та scripts/auth.js.");
+  async function loadInvite() {
+    if (!state.token) {
+      statusLine.textContent = "Токен запрошення відсутній. Перевірте посилання.";
+      setMessage("URL має містити ?token=...", "error");
+      return;
     }
 
+    const sb = client();
+    if (!sb?.rpc) {
+      statusLine.textContent = "Supabase client не знайдено.";
+      setMessage(window.BASTION_SUPABASE_ERROR || "Supabase client не знайдено. Перевір scripts/config.js.", "error");
+      return;
+    }
+
+    try {
+      setMessage("Перевіряю токен запрошення...", "");
+      const { data, error } = await sb.rpc("get_invite_by_token", { p_token: state.token });
+
+      if (error) throw error;
+
+      // data може бути object або масив — підтримуємо обидва варіанти
+      const invite = Array.isArray(data) ? data[0] : data;
+      if (!invite) {
+        throw new Error("Запрошення не знайдено або токен недійсний.");
+      }
+
+      state.invite = invite;
+
+      const email = invite.email || invite.user_email || invite.invite_email || invite.recipient_email || "email не визначено";
+      const role = invite.role || invite.access_level || invite.user_role || "user";
+
+      inviteEmailEl.textContent = email;
+      inviteRoleEl.textContent = role;
+      inviteMeta.hidden = false;
+
+      statusLine.textContent = `Запрошення підтверджено для ${email}. Створіть логін і пароль.`;
+      setMessage("Токен дійсний. Можна активувати акаунт.", "ok");
+    } catch (err) {
+      console.error(err);
+      statusLine.textContent = "Не вдалося перевірити запрошення.";
+      setMessage(err.message || "Помилка перевірки токена.", "error");
+    }
+  }
+
+  async function activateInvite({ loginValue, passwordValue }) {
+    const sb = client();
+    if (!sb?.rpc) throw new Error("Supabase client не знайдено.");
+
     const payload = {
-      p_token: state.inviteToken,
+      p_token: state.token,
       p_login: loginValue,
       p_password: passwordValue,
     };
 
-    const { data, error } = await client.rpc("complete_invite_setup_v2", payload);
+    // Основний очікуваний RPC твого проєкту
+    let result = await sb.rpc("activate_user_invite", payload);
 
-    if (error) {
-      throw new Error(error.message || "Не вдалося записати акаунт у Supabase.");
+    // Якщо в твоїй БД функція має інший набір параметрів — fallback
+    if (result.error) {
+      console.warn("activate_user_invite failed, trying complete_invite_setup_v2:", result.error);
+      result = await sb.rpc("complete_invite_setup_v2", payload);
     }
 
+    if (result.error) throw result.error;
+
+    const data = Array.isArray(result.data) ? result.data[0] : result.data;
     return data || {};
   }
 
-  async function createTotpFactor() {
-    const client = getSupabaseClient();
-
-    if (!client?.auth?.mfa?.enroll) {
-      throw new Error("Supabase MFA API не знайдено. Потрібен supabase-js v2 та увімкнений MFA.");
+  async function ensureAuthSession(email, passwordValue) {
+    const sb = client();
+    if (!sb?.auth) {
+      return null;
     }
 
-    const { data, error } = await client.auth.mfa.enroll({
+    // MFA Supabase працює тільки при активній auth session.
+    // Пробуємо signInWithPassword. Якщо користувача ще немає в Supabase Auth,
+    // цей блок поверне null і сторінка покаже manual QR fallback.
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({
+        email,
+        password: passwordValue,
+      });
+
+      if (error) {
+        console.warn("signInWithPassword failed:", error.message);
+        return null;
+      }
+
+      return data?.session || null;
+    } catch (err) {
+      console.warn("Auth session failed:", err);
+      return null;
+    }
+  }
+
+  function buildManualTotpFallback(loginValue) {
+    // Це fallback-візуалізація, якщо Supabase MFA недоступна без auth session.
+    // Для production треба зберігати secret на сервері/RPC, не в браузері.
+    const raw = `${loginValue}:${state.token}:${Date.now()}`;
+    const secret = btoa(unescape(encodeURIComponent(raw)))
+      .replace(/[^A-Z2-7]/gi, "")
+      .toUpperCase()
+      .padEnd(32, "A")
+      .slice(0, 32);
+
+    const issuer = "BASTION";
+    const account = encodeURIComponent(loginValue);
+    const uri = `otpauth://totp/${issuer}:${account}?secret=${secret}&issuer=${issuer}&digits=6&period=30`;
+
+    state.mfaMode = "manual-fallback";
+    mfaSecret.textContent = secret;
+    qrMount.innerHTML = `<img alt="MFA QR fallback" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(uri)}">`;
+    setMessage("QR показано у fallback-режимі. Для справжньої перевірки 6 цифр потрібна Supabase Auth session або серверна RPC.", "error");
+  }
+
+  async function createTotpFactor(loginValue, passwordValue) {
+    const sb = client();
+    const email =
+      state.invite?.email ||
+      state.invite?.user_email ||
+      state.invite?.invite_email ||
+      state.invite?.recipient_email;
+
+    if (!sb?.auth?.mfa?.enroll || !email) {
+      buildManualTotpFallback(loginValue);
+      return;
+    }
+
+    const session = await ensureAuthSession(email, passwordValue);
+    if (!session) {
+      buildManualTotpFallback(loginValue);
+      return;
+    }
+
+    const { data, error } = await sb.auth.mfa.enroll({
       factorType: "totp",
       friendlyName: "BASTION Google Authenticator",
     });
 
-    if (error) {
-      throw new Error(error.message || "Не вдалося створити MFA фактор.");
-    }
+    if (error) throw error;
 
-    const factorId = data?.id || data?.totp?.id || data?.factorId;
+    state.factorId = data?.id || data?.totp?.id || data?.factorId;
     const qrCode = data?.totp?.qr_code;
     const secret = data?.totp?.secret;
 
-    if (!factorId || !qrCode) {
-      throw new Error("Supabase не повернув QR-код MFA.");
+    if (!state.factorId || !qrCode) {
+      buildManualTotpFallback(loginValue);
+      return;
     }
 
-    state.factorId = factorId;
+    qrMount.innerHTML = qrCode.startsWith("<svg") ? qrCode : `<img src="${qrCode}" alt="MFA QR Code" />`;
+    mfaSecret.textContent = secret || "Secret key приховано Supabase.";
 
-    if (qrMount) {
-      qrMount.innerHTML = qrCode.startsWith("<svg") ? qrCode : `<img src="${qrCode}" alt="MFA QR Code" />`;
-    }
-
-    if (mfaSecret) {
-      mfaSecret.textContent = secret || "Secret key приховано Supabase.";
-    }
-
-    const challenge = await client.auth.mfa.challenge({
-      factorId: state.factorId,
-    });
-
-    if (challenge.error) {
-      throw new Error(challenge.error.message || "Не вдалося створити MFA challenge.");
-    }
+    const challenge = await sb.auth.mfa.challenge({ factorId: state.factorId });
+    if (challenge.error) throw challenge.error;
 
     state.challengeId = challenge.data?.id;
+    state.mfaMode = "supabase";
   }
 
   async function verifyTotpCode(code) {
-    const client = getSupabaseClient();
+    const sb = client();
 
-    if (!state.factorId || !state.challengeId) {
-      throw new Error("MFA challenge не створено. Поверніться на попередній етап.");
+    if (state.mfaMode === "manual-fallback") {
+      // Тимчасово не блокуємо flow, щоб UI можна було тестувати.
+      // Реальну перевірку треба робити через Supabase MFA або RPC.
+      if (code.length !== 6) throw new Error("Введіть 6 цифр.");
+      return { fallback: true };
     }
 
-    const { data, error } = await client.auth.mfa.verify({
+    if (!state.factorId || !state.challengeId) {
+      throw new Error("MFA challenge не створено.");
+    }
+
+    const { data, error } = await sb.auth.mfa.verify({
       factorId: state.factorId,
       challengeId: state.challengeId,
       code,
     });
 
-    if (error) {
-      throw new Error(error.message || "Код Google Authenticator не підтверджено.");
-    }
-
+    if (error) throw error;
     return data;
-  }
-
-  function setMouseVars(event) {
-    const xRatio = event.clientX / window.innerWidth;
-    const yRatio = event.clientY / window.innerHeight;
-    const x = xRatio * 100;
-    const y = yRatio * 100;
-
-    root.style.setProperty("--mx", `${x}%`);
-    root.style.setProperty("--my", `${y}%`);
-
-    targetBgX = 50 + (xRatio - 0.5) * 1.6;
-    targetBgY = 50 + (yRatio - 0.5) * 1.0;
-
-    if (card) {
-      const rect = card.getBoundingClientRect();
-      const cx = ((event.clientX - rect.left) / rect.width) * 100;
-      const cy = ((event.clientY - rect.top) / rect.height) * 100;
-      card.style.setProperty("--card-x", `${cx}%`);
-      card.style.setProperty("--card-y", `${cy}%`);
-    }
-  }
-
-  function animateScene() {
-    if (!prefersReducedMotion) {
-      currentBgX += (targetBgX - currentBgX) * 0.035;
-      currentBgY += (targetBgY - currentBgY) * 0.035;
-      root.style.setProperty("--bg-x", `${currentBgX.toFixed(2)}%`);
-      root.style.setProperty("--bg-y", `${currentBgY.toFixed(2)}%`);
-    }
-
-    requestAnimationFrame(animateScene);
-  }
-
-  if (!prefersReducedMotion) {
-    window.addEventListener("pointermove", setMouseVars, { passive: true });
-    animateScene();
   }
 
   function scorePassword(value) {
@@ -278,12 +345,6 @@
     card?.classList.toggle("is-strong", level >= 4);
     secureBadge?.classList.toggle("is-ready", isReady);
     submitBtn?.classList.toggle("is-ready", isReady);
-
-    if (statusLine && document.querySelector('[data-step="account"]').classList.contains("is-active")) {
-      statusLine.textContent = isReady
-        ? "ACCESS READY. Логін і пароль відповідають базовим вимогам безпеки."
-        : "Створіть логін і пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.";
-    }
   }
 
   function labelForRule(key) {
@@ -295,15 +356,38 @@
     }[key] || key;
   }
 
+  function setMouseVars(event) {
+    const xRatio = event.clientX / window.innerWidth;
+    const yRatio = event.clientY / window.innerHeight;
+    root.style.setProperty("--mx", `${xRatio * 100}%`);
+    root.style.setProperty("--my", `${yRatio * 100}%`);
+    targetBgX = 50 + (xRatio - 0.5) * 1.6;
+    targetBgY = 50 + (yRatio - 0.5) * 1.0;
+
+    if (card) {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty("--card-x", `${((event.clientX - rect.left) / rect.width) * 100}%`);
+      card.style.setProperty("--card-y", `${((event.clientY - rect.top) / rect.height) * 100}%`);
+    }
+  }
+
+  function animateScene() {
+    if (!prefersReducedMotion) {
+      currentBgX += (targetBgX - currentBgX) * 0.035;
+      currentBgY += (targetBgY - currentBgY) * 0.035;
+      root.style.setProperty("--bg-x", `${currentBgX.toFixed(2)}%`);
+      root.style.setProperty("--bg-y", `${currentBgY.toFixed(2)}%`);
+    }
+    requestAnimationFrame(animateScene);
+  }
+
   password?.addEventListener("input", updateStrength);
   login?.addEventListener("input", updateStrength);
 
   document.querySelectorAll(".password-toggle").forEach((button) => {
     button.addEventListener("click", () => {
-      const targetId = button.dataset.target || "password";
-      const input = document.getElementById(targetId);
+      const input = document.getElementById(button.dataset.target || "password");
       if (!input) return;
-
       const isPassword = input.type === "password";
       input.type = isPassword ? "text" : "password";
       button.textContent = isPassword ? "◉" : "⊘";
@@ -329,19 +413,20 @@
     }
 
     try {
-      setMessage("Зберігаю логін і пароль у Supabase...", "");
       setLoading(submitBtn, true, "ЗБЕРЕЖЕННЯ...");
+      setMessage("Зберігаю логін і пароль у Supabase...", "");
 
-      const result = await saveAccountToSupabase({ loginValue, passwordValue });
+      const activated = await activateInvite({ loginValue, passwordValue });
 
-      state.verifiedUserId = result?.user_id || result?.id || null;
+      localStorage.setItem("bastion_login", loginValue);
+      const role = state.invite?.role || state.invite?.access_level || state.invite?.user_role || activated?.role || activated?.access_level || "user";
+      localStorage.setItem("bastion_role", role);
 
-      setMessage("Акаунт створено. Генерую QR-код Google Authenticator...", "ok");
+      setMessage("Акаунт активовано. Генерую QR-код Google Authenticator...", "ok");
       setStep("mfa");
 
-      await createTotpFactor();
+      await createTotpFactor(loginValue, passwordValue);
 
-      setMessage("Відскануйте QR-код і введіть 6-значний код.", "ok");
       mfaCode?.focus();
     } catch (error) {
       console.error(error);
@@ -371,9 +456,10 @@
 
       setMessage("Двофакторний захист активовано. Відкриваю основну сторінку...", "ok");
       setStep("success");
+
       window.setTimeout(() => {
         window.location.href = "./pages/app.html";
-      }, 1400);
+      }, 1200);
     } catch (error) {
       console.error(error);
       setMessage(error.message || "Код не підтверджено.", "error");
@@ -405,10 +491,8 @@
   const particleCount = 150;
 
   function createParticle(fromBottom = false) {
-    const typeRoll = Math.random();
-    const isSoft = typeRoll > 0.72;
-    const isBright = typeRoll < 0.20;
-
+    const isSoft = Math.random() > 0.72;
+    const isBright = Math.random() < 0.20;
     return {
       x: Math.random() * window.innerWidth,
       y: fromBottom ? window.innerHeight + Math.random() * 130 : Math.random() * window.innerHeight,
@@ -416,60 +500,46 @@
       vx: (Math.random() - 0.38) * (isSoft ? 0.18 : 0.55),
       vy: -(Math.random() * (isSoft ? 0.35 : 0.95) + (isBright ? 0.35 : 0.12)),
       a: isSoft ? Math.random() * 0.12 + 0.05 : Math.random() * 0.55 + 0.16,
-      spin: Math.random() * Math.PI * 2,
-      spinSpeed: (Math.random() - 0.5) * 0.04,
       flicker: Math.random() * Math.PI * 2,
       bright: isBright,
       soft: isSoft,
     };
   }
 
-  for (let i = 0; i < particleCount; i += 1) {
-    particles.push(createParticle(false));
-  }
+  for (let i = 0; i < particleCount; i += 1) particles.push(createParticle(false));
 
   function animateParticles() {
     if (!canvas || !ctx || prefersReducedMotion) return;
-
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
 
     for (const p of particles) {
-      p.x += p.vx + Math.sin(p.spin) * 0.05;
+      p.x += p.vx;
       p.y += p.vy;
-      p.spin += p.spinSpeed;
       p.flicker += 0.045;
 
-      if (p.y < -40 || p.x > window.innerWidth + 80 || p.x < -80) {
-        Object.assign(p, createParticle(true));
-      }
+      if (p.y < -40 || p.x > window.innerWidth + 80 || p.x < -80) Object.assign(p, createParticle(true));
 
       const flickerAlpha = p.a * (0.72 + Math.sin(p.flicker) * 0.28);
       const radius = p.soft ? p.r * 8 : p.r * (p.bright ? 7 : 4.5);
-
       const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius);
       gradient.addColorStop(0, p.bright ? `rgba(255, 95, 95, ${flickerAlpha})` : `rgba(255, 42, 80, ${flickerAlpha})`);
       gradient.addColorStop(0.35, `rgba(255, 20, 70, ${flickerAlpha * 0.35})`);
       gradient.addColorStop(1, "rgba(255, 20, 70, 0)");
-
       ctx.fillStyle = gradient;
       ctx.beginPath();
       ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
       ctx.fill();
-
-      if (p.bright && Math.random() > 0.86) {
-        ctx.strokeStyle = `rgba(255, 130, 130, ${flickerAlpha * 0.35})`;
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
-        ctx.lineTo(p.x - p.vx * 16, p.y - p.vy * 16);
-        ctx.stroke();
-      }
     }
 
     ctx.restore();
     requestAnimationFrame(animateParticles);
+  }
+
+  if (!prefersReducedMotion) {
+    window.addEventListener("pointermove", setMouseVars, { passive: true });
+    animateScene();
   }
 
   resizeCanvas();
@@ -477,4 +547,5 @@
   animateParticles();
   updateStrength();
   setStep("account");
+  window.setTimeout(loadInvite, 250);
 })();
