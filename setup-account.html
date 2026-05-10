@@ -2,143 +2,120 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>BASTION — Налаштування облікового запису</title>
+  <title>BASTION — Setup Account</title>
 
-  <link rel="icon" href="assets/logo/bastion-favicon.svg" />
-  <link rel="stylesheet" href="styles/setup-account.css" />
-  <link rel="stylesheet" href="styles/setup-account-v27.css?v=27" />
+  <!-- ВАЖЛИВО: тільки ОДИН css -->
+  <link rel="stylesheet" href="styles/setup-account-v28.css?v=28"/>
 </head>
 
-<body class="setup-page setup-account-page">
+<body class="setup-page">
 
-  <main class="setup-shell">
-    <section class="setup-layout">
+<div class="bg-overlay"></div>
 
-      <aside class="setup-left">
-        <div class="setup-brand">
-          <img
-            src="assets/logo/bastion-glyph-wordmark.svg"
-            alt="BASTION"
-            class="setup-logo"
-          />
+<main class="setup-shell">
+
+  <section class="setup-left">
+
+    <img
+      src="assets/logo/bastion-glyph-wordmark.svg"
+      class="setup-logo"
+      alt="BASTION"
+    />
+
+    <div class="setup-kicker">
+      ПЕРША РЕЄСТРАЦІЯ
+    </div>
+
+    <h1 class="setup-title">
+      НАЛАШТУВАННЯ<br>
+      <span>ОБЛІКОВОГО<br>ЗАПИСУ</span>
+    </h1>
+
+    <p class="setup-description">
+      Ви отримали персональне запрошення для доступу до системи
+      <strong>BASTION.</strong>
+      Створіть надійний пароль для свого облікового запису та активуйте доступ.
+    </p>
+
+    <div class="setup-steps">
+
+      <div class="setup-step active">
+        <div class="step-number">01</div>
+
+        <div class="step-content">
+          <h3>СТВОРІТЬ ПАРОЛЬ</h3>
+          <p>Введіть надійний пароль для вашого облікового запису</p>
         </div>
+      </div>
 
-        <div class="setup-copy">
-          <div class="setup-kicker">ПЕРША РЕЄСТРАЦІЯ</div>
+      <div class="setup-step">
+        <div class="step-number">02</div>
 
-          <h1 class="setup-title">
-            НАЛАШТУВАННЯ<br />
-            <span>ОБЛІКОВОГО ЗАПИСУ</span>
-          </h1>
-
-          <p class="setup-description">
-            Ви отримали персональне запрошення для доступу до системи
-            <strong>BASTION.</strong>
-            Створіть надійний пароль для свого облікового запису та активуйте доступ.
-          </p>
+        <div class="step-content">
+          <h3>ПІДТВЕРДІТЬ ПАРОЛЬ</h3>
+          <p>Повторіть пароль для підтвердження</p>
         </div>
+      </div>
 
-        <div class="setup-steps">
-          <article class="setup-step active">
-            <div class="setup-step-number">01</div>
-            <div class="setup-step-icon">▣</div>
-            <div class="setup-step-content">
-              <h3>СТВОРІТЬ ПАРОЛЬ</h3>
-              <p>Введіть надійний пароль для вашого облікового запису</p>
-            </div>
-          </article>
+    </div>
 
-          <article class="setup-step">
-            <div class="setup-step-number">02</div>
-            <div class="setup-step-icon">◇</div>
-            <div class="setup-step-content">
-              <h3>ПІДТВЕРДІТЬ ПАРОЛЬ</h3>
-              <p>Повторіть пароль для підтвердження</p>
-            </div>
-          </article>
-        </div>
-      </aside>
+  </section>
 
-      <section class="setup-right">
-        <div class="setup-form-card">
-          <div class="setup-form-top">
-            <div>
-              <div class="setup-form-kicker">ACCESS NODE</div>
-              <h2 class="setup-form-title">СТВОРЕННЯ ПАРОЛЯ</h2>
-            </div>
+  <section class="setup-right">
 
-            <div class="setup-badge">
-              <span></span>
-              Захищено
-            </div>
+    <div class="setup-card">
+
+      <div class="setup-card-top">
+
+        <div>
+          <div class="setup-card-kicker">
+            ACCESS NODE
           </div>
 
-          <div class="setup-alert">
-            <span class="setup-alert-icon">▣</span>
-            <span>
-              Створіть надійний пароль для вашого акаунта.
-              Використовуйте комбінацію літер і цифр.
-            </span>
-          </div>
-
-          <form id="setup-account-form">
-            <div class="setup-field">
-              <label for="password">НОВИЙ ПАРОЛЬ</label>
-              <div class="setup-input-wrap">
-                <span class="setup-input-icon">♙</span>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Введіть новий пароль"
-                  autocomplete="new-password"
-                />
-                <button type="button" class="setup-password-toggle" data-target="password" aria-label="Показати пароль">⊗</button>
-              </div>
-            </div>
-
-            <div class="setup-field">
-              <label for="passwordConfirm">ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
-              <div class="setup-input-wrap">
-                <span class="setup-input-icon">♙</span>
-                <input
-                  type="password"
-                  id="passwordConfirm"
-                  name="passwordConfirm"
-                  placeholder="Повторіть новий пароль"
-                  autocomplete="new-password"
-                />
-                <button type="button" class="setup-password-toggle" data-target="passwordConfirm" aria-label="Показати пароль">⊗</button>
-              </div>
-            </div>
-
-            <div class="setup-password-rules">
-              <span id="ruleLength">◎ Мін. 8 символів</span>
-              <span id="ruleLetter">◎ Літера</span>
-              <span id="ruleDigit">◎ Цифра</span>
-              <span id="ruleMatch">◎ Паролі збігаються</span>
-            </div>
-
-            <button type="submit" class="setup-submit">
-              АКТИВУВАТИ ДОСТУП
-              <span>→</span>
-            </button>
-
-            <p class="setup-note">
-              Ваш доступ буде активовано після успішного створення пароля.
-            </p>
-          </form>
+          <h2>
+            СТВОРЕННЯ ПАРОЛЯ
+          </h2>
         </div>
-      </section>
 
-    </section>
-  </main>
+        <div class="secure-badge">
+          Захищено
+        </div>
 
-  <script src="scripts/config.js"></script>
-  <script src="scripts/auth.js"></script>
-  <script src="scripts/access.js"></script>
-  <script src="scripts/setup-account.js"></script>
+      </div>
+
+      <div class="setup-alert">
+        Створіть надійний пароль для вашого акаунта.
+        Використовуйте комбінацію літер і цифр.
+      </div>
+
+      <div class="field">
+        <label>НОВИЙ ПАРОЛЬ</label>
+        <input type="password" placeholder="Введіть новий пароль">
+      </div>
+
+      <div class="field">
+        <label>ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
+        <input type="password" placeholder="Повторіть новий пароль">
+      </div>
+
+      <div class="rules">
+        <span>◎ Мін. 8 символів</span>
+        <span>◎ Літера</span>
+        <span>◎ Цифра</span>
+        <span>◎ Паролі збігаються</span>
+      </div>
+
+      <button class="submit-btn">
+        АКТИВУВАТИ ДОСТУП →
+      </button>
+
+    </div>
+
+  </section>
+
+</main>
+
 </body>
 </html>
