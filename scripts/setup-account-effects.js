@@ -20,10 +20,6 @@
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  let targetTiltX = 2;
-  let targetTiltY = -7;
-  let currentTiltX = 2;
-  let currentTiltY = -7;
   let targetBgX = 50;
   let targetBgY = 50;
   let currentBgX = 50;
@@ -38,47 +34,24 @@
     root.style.setProperty("--mx", `${x}%`);
     root.style.setProperty("--my", `${y}%`);
 
-    targetBgX = 50 + (xRatio - 0.5) * 1.8;
-    targetBgY = 50 + (yRatio - 0.5) * 1.2;
+    targetBgX = 50 + (xRatio - 0.5) * 1.6;
+    targetBgY = 50 + (yRatio - 0.5) * 1.0;
 
     if (card) {
       const rect = card.getBoundingClientRect();
-      const cxRatio = (event.clientX - rect.left) / rect.width;
-      const cyRatio = (event.clientY - rect.top) / rect.height;
-      const cx = cxRatio * 100;
-      const cy = cyRatio * 100;
-
+      const cx = ((event.clientX - rect.left) / rect.width) * 100;
+      const cy = ((event.clientY - rect.top) / rect.height) * 100;
       card.style.setProperty("--card-x", `${cx}%`);
       card.style.setProperty("--card-y", `${cy}%`);
-
-      const inside =
-        event.clientX >= rect.left &&
-        event.clientX <= rect.right &&
-        event.clientY >= rect.top &&
-        event.clientY <= rect.bottom;
-
-      if (inside) {
-        targetTiltY = -7 + (cxRatio - 0.5) * 9;
-        targetTiltX = 2 - (cyRatio - 0.5) * 7;
-      } else {
-        targetTiltY = -7 + (xRatio - 0.5) * 3.5;
-        targetTiltX = 2 - (yRatio - 0.5) * 2.2;
-      }
     }
   }
 
   function animateScene() {
     if (!prefersReducedMotion) {
-      currentTiltX += (targetTiltX - currentTiltX) * 0.08;
-      currentTiltY += (targetTiltY - currentTiltY) * 0.08;
       currentBgX += (targetBgX - currentBgX) * 0.035;
       currentBgY += (targetBgY - currentBgY) * 0.035;
-
-      root.style.setProperty("--tilt-x", `${currentTiltX.toFixed(2)}deg`);
-      root.style.setProperty("--tilt-y", `${currentTiltY.toFixed(2)}deg`);
       root.style.setProperty("--bg-x", `${currentBgX.toFixed(2)}%`);
       root.style.setProperty("--bg-y", `${currentBgY.toFixed(2)}%`);
-      card?.classList.add("is-tilting");
     }
 
     requestAnimationFrame(animateScene);
@@ -184,7 +157,7 @@
   }
 
   const particles = [];
-  const particleCount = 150;
+  const particleCount = 160;
 
   function createParticle(fromBottom = false) {
     const typeRoll = Math.random();
