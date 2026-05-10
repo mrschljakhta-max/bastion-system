@@ -106,6 +106,15 @@
 
   async function init() {
     setStep("invite");
+    if (form) form.hidden = true;
+    if (mfaBox) mfaBox.hidden = true;
+    if (completeBox) completeBox.hidden = true;
+
+    if (!window.supabase || !window.BastionAuth?.supabaseClient || !window.BastionAccess) {
+      setTitle("Помилка підключення");
+      setStatus("Supabase client is not ready. Перевірте підключення CDN, config.js, auth.js та access.js.", "error");
+      return;
+    }
 
     if (!token) {
       setTitle("Token відсутній");

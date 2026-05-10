@@ -7,17 +7,16 @@ const BASTION_SUPABASE_ANON_KEY =
   window.SUPABASE_ANON_KEY;
 
 if (!window.supabase) {
-  console.error("Supabase CDN не завантажився. Перевір підключення @supabase/supabase-js у index.html");
+  console.error("Supabase CDN не завантажився. Перевір підключення @supabase/supabase-js у setup-account.html");
 }
 
 if (!BASTION_SUPABASE_URL || !BASTION_SUPABASE_ANON_KEY) {
   console.error("BASTION config не знайдено. Перевір scripts/config.js");
 }
 
-const supabaseClient = supabase.createClient(
-  BASTION_SUPABASE_URL,
-  BASTION_SUPABASE_ANON_KEY
-);
+const supabaseClient = window.supabase && BASTION_SUPABASE_URL && BASTION_SUPABASE_ANON_KEY
+  ? window.supabase.createClient(BASTION_SUPABASE_URL, BASTION_SUPABASE_ANON_KEY)
+  : null;
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
