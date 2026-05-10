@@ -7,20 +7,19 @@
   <title>BASTION — Налаштування облікового запису</title>
 
   <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg" />
-  <link rel="stylesheet" href="./styles/setup-account.css?v=22" />
+  <link rel="stylesheet" href="./styles/setup-account.css?v=23" />
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./scripts/config.js?v=22" defer></script>
-  <script src="./scripts/auth.js?v=22" defer></script>
-  <script src="./scripts/access.js?v=22" defer></script>
-  <script src="./scripts/setup-account.js?v=22" defer></script>
+  <script src="./scripts/config.js?v=23" defer></script>
+  <script src="./scripts/auth.js?v=23" defer></script>
+  <script src="./scripts/access.js?v=23" defer></script>
+  <script src="./scripts/setup-account.js?v=23" defer></script>
 </head>
 
 <body class="setup-account-page">
   <div class="setup-bg-layer" aria-hidden="true"></div>
 
   <main class="setup-shell">
-
     <section class="setup-left" aria-label="Опис налаштування доступу">
       <a class="setup-logo" href="./index.html" aria-label="BASTION">
         <img src="./assets/logo/bastion-logo-full.svg" alt="BASTION" />
@@ -28,13 +27,10 @@
 
       <div class="setup-left-copy">
         <div class="setup-kicker">ПЕРША РЕЄСТРАЦІЯ</div>
-
         <h1 class="setup-main-title">
           НАЛАШТУВАННЯ
-          <span>ОБЛІКОВОГО</span>
-          <span>ЗАПИСУ</span>
+          <span>ОБЛІКОВОГО ЗАПИСУ</span>
         </h1>
-
         <p class="setup-lead">
           Ви отримали персональне запрошення для доступу до системи
           <b>BASTION</b>. Створіть надійний пароль для свого облікового
@@ -43,8 +39,8 @@
       </div>
 
       <div class="setup-steps">
-        <article class="setup-step is-done" data-step-marker="invite">
-          <div class="step-index">✓</div>
+        <article class="setup-step is-active" data-step-marker="invite">
+          <div class="step-index">01</div>
           <div class="step-icon">▣</div>
           <div class="step-text">
             <strong>СТВОРІТЬ ПАРОЛЬ</strong>
@@ -52,7 +48,7 @@
           </div>
         </article>
 
-        <article class="setup-step is-active" data-step-marker="password">
+        <article class="setup-step" data-step-marker="password">
           <div class="step-index">02</div>
           <div class="step-icon">⬡</div>
           <div class="step-text">
@@ -65,8 +61,8 @@
           <div class="step-index">03</div>
           <div class="step-icon">♙</div>
           <div class="step-text">
-            <strong>ДВОФАКТОРНИЙ ЗАХИСТ</strong>
-            <span>Підключіть Google Authenticator</span>
+            <strong>АКТИВАЦІЯ ДОСТУПУ</strong>
+            <span>Після збереження пароля ваш доступ буде активовано</span>
           </div>
         </article>
       </div>
@@ -82,11 +78,10 @@
 
     <section class="setup-right" aria-label="Форма налаштування">
       <div class="setup-card">
-
         <div class="setup-card-head">
           <div>
             <div class="setup-kicker">ACCESS NODE</div>
-            <h2 id="setupTitle">Створення пароля</h2>
+            <h2 id="setupTitle">СТВОРЕННЯ ПАРОЛЯ</h2>
           </div>
 
           <div class="secure-badge">
@@ -100,23 +95,16 @@
         </div>
 
         <form id="setupForm" class="setup-form" autocomplete="off">
-          <div class="setup-form-grid">
-            <div class="field readonly-field">
-              <label for="loginAccount">ЛОГІН АКАУНТА</label>
-              <div class="input-shell">
-                <span class="input-icon">♙</span>
-                <input id="setupLogin" name="login" type="text" value="" readonly />
-                <span class="input-ok">✓</span>
-              </div>
-            </div>
+          <input id="setupLogin" name="login" type="text" value="" readonly hidden />
+          <input id="setupEmail" name="email" type="email" value="" readonly hidden />
+          <input id="setupRole" name="role" type="text" value="" readonly hidden />
 
-            <div class="field">
-              <label for="setupPassword">НОВИЙ ПАРОЛЬ</label>
-              <div class="input-shell is-active">
-                <span class="input-icon">♙</span>
-                <input id="setupPassword" name="password" type="password" placeholder="Введіть новий пароль" />
-                <button id="togglePassword" class="ghost-icon" type="button" aria-label="Показати пароль">⌧</button>
-              </div>
+          <div class="field field-full field-first">
+            <label for="setupPassword">НОВИЙ ПАРОЛЬ</label>
+            <div class="input-shell is-active">
+              <span class="input-icon">♙</span>
+              <input id="setupPassword" name="password" type="password" placeholder="Введіть новий пароль" />
+              <button id="togglePassword" class="ghost-icon" type="button" aria-label="Показати пароль">⌧</button>
             </div>
           </div>
 
@@ -138,26 +126,6 @@
             </div>
           </div>
 
-          <div class="setup-form-grid setup-info-grid">
-            <div class="field readonly-field">
-              <label for="setupEmail">EMAIL КОРИСТУВАЧА</label>
-              <div class="input-shell">
-                <span class="input-icon">✉</span>
-                <input id="setupEmail" name="email" type="email" value="" readonly />
-                <span class="readonly-pill">тільки для перегляду</span>
-              </div>
-            </div>
-
-            <div class="field readonly-field">
-              <label for="setupRole">РОЛЬ КОРИСТУВАЧА</label>
-              <div class="input-shell">
-                <span class="input-icon">♙</span>
-                <input id="setupRole" name="role" type="text" value="" readonly />
-                <span class="readonly-pill">тільки для перегляду</span>
-              </div>
-            </div>
-          </div>
-
           <div class="rules-box">
             <div class="rules-title">ВИМОГИ ДО ПАРОЛЯ</div>
             <div class="rules-grid">
@@ -175,8 +143,6 @@
           <div class="setup-note">
             Ваш доступ буде активовано після успішного створення пароля.
           </div>
-
-          <a class="back-link" href="./index.html">← Повернутися назад</a>
         </form>
 
         <section id="setupMfa" class="mfa-panel" hidden>
@@ -209,10 +175,8 @@
           <p>Тепер відкриється стартова сторінка BASTION.</p>
           <a href="./index.html" class="activate-btn as-link">ПЕРЕЙТИ ДО ВХОДУ</a>
         </section>
-
       </div>
     </section>
-
   </main>
 </body>
 </html>
