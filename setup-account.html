@@ -6,8 +6,12 @@
 
   <title>BASTION — Setup Account</title>
 
-  <!-- ВАЖЛИВО: тільки ОДИН css -->
-  <link rel="stylesheet" href="styles/setup-account-v28.css?v=28"/>
+  <!-- FIX favicon -->
+  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg">
+  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg">
+
+  <!-- ONLY ONE CSS FILE -->
+  <link rel="stylesheet" href="./styles/setup-account-v29.css?v=29">
 </head>
 
 <body class="setup-page">
@@ -19,7 +23,7 @@
   <section class="setup-left">
 
     <img
-      src="assets/logo/bastion-glyph-wordmark.svg"
+      src="./assets/logo/bastion-glyph-wordmark.svg"
       class="setup-logo"
       alt="BASTION"
     />
@@ -36,7 +40,7 @@
     <p class="setup-description">
       Ви отримали персональне запрошення для доступу до системи
       <strong>BASTION.</strong>
-      Створіть надійний пароль для свого облікового запису та активуйте доступ.
+      Створіть логін і пароль для свого облікового запису та активуйте доступ.
     </p>
 
     <div class="setup-steps">
@@ -45,8 +49,8 @@
         <div class="step-number">01</div>
 
         <div class="step-content">
-          <h3>СТВОРІТЬ ПАРОЛЬ</h3>
-          <p>Введіть надійний пароль для вашого облікового запису</p>
+          <h3>СТВОРІТЬ ЛОГІН І ПАРОЛЬ</h3>
+          <p>Введіть логін та надійний пароль для вашого облікового запису</p>
         </div>
       </div>
 
@@ -54,8 +58,8 @@
         <div class="step-number">02</div>
 
         <div class="step-content">
-          <h3>ПІДТВЕРДІТЬ ПАРОЛЬ</h3>
-          <p>Повторіть пароль для підтвердження</p>
+          <h3>АКТИВУЙТЕ ДОСТУП</h3>
+          <p>Після створення логіна і пароля доступ буде активовано</p>
         </div>
       </div>
 
@@ -75,7 +79,7 @@
           </div>
 
           <h2>
-            СТВОРЕННЯ ПАРОЛЯ
+            СТВОРЕННЯ АКАУНТА
           </h2>
         </div>
 
@@ -86,25 +90,25 @@
       </div>
 
       <div class="setup-alert">
-        Створіть надійний пароль для вашого акаунта.
+        Створіть логін і пароль для вашого акаунта.
         Використовуйте комбінацію літер і цифр.
       </div>
 
       <div class="field">
-        <label>НОВИЙ ПАРОЛЬ</label>
-        <input type="password" placeholder="Введіть новий пароль">
+        <label>ЛОГІН</label>
+        <input type="text" placeholder="Введіть логін">
       </div>
 
       <div class="field">
-        <label>ПІДТВЕРДЖЕННЯ ПАРОЛЯ</label>
-        <input type="password" placeholder="Повторіть новий пароль">
+        <label>ПАРОЛЬ</label>
+        <input type="password" placeholder="Введіть пароль">
       </div>
 
       <div class="rules">
         <span>◎ Мін. 8 символів</span>
         <span>◎ Літера</span>
         <span>◎ Цифра</span>
-        <span>◎ Паролі збігаються</span>
+        <span>◎ Паролі зберігаються</span>
       </div>
 
       <button class="submit-btn">
