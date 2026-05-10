@@ -102,7 +102,7 @@
         "content-type": "application/json",
         authorization: `Bearer ${jwt}`
       },
-      body: JSON.stringify({ email, role, setupUrl })
+      body: JSON.stringify({ email, role, setup_url: setupUrl, setupUrl })
     });
 
     const payload = await response.json().catch(() => ({}));
