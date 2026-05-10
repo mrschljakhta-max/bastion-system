@@ -1,0 +1,57 @@
+
+/* BASTION setup account background patch */
+
+.setup-page,
+body.setup-page{
+  min-height:100vh;
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(0,0,0,.78) 0%,
+      rgba(0,0,0,.58) 40%,
+      rgba(0,0,0,.82) 100%
+    ),
+    url("../assets/backgrounds/setup-bg-access-v2.png");
+
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  overflow-x:hidden;
+  position:relative;
+}
+
+.setup-page::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(120,0,0,.18),
+      rgba(0,0,0,.78)
+    );
+  pointer-events:none;
+  z-index:0;
+}
+
+.setup-shell,
+.setup-container,
+.setup-layout{
+  position:relative;
+  z-index:1;
+}
+
+/* scale tuning */
+.setup-left{
+  max-width:520px;
+}
+
+.setup-right{
+  max-width:640px;
+}
+
+.setup-form-card{
+  backdrop-filter: blur(10px);
+  background: rgba(6,6,10,.62);
+}
