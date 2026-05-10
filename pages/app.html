@@ -1,83 +1,98 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BASTION — System</title>
-  <link rel="stylesheet" href="../styles/fonts.css" />
-  <link rel="stylesheet" href="../styles/theme.css" />
-  <link rel="stylesheet" href="../styles/base.css" />
-  <style>
-    body {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at center, rgba(132,8,24,.32), transparent 42%), #040406;
-      color: #f4f7ff;
-      font-family: var(--font-ui, system-ui, sans-serif);
-      letter-spacing: .08em;
-    }
-    .panel {
-      width: min(640px, 92vw);
-      padding: 42px;
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 28px;
-      background: rgba(0,0,0,.38);
-      box-shadow: 0 0 60px rgba(255,46,77,.16);
-      text-align: center;
-    }
-    .kicker { color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .26em; font-size: 12px; }
-    h1 { text-transform: uppercase; letter-spacing: .12em; }
-    .role { display: inline-block; margin: 14px 0; padding: 9px 13px; border: 1px solid rgba(255,46,77,.35); border-radius: 999px; color: #ffdce2; text-transform: uppercase; }
-    a, button { color: #ff6f84; }
-    button { margin-top: 18px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); padding: 12px 16px; border-radius: 14px; cursor: pointer; }
-  </style>
+
+  <title>BASTION — Main Hub</title>
+
+  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=40" />
+  <link rel="shortcut icon" href="../assets/logo/bastion-favicon.svg?v=40" />
+
+  <link rel="stylesheet" href="../styles/app-home-v40.css?v=40" />
 </head>
-<body>
-  <section class="panel">
-    <p class="kicker">BASTION SYSTEM</p>
-    <h1>Кабінет користувача</h1>
-    <div class="role" id="roleBadge">Перевірка доступу…</div>
-    <p id="appText">Завантаження профілю доступу.</p>
-    <button id="logoutBtn">Вийти</button>
-  </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../scripts/config.js?v=28"></script>
-  <script src="../scripts/auth.js?v=28"></script>
-  <script src="../scripts/access.js?v=1"></script>
-  <script>
-    (async function () {
-      const roleBadge = document.getElementById('roleBadge');
-      const appText = document.getElementById('appText');
+<body class="app-home-page">
+  <div class="app-bg-fx" aria-hidden="true">
+    <div class="app-orb"></div>
+    <div class="app-grid"></div>
+    <canvas id="appParticlesCanvas" class="app-particles"></canvas>
+  </div>
 
-      try {
-        const session = await window.BastionAuth.getCurrentSession();
-        if (!session) {
-          window.location.href = '../index.html';
-          return;
-        }
+  <main class="app-shell">
+    <header class="app-header">
+      <a class="brand" href="../index.html" aria-label="BASTION">
+        <img src="../assets/logo/bastion-mark.svg?v=40" alt="BASTION" />
+        <span>
+          <strong>BASTION</strong>
+          <small>MAIN OPERATIONS HUB</small>
+        </span>
+      </a>
 
-        const profile = await window.BastionAccess.requireRole(['demo', 'user', 'supervisor'], '../index.html');
-        if (!profile) return;
+      <div class="status-pill">
+        <i></i>
+        Система активна
+      </div>
+    </header>
 
-        roleBadge.textContent = `${profile.email} · ${profile.role}`;
-        appText.textContent = profile.role === 'demo'
-          ? 'Демо-доступ активний. Тут буде обмежений режим перегляду.'
-          : profile.role === 'supervisor'
-            ? 'Supervisor-доступ активний. Тут буде розширена панель контролю.'
-            : 'User-доступ активний. Тут буде робочий кабінет користувача.';
-      } catch (error) {
-        console.error(error);
-        roleBadge.textContent = 'Доступ не підтверджено';
-        appText.textContent = 'Поверніться на стартову сторінку і виконайте вхід.';
-      }
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <div class="eyebrow">ACCESS GRANTED</div>
+        <h1>Центр керування<br />BASTION</h1>
+        <p>
+          Дефолтна стартова сторінка основного сайту. Звідси користувач переходить
+          до модулів аналізу, завантаження, адміністрування та довідників.
+        </p>
+      </div>
 
-      document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await window.BastionAuth.signOut();
-        window.location.href = '../index.html';
-      });
-    })();
-  </script>
+      <div class="operator-card">
+        <span class="operator-label">CURRENT NODE</span>
+        <strong id="operatorName">Користувач</strong>
+        <small id="operatorRole">Рівень доступу: очікується</small>
+      </div>
+    </section>
+
+    <section class="module-grid" aria-label="Основні модулі">
+      <a class="module-card primary" href="./analysis.html">
+        <span class="module-icon">◎</span>
+        <strong>Аналіз</strong>
+        <p>Карта, звіти, висновки, оперативна аналітика.</p>
+      </a>
+
+      <a class="module-card" href="./upload.html">
+        <span class="module-icon">⇪</span>
+        <strong>Завантаження</strong>
+        <p>Імпорт файлів, перевірка структури, первинна обробка.</p>
+      </a>
+
+      <a class="module-card" href="./dicts.html">
+        <span class="module-icon">◇</span>
+        <strong>Довідники</strong>
+        <p>Нормалізація, словники, зв’язки, pending-значення.</p>
+      </a>
+
+      <a class="module-card" href="./pending_v3.html">
+        <span class="module-icon">✦</span>
+        <strong>Pending Game</strong>
+        <p>Гейміфікована обробка невирішених значень.</p>
+      </a>
+
+      <a class="module-card" href="../admin/index.html">
+        <span class="module-icon">⌬</span>
+        <strong>Адмін-панель</strong>
+        <p>Користувачі, доступи, інвайти, системні параметри.</p>
+      </a>
+
+      <a class="module-card" href="./logs.html">
+        <span class="module-icon">☷</span>
+        <strong>Логи</strong>
+        <p>Журнал подій, технічний моніторинг, помилки.</p>
+      </a>
+    </section>
+  </main>
+
+  <script src="../scripts/config.js?v=40"></script>
+  <script src="../scripts/auth.js?v=40"></script>
+  <script src="../scripts/app-home.js?v=40"></script>
 </body>
 </html>

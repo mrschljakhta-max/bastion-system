@@ -6,10 +6,10 @@
 
   <title>BASTION — Створення акаунта</title>
 
-  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=39" />
-  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=39" />
+  <link rel="icon" type="image/svg+xml" href="./assets/logo/bastion-favicon.svg?v=40" />
+  <link rel="shortcut icon" href="./assets/logo/bastion-favicon.svg?v=40" />
 
-  <link rel="stylesheet" href="./styles/setup-account-v39.css?v=39" />
+  <link rel="stylesheet" href="./styles/setup-account-v39.css?v=40" />
 </head>
 
 <body class="setup-page">
@@ -28,12 +28,7 @@
 
     <section class="setup-brand-zone" aria-label="BASTION">
       <div class="setup-logo-wrap">
-        <img
-          src="./assets/logo/bastion-mark.svg?v=39"
-          alt="BASTION"
-          class="setup-logo-mark"
-        />
-
+        <img src="./assets/logo/bastion-mark.svg?v=40" alt="BASTION" class="setup-logo-mark" />
         <div class="setup-logo-text">
           <div class="setup-logo-title">BASTION</div>
           <div class="setup-logo-subtitle">AUTHORIZED ACCESS NODE</div>
@@ -42,7 +37,6 @@
     </section>
 
     <section class="setup-panel-zone">
-
       <div class="setup-card" id="setupCard">
 
         <div class="setup-card-head">
@@ -68,45 +62,20 @@
         </p>
 
         <form id="setup-account-form" class="setup-form setup-step-panel is-active" data-step="account">
-
           <div class="field">
             <label for="login">ЛОГІН</label>
-
             <div class="input-wrap">
               <span class="input-icon">♙</span>
-
-              <input
-                id="login"
-                name="login"
-                type="text"
-                placeholder="Введіть логін"
-                autocomplete="username"
-              />
+              <input id="login" name="login" type="text" placeholder="Введіть логін" autocomplete="username" />
             </div>
           </div>
 
           <div class="field">
             <label for="password">ПАРОЛЬ</label>
-
             <div class="input-wrap">
               <span class="input-icon shield">♢</span>
-
-              <input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Введіть пароль"
-                autocomplete="new-password"
-              />
-
-              <button
-                class="password-toggle"
-                type="button"
-                data-target="password"
-                aria-label="Показати пароль"
-              >
-                ⊘
-              </button>
+              <input id="password" name="password" type="password" placeholder="Введіть пароль" autocomplete="new-password" />
+              <button class="password-toggle" type="button" data-target="password" aria-label="Показати пароль">⊘</button>
             </div>
           </div>
 
@@ -115,7 +84,6 @@
               <span>СИЛА ПАРОЛЮ</span>
               <strong id="strengthLabel">ОЧІКУЄТЬСЯ</strong>
             </div>
-
             <div class="strength-track" aria-hidden="true">
               <span class="strength-segment"></span>
               <span class="strength-segment"></span>
@@ -141,7 +109,6 @@
           <p class="setup-note" id="setupNote">
             Після збереження даних відкриється другий етап — Google Authenticator.
           </p>
-
         </form>
 
         <section class="setup-step-panel mfa-panel" id="mfaPanel" data-step="mfa" aria-hidden="true">
@@ -157,10 +124,7 @@
 
             <div class="mfa-copy">
               <h2>GOOGLE AUTHENTICATOR</h2>
-              <p>
-                Відскануйте QR-код у Google Authenticator або Microsoft Authenticator,
-                після чого введіть 6-значний код підтвердження.
-              </p>
+              <p>Відскануйте QR-код у Google Authenticator, після чого введіть 6-значний код підтвердження.</p>
 
               <div class="mfa-secret-box">
                 <span>SECRET KEY</span>
@@ -172,18 +136,9 @@
           <form id="mfa-verify-form" class="mfa-verify-form">
             <div class="field">
               <label for="mfaCode">КОД ПІДТВЕРДЖЕННЯ</label>
-
               <div class="input-wrap code-wrap">
                 <span class="input-icon">◆</span>
-                <input
-                  id="mfaCode"
-                  name="mfaCode"
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="6"
-                  placeholder="000000"
-                  autocomplete="one-time-code"
-                />
+                <input id="mfaCode" name="mfaCode" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" />
               </div>
             </div>
 
@@ -192,41 +147,26 @@
               <span class="submit-arrow">✓</span>
             </button>
 
-            <button class="ghost-btn" id="backToAccountBtn" type="button">
-              ← Повернутися до логіна і пароля
-            </button>
+            <button class="ghost-btn" id="backToAccountBtn" type="button">← Повернутися до логіна і пароля</button>
           </form>
         </section>
 
         <section class="setup-step-panel success-panel" id="successPanel" data-step="success" aria-hidden="true">
-          <div class="success-orb">
-            <span>✓</span>
-          </div>
-
+          <div class="success-orb"><span>✓</span></div>
           <h2>ДОСТУП АКТИВОВАНО</h2>
-          <p>
-            Акаунт створено, двофакторний захист підключено.
-            Тепер можна переходити до системи BASTION.
-          </p>
-
-          <a class="submit-btn success-link" href="./index.html">
-            ПЕРЕЙТИ ДО ВХОДУ
-            <span>→</span>
-          </a>
+          <p>Акаунт створено, двофакторний захист підключено. Зараз відкриється основна сторінка BASTION.</p>
+          <a class="submit-btn success-link" href="./pages/app.html">ПЕРЕЙТИ ДО СИСТЕМИ <span>→</span></a>
         </section>
 
         <div class="setup-message" id="setupMessage" role="status" aria-live="polite"></div>
 
       </div>
-
     </section>
-
   </main>
 
-  <script src="./scripts/config.js?v=39"></script>
-  <script src="./scripts/auth.js?v=39"></script>
-  <script src="./scripts/access.js?v=39"></script>
-  <script src="./scripts/setup-account.js?v=39"></script>
-  <script src="./scripts/setup-account-effects.js?v=39"></script>
+  <script src="./scripts/config.js?v=40"></script>
+  <script src="./scripts/auth.js?v=40"></script>
+  <script src="./scripts/access.js?v=40"></script>
+  <script src="./scripts/setup-account-effects.js?v=40"></script>
 </body>
 </html>

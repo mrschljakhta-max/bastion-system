@@ -40,7 +40,7 @@ body.setup-page {
       rgba(0, 0, 0, .01) 42%,
       rgba(0, 0, 0, .16) 100%
     ),
-    url("../assets/backgrounds/setup-account-clean-bg-v39.png");
+    url("../assets/backgrounds/setup-account-clean-bg-v40.png");
   background-size: cover, cover, cover;
   background-position: center center, center center, var(--bg-x) var(--bg-y);
   background-repeat: no-repeat;

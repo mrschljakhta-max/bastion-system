@@ -369,8 +369,11 @@
 
       await verifyTotpCode(code);
 
-      setMessage("Двофакторний захист активовано.", "ok");
+      setMessage("Двофакторний захист активовано. Відкриваю основну сторінку...", "ok");
       setStep("success");
+      window.setTimeout(() => {
+        window.location.href = "./pages/app.html";
+      }, 1400);
     } catch (error) {
       console.error(error);
       setMessage(error.message || "Код не підтверджено.", "error");
