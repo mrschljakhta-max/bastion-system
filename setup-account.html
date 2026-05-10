@@ -8,7 +8,7 @@
 
   <link rel="icon" href="assets/logo/bastion-favicon.svg" />
   <link rel="stylesheet" href="styles/setup-account.css" />
-  <link rel="stylesheet" href="styles/setup-account-background-patch.css?v=26" />
+  <link rel="stylesheet" href="styles/setup-account-v27.css?v=27" />
 </head>
 
 <body class="setup-page setup-account-page">
@@ -19,7 +19,7 @@
       <aside class="setup-left">
         <div class="setup-brand">
           <img
-            src="assets/logo/bastion-logo-full.svg"
+            src="assets/logo/bastion-glyph-wordmark.svg"
             alt="BASTION"
             class="setup-logo"
           />
@@ -30,7 +30,7 @@
 
           <h1 class="setup-title">
             НАЛАШТУВАННЯ<br />
-            <span>ОБЛІКОВОГО<br />ЗАПИСУ</span>
+            <span>ОБЛІКОВОГО ЗАПИСУ</span>
           </h1>
 
           <p class="setup-description">
@@ -52,27 +52,10 @@
 
           <article class="setup-step">
             <div class="setup-step-number">02</div>
-            <div class="setup-step-icon">○</div>
+            <div class="setup-step-icon">◇</div>
             <div class="setup-step-content">
               <h3>ПІДТВЕРДІТЬ ПАРОЛЬ</h3>
               <p>Повторіть пароль для підтвердження</p>
-            </div>
-          </article>
-
-          <article class="setup-step">
-            <div class="setup-step-number">03</div>
-            <div class="setup-step-icon">♟</div>
-            <div class="setup-step-content">
-              <h3>АКТИВАЦІЯ ДОСТУПУ</h3>
-              <p>Після збереження пароль буде активовано</p>
-            </div>
-          </article>
-
-          <article class="setup-help">
-            <div class="setup-help-icon">?</div>
-            <div>
-              <h3>ПОТРІБНА ДОПОМОГА?</h3>
-              <p>Якщо у вас виникли проблеми, зверніться до адміністратора системи.</p>
             </div>
           </article>
         </div>
@@ -83,7 +66,7 @@
           <div class="setup-form-top">
             <div>
               <div class="setup-form-kicker">ACCESS NODE</div>
-              <h2 class="setup-form-title">Створення пароля</h2>
+              <h2 class="setup-form-title">СТВОРЕННЯ ПАРОЛЯ</h2>
             </div>
 
             <div class="setup-badge">
@@ -93,7 +76,11 @@
           </div>
 
           <div class="setup-alert">
-            Створіть надійний пароль для вашого акаунта. Використовуйте комбінацію літер і цифр.
+            <span class="setup-alert-icon">▣</span>
+            <span>
+              Створіть надійний пароль для вашого акаунта.
+              Використовуйте комбінацію літер і цифр.
+            </span>
           </div>
 
           <form id="setup-account-form">
@@ -108,7 +95,7 @@
                   placeholder="Введіть новий пароль"
                   autocomplete="new-password"
                 />
-                <button type="button" class="setup-password-toggle" data-target="password" aria-label="Показати пароль">⊠</button>
+                <button type="button" class="setup-password-toggle" data-target="password" aria-label="Показати пароль">⊗</button>
               </div>
             </div>
 
@@ -123,21 +110,25 @@
                   placeholder="Повторіть новий пароль"
                   autocomplete="new-password"
                 />
-                <button type="button" class="setup-password-toggle" data-target="passwordConfirm" aria-label="Показати пароль">⊠</button>
+                <button type="button" class="setup-password-toggle" data-target="passwordConfirm" aria-label="Показати пароль">⊗</button>
               </div>
             </div>
 
             <div class="setup-password-rules">
-              <span id="ruleLength">○ Мін. 8 символів</span>
-              <span id="ruleLetter">○ Літера</span>
-              <span id="ruleDigit">○ Цифра</span>
-              <span id="ruleMatch">○ Паролі збігаються</span>
+              <span id="ruleLength">◎ Мін. 8 символів</span>
+              <span id="ruleLetter">◎ Літера</span>
+              <span id="ruleDigit">◎ Цифра</span>
+              <span id="ruleMatch">◎ Паролі збігаються</span>
             </div>
 
             <button type="submit" class="setup-submit">
               АКТИВУВАТИ ДОСТУП
               <span>→</span>
             </button>
+
+            <p class="setup-note">
+              Ваш доступ буде активовано після успішного створення пароля.
+            </p>
           </form>
         </div>
       </section>
