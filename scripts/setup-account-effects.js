@@ -167,15 +167,26 @@
     const sb = client();
     if (!sb?.auth) throw new Error("Supabase Auth client не знайдено.");
 
-    // 1) Спочатку пробуємо увійти — якщо auth user вже був створений раніше.
-    const signIn = await sb.auth.signInWithPassword({ email, password: passwordValue });
+    // Щоб enroll MFA не падав з AAL2/AAL помилкою:
+    // 1) пробуємо signIn, якщо user уже існує;
+    // 2) якщо user не існує — signUp;
+    // 3) після signUp обовʼязково робимо signOut + signInWithPassword,
+    //    щоб отримати нормальну AAL1 session перед mfa.enroll().
 
-    if (!signIn.error && signIn.data?.session) {
-      state.authUserId = signIn.data.user?.id || null;
-      return signIn.data;
+    const firstSignIn = await sb.auth.signInWithPassword({
+      email,
+      password: passwordValue,
+    });
+
+    if (!firstSignIn.error && firstSignIn.data?.session) {
+      state.authUserId = firstSignIn.data.user?.id || null;
+
+      // Форсуємо оновлення session перед MFA.
+      await sb.auth.refreshSession().catch(() => null);
+
+      return firstSignIn.data;
     }
 
-    // 2) Якщо користувача ще немає або пароль не заданий — пробуємо signUp.
     const signUp = await sb.auth.signUp({
       email,
       password: passwordValue,
@@ -184,9 +195,9 @@
           login: loginValue,
           role: state.role,
           invite_token: state.token,
-          source: "bastion_invite"
-        }
-      }
+          source: "bastion_invite",
+        },
+      },
     });
 
     if (signUp.error) {
@@ -195,14 +206,27 @@
 
     state.authUserId = signUp.data?.user?.id || null;
 
-    // Якщо email confirmation увімкнений, Supabase може не повернути session.
-    if (!signUp.data?.session) {
+    // Важливо: навіть якщо signUp повернув session, Supabase MFA інколи
+    // вимагає свіжий signIn-контекст. Тому робимо контрольний signOut/signIn.
+    await sb.auth.signOut().catch(() => null);
+
+    const secondSignIn = await sb.auth.signInWithPassword({
+      email,
+      password: passwordValue,
+    });
+
+    if (secondSignIn.error || !secondSignIn.data?.session) {
       throw new Error(
-        "Supabase створив користувача, але session не видана. Вимкніть Email confirmation у Authentication → Providers → Email або підтвердьте email перед MFA."
+        secondSignIn.error?.message ||
+        "Supabase створив користувача, але не видав session. Перевір Authentication → Providers → Email → Confirm email OFF."
       );
     }
 
-    return signUp.data;
+    state.authUserId = secondSignIn.data.user?.id || state.authUserId || null;
+
+    await sb.auth.refreshSession().catch(() => null);
+
+    return secondSignIn.data;
   }
 
   async function enrollRealTotpFactor() {
@@ -212,10 +236,29 @@
     }
 
     // якщо вже є незавершені фактори — це не критично; enroll створить новий
-    const { data, error } = await sb.auth.mfa.enroll({
+    let enrollResult = await sb.auth.mfa.enroll({
       factorType: "totp",
       friendlyName: "BASTION Google Authenticator"
     });
+
+    if (enrollResult.error && /AAL2|required|aal/i.test(enrollResult.error.message || "")) {
+      await sb.auth.refreshSession().catch(() => null);
+
+      // Повторний signIn допомагає отримати свіжу AAL1 session перед enroll.
+      if (state.email && state.passwordValue) {
+        await sb.auth.signInWithPassword({
+          email: state.email,
+          password: state.passwordValue
+        }).catch(() => null);
+      }
+
+      enrollResult = await sb.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: "BASTION Google Authenticator"
+      });
+    }
+
+    const { data, error } = enrollResult;
 
     if (error) {
       throw new Error(error.message || "Не вдалося створити TOTP фактор.");
