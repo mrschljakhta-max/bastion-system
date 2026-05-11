@@ -13,14 +13,13 @@
   const profileEmail = document.getElementById("profileEmail");
   const profileRole = document.getElementById("profileRole");
   const iconBase = "../assets/icons/orbital/";
-
   const modules = [
-    { id:"dicts", num:"01", icon:"dicts.svg", title:"Довідники", subtitle:"Dictionaries Core", href:"./dicts.html", items:["Управління довідниками","Еталонні дані","Нормалізація","Словники"] },
-    { id:"upload", num:"02", icon:"upload.svg", title:"Завантаження", subtitle:"Upload / Intake", href:"./upload.html", items:["Завантаження Word / Excel","Імпорт даних","Запуск ETL процесів"] },
-    { id:"nodes", num:"03", icon:"nodes.svg", title:"Зв’язки / Вузли", subtitle:"Network / Nodes", href:"./nodes.html", items:["Візуалізація зв’язків","Граф залежностей","Intelligence Network","Вузли системи"] },
-    { id:"calculator", num:"04", icon:"calculator.svg", title:"Калькулятор", subtitle:"Combat Calculator", href:"./calculator.html", items:["Обчислення","Комбінації","Сумісність","Бойові формули"] },
-    { id:"analysis", num:"05", icon:"analysis.svg", title:"Аналіз", subtitle:"Analysis Engine", href:"./analysis.html", items:["Дашборди","Аналітика","Карти та Heatmaps","Статистика"] },
-    { id:"command", num:"06", icon:"command.svg", title:"Висновки для командира", subtitle:"Command Intelligence", href:"./command.html", items:["AI-рекомендації","Оцінка ризиків","Тактичні інсайти","Critical Alerts"] }
+    { id: "dicts", num: "01", icon: "dicts.svg", title: "Довідники", subtitle: "Dictionaries Core", href: "./dicts.html", items: ["Управління довідниками", "Еталонні дані", "Нормалізація", "Словники"] },
+    { id: "upload", num: "02", icon: "upload.svg", title: "Завантаження", subtitle: "Upload / Intake", href: "./upload.html", items: ["Завантаження Word / Excel", "Імпорт даних", "Запуск ETL процесів"] },
+    { id: "nodes", num: "03", icon: "nodes.svg", title: "Зв’язки / Вузли", subtitle: "Network / Nodes", href: "./nodes.html", items: ["Візуалізація зв’язків", "Граф залежностей", "Intelligence Network", "Вузли системи"] },
+    { id: "calculator", num: "04", icon: "calculator.svg", title: "Калькулятор", subtitle: "Combat Calculator", href: "./calculator.html", items: ["Обчислення", "Комбінації", "Сумісність", "Бойові формули"] },
+    { id: "analysis", num: "05", icon: "analysis.svg", title: "Аналіз", subtitle: "Analysis Engine", href: "./analysis.html", items: ["Дашборди", "Аналітика", "Карти та Heatmaps", "Статистика"] },
+    { id: "command", num: "06", icon: "command.svg", title: "Висновки для командира", subtitle: "Command Intelligence", href: "./command.html", items: ["AI-рекомендації", "Оцінка ризиків", "Тактичні інсайти", "Critical Alerts"] }
   ];
 
   function getStoredUser() {
@@ -63,7 +62,7 @@
     const startInner = polarToCartesian(cx, cy, innerR, endAngle);
     const endInner = polarToCartesian(cx, cy, innerR, startAngle);
     const largeArc = endAngle - startAngle <= 180 ? "0" : "1";
-    return ["M",startOuter.x,startOuter.y,"A",outerR,outerR,0,largeArc,1,endOuter.x,endOuter.y,"L",startInner.x,startInner.y,"A",innerR,innerR,0,largeArc,0,endInner.x,endInner.y,"Z"].join(" ");
+    return ["M", startOuter.x, startOuter.y, "A", outerR, outerR, 0, largeArc, 1, endOuter.x, endOuter.y, "L", startInner.x, startInner.y, "A", innerR, innerR, 0, largeArc, 0, endInner.x, endInner.y, "Z"].join(" ");
   }
 
   function buildOrbitalMenu() {
@@ -76,7 +75,8 @@
       const end = (index + 1) * 60 - gap / 2;
       const mid = (start + end) / 2;
       const rad = (mid - 90) * Math.PI / 180;
-      const dx = Math.cos(rad), dy = Math.sin(rad);
+      const dx = Math.cos(rad);
+      const dy = Math.sin(rad);
       const link = document.createElementNS("http://www.w3.org/2000/svg", "a");
       link.setAttribute("href", module.href);
       link.setAttribute("data-id", module.id);
@@ -98,9 +98,10 @@
       label.style.top = `${labelPos.y / 10}%`;
       label.style.setProperty("--label-tx", `${dx * push}px`);
       label.style.setProperty("--label-ty", `${dy * push}px`);
-      label.innerHTML = `<span class="num">${module.num}</span><img class="module-icon" src="${iconBase}${module.icon}?v=51" alt="" /><strong>${module.title}</strong>`;
+      label.innerHTML = `<span class="num">${module.num}</span><img class="module-icon" src="${iconBase}${module.icon}?v=52" alt="" /><strong>${module.title}</strong>`;
       labelsMount.appendChild(label);
     });
+
     document.querySelectorAll("[data-id]").forEach((el) => {
       el.addEventListener("mouseenter", () => activateModule(el.dataset.id));
       el.addEventListener("mouseleave", () => activateModule(null));
@@ -110,9 +111,14 @@
   }
 
   function activateModule(id) {
-    document.querySelectorAll(".sector-path, .module-label").forEach((el) => el.classList.toggle("is-active", !!id && el.dataset.id === id));
+    document.querySelectorAll(".sector-path, .module-label").forEach((el) => {
+      el.classList.toggle("is-active", !!id && el.dataset.id === id);
+    });
     if (!floatingDetail) return;
-    if (!id) { floatingDetail.classList.remove("is-visible"); return; }
+    if (!id) {
+      floatingDetail.classList.remove("is-visible");
+      return;
+    }
     const module = modules.find((item) => item.id === id);
     const label = document.querySelector(`.module-label[data-id="${id}"]`);
     const stage = document.querySelector(".orbital-menu");
@@ -121,8 +127,10 @@
     const labelRect = label.getBoundingClientRect();
     let left = labelRect.left - stageRect.left + labelRect.width / 2;
     let top = labelRect.top - stageRect.top + labelRect.height / 2;
-    const centerX = stageRect.width / 2, centerY = stageRect.height / 2;
-    const vx = left - centerX, vy = top - centerY;
+    const centerX = stageRect.width / 2;
+    const centerY = stageRect.height / 2;
+    const vx = left - centerX;
+    const vy = top - centerY;
     const length = Math.max(Math.hypot(vx, vy), 1);
     left += (vx / length) * 146;
     top += (vy / length) * 98;
@@ -134,8 +142,15 @@
     floatingDetail.classList.add("is-visible");
   }
 
-  function openProfile() { profileModal?.classList.add("is-open"); profileModal?.setAttribute("aria-hidden", "false"); }
-  function closeProfile() { profileModal?.classList.remove("is-open"); profileModal?.setAttribute("aria-hidden", "true"); }
+  function openProfile() {
+    profileModal?.classList.add("is-open");
+    profileModal?.setAttribute("aria-hidden", "false");
+  }
+
+  function closeProfile() {
+    profileModal?.classList.remove("is-open");
+    profileModal?.setAttribute("aria-hidden", "true");
+  }
 
   async function logout() {
     try {
@@ -153,7 +168,9 @@
     userMenuButton?.addEventListener("click", openProfile);
     logoutButton?.addEventListener("click", logout);
     document.querySelectorAll("[data-close-profile]").forEach((el) => el.addEventListener("click", closeProfile));
-    document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeProfile(); });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeProfile();
+    });
   }
 
   function bindMapDots() {
@@ -161,7 +178,11 @@
       dot.addEventListener("click", () => {
         const target = dot.dataset.target;
         document.querySelectorAll(".map-dot").forEach((item) => item.classList.toggle("is-active", item === dot));
-        activateModule(target === "core" ? null : target);
+        if (target === "core") {
+          activateModule(null);
+          return;
+        }
+        activateModule(target);
       });
     });
   }
@@ -176,13 +197,13 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  const particles = Array.from({ length: 64 }, () => ({
+  const particles = Array.from({ length: 54 }, () => ({
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
-    r: Math.random() * 1.6 + .35,
-    vx: (Math.random() - .5) * .10,
-    vy: -Math.random() * .18 - .025,
-    a: Math.random() * .30 + .08
+    r: Math.random() * 1.35 + .25,
+    vx: (Math.random() - .5) * .08,
+    vy: -Math.random() * .14 - .018,
+    a: Math.random() * .24 + .06
   }));
 
   function drawParticles() {
@@ -190,8 +211,12 @@
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     ctx.globalCompositeOperation = "lighter";
     particles.forEach((p) => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.y < -20) { p.y = window.innerHeight + 20; p.x = Math.random() * window.innerWidth; }
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.y < -20) {
+        p.y = window.innerHeight + 20;
+        p.x = Math.random() * window.innerWidth;
+      }
       if (p.x < -20) p.x = window.innerWidth + 20;
       if (p.x > window.innerWidth + 20) p.x = -20;
       const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
@@ -215,5 +240,6 @@
     drawParticles();
     window.addEventListener("resize", resizeCanvas);
   }
+
   init();
 })();

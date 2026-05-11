@@ -4,23 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — CORE SYSTEM</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=51" />
-  <link rel="stylesheet" href="../styles/app-home-v51.css?v=51" />
+  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=52" />
+  <link rel="shortcut icon" href="../assets/logo/bastion-favicon.svg?v=52" />
+  <link rel="stylesheet" href="../styles/app-home-v52.css?v=52" />
 </head>
+
 <body class="bastion-core-page">
   <div class="core-background" aria-hidden="true">
     <div class="core-bg-image"></div>
     <svg class="energy-flow-layer" viewBox="0 0 1920 1080" preserveAspectRatio="none">
-      <path d="M0 250 H270 L390 185 H650 L760 305 H930" />
-      <path d="M1920 250 H1650 L1530 185 H1270 L1160 305 H990" />
-      <path d="M0 520 H320 L430 470 H660 L760 520 H920" />
-      <path d="M1920 520 H1600 L1490 470 H1260 L1160 520 H1000" />
-      <path d="M0 790 H280 L390 850 H660 L770 730 H930" />
-      <path d="M1920 790 H1640 L1530 850 H1260 L1150 730 H990" />
-      <path d="M960 0 V195 L900 255 V420" />
-      <path d="M960 1080 V885 L1020 825 V660" />
-      <path d="M610 0 V150 L720 260 V390" />
-      <path d="M1310 0 V150 L1200 260 V390" />
+      <path d="M0 230 H250 L360 172 H620 L735 290 H910" />
+      <path d="M1920 230 H1670 L1560 172 H1300 L1185 290 H1010" />
+      <path d="M0 520 H310 L420 470 H660 L760 520 H915" />
+      <path d="M1920 520 H1610 L1500 470 H1260 L1160 520 H1005" />
+      <path d="M0 810 H265 L385 880 H650 L765 735 H910" />
+      <path d="M1920 810 H1655 L1535 880 H1270 L1155 735 H1010" />
+      <path d="M960 0 V198 L902 256 V430" />
+      <path d="M960 1080 V882 L1018 824 V650" />
     </svg>
     <canvas id="particlesCanvas" class="particles-canvas"></canvas>
     <div class="scanlines"></div>
@@ -28,55 +28,99 @@
 
   <header class="top-hud">
     <button class="assistant-card" id="orbiButton" type="button">
-      <span class="avatar-orbi"><img src="../assets/icons/orbital/orbi.svg?v=51" alt="" /></span>
+      <span class="avatar-orbi"><img src="../assets/icons/orbital/orbi.svg?v=52" alt="" /></span>
       <span class="hud-copy"><strong>ORBI</strong><small>AI ASSISTANT</small></span>
     </button>
 
     <button class="user-card" id="userMenuButton" type="button" aria-haspopup="dialog" aria-controls="profileModal">
-      <span class="avatar-user"><img src="../assets/icons/orbital/user.svg?v=51" alt="" /></span>
-      <span class="hud-copy user-copy"><strong id="operatorName">Користувач</strong><small>Рівень доступу: <b id="operatorRole">DEMO</b></small></span>
+      <span class="avatar-user"><img src="../assets/icons/orbital/user.svg?v=52" alt="" /></span>
+      <span class="hud-copy user-copy">
+        <strong id="operatorName">Користувач</strong>
+        <small>Рівень доступу: <b id="operatorRole">DEMO</b></small>
+      </span>
       <span class="user-arrow">⌄</span>
     </button>
   </header>
 
   <main class="core-screen" aria-label="BASTION main orbital menu">
     <section class="orbital-menu" aria-label="Головне меню системи">
-      <div class="system-badge">● СИСТЕМА АКТИВНА</div>
       <svg class="orbital-svg" viewBox="0 0 1000 1000" role="img" aria-label="Секторне меню BASTION">
         <defs>
-          <filter id="redGlow" x="-45%" y="-45%" width="190%" height="190%"><feGaussianBlur stdDeviation="5" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
-          <linearGradient id="segmentFill" x1="0" x2="1"><stop offset="0%" stop-color="#140006" stop-opacity=".82" /><stop offset="55%" stop-color="#09040a" stop-opacity=".66" /><stop offset="100%" stop-color="#020204" stop-opacity=".88" /></linearGradient>
+          <filter id="redGlow" x="-45%" y="-45%" width="190%" height="190%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <linearGradient id="segmentFill" x1="0" x2="1">
+            <stop offset="0%" stop-color="#140006" stop-opacity=".78" />
+            <stop offset="55%" stop-color="#09040a" stop-opacity=".58" />
+            <stop offset="100%" stop-color="#020204" stop-opacity=".82" />
+          </linearGradient>
         </defs>
-        <g class="rotating-rings"><circle cx="500" cy="500" r="458"></circle><circle cx="500" cy="500" r="422"></circle><circle cx="500" cy="500" r="372"></circle></g>
+
+        <g class="rotating-rings">
+          <circle cx="500" cy="500" r="458"></circle>
+          <circle cx="500" cy="500" r="422"></circle>
+          <circle cx="500" cy="500" r="372"></circle>
+        </g>
         <g id="sectorPaths"></g>
-        <g class="core-rings"><circle cx="500" cy="500" r="178"></circle><circle cx="500" cy="500" r="142"></circle><circle cx="500" cy="500" r="108"></circle></g>
+        <g class="core-rings">
+          <circle cx="500" cy="500" r="178"></circle>
+          <circle cx="500" cy="500" r="142"></circle>
+          <circle cx="500" cy="500" r="108"></circle>
+        </g>
       </svg>
+
       <div class="module-labels" id="moduleLabels"></div>
       <div class="floating-detail" id="floatingDetail"></div>
+
       <a class="core-node" href="./app.html" aria-label="BASTION CORE">
-        <img src="../assets/logo/bastion-mark.svg?v=51" alt="" />
-        <strong>BASTION</strong>
-        <small>CORE SYSTEM</small>
-        <span>● СИСТЕМА АКТИВНА</span>
+        <img src="../assets/logo/bastion-mark.svg?v=52" alt="" />
       </a>
     </section>
   </main>
 
-  <footer class="bottom-contact"><a href="mailto:support@bastion.system">✉ support@bastion.system</a><span>•</span><a href="https://t.me/bastion_support">⌁ @bastion_support</a><span>•</span><a href="tel:+380970000000">☏ +38 (097) 000-00-00</a></footer>
-  <nav class="bottom-map" aria-label="Карта сайту"><span>SITE MAP</span><button class="map-dot is-active" data-target="core" title="BASTION Core"></button><button class="map-dot" data-target="dicts" title="Довідники"></button><button class="map-dot" data-target="upload" title="Завантаження"></button><button class="map-dot" data-target="nodes" title="Зв’язки / Вузли"></button><button class="map-dot" data-target="calculator" title="Калькулятор"></button><button class="map-dot" data-target="analysis" title="Аналіз"></button><button class="map-dot" data-target="command" title="Висновки"></button></nav>
+  <footer class="bottom-contact">
+    <a href="mailto:support@bastion.system">✉ support@bastion.system</a>
+    <span>•</span>
+    <a href="https://t.me/bastion_support">⌁ @bastion_support</a>
+    <span>•</span>
+    <a href="tel:+380970000000">☏ +38 (097) 000-00-00</a>
+  </footer>
+
+  <nav class="bottom-map" aria-label="Карта сайту">
+    <span>SITE MAP</span>
+    <button class="map-dot is-active" data-target="core" title="BASTION Core"></button>
+    <button class="map-dot" data-target="dicts" title="Довідники"></button>
+    <button class="map-dot" data-target="upload" title="Завантаження"></button>
+    <button class="map-dot" data-target="nodes" title="Зв’язки / Вузли"></button>
+    <button class="map-dot" data-target="calculator" title="Калькулятор"></button>
+    <button class="map-dot" data-target="analysis" title="Аналіз"></button>
+    <button class="map-dot" data-target="command" title="Висновки"></button>
+  </nav>
 
   <div class="profile-modal" id="profileModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
     <div class="profile-backdrop" data-close-profile></div>
     <section class="profile-card">
       <button class="profile-close" type="button" data-close-profile aria-label="Закрити">×</button>
-      <div class="profile-head"><span class="profile-avatar"><img src="../assets/icons/orbital/user.svg?v=51" alt="" /></span><div><p>USER NODE</p><h2 id="profileTitle">Профіль користувача</h2></div></div>
-      <dl class="profile-data"><div><dt>Логін</dt><dd id="profileLogin">—</dd></div><div><dt>Email</dt><dd id="profileEmail">—</dd></div><div><dt>Рівень доступу</dt><dd id="profileRole">—</dd></div><div><dt>Статус</dt><dd>ACTIVE / MFA VERIFIED</dd></div></dl>
-      <div class="profile-actions"><button type="button" class="ghost-btn">Редагувати аватар</button><button type="button" class="danger-btn" id="logoutButton">Вийти з системи</button></div>
+      <div class="profile-head">
+        <span class="profile-avatar"><img src="../assets/icons/orbital/user.svg?v=52" alt="" /></span>
+        <div><p>USER NODE</p><h2 id="profileTitle">Профіль користувача</h2></div>
+      </div>
+      <dl class="profile-data">
+        <div><dt>Логін</dt><dd id="profileLogin">—</dd></div>
+        <div><dt>Email</dt><dd id="profileEmail">—</dd></div>
+        <div><dt>Рівень доступу</dt><dd id="profileRole">—</dd></div>
+        <div><dt>Статус</dt><dd>ACTIVE / MFA VERIFIED</dd></div>
+      </dl>
+      <div class="profile-actions">
+        <button type="button" class="ghost-btn">Редагувати аватар</button>
+        <button type="button" class="danger-btn" id="logoutButton">Вийти з системи</button>
+      </div>
     </section>
   </div>
 
-  <script src="../scripts/config.js?v=51"></script>
-  <script src="../scripts/auth.js?v=51"></script>
-  <script src="../scripts/app-home.js?v=51"></script>
+  <script src="../scripts/config.js?v=52"></script>
+  <script src="../scripts/auth.js?v=52"></script>
+  <script src="../scripts/app-home.js?v=52"></script>
 </body>
 </html>
