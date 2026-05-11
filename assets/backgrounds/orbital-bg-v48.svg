@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <radialGradient id="coreGlow" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#4a0004" stop-opacity=".45"/>
+      <stop offset="42%" stop-color="#190104" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="#020203" stop-opacity="1"/>
+    </radialGradient>
+    <pattern id="grid" width="72" height="72" patternUnits="userSpaceOnUse">
+      <path d="M72 0H0V72" fill="none" stroke="#ff2a2e" stroke-opacity=".065" stroke-width="1"/>
+    </pattern>
+    <pattern id="micro" width="160" height="160" patternUnits="userSpaceOnUse">
+      <path d="M14 40h44m14 0h18m26 0h12M40 92h80m18 0h8M18 130h34m24 0h46" stroke="#ff2a2e" stroke-opacity=".09" stroke-width="1"/>
+      <circle cx="128" cy="28" r="2" fill="#ff2a2e" fill-opacity=".34"/>
+      <circle cx="42" cy="118" r="1.5" fill="#ff2a2e" fill-opacity=".22"/>
+    </pattern>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+  <rect width="1920" height="1080" fill="#020203"/>
+  <rect width="1920" height="1080" fill="url(#coreGlow)"/>
+  <rect width="1920" height="1080" fill="url(#grid)" opacity=".65"/>
+  <rect width="1920" height="1080" fill="url(#micro)" opacity=".9"/>
+  <g opacity=".22" filter="url(#blur)">
+    <circle cx="950" cy="420" r="220" fill="#ff2a2e" opacity=".18"/>
+    <circle cx="1210" cy="620" r="180" fill="#ff2a2e" opacity=".12"/>
+    <circle cx="680" cy="620" r="160" fill="#ff2a2e" opacity=".10"/>
+  </g>
+  <g opacity=".22" stroke="#ff2a2e" stroke-width="1" fill="none">
+    <path d="M62 92h230l35 34h182M1415 88h246l31 30h176M72 980h360l42-42h160M1280 960h310l38-38h198"/>
+    <path d="M258 250h210l22-22h140M1290 242h190l34-34h246M110 580h240l42-42h150M1358 582h230l46 46h160"/>
+  </g>
+</svg>
