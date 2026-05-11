@@ -3,6 +3,7 @@
   const ctx = canvas?.getContext("2d");
   const sectorGroup = document.getElementById("sectorPaths");
   const labelsMount = document.getElementById("moduleLabels");
+  const moduleDetail = document.getElementById("moduleDetail");
   const userMenuButton = document.getElementById("userMenuButton");
   const profileModal = document.getElementById("profileModal");
   const logoutButton = document.getElementById("logoutButton");
@@ -13,11 +14,13 @@
   const profileEmail = document.getElementById("profileEmail");
   const profileRole = document.getElementById("profileRole");
 
+  const iconBase = "../assets/icons/orbital/";
+
   const modules = [
     {
       id: "dicts",
       num: "01",
-      icon: "▤",
+      icon: "dicts.svg",
       title: "Довідники",
       subtitle: "Dictionaries Core",
       href: "./dicts.html",
@@ -26,16 +29,16 @@
     {
       id: "upload",
       num: "02",
-      icon: "⇧",
+      icon: "upload.svg",
       title: "Завантаження",
       subtitle: "Upload / Intake",
       href: "./upload.html",
-      items: ["Завантаження файлів", "Імпорт даних", "Запуск ETL процесів"]
+      items: ["Завантаження Word / Excel", "Імпорт даних", "Запуск ETL процесів"]
     },
     {
       id: "nodes",
       num: "03",
-      icon: "⌬",
+      icon: "nodes.svg",
       title: "Зв’язки / Вузли",
       subtitle: "Network / Nodes",
       href: "./nodes.html",
@@ -44,7 +47,7 @@
     {
       id: "calculator",
       num: "04",
-      icon: "⌖",
+      icon: "calculator.svg",
       title: "Калькулятор",
       subtitle: "Combat Calculator",
       href: "./calculator.html",
@@ -53,7 +56,7 @@
     {
       id: "analysis",
       num: "05",
-      icon: "↗",
+      icon: "analysis.svg",
       title: "Аналіз",
       subtitle: "Analysis Engine",
       href: "./analysis.html",
@@ -62,7 +65,7 @@
     {
       id: "command",
       num: "06",
-      icon: "⛨",
+      icon: "command.svg",
       title: "Висновки для командира",
       subtitle: "Command Intelligence",
       href: "./command.html",
@@ -124,10 +127,11 @@
 
     const cx = 500;
     const cy = 500;
-    const innerR = 205;
-    const outerR = 440;
-    const gap = 4;
-    const labelR = 325;
+    const innerR = 212;
+    const outerR = 438;
+    const gap = 5;
+    const labelR = 327;
+    const push = 20;
 
     sectorGroup.innerHTML = "";
     labelsMount.innerHTML = "";
@@ -137,9 +141,16 @@
       const end = (index + 1) * 60 - gap / 2;
       const mid = (start + end) / 2;
 
+      const rad = (mid - 90) * Math.PI / 180;
+      const dx = Math.cos(rad);
+      const dy = Math.sin(rad);
+
       const link = document.createElementNS("http://www.w3.org/2000/svg", "a");
       link.setAttribute("href", module.href);
       link.setAttribute("data-id", module.id);
+      link.setAttribute("class", "sector-link");
+      link.style.setProperty("--sector-tx", `${dx * 16}px`);
+      link.style.setProperty("--sector-ty", `${dy * 16}px`);
 
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("d", sectorPath(cx, cy, innerR, outerR, start, end));
@@ -155,12 +166,12 @@
       label.dataset.id = module.id;
       label.style.left = `${labelPos.x / 10}%`;
       label.style.top = `${labelPos.y / 10}%`;
+      label.style.setProperty("--label-tx", `${dx * push}px`);
+      label.style.setProperty("--label-ty", `${dy * push}px`);
       label.innerHTML = `
         <span class="num">${module.num}</span>
-        <span class="icon">${module.icon}</span>
+        <img class="module-icon" src="${iconBase}${module.icon}?v=49" alt="" />
         <strong>${module.title}</strong>
-        <em>${module.subtitle}</em>
-        <ul>${module.items.map((item) => `<li>${item}</li>`).join("")}</ul>
       `;
       labelsMount.appendChild(label);
     });
@@ -169,6 +180,8 @@
     interactive.forEach((el) => {
       el.addEventListener("mouseenter", () => activateModule(el.dataset.id));
       el.addEventListener("mouseleave", () => activateModule(null));
+      el.addEventListener("focus", () => activateModule(el.dataset.id));
+      el.addEventListener("blur", () => activateModule(null));
     });
   }
 
@@ -176,6 +189,45 @@
     document.querySelectorAll(".sector-path, .module-label").forEach((el) => {
       el.classList.toggle("is-active", !!id && el.dataset.id === id);
     });
+
+    if (!moduleDetail) return;
+
+    if (!id) {
+      moduleDetail.classList.remove("is-visible");
+      return;
+    }
+
+    const module = modules.find((item) => item.id === id);
+    const label = document.querySelector(`.module-label[data-id="${id}"]`);
+    if (!module || !label) return;
+
+    const stage = document.querySelector(".orbital-stage");
+    const stageRect = stage.getBoundingClientRect();
+    const labelRect = label.getBoundingClientRect();
+
+    let left = labelRect.left - stageRect.left + labelRect.width / 2;
+    let top = labelRect.top - stageRect.top + labelRect.height / 2;
+
+    const centerX = stageRect.width / 2;
+    const centerY = stageRect.height / 2;
+    const vx = left - centerX;
+    const vy = top - centerY;
+    const len = Math.max(Math.hypot(vx, vy), 1);
+
+    left += (vx / len) * 145;
+    top += (vy / len) * 98;
+
+    left = Math.max(130, Math.min(stageRect.width - 130, left));
+    top = Math.max(72, Math.min(stageRect.height - 72, top));
+
+    moduleDetail.style.left = `${left}px`;
+    moduleDetail.style.top = `${top}px`;
+    moduleDetail.innerHTML = `
+      <b>${module.num} · ${module.subtitle}</b>
+      <strong>${module.title}</strong>
+      <ul>${module.items.map((item) => `<li>${item}</li>`).join("")}</ul>
+    `;
+    moduleDetail.classList.add("is-visible");
   }
 
   function openProfile() {
@@ -220,8 +272,6 @@
           return;
         }
         activateModule(target);
-        const label = document.querySelector(`.module-label[data-id="${target}"]`);
-        setTimeout(() => label?.click(), 250);
       });
     });
   }
@@ -236,50 +286,52 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  const particles = Array.from({ length: 140 }, () => ({
+  const particles = Array.from({ length: 58 }, () => ({
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
-    r: Math.random() * 1.7 + .35,
-    vx: (Math.random() - .48) * .24,
-    vy: -(Math.random() * .28 + .04),
-    a: Math.random() * .42 + .10,
-    pulse: Math.random() * Math.PI * 2
+    r: Math.random() * 1.8 + .35,
+    vx: (Math.random() - .5) * .10,
+    vy: -Math.random() * .20 - .03,
+    a: Math.random() * .32 + .08
   }));
 
-  function draw() {
-    if (!canvas || !ctx) return;
+  function drawParticles() {
+    if (!ctx || !canvas) return;
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     ctx.globalCompositeOperation = "lighter";
 
-    for (const p of particles) {
+    particles.forEach((p) => {
       p.x += p.vx;
       p.y += p.vy;
-      p.pulse += .035;
-
-      if (p.y < -20 || p.x < -20 || p.x > window.innerWidth + 20) {
+      if (p.y < -20) {
+        p.y = window.innerHeight + 20;
         p.x = Math.random() * window.innerWidth;
-        p.y = window.innerHeight + Math.random() * 80;
       }
+      if (p.x < -20) p.x = window.innerWidth + 20;
+      if (p.x > window.innerWidth + 20) p.x = -20;
 
-      const alpha = p.a * (.75 + Math.sin(p.pulse) * .25);
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
-      g.addColorStop(0, `rgba(255, 42, 46, ${alpha})`);
-      g.addColorStop(1, "rgba(255, 42, 46, 0)");
-      ctx.fillStyle = g;
+      const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
+      glow.addColorStop(0, `rgba(255,42,46,${p.a})`);
+      glow.addColorStop(1, "rgba(255,42,46,0)");
+      ctx.fillStyle = glow;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r * 7, 0, Math.PI * 2);
       ctx.fill();
-    }
+    });
 
-    requestAnimationFrame(draw);
+    requestAnimationFrame(drawParticles);
   }
 
-  if (!guardAccess()) return;
-  resize();
-  setUserInfo();
-  buildOrbitalMenu();
-  bindProfile();
-  bindMapDots();
-  window.addEventListener("resize", resize);
-  draw();
+  function init() {
+    if (!guardAccess()) return;
+    setUserInfo();
+    buildOrbitalMenu();
+    bindProfile();
+    bindMapDots();
+    resize();
+    drawParticles();
+    window.addEventListener("resize", resize);
+  }
+
+  init();
 })();
