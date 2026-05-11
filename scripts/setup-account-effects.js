@@ -15,6 +15,7 @@
   const inviteMeta = document.getElementById("inviteMeta");
   const inviteEmailEl = document.getElementById("inviteEmail");
   const inviteRoleEl = document.getElementById("inviteRole");
+  const inviteStatusEl = document.getElementById("inviteStatus");
 
   const accountForm = document.getElementById("setup-account-form");
   const mfaCode = document.getElementById("mfaCode");
@@ -106,6 +107,14 @@
     }
   }
 
+  function normalizeInviteRpcResponse(data) {
+    if (!data) return null;
+    if (Array.isArray(data)) return data[0] || null;
+    if (data.invite) return data.invite;
+    if (data.success === false) return null;
+    return data;
+  }
+
   async function loadInvite() {
     if (!state.token) {
       statusLine.textContent = "Токен запрошення відсутній. Перевірте посилання.";
@@ -121,28 +130,45 @@
     }
 
     try {
-      setMessage("Перевіряю токен запрошення...", "");
-      const { data, error } = await sb.rpc("get_invite_by_token", { p_token: state.token });
+      setMessage("Перевіряю персональне запрошення...", "");
 
+      const { data, error } = await sb.rpc("get_invite_by_token", { p_token: state.token });
       if (error) throw error;
 
-      // data може бути object або масив — підтримуємо обидва варіанти
-      const invite = Array.isArray(data) ? data[0] : data;
+      const invite = normalizeInviteRpcResponse(data);
+
       if (!invite) {
-        throw new Error("Запрошення не знайдено або токен недійсний.");
+        throw new Error(data?.message || "Запрошення не знайдено або токен недійсний.");
       }
 
       state.invite = invite;
 
-      const email = invite.email || invite.user_email || invite.invite_email || invite.recipient_email || "email не визначено";
-      const role = invite.role || invite.access_level || invite.user_role || "user";
+      const email =
+        invite.email ||
+        invite.user_email ||
+        invite.invite_email ||
+        invite.recipient_email ||
+        "email не визначено";
 
-      inviteEmailEl.textContent = email;
-      inviteRoleEl.textContent = role;
-      inviteMeta.hidden = false;
+      const role =
+        invite.role ||
+        invite.access_level ||
+        invite.user_role ||
+        "user";
 
-      statusLine.textContent = `Запрошення підтверджено для ${email}. Створіть логін і пароль.`;
-      setMessage("Токен дійсний. Можна активувати акаунт.", "ok");
+      const status =
+        invite.status ||
+        invite.invite_status ||
+        "active";
+
+      if (inviteEmailEl) inviteEmailEl.textContent = email;
+      if (inviteRoleEl) inviteRoleEl.textContent = role;
+      if (inviteStatusEl) inviteStatusEl.textContent = status;
+
+      if (inviteMeta) inviteMeta.hidden = false;
+
+      statusLine.textContent = "Запрошення підтверджено. Створіть логін і пароль для цього акаунта.";
+      setMessage(`Запрошення підтягнуто: ${email} / ${role}`, "ok");
     } catch (err) {
       console.error(err);
       statusLine.textContent = "Не вдалося перевірити запрошення.";
