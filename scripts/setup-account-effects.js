@@ -37,16 +37,21 @@
   };
 
   const params = new URLSearchParams(location.search);
+
   const state = {
     token: params.get("token") || "",
     invite: null,
     passwordLevel: 0,
+    loginValue: "",
+    passwordValue: "",
+    email: "",
+    role: "",
     factorId: null,
     challengeId: null,
-    mfaMode: "supabase",
+    authUserId: null,
   };
 
-  // SECURITY: прибираємо login/password з адресного рядка, якщо вони випадково потрапили в URL
+  // SECURITY: якщо login/password випадково є в URL — видаляємо з адресного рядка
   if (params.has("password") || params.has("login")) {
     params.delete("password");
     params.delete("login");
@@ -92,11 +97,13 @@
     if (step === "account") {
       setupTitle.innerHTML = "СТВОРЕННЯ<br />АКАУНТА";
       secureBadgeText.textContent = "Захищено";
+      secureBadge?.classList.remove("is-mfa-real");
     }
 
     if (step === "mfa") {
       setupTitle.innerHTML = "ЗАХИСТ<br />2FA";
       secureBadgeText.textContent = "MFA";
+      secureBadge?.classList.add("is-mfa-real");
       statusLine.textContent = "Другий етап: відскануйте QR-код і підтвердьте Google Authenticator.";
     }
 
@@ -136,39 +143,19 @@
       if (error) throw error;
 
       const invite = normalizeInviteRpcResponse(data);
-
-      if (!invite) {
-        throw new Error(data?.message || "Запрошення не знайдено або токен недійсний.");
-      }
+      if (!invite) throw new Error(data?.message || "Запрошення не знайдено або токен недійсний.");
 
       state.invite = invite;
+      state.email = invite.email || invite.user_email || invite.invite_email || invite.recipient_email || "";
+      state.role = invite.role || invite.access_level || invite.user_role || "user";
 
-      const email =
-        invite.email ||
-        invite.user_email ||
-        invite.invite_email ||
-        invite.recipient_email ||
-        "email не визначено";
-
-      const role =
-        invite.role ||
-        invite.access_level ||
-        invite.user_role ||
-        "user";
-
-      const status =
-        invite.status ||
-        invite.invite_status ||
-        "active";
-
-      if (inviteEmailEl) inviteEmailEl.textContent = email;
-      if (inviteRoleEl) inviteRoleEl.textContent = role;
-      if (inviteStatusEl) inviteStatusEl.textContent = status;
-
+      if (inviteEmailEl) inviteEmailEl.textContent = state.email || "email не визначено";
+      if (inviteRoleEl) inviteRoleEl.textContent = state.role;
+      if (inviteStatusEl) inviteStatusEl.textContent = invite.status || invite.invite_status || "active";
       if (inviteMeta) inviteMeta.hidden = false;
 
       statusLine.textContent = "Запрошення підтверджено. Створіть логін і пароль для цього акаунта.";
-      setMessage(`Запрошення підтягнуто: ${email} / ${role}`, "ok");
+      setMessage(`Запрошення підтягнуто: ${state.email} / ${state.role}`, "ok");
     } catch (err) {
       console.error(err);
       statusLine.textContent = "Не вдалося перевірити запрошення.";
@@ -176,144 +163,137 @@
     }
   }
 
-  async function activateInvite({ loginValue, passwordValue }) {
+  async function ensureAuthUserAndSession(email, passwordValue, loginValue) {
     const sb = client();
-    if (!sb?.rpc) throw new Error("Supabase client не знайдено.");
+    if (!sb?.auth) throw new Error("Supabase Auth client не знайдено.");
 
-    const payload = {
-      p_token: state.token,
-      p_login: loginValue,
-      p_password: passwordValue,
-    };
+    // 1) Спочатку пробуємо увійти — якщо auth user вже був створений раніше.
+    const signIn = await sb.auth.signInWithPassword({ email, password: passwordValue });
 
-    // Основний очікуваний RPC твого проєкту
-    let result = await sb.rpc("activate_user_invite", payload);
-
-    // Якщо в твоїй БД функція має інший набір параметрів — fallback
-    if (result.error) {
-      console.warn("activate_user_invite failed, trying complete_invite_setup_v2:", result.error);
-      result = await sb.rpc("complete_invite_setup_v2", payload);
+    if (!signIn.error && signIn.data?.session) {
+      state.authUserId = signIn.data.user?.id || null;
+      return signIn.data;
     }
 
-    if (result.error) throw result.error;
-
-    const data = Array.isArray(result.data) ? result.data[0] : result.data;
-    return data || {};
-  }
-
-  async function ensureAuthSession(email, passwordValue) {
-    const sb = client();
-    if (!sb?.auth) {
-      return null;
-    }
-
-    // MFA Supabase працює тільки при активній auth session.
-    // Пробуємо signInWithPassword. Якщо користувача ще немає в Supabase Auth,
-    // цей блок поверне null і сторінка покаже manual QR fallback.
-    try {
-      const { data, error } = await sb.auth.signInWithPassword({
-        email,
-        password: passwordValue,
-      });
-
-      if (error) {
-        console.warn("signInWithPassword failed:", error.message);
-        return null;
+    // 2) Якщо користувача ще немає або пароль не заданий — пробуємо signUp.
+    const signUp = await sb.auth.signUp({
+      email,
+      password: passwordValue,
+      options: {
+        data: {
+          login: loginValue,
+          role: state.role,
+          invite_token: state.token,
+          source: "bastion_invite"
+        }
       }
-
-      return data?.session || null;
-    } catch (err) {
-      console.warn("Auth session failed:", err);
-      return null;
-    }
-  }
-
-  function buildManualTotpFallback(loginValue) {
-    // Це fallback-візуалізація, якщо Supabase MFA недоступна без auth session.
-    // Для production треба зберігати secret на сервері/RPC, не в браузері.
-    const raw = `${loginValue}:${state.token}:${Date.now()}`;
-    const secret = btoa(unescape(encodeURIComponent(raw)))
-      .replace(/[^A-Z2-7]/gi, "")
-      .toUpperCase()
-      .padEnd(32, "A")
-      .slice(0, 32);
-
-    const issuer = "BASTION";
-    const account = encodeURIComponent(loginValue);
-    const uri = `otpauth://totp/${issuer}:${account}?secret=${secret}&issuer=${issuer}&digits=6&period=30`;
-
-    state.mfaMode = "manual-fallback";
-    mfaSecret.textContent = secret;
-    qrMount.innerHTML = `<img alt="MFA QR fallback" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(uri)}">`;
-    setMessage("QR показано у fallback-режимі. Для справжньої перевірки 6 цифр потрібна Supabase Auth session або серверна RPC.", "error");
-  }
-
-  async function createTotpFactor(loginValue, passwordValue) {
-    const sb = client();
-    const email =
-      state.invite?.email ||
-      state.invite?.user_email ||
-      state.invite?.invite_email ||
-      state.invite?.recipient_email;
-
-    if (!sb?.auth?.mfa?.enroll || !email) {
-      buildManualTotpFallback(loginValue);
-      return;
-    }
-
-    const session = await ensureAuthSession(email, passwordValue);
-    if (!session) {
-      buildManualTotpFallback(loginValue);
-      return;
-    }
-
-    const { data, error } = await sb.auth.mfa.enroll({
-      factorType: "totp",
-      friendlyName: "BASTION Google Authenticator",
     });
 
-    if (error) throw error;
+    if (signUp.error) {
+      throw new Error(signUp.error.message || "Не вдалося створити Supabase Auth користувача.");
+    }
+
+    state.authUserId = signUp.data?.user?.id || null;
+
+    // Якщо email confirmation увімкнений, Supabase може не повернути session.
+    if (!signUp.data?.session) {
+      throw new Error(
+        "Supabase створив користувача, але session не видана. Вимкніть Email confirmation у Authentication → Providers → Email або підтвердьте email перед MFA."
+      );
+    }
+
+    return signUp.data;
+  }
+
+  async function enrollRealTotpFactor() {
+    const sb = client();
+    if (!sb?.auth?.mfa?.enroll) {
+      throw new Error("Supabase MFA API недоступний. Перевір supabase-js v2 і MFA TOTP Enabled.");
+    }
+
+    // якщо вже є незавершені фактори — це не критично; enroll створить новий
+    const { data, error } = await sb.auth.mfa.enroll({
+      factorType: "totp",
+      friendlyName: "BASTION Google Authenticator"
+    });
+
+    if (error) {
+      throw new Error(error.message || "Не вдалося створити TOTP фактор.");
+    }
 
     state.factorId = data?.id || data?.totp?.id || data?.factorId;
     const qrCode = data?.totp?.qr_code;
     const secret = data?.totp?.secret;
 
     if (!state.factorId || !qrCode) {
-      buildManualTotpFallback(loginValue);
-      return;
+      throw new Error("Supabase не повернув QR-код або factorId.");
     }
 
-    qrMount.innerHTML = qrCode.startsWith("<svg") ? qrCode : `<img src="${qrCode}" alt="MFA QR Code" />`;
-    mfaSecret.textContent = secret || "Secret key приховано Supabase.";
+    if (qrMount) {
+      qrMount.classList.remove("is-error");
+      qrMount.innerHTML = qrCode.startsWith("<svg") ? qrCode : `<img src="${qrCode}" alt="MFA QR Code" />`;
+    }
+
+    if (mfaSecret) {
+      mfaSecret.classList.toggle("is-hidden", !secret);
+      mfaSecret.textContent = secret || "Secret приховано Supabase";
+    }
 
     const challenge = await sb.auth.mfa.challenge({ factorId: state.factorId });
-    if (challenge.error) throw challenge.error;
+
+    if (challenge.error) {
+      throw new Error(challenge.error.message || "Не вдалося створити MFA challenge.");
+    }
 
     state.challengeId = challenge.data?.id;
-    state.mfaMode = "supabase";
+    if (!state.challengeId) throw new Error("Supabase не повернув challengeId.");
+  }
+
+  async function completeInviteAfterMfa() {
+    const sb = client();
+    if (!sb?.rpc) throw new Error("Supabase RPC недоступний.");
+
+    const payload = {
+      p_token: state.token,
+      p_login: state.loginValue,
+      p_password: state.passwordValue
+    };
+
+    let result = await sb.rpc("complete_invite_setup_v2", payload);
+
+    if (result.error) {
+      // fallback на стару назву, якщо вона ще використовується
+      result = await sb.rpc("activate_user_invite", payload);
+    }
+
+    if (result.error) {
+      throw new Error(result.error.message || "MFA підтверджено, але invite не вдалося завершити.");
+    }
+
+    localStorage.setItem("bastion_login", state.loginValue);
+    localStorage.setItem("bastion_role", state.role || "user");
+    localStorage.setItem("bastion_email", state.email || "");
+
+    return result.data;
   }
 
   async function verifyTotpCode(code) {
     const sb = client();
 
-    if (state.mfaMode === "manual-fallback") {
-      // Тимчасово не блокуємо flow, щоб UI можна було тестувати.
-      // Реальну перевірку треба робити через Supabase MFA або RPC.
-      if (code.length !== 6) throw new Error("Введіть 6 цифр.");
-      return { fallback: true };
-    }
-
     if (!state.factorId || !state.challengeId) {
-      throw new Error("MFA challenge не створено.");
+      throw new Error("MFA challenge не створено. Поверніться на попередній етап.");
     }
 
     const { data, error } = await sb.auth.mfa.verify({
       factorId: state.factorId,
       challengeId: state.challengeId,
-      code,
+      code
     });
 
-    if (error) throw error;
+    if (error) {
+      throw new Error(error.message || "Код Google Authenticator не підтверджено.");
+    }
+
     return data;
   }
 
@@ -367,7 +347,7 @@
 
     strengthLabel.textContent = labelMap[level];
 
-    const isReady = Boolean(login?.value.trim()) && level >= 4;
+    const isReady = Boolean(login?.value.trim()) && level >= 4 && Boolean(state.email);
     card?.classList.toggle("is-strong", level >= 4);
     secureBadge?.classList.toggle("is-ready", isReady);
     submitBtn?.classList.toggle("is-ready", isReady);
@@ -426,6 +406,11 @@
     const loginValue = login?.value.trim();
     const passwordValue = password?.value || "";
 
+    if (!state.email) {
+      setMessage("Email запрошення ще не підтягнуто. Оновіть сторінку або перевірте token.", "error");
+      return;
+    }
+
     if (!loginValue) {
       setMessage("Введіть логін.", "error");
       login?.focus();
@@ -439,25 +424,29 @@
     }
 
     try {
-      setLoading(submitBtn, true, "ЗБЕРЕЖЕННЯ...");
-      setMessage("Зберігаю логін і пароль у Supabase...", "");
+      state.loginValue = loginValue;
+      state.passwordValue = passwordValue;
 
-      const activated = await activateInvite({ loginValue, passwordValue });
+      setLoading(submitBtn, true, "СТВОРЕННЯ AUTH...");
+      setMessage("Створюю Supabase Auth session для MFA...", "");
 
-      localStorage.setItem("bastion_login", loginValue);
-      const role = state.invite?.role || state.invite?.access_level || state.invite?.user_role || activated?.role || activated?.access_level || "user";
-      localStorage.setItem("bastion_role", role);
+      await ensureAuthUserAndSession(state.email, passwordValue, loginValue);
 
-      setMessage("Акаунт активовано. Генерую QR-код Google Authenticator...", "ok");
       setStep("mfa");
+      setMessage("Генерую справжній QR-код Supabase MFA...", "ok");
 
-      await createTotpFactor(loginValue, passwordValue);
+      await enrollRealTotpFactor();
 
+      setMessage("Відскануйте QR-код і введіть 6-значний код Google Authenticator.", "ok");
       mfaCode?.focus();
     } catch (error) {
       console.error(error);
-      setMessage(error.message || "Помилка створення акаунта.", "error");
+      setMessage(error.message || "Помилка створення MFA.", "error");
       setStep("account");
+      if (qrMount) {
+        qrMount.classList.add("is-error");
+        qrMount.textContent = error.message || "Помилка MFA";
+      }
     } finally {
       setLoading(submitBtn, false, "АКТИВУВАТИ ДОСТУП");
     }
@@ -476,9 +465,12 @@
 
     try {
       setLoading(verifyBtn, true, "ПЕРЕВІРКА...");
-      setMessage("Перевіряю код Google Authenticator...", "");
+      setMessage("Перевіряю код через Supabase MFA...", "");
 
       await verifyTotpCode(code);
+
+      setMessage("MFA підтверджено. Завершую invite і пишу лог...", "ok");
+      await completeInviteAfterMfa();
 
       setMessage("Двофакторний захист активовано. Відкриваю основну сторінку...", "ok");
       setStep("success");
@@ -498,9 +490,9 @@
     mfaCode.value = mfaCode.value.replace(/\D/g, "").slice(0, 6);
   });
 
-  backToAccountBtn?.addEventListener("click", () => {
+  backToAccountBtn?.addEventListener("click", async () => {
     setStep("account");
-    setMessage("Можна змінити логін або пароль і повторити активацію.", "");
+    setMessage("Можна змінити логін або пароль і повторити генерацію MFA.", "");
   });
 
   function resizeCanvas() {
