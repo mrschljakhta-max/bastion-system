@@ -1,0 +1,241 @@
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  overflow:hidden;
+  background:#030303;
+  color:white;
+  font-family:Arial,sans-serif;
+  height:100vh;
+}
+
+.bg-grid{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at center, rgba(255,0,0,.18), transparent 45%),
+    linear-gradient(rgba(255,0,0,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,0,0,.03) 1px, transparent 1px);
+  background-size:100% 100%, 60px 60px, 60px 60px;
+}
+
+.bg-energy{
+  position:fixed;
+  inset:0;
+  background-image:url('../assets/bg-tech.png');
+  background-size:cover;
+  background-position:center;
+  opacity:.45;
+  mix-blend-mode:screen;
+}
+
+.top-bar{
+  position:absolute;
+  top:28px;
+  left:34px;
+  right:34px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:5;
+}
+
+.orbi-panel,.profile-panel{
+  width:270px;
+  border:1px solid rgba(255,0,0,.35);
+  background:rgba(10,0,0,.65);
+  padding:16px;
+  display:flex;
+  gap:14px;
+  align-items:center;
+  backdrop-filter:blur(8px);
+}
+
+.orbi-avatar,.profile-avatar{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  border:1px solid rgba(255,0,0,.5);
+  box-shadow:0 0 20px rgba(255,0,0,.45);
+}
+
+.orbi-name,.profile-name{
+  font-size:32px;
+  font-weight:700;
+  color:#ff3b3b;
+}
+
+.orbi-role,.profile-role{
+  opacity:.7;
+  margin-top:4px;
+}
+
+.status-center{
+  letter-spacing:5px;
+  color:#ff3b3b;
+  font-size:18px;
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  background:#ff3b3b;
+  border-radius:50%;
+  display:inline-block;
+  margin-right:10px;
+  box-shadow:0 0 15px red;
+}
+
+.core-layout{
+  width:100%;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.orbital-ring{
+  position:relative;
+  width:900px;
+  height:900px;
+  border-radius:50%;
+}
+
+.orbital-ring::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  border:1px solid rgba(255,0,0,.2);
+  box-shadow:0 0 80px rgba(255,0,0,.3);
+}
+
+.center-core{
+  position:absolute;
+  inset:50%;
+  transform:translate(-50%,-50%);
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  background:radial-gradient(circle,#220000,#060606);
+  border:2px solid rgba(255,0,0,.45);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 0 60px rgba(255,0,0,.5);
+}
+
+.core-logo{
+  font-size:110px;
+  color:#ffb100;
+  font-weight:800;
+}
+
+.core-title{
+  font-size:54px;
+  letter-spacing:8px;
+}
+
+.core-sub{
+  margin-top:12px;
+  color:#ff3b3b;
+  letter-spacing:4px;
+}
+
+.segment{
+  position:absolute;
+  width:230px;
+  height:180px;
+  background:rgba(15,0,0,.8);
+  border:1px solid rgba(255,0,0,.45);
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  transition:.4s ease;
+  box-shadow:0 0 30px rgba(255,0,0,.15);
+  backdrop-filter:blur(8px);
+}
+
+.segment:hover{
+  transform:scale(1.08);
+  box-shadow:0 0 50px rgba(255,0,0,.5);
+}
+
+.number{
+  position:absolute;
+  top:18px;
+  left:22px;
+  color:#ff3b3b;
+  font-size:42px;
+  font-weight:800;
+}
+
+.icon{
+  font-size:42px;
+  color:#ff3b3b;
+}
+
+.title{
+  margin-top:10px;
+  font-size:26px;
+  font-weight:700;
+}
+
+.extra{
+  margin-top:10px;
+  opacity:0;
+  font-size:14px;
+  transition:.4s;
+}
+
+.segment:hover .extra{
+  opacity:1;
+}
+
+.s1{top:40px;left:50%;transform:translateX(-50%);}
+.s2{top:220px;right:30px;}
+.s3{bottom:220px;right:30px;}
+.s4{bottom:40px;left:50%;transform:translateX(-50%);}
+.s5{bottom:220px;left:30px;}
+.s6{top:220px;left:30px;}
+
+.bottom-ui{
+  position:absolute;
+  bottom:24px;
+  left:34px;
+  right:34px;
+  display:flex;
+  justify-content:space-between;
+}
+
+.contacts,.site-map{
+  border:1px solid rgba(255,0,0,.35);
+  background:rgba(10,0,0,.65);
+  padding:14px 20px;
+  min-width:250px;
+}
+
+.site-map{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+}
+
+.site-map span{
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  border:1px solid red;
+}
+
+.site-map .active{
+  background:#ff3b3b;
+  box-shadow:0 0 15px red;
+}

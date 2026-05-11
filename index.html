@@ -1,186 +1,123 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>BASTION — Access Node</title>
-
-  <link rel="icon" href="./assets/logo/bastion-favicon.svg" type="image/svg+xml" />
-
-  <link rel="stylesheet" href="./styles/fonts.css" />
-  <link rel="stylesheet" href="./styles/theme.css" />
-  <link rel="stylesheet" href="./styles/base.css" />
-  <link rel="stylesheet" href="./styles/animations.css" />
-  <link rel="stylesheet" href="./styles/hud-ring.css?v=15" />
-  <link rel="stylesheet" href="./styles/logo.css" />
-  <link rel="stylesheet" href="./styles/start.css" />
-  <link rel="stylesheet" href="./styles/bastion-wordmark.css?v=26" />
-  <link rel="stylesheet" href="./styles/ring-effects-v14.css?v=18" />
-
-  <!-- Start page visual styles moved to styles/hud-ring.css -->
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BASTION CORE</title>
+  <link rel="stylesheet" href="styles/app.css"/>
 </head>
 <body>
-  <main class="start-page mode-login">
-    <div class="bg-layer bg-main"></div>
 
-    <div class="premium-fog fog-low"></div>
-    <div class="premium-fog fog-horizon"></div>
+<div class="bg-grid"></div>
+<div class="bg-energy"></div>
 
-    <div class="field-light-wave"></div>
+<header class="top-bar">
+  <div class="orbi-panel">
+    <div class="orbi-avatar"></div>
+    <div>
+      <div class="orbi-name">ORBI</div>
+      <div class="orbi-role">AI ASSISTANT</div>
+    </div>
+  </div>
 
-    <div class="bg-layer bg-vignette"></div>
-    <div class="bg-layer bg-noise"></div>
+  <div class="status-center">
+    <span class="dot"></span>
+    СИСТЕМА АКТИВНА
+  </div>
 
-    <div class="embers" id="embers"></div>
+  <div class="profile-panel">
+    <div class="profile-avatar"></div>
+    <div>
+      <div class="profile-name">lavash.squad</div>
+      <div class="profile-role">COMMAND LEVEL</div>
+    </div>
+  </div>
+</header>
 
-    <section class="access-shell" aria-label="BASTION access menu">
-      <div class="hud-ring" id="hudRing">
+<main class="core-layout">
 
-        <!-- BASTION SVG HUD CORE v14 -->
-        <div class="ring-v14-core" aria-hidden="true">
-          <svg class="ring-v14-svg" viewBox="0 0 600 600" role="img" focusable="false">
-            <defs>
-              <filter id="ringV14Glow" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="2.6" result="blur"/>
-                <feMerge>
-                  <feMergeNode in="blur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-              <filter id="ringV14SoftGlow" x="-70%" y="-70%" width="240%" height="240%">
-                <feGaussianBlur stdDeviation="8" result="blur"/>
-                <feMerge>
-                  <feMergeNode in="blur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-              <linearGradient id="ringV14RedStroke" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#ff233f" stop-opacity=".05"/>
-                <stop offset=".42" stop-color="#ff314d" stop-opacity=".82"/>
-                <stop offset=".56" stop-color="#fff1f1" stop-opacity=".50"/>
-                <stop offset="1" stop-color="#ff233f" stop-opacity=".06"/>
-              </linearGradient>
-            </defs>
+  <div class="orbital-ring">
 
-            <g class="ring-v14-halo">
-              <circle cx="300" cy="300" r="249"/>
-              <circle cx="300" cy="300" r="214"/>
-            </g>
+    <div class="center-core">
+      <div class="core-logo">B</div>
+      <div class="core-title">BASTION</div>
+      <div class="core-sub">CORE SYSTEM</div>
+    </div>
 
-            <g class="ring-v14-segments ring-v14-segments-a">
-              <circle cx="300" cy="300" r="255" pathLength="1000"/>
-            </g>
-
-            <g class="ring-v14-segments ring-v14-segments-b">
-              <circle cx="300" cy="300" r="233" pathLength="1000"/>
-            </g>
-
-            <g class="ring-v14-ticks ring-v14-ticks-a">
-              <circle cx="300" cy="300" r="272" pathLength="720"/>
-            </g>
-
-            <g class="ring-v14-ticks ring-v14-ticks-b">
-              <circle cx="300" cy="300" r="194" pathLength="720"/>
-            </g>
-
-            <g class="ring-v14-scanner">
-              <circle cx="300" cy="300" r="260" pathLength="1000"/>
-            </g>
-
-            <g class="ring-v14-data-flow ring-v14-flow-a">
-              <circle cx="300" cy="300" r="282" pathLength="1000"/>
-            </g>
-            <g class="ring-v14-data-flow ring-v14-flow-b">
-              <circle cx="300" cy="300" r="176" pathLength="1000"/>
-            </g>
-
-            <g class="ring-v14-crosshair">
-              <path d="M300 20 L300 76"/>
-              <path d="M300 524 L300 580"/>
-              <path d="M20 300 L76 300"/>
-              <path d="M524 300 L580 300"/>
-            </g>
-          </svg>
-
-          <span class="ring-v14-node node-a"></span>
-          <span class="ring-v14-node node-b"></span>
-          <span class="ring-v14-node node-c"></span>
-          <span class="ring-v14-node node-d"></span>
-          <span class="ring-v14-node node-e"></span>
-          <span class="ring-v14-node node-f"></span>
-        </div>
-
-        <div class="ring-tech-layer"></div>
-        <div class="ring-data-layer"></div>
-        <div class="ring-inner-layer"></div>
-        <div class="ring-active-layer"></div>
-        <div class="ring-glass-layer"></div>
-        <!-- Access sectors removed: will be redrawn in next design step -->
-<!-- CENTER -->
-        <div class="ring-center hero-core">
-          <img
-            src="./assets/logo/bastion-mark.svg"
-            alt="BASTION mark"
-            class="brand-mark"
-          />
-
-          <div class="brand-name">BASTION</div>
-
-          <div class="brand-subtitle" id="modeSubtitle">
-            ВИКОНАЙТЕ ВХІД У СИСТЕМУ
-          </div>
-
-          <div class="signal-line"></div>
-
-          <div class="access-auth-zone" id="accessAuthZone">
-            <div class="access-choice" id="accessChoice" aria-label="Вибір режиму доступу">
-              <button type="button" class="access-choice-btn" data-auth-mode="login">ВХІД</button>
-              <span class="access-dot" aria-hidden="true">•</span>
-              <button type="button" class="access-choice-btn" data-auth-mode="register">ЗАПИТ ДОСТУПУ</button>
-            </div>
-
-            <form class="auth-panel" id="authPanel" data-mode="login" hidden>
-              <button type="button" class="auth-back" id="authBack" aria-label="Повернутись до стартового вигляду">
-                ← НАЗАД
-              </button>
-
-              <div class="auth-panel-head">
-                <span class="auth-kicker" id="authKicker">РЕЖИМ ДОСТУПУ</span>
-                <h2 class="auth-title" id="authTitle">ВХІД У СИСТЕМУ</h2>
-              </div>
-
-              <label class="auth-field">
-                <span>ЛОГІН</span>
-                <input id="authLogin" name="login" type="email" placeholder="example@gmail.com" autocomplete="email" spellcheck="false" />
-              </label>
-
-              <label class="auth-field">
-                <span>ПАРОЛЬ</span>
-                <input id="authPassword" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
-              </label>
-
-              <button type="submit" class="auth-submit" id="authSubmit">УВІЙТИ</button>
-
-              <button type="button" class="auth-switch" id="authSwitch">
-                СТВОРИТИ ОБЛІКОВИЙ ЗАПИС
-              </button>
-            </form>
-          </div>
-        </div>
-
+    <div class="segment s1">
+      <span class="number">01</span>
+      <div class="icon">▤</div>
+      <div class="title">ДОВІДНИКИ</div>
+      <div class="extra">
+        Нормалізація • Еталони • Словники
       </div>
-    </section>
-  </main>
+    </div>
 
-  <script src="./scripts/main.js"></script>
-  <script src="./scripts/hud-ring.js"></script>
-  <script src="./scripts/ring-effects-v14.js?v=18"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./scripts/config.js?v=27"></script>
-  <script src="./scripts/auth.js?v=28"></script>
-  <script src="./scripts/access.js?v=1"></script>
-  <script src="./scripts/auth-panel.js?v=28"></script>
+    <div class="segment s2">
+      <span class="number">02</span>
+      <div class="icon">⇪</div>
+      <div class="title">ЗАВАНТАЖЕННЯ</div>
+      <div class="extra">
+        Upload • ETL • Intake
+      </div>
+    </div>
+
+    <div class="segment s3">
+      <span class="number">03</span>
+      <div class="icon">⌘</div>
+      <div class="title">ВУЗЛИ</div>
+      <div class="extra">
+        Network • Relations
+      </div>
+    </div>
+
+    <div class="segment s4">
+      <span class="number">04</span>
+      <div class="icon">◎</div>
+      <div class="title">КАЛЬКУЛЯТОР</div>
+      <div class="extra">
+        Combat Logic • Formulas
+      </div>
+    </div>
+
+    <div class="segment s5">
+      <span class="number">05</span>
+      <div class="icon">▣</div>
+      <div class="title">АНАЛІЗ</div>
+      <div class="extra">
+        Dashboards • Maps
+      </div>
+    </div>
+
+    <div class="segment s6">
+      <span class="number">06</span>
+      <div class="icon">✦</div>
+      <div class="title">КОМАНДИР</div>
+      <div class="extra">
+        Intelligence • Risks
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer class="bottom-ui">
+  <div class="contacts">
+    support@bastion.system
+  </div>
+
+  <div class="site-map">
+    <span class="active"></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</footer>
+
+<script src="scripts/app.js"></script>
 </body>
 </html>
