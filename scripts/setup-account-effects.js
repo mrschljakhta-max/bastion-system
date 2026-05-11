@@ -69,6 +69,40 @@
     return window.BastionSupabase || window.supabaseClient || window.sb || window.BastionAuth?.client || null;
   }
 
+  function getFunctionUrl(name) {
+    const cfg = window.BASTION_CONFIG || {};
+    const base = (cfg.SUPABASE_URL || window.SUPABASE_URL || "").replace(/\/$/, "");
+    if (!base) throw new Error("SUPABASE_URL не знайдено у config.js.");
+    return `${base}/functions/v1/${name}`;
+  }
+
+  function getAnonKey() {
+    const cfg = window.BASTION_CONFIG || {};
+    const key = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || "";
+    if (!key) throw new Error("SUPABASE_ANON_KEY не знайдено у config.js.");
+    return key;
+  }
+
+  async function callEdgeFunction(name, payload) {
+    const response = await fetch(getFunctionUrl(name), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": getAnonKey(),
+        "Authorization": `Bearer ${getAnonKey()}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.success === false) {
+      throw new Error(data.error || data.message || `Edge Function ${name} failed`);
+    }
+
+    return data;
+  }
+
   function setMessage(text, type = "") {
     if (!setupMessage) return;
     setupMessage.textContent = text || "";
@@ -470,17 +504,27 @@
       state.loginValue = loginValue;
       state.passwordValue = passwordValue;
 
-      setLoading(submitBtn, true, "СТВОРЕННЯ AUTH...");
-      setMessage("Створюю Supabase Auth session для MFA...", "");
+      setLoading(submitBtn, true, "ГЕНЕРАЦІЯ MFA...");
+      setMessage("Генерую серверний TOTP secret для Google Authenticator...", "edge");
 
-      await ensureAuthUserAndSession(state.email, passwordValue, loginValue);
+      const data = await callEdgeFunction("bastion-setup-mfa", {
+        token: state.token,
+        login: loginValue,
+        password: passwordValue
+      });
+
+      if (qrMount) {
+        qrMount.classList.remove("is-error");
+        qrMount.innerHTML = `<img src="${data.qr_url}" alt="Google Authenticator QR Code">`;
+      }
+
+      if (mfaSecret) {
+        mfaSecret.classList.remove("is-hidden");
+        mfaSecret.textContent = data.secret || "Secret приховано";
+      }
 
       setStep("mfa");
-      setMessage("Генерую справжній QR-код Supabase MFA...", "ok");
-
-      await enrollRealTotpFactor();
-
-      setMessage("Відскануйте QR-код і введіть 6-значний код Google Authenticator.", "ok");
+      setMessage(`QR створено для ${data.email}. Відскануйте його у Google Authenticator.`, "ok");
       mfaCode?.focus();
     } catch (error) {
       console.error(error);
@@ -508,12 +552,16 @@
 
     try {
       setLoading(verifyBtn, true, "ПЕРЕВІРКА...");
-      setMessage("Перевіряю код через Supabase MFA...", "");
+      setMessage("Перевіряю код через серверну Edge Function...", "edge");
 
-      await verifyTotpCode(code);
+      const result = await callEdgeFunction("bastion-verify-mfa", {
+        token: state.token,
+        code
+      });
 
-      setMessage("MFA підтверджено. Завершую invite і пишу лог...", "ok");
-      await completeInviteAfterMfa();
+      localStorage.setItem("bastion_login", result.login || state.loginValue);
+      localStorage.setItem("bastion_role", result.role || state.role || "user");
+      localStorage.setItem("bastion_email", result.email || state.email || "");
 
       setMessage("Двофакторний захист активовано. Відкриваю основну сторінку...", "ok");
       setStep("success");
