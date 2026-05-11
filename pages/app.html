@@ -4,95 +4,126 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>BASTION — Main Hub</title>
+  <title>BASTION — Tactical Orbital Interface</title>
 
-  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=40" />
-  <link rel="shortcut icon" href="../assets/logo/bastion-favicon.svg?v=40" />
+  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=47" />
+  <link rel="shortcut icon" href="../assets/logo/bastion-favicon.svg?v=47" />
 
-  <link rel="stylesheet" href="../styles/app-home-v40.css?v=40" />
+  <link rel="stylesheet" href="../styles/app-home-v47.css?v=47" />
 </head>
 
 <body class="app-home-page">
-  <div class="app-bg-fx" aria-hidden="true">
-    <div class="app-orb"></div>
-    <div class="app-grid"></div>
-    <canvas id="appParticlesCanvas" class="app-particles"></canvas>
+  <div class="orbital-bg" aria-hidden="true">
+    <canvas id="appParticlesCanvas" class="orbital-particles"></canvas>
+    <div class="noise-layer"></div>
+    <div class="scan-layer"></div>
   </div>
 
-  <main class="app-shell">
-    <header class="app-header">
-      <a class="brand" href="../index.html" aria-label="BASTION">
-        <img src="../assets/logo/bastion-mark.svg?v=40" alt="BASTION" />
-        <span>
-          <strong>BASTION</strong>
-          <small>MAIN OPERATIONS HUB</small>
-        </span>
-      </a>
-
-      <div class="status-pill">
+  <header class="corner-assistant" aria-label="ORBI assistant">
+    <button class="orbi-node" id="orbiButton" type="button" aria-label="Відкрити помічника ORBI">
+      <span class="orbi-avatar"><span class="orbi-eye"></span></span>
+      <span class="orbi-copy">
+        <strong>ORBI</strong>
+        <small>AI ASSISTANT</small>
         <i></i>
-        Система активна
-      </div>
-    </header>
+      </span>
+    </button>
+  </header>
 
-    <section class="hero-panel">
-      <div class="hero-copy">
-        <div class="eyebrow">ACCESS GRANTED</div>
-        <h1>Центр керування<br />BASTION</h1>
-        <p>
-          Дефолтна стартова сторінка основного сайту. Звідси користувач переходить
-          до модулів аналізу, завантаження, адміністрування та довідників.
-        </p>
-      </div>
-
-      <div class="operator-card">
-        <span class="operator-label">CURRENT NODE</span>
+  <header class="corner-user">
+    <button class="user-node" id="userMenuButton" type="button" aria-haspopup="dialog" aria-controls="profileModal">
+      <span class="user-avatar" id="userAvatar">◖</span>
+      <span class="user-copy">
         <strong id="operatorName">Користувач</strong>
-        <small id="operatorRole">Рівень доступу: очікується</small>
-      </div>
+        <small>Рівень доступу: <b id="operatorRole">очікується</b></small>
+      </span>
+      <span class="user-chevron">⌄</span>
+    </button>
+  </header>
+
+  <main class="orbital-shell" aria-label="BASTION tactical orbital interface">
+    <section class="system-banner" aria-label="System status">
+      <span></span>
+      <strong>СИСТЕМА АКТИВНА</strong>
+      <small>усі модулі готові до роботи</small>
     </section>
 
-    <section class="module-grid" aria-label="Основні модулі">
-      <a class="module-card primary" href="./analysis.html">
-        <span class="module-icon">◎</span>
-        <strong>Аналіз</strong>
-        <p>Карта, звіти, висновки, оперативна аналітика.</p>
-      </a>
+    <section class="orbital-stage" aria-label="Головне меню BASTION">
+      <div class="orbital-aura"></div>
+      <svg class="orbital-svg" id="orbitalSvg" viewBox="0 0 1000 1000" role="img" aria-label="Секторне меню BASTION">
+        <defs>
+          <filter id="sectorGlow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <g id="sectorPaths"></g>
+        <g class="core-rings" aria-hidden="true">
+          <circle cx="500" cy="500" r="176" />
+          <circle cx="500" cy="500" r="143" />
+          <circle cx="500" cy="500" r="108" />
+        </g>
+      </svg>
 
-      <a class="module-card" href="./upload.html">
-        <span class="module-icon">⇪</span>
-        <strong>Завантаження</strong>
-        <p>Імпорт файлів, перевірка структури, первинна обробка.</p>
-      </a>
+      <div class="module-labels" id="moduleLabels"></div>
 
-      <a class="module-card" href="./dicts.html">
-        <span class="module-icon">◇</span>
-        <strong>Довідники</strong>
-        <p>Нормалізація, словники, зв’язки, pending-значення.</p>
-      </a>
-
-      <a class="module-card" href="./pending_v3.html">
-        <span class="module-icon">✦</span>
-        <strong>Pending Game</strong>
-        <p>Гейміфікована обробка невирішених значень.</p>
-      </a>
-
-      <a class="module-card" href="../admin/index.html">
-        <span class="module-icon">⌬</span>
-        <strong>Адмін-панель</strong>
-        <p>Користувачі, доступи, інвайти, системні параметри.</p>
-      </a>
-
-      <a class="module-card" href="./logs.html">
-        <span class="module-icon">☷</span>
-        <strong>Логи</strong>
-        <p>Журнал подій, технічний моніторинг, помилки.</p>
+      <a class="core-node" href="./app.html" aria-label="BASTION CORE">
+        <img src="../assets/logo/bastion-mark.svg?v=47" alt="" />
+        <strong>BASTION</strong>
+        <small>CORE SYSTEM</small>
+        <span>● СИСТЕМА АКТИВНА</span>
       </a>
     </section>
   </main>
 
-  <script src="../scripts/config.js?v=40"></script>
-  <script src="../scripts/auth.js?v=40"></script>
-  <script src="../scripts/app-home.js?v=40"></script>
+  <footer class="bottom-contact" aria-label="Контактна інформація">
+    <a href="mailto:support@bastion.system">✉ support@bastion.system</a>
+    <span>•</span>
+    <a href="https://t.me/bastion_support">⌁ @bastion_support</a>
+    <span>•</span>
+    <a href="tel:+380970000000">☏ +38 (097) 000-00-00</a>
+  </footer>
+
+  <nav class="bottom-map" aria-label="Карта сайту">
+    <span class="map-title">SITE MAP</span>
+    <button class="map-dot is-active" type="button" data-target="core" title="BASTION Core"></button>
+    <button class="map-dot" type="button" data-target="dicts" title="Довідники"></button>
+    <button class="map-dot" type="button" data-target="upload" title="Завантаження"></button>
+    <button class="map-dot" type="button" data-target="nodes" title="Зв’язки / Вузли"></button>
+    <button class="map-dot" type="button" data-target="calculator" title="Калькулятор"></button>
+    <button class="map-dot" type="button" data-target="analysis" title="Аналіз"></button>
+    <button class="map-dot" type="button" data-target="command" title="Висновки"></button>
+  </nav>
+
+  <div class="profile-modal" id="profileModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+    <div class="profile-backdrop" data-close-profile></div>
+    <section class="profile-card">
+      <button class="profile-close" type="button" data-close-profile aria-label="Закрити">×</button>
+      <div class="profile-head">
+        <span class="profile-avatar" id="profileAvatar">◖</span>
+        <div>
+          <p>USER NODE</p>
+          <h2 id="profileTitle">Профіль користувача</h2>
+        </div>
+      </div>
+      <dl class="profile-data">
+        <div><dt>Логін</dt><dd id="profileLogin">—</dd></div>
+        <div><dt>Email</dt><dd id="profileEmail">—</dd></div>
+        <div><dt>Рівень доступу</dt><dd id="profileRole">—</dd></div>
+        <div><dt>Статус</dt><dd>ACTIVE / MFA VERIFIED</dd></div>
+      </dl>
+      <div class="profile-actions">
+        <button type="button" class="ghost-btn">Редагувати аватар</button>
+        <button type="button" class="danger-btn" id="logoutButton">Вийти з системи</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="../scripts/config.js?v=47"></script>
+  <script src="../scripts/auth.js?v=47"></script>
+  <script src="../scripts/app-home.js?v=47"></script>
 </body>
 </html>
