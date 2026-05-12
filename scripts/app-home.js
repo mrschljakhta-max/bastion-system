@@ -164,7 +164,7 @@
 
       label.innerHTML = `
         <span class="num">${module.num}</span>
-        <img class="module-icon" src="${iconBase}${module.icon}?v=61" alt="" />
+        <img class="module-icon" src="${iconBase}${module.icon}?v=63" alt="" />
         <strong>${module.title}</strong>
       `;
 
