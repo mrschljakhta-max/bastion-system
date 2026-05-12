@@ -196,47 +196,7 @@
       el.classList.toggle("is-active", !!id && el.dataset.id === id);
     });
 
-    if (!floatingDetail) return;
-
-    if (!id) {
-      floatingDetail.classList.remove("is-visible");
-      return;
-    }
-
-    const module = modules.find((item) => item.id === id);
-    const label = document.querySelector(`.module-label[data-id="${id}"]`);
-    const stage = document.querySelector(".orbital-menu");
-
-    if (!module || !label || !stage) return;
-
-    const stageRect = stage.getBoundingClientRect();
-    const labelRect = label.getBoundingClientRect();
-
-    let left = labelRect.left - stageRect.left + labelRect.width / 2;
-    let top = labelRect.top - stageRect.top + labelRect.height / 2;
-
-    const centerX = stageRect.width / 2;
-    const centerY = stageRect.height / 2;
-    const vx = left - centerX;
-    const vy = top - centerY;
-    const length = Math.max(Math.hypot(vx, vy), 1);
-
-    left += (vx / length) * 146;
-    top += (vy / length) * 98;
-
-    left = Math.max(135, Math.min(stageRect.width - 135, left));
-    top = Math.max(76, Math.min(stageRect.height - 76, top));
-
-    floatingDetail.style.left = `${left}px`;
-    floatingDetail.style.top = `${top}px`;
-
-    floatingDetail.innerHTML = `
-      <b>${module.num} · ${module.subtitle}</b>
-      <strong>${module.title}</strong>
-      <ul>${module.items.map((item) => `<li>${item}</li>`).join("")}</ul>
-    `;
-
-    floatingDetail.classList.add("is-visible");
+    // v69: tooltip/detail card disabled by design. Hover only activates sector movement/glow/text.
   }
 
   function openProfile() {
