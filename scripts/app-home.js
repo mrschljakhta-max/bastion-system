@@ -186,7 +186,12 @@
       label.style.setProperty("--label-ty", `${dy * push}px`);
 
       label.innerHTML = `
-        <img class="sector-label-art" src="../assets/ui/sectors/sector-${module.num}.svg?v=68" alt="${module.num} ${module.title}" />
+        <span class="sector-art-stack" aria-hidden="true">
+          <img class="sector-number-art" src="../assets/ui/sector-numbers/sector-${module.num}.svg?v=83" alt="" />
+          <span class="sector-art-divider"></span>
+          <img class="sector-title-art" src="../assets/ui/sector-titles/${module.id}.svg?v=83" alt="" />
+        </span>
+        <span class="sr-only">${module.num} ${module.title}</span>
       `;
 
       labelsMount.appendChild(label);
