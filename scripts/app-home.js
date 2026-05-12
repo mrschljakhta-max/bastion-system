@@ -13,6 +13,11 @@
   const profileLogin = document.getElementById("profileLogin");
   const profileEmail = document.getElementById("profileEmail");
   const profileRole = document.getElementById("profileRole");
+  const profileNicknameInput = document.getElementById("profileNicknameInput");
+  const profileAvatarInput = document.getElementById("profileAvatarInput");
+  const saveProfileButton = document.getElementById("saveProfileButton");
+  const userAvatarTop = document.getElementById("userAvatarTop");
+  const userAvatarModal = document.getElementById("userAvatarModal");
   const iconBase = "../assets/icons/orbital/";
 
   const modules = [
@@ -28,7 +33,7 @@
     const sessionUser = window.BastionAuth?.user || window.BastionAuth?.currentUser || null;
 
     return {
-      login: localStorage.getItem("bastion_login") || sessionUser?.user_metadata?.login || sessionUser?.email || "",
+      login: localStorage.getItem("bastion_profile_nickname") || localStorage.getItem("bastion_login") || sessionUser?.user_metadata?.login || sessionUser?.email || "",
       role: localStorage.getItem("bastion_role") || sessionUser?.user_metadata?.role || "demo",
       email: localStorage.getItem("bastion_email") || sessionUser?.email || ""
     };
@@ -56,6 +61,12 @@
     if (profileLogin) profileLogin.textContent = login;
     if (profileEmail) profileEmail.textContent = user.email || "email не визначено";
     if (profileRole) profileRole.textContent = role;
+    if (profileNicknameInput) profileNicknameInput.value = login;
+    const savedAvatar = localStorage.getItem("bastion_profile_avatar");
+    if (savedAvatar) {
+      if (userAvatarTop) userAvatarTop.src = savedAvatar;
+      if (userAvatarModal) userAvatarModal.src = savedAvatar;
+    }
   }
 
   function polarToCartesian(cx, cy, radius, angle) {
@@ -230,6 +241,29 @@
     userMenuButton?.addEventListener("click", openProfile);
     logoutButton?.addEventListener("click", logout);
 
+    saveProfileButton?.addEventListener("click", () => {
+      const nickname = (profileNicknameInput?.value || "").trim().replace(/[<>]/g, "");
+      if (nickname.length >= 3) {
+        localStorage.setItem("bastion_profile_nickname", nickname.slice(0, 32));
+        if (operatorName) operatorName.textContent = nickname.slice(0, 32);
+      }
+      closeProfile();
+    });
+
+    profileAvatarInput?.addEventListener("change", () => {
+      const file = profileAvatarInput.files?.[0];
+      if (!file || !file.type.startsWith("image/") || file.size > 2 * 1024 * 1024) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = String(reader.result || "");
+        localStorage.setItem("bastion_profile_avatar", dataUrl);
+        if (userAvatarTop) userAvatarTop.src = dataUrl;
+        if (userAvatarModal) userAvatarModal.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+
     document.querySelectorAll("[data-close-profile]").forEach((el) => {
       el.addEventListener("click", closeProfile);
     });
@@ -250,10 +284,21 @@
 
         if (target === "core") {
           activateModule(null);
+          window.location.href = "./app.html";
           return;
         }
 
+        const pageMap = {
+          dicts: "./dicts.html",
+          upload: "./upload.html",
+          nodes: "./nodes.html",
+          calculator: "./calculator.html",
+          analysis: "./analysis.html",
+          command: "./command.html"
+        };
+
         activateModule(target);
+        if (pageMap[target]) window.location.href = pageMap[target];
       });
     });
   }
