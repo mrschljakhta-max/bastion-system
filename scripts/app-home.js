@@ -22,8 +22,8 @@
 
   const modules = [
     { id: "dicts", num: "01", icon: "dicts.svg", title: "Довідники", subtitle: "Dictionaries Core", href: "./dicts.html", items: ["Управління довідниками", "Еталонні дані", "Нормалізація", "Словники"] },
-    { id: "upload", num: "02", icon: "upload.svg", title: "Завантаження", subtitle: "Upload / Intake", href: "./upload.html", items: ["Завантаження Word / Excel", "Імпорт даних", "Запуск ETL процесів"] },
-    { id: "nodes", num: "03", icon: "nodes.svg", title: "Зв’язки / Вузли", subtitle: "Network / Nodes", href: "./nodes.html", items: ["Візуалізація зв’язків", "Граф залежностей", "Intelligence Network", "Вузли системи"] },
+    { id: "nodes", num: "02", icon: "nodes.svg", title: "Зв’язки / Вузли", subtitle: "Network / Nodes", href: "./nodes.html", items: ["Візуалізація зв’язків", "Граф залежностей", "Intelligence Network", "Вузли системи"] },
+    { id: "upload", num: "03", icon: "upload.svg", title: "Завантаження", subtitle: "Upload / Intake", href: "./upload.html", items: ["Завантаження Word / Excel", "Імпорт даних", "Запуск ETL процесів"] },
     { id: "calculator", num: "04", icon: "calculator.svg", title: "Калькулятор", subtitle: "Combat Calculator", href: "./calculator.html", items: ["Обчислення", "Комбінації", "Сумісність", "Бойові формули"] },
     { id: "analysis", num: "05", icon: "analysis.svg", title: "Аналіз", subtitle: "Analysis Engine", href: "./analysis.html", items: ["Дашборди", "Аналітика", "Карти та Heatmaps", "Статистика"] },
     { id: "command", num: "06", icon: "command.svg", title: "Висновки для командира", subtitle: "Command Intelligence", href: "./command.html", items: ["AI-рекомендації", "Оцінка ризиків", "Тактичні інсайти", "Critical Alerts"] }
@@ -110,7 +110,7 @@
     const innerR = 214;
     const outerR = 438;
     const gap = 5;
-    const labelR = 326;
+    const labelR = 302;
     const push = 22;
 
     sectorGroup.innerHTML = "";
@@ -185,11 +185,16 @@
       label.style.setProperty("--label-tx", `${dx * push}px`);
       label.style.setProperty("--label-ty", `${dy * push}px`);
 
+      const isBottomFlip = module.num === "03" || module.num === "04";
+      label.classList.toggle("is-bottom-flip", isBottomFlip);
+
+      const numberImg = `<img class="sector-number-art" src="../assets/ui/sector-numbers/sector-${module.num}.svg?v=84" alt="" />`;
+      const titleImg = `<img class="sector-title-art" src="../assets/ui/sector-titles/${module.id}.svg?v=84" alt="" />`;
+      const divider = `<span class="sector-art-divider"></span>`;
+
       label.innerHTML = `
         <span class="sector-art-stack" aria-hidden="true">
-          <img class="sector-number-art" src="../assets/ui/sector-numbers/sector-${module.num}.svg?v=83" alt="" />
-          <span class="sector-art-divider"></span>
-          <img class="sector-title-art" src="../assets/ui/sector-titles/${module.id}.svg?v=83" alt="" />
+          ${isBottomFlip ? `${titleImg}${divider}${numberImg}` : `${numberImg}${divider}${titleImg}`}
         </span>
         <span class="sr-only">${module.num} ${module.title}</span>
       `;
