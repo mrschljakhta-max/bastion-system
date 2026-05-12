@@ -2,6 +2,7 @@
   const canvas = document.getElementById("particlesCanvas");
   const ctx = canvas?.getContext("2d");
   const sectorGroup = document.getElementById("sectorPaths");
+  const energyBeams = document.getElementById("energyBeams");
   const labelsMount = document.getElementById("moduleLabels");
   const floatingDetail = document.getElementById("floatingDetail");
   const userMenuButton = document.getElementById("userMenuButton");
@@ -82,6 +83,14 @@
     ].join(" ");
   }
 
+
+  function beamPath(cx, cy, innerR, outerR, angle) {
+    const p1 = polarToCartesian(cx, cy, innerR, angle);
+    const p2 = polarToCartesian(cx, cy, outerR, angle);
+
+    return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+  }
+
   function buildOrbitalMenu() {
     if (!sectorGroup || !labelsMount) return;
 
@@ -94,6 +103,7 @@
     const push = 22;
 
     sectorGroup.innerHTML = "";
+    if (energyBeams) energyBeams.innerHTML = "";
     labelsMount.innerHTML = "";
 
     modules.forEach((module, index) => {
@@ -108,17 +118,38 @@
       const link = document.createElementNS("http://www.w3.org/2000/svg", "a");
       link.setAttribute("href", module.href);
       link.setAttribute("data-id", module.id);
-      link.setAttribute("class", "sector-link");
+      link.setAttribute("aria-label", module.title);
+      link.setAttribute("class", `sector-link sector-${module.num}`);
       link.style.setProperty("--sector-tx", `${dx * 18}px`);
       link.style.setProperty("--sector-ty", `${dy * 18}px`);
+
+      const underGlow = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      underGlow.setAttribute("d", sectorPath(cx, cy, innerR + 6, outerR - 6, start + 1.2, end - 1.2));
+      underGlow.setAttribute("class", "sector-under-glow");
+      underGlow.setAttribute("data-id", module.id);
 
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("d", sectorPath(cx, cy, innerR, outerR, start, end));
       path.setAttribute("class", "sector-path");
       path.setAttribute("data-id", module.id);
 
+      const sheen = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      sheen.setAttribute("d", sectorPath(cx, cy, innerR + 18, outerR - 18, start + 4, end - 4));
+      sheen.setAttribute("class", "sector-sheen");
+      sheen.setAttribute("data-id", module.id);
+
+      link.appendChild(underGlow);
       link.appendChild(path);
+      link.appendChild(sheen);
       sectorGroup.appendChild(link);
+
+      if (energyBeams) {
+        const beam = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        beam.setAttribute("d", beamPath(cx, cy, 160, 446, mid));
+        beam.setAttribute("class", "sector-beam");
+        beam.setAttribute("data-id", module.id);
+        energyBeams.appendChild(beam);
+      }
 
       const labelPos = polarToCartesian(cx, cy, labelR, mid);
       const label = document.createElement("a");
@@ -133,14 +164,14 @@
 
       label.innerHTML = `
         <span class="num">${module.num}</span>
-        <img class="module-icon" src="${iconBase}${module.icon}?v=59" alt="" />
+        <img class="module-icon" src="${iconBase}${module.icon}?v=61" alt="" />
         <strong>${module.title}</strong>
       `;
 
       labelsMount.appendChild(label);
     });
 
-    document.querySelectorAll("[data-id]").forEach((el) => {
+    document.querySelectorAll(".sector-link, .module-label").forEach((el) => {
       el.addEventListener("mouseenter", () => activateModule(el.dataset.id));
       el.addEventListener("mouseleave", () => activateModule(null));
       el.addEventListener("focus", () => activateModule(el.dataset.id));
@@ -149,7 +180,9 @@
   }
 
   function activateModule(id) {
-    document.querySelectorAll(".sector-path, .module-label").forEach((el) => {
+    document.body.dataset.activeModule = id || "";
+
+    document.querySelectorAll(".sector-link, .sector-path, .sector-under-glow, .sector-sheen, .sector-beam, .module-label").forEach((el) => {
       el.classList.toggle("is-active", !!id && el.dataset.id === id);
     });
 
