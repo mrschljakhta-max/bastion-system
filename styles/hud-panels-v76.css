@@ -1,0 +1,122 @@
+
+body{
+    margin:0;
+    background:#050505;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+}
+
+.hud-panel{
+    position:absolute;
+    width:420px;
+    height:130px;
+    background:url('../assets/hud-panel-right.png') center/contain no-repeat;
+    display:flex;
+    align-items:center;
+    padding:0 42px;
+    box-sizing:border-box;
+}
+
+.mirrored{
+    transform:scaleX(-1);
+}
+
+.mirrored .panel-content{
+    transform:scaleX(-1);
+}
+
+.top-left-panel{
+    top:32px;
+    left:32px;
+}
+
+.top-right-panel{
+    top:32px;
+    right:32px;
+}
+
+.avatar-ring{
+    width:94px;
+    height:94px;
+    border-radius:50%;
+    margin-right:26px;
+    background:
+      radial-gradient(circle at center,#ff3b1d 0%,#4b0000 70%,transparent 71%);
+    box-shadow:
+      0 0 12px #ff2d00,
+      inset 0 0 18px #ff2d00;
+}
+
+.avatar-ring.user{
+    background:
+      radial-gradient(circle at center,#ff5a2d 0%,#240000 70%,transparent 71%);
+}
+
+.panel-content{
+    color:white;
+}
+
+.panel-title{
+    font-size:38px;
+    font-weight:700;
+    letter-spacing:1px;
+}
+
+.panel-subtitle{
+    margin-top:10px;
+    font-size:18px;
+    opacity:.82;
+}
+
+.panel-subtitle span{
+    color:#ff4d2d;
+    font-weight:700;
+}
+
+.hud-footer{
+    position:absolute;
+    left:32px;
+    bottom:32px;
+    width:360px;
+    height:72px;
+    border:1px solid rgba(255,60,0,.45);
+    display:flex;
+    align-items:center;
+    padding:0 24px;
+    color:#fff;
+    background:rgba(8,8,8,.72);
+    box-shadow:0 0 20px rgba(255,60,0,.2);
+}
+
+.hud-map{
+    position:absolute;
+    right:32px;
+    bottom:32px;
+    width:320px;
+    height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.map-line{
+    position:absolute;
+    width:250px;
+    height:2px;
+    background:rgba(255,40,0,.55);
+}
+
+.map-dot{
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    border:2px solid #ff3a1f;
+    margin:0 18px;
+    background:#080808;
+    z-index:2;
+}
+
+.map-dot.active{
+    background:#ff3a1f;
+    box-shadow:0 0 14px #ff3a1f;
+}
