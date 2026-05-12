@@ -110,7 +110,7 @@
     const innerR = 214;
     const outerR = 438;
     const gap = 5;
-    const labelR = 302;
+    const labelR = 282;
     const push = 22;
 
     sectorGroup.innerHTML = "";
