@@ -133,6 +133,16 @@
       path.setAttribute("class", "sector-path");
       path.setAttribute("data-id", module.id);
 
+      const edge = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      edge.setAttribute("d", sectorPath(cx, cy, innerR + 8, outerR - 8, start + 1.8, end - 1.8));
+      edge.setAttribute("class", "sector-edge");
+      edge.setAttribute("data-id", module.id);
+
+      const scan = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      scan.setAttribute("d", sectorPath(cx, cy, innerR + 36, outerR - 34, start + 9, end - 9));
+      scan.setAttribute("class", "sector-scan");
+      scan.setAttribute("data-id", module.id);
+
       const sheen = document.createElementNS("http://www.w3.org/2000/svg", "path");
       sheen.setAttribute("d", sectorPath(cx, cy, innerR + 18, outerR - 18, start + 4, end - 4));
       sheen.setAttribute("class", "sector-sheen");
@@ -140,6 +150,8 @@
 
       link.appendChild(underGlow);
       link.appendChild(path);
+      link.appendChild(scan);
+      link.appendChild(edge);
       link.appendChild(sheen);
       sectorGroup.appendChild(link);
 
@@ -163,9 +175,7 @@
       label.style.setProperty("--label-ty", `${dy * push}px`);
 
       label.innerHTML = `
-        <span class="num">${module.num}</span>
-        <img class="module-icon" src="${iconBase}${module.icon}?v=63" alt="" />
-        <strong>${module.title}</strong>
+        <img class="sector-label-art" src="../assets/ui/sectors/sector-${module.num}.svg?v=68" alt="${module.num} ${module.title}" />
       `;
 
       labelsMount.appendChild(label);
@@ -182,7 +192,7 @@
   function activateModule(id) {
     document.body.dataset.activeModule = id || "";
 
-    document.querySelectorAll(".sector-link, .sector-path, .sector-under-glow, .sector-sheen, .sector-beam, .module-label").forEach((el) => {
+    document.querySelectorAll(".sector-link, .sector-path, .sector-under-glow, .sector-sheen, .sector-edge, .sector-scan, .sector-beam, .module-label").forEach((el) => {
       el.classList.toggle("is-active", !!id && el.dataset.id === id);
     });
 
