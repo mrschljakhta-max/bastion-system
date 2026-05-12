@@ -213,11 +213,13 @@
   function openProfile() {
     profileModal?.classList.add("is-open");
     profileModal?.setAttribute("aria-hidden", "false");
+    userMenuButton?.setAttribute("aria-expanded", "true");
   }
 
   function closeProfile() {
     profileModal?.classList.remove("is-open");
     profileModal?.setAttribute("aria-hidden", "true");
+    userMenuButton?.setAttribute("aria-expanded", "false");
   }
 
   async function logout() {
