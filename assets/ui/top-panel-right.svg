@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="150" viewBox="0 0 760 150" fill="none">
+  <g transform="translate(760 0) scale(-1 1)">
+    <path d="M24 75 L72 22 L154 22 L204 74 L154 128 L72 128 Z" fill="url(#hexFill)" stroke="#ff453b" stroke-width="2.2"/>
+    <path d="M52 75 L84 41 L142 41 L174 74 L142 109 L84 109 Z" stroke="#ff5d4d" stroke-opacity="0.75" stroke-width="1.1"/>
+    <path d="M188 45 L708 45 L736 75 L708 105 L188 105 L154 128 L204 74 L154 22 Z" fill="url(#plate)" stroke="#25303d" stroke-width="2"/>
+    <path d="M190 48 L705 48 L727 75 L705 102 L190 102" stroke="#e9eef5" stroke-opacity="0.36" stroke-width="1.25"/>
+    <path d="M188 52 L704 52 L723 75" stroke="url(#edge)" stroke-width="2.4"/>
+    <path d="M188 98 L704 98 L723 75" stroke="#ff2b28" stroke-opacity="0.36" stroke-width="1.6"/>
+    <path d="M72 75 H166" stroke="#ff3c35" stroke-opacity="0.55" stroke-width="1.5"/>
+    <path d="M62 38 L44 58 M62 112 L44 92 M162 38 L184 60 M162 112 L184 90" stroke="#ff4a3e" stroke-opacity="0.62" stroke-width="1.4"/>
+    <path d="M222 61 H450 M222 89 H500" stroke="#ff453b" stroke-opacity="0.22" stroke-width="1"/>
+    <path d="M218 112 h54 m12 0 h18 m14 0 h20" stroke="#ff3c35" stroke-opacity="0.75" stroke-width="4"/>
+  </g>
+</g>
+  <defs>
+    <filter id="glow" x="-30%" y="-60%" width="160%" height="220%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feColorMatrix in="b" type="matrix" values="1 0 0 0 1  0 0.18 0 0 0.12  0 0 0.12 0 0.08  0 0 0 0.9 0" result="r"/>
+      <feMerge><feMergeNode in="r"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="plate" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#090b0f" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#11141b" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#050608" stop-opacity="0.74"/>
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff2b28" stop-opacity="0.95"/>
+      <stop offset="0.5" stop-color="#ff7360" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#ff2b28" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="hexFill" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#1a0607" stop-opacity="0.52"/>
+      <stop offset="1" stop-color="#030405" stop-opacity="0.92"/>
+    </radialGradient>
+  </defs>
+</svg>
