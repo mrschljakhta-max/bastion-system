@@ -110,7 +110,7 @@
     const innerR = 214;
     const outerR = 438;
     const gap = 5;
-    const labelR = 282;
+    const labelR = 318;
     const push = 22;
 
     sectorGroup.innerHTML = "";
@@ -188,8 +188,8 @@
       const isBottomFlip = module.num === "03" || module.num === "04";
       label.classList.toggle("is-bottom-flip", isBottomFlip);
 
-      const numberImg = `<img class="sector-number-art" src="../assets/ui/sector-numbers/sector-${module.num}.svg?v=84" alt="" />`;
-      const titleImg = `<img class="sector-title-art" src="../assets/ui/sector-titles/${module.id}.svg?v=84" alt="" />`;
+      const numberImg = `<img class="sector-number-art" src="../assets/ui/sector-numbers/sector-${module.num}.svg?v=88" alt="" />`;
+      const titleImg = `<img class="sector-title-art" src="../assets/ui/sector-titles/${module.id}.svg?v=88" alt="" />`;
       const divider = `<span class="sector-art-divider"></span>`;
 
       label.innerHTML = `
