@@ -4999,7 +4999,7 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
   }
 
   .top-orbi-plate { left: 10px !important; }
-  .top-user-plate { right: 10px !important; }
+  .top-user-plate { right: -12px !important; }
 
   .top-clean-plate-copy {
     top: 34px !important;
@@ -5129,11 +5129,11 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
 }
 
 .top-corner-plate-left {
-  left: 18px !important;
+  left: -22px !important;
 }
 
 .top-corner-plate-right {
-  right: 18px !important;
+  right: -22px !important;
 }
 
 .top-corner-plate img {
@@ -5179,7 +5179,7 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
   }
 
   .top-corner-plate-right {
-    right: 10px !important;
+    right: -12px !important;
   }
 }
 
