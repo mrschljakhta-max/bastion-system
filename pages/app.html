@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — Core</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=114" />
-  <link rel="stylesheet" href="../styles/app-home-v115.css?v=115" />
+  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=116" />
+  <link rel="stylesheet" href="../styles/app-home-v116.css?v=116" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -45,101 +45,33 @@
     <div class="scanlines"></div>
   </div>
 </div>
-
-  
-  <header class="top-hud-panels" aria-hidden="true">
-
-    <section class="hud-top-panel hud-top-panel-left">
-      <img class="hud-panel-bg" src="../assets/ui/hud-panel-frame-v78.png?v=78" alt="">
-
-      <div class="hud-avatar-zone hud-avatar-zone-left">
-        <img
-          class="hud-avatar-image"
-          src="../assets/ui/orbi-avatar-v2.png?v=2"
-          alt="ORBI"
-        >
+  <div class="b116-top-panels" aria-hidden="true">
+    <section class="b116-panel b116-panel--left">
+      <img class="b116-panel__bg" src="../assets/ui/hud-panel-frame-v116.png?v=116" alt="" />
+      <div class="b116-panel__avatar-box">
+        <img class="b116-panel__avatar" src="../assets/ui/orbi-avatar-v116.png?v=116" alt="" />
       </div>
-
-      <div class="hud-text-zone hud-text-zone-left">
-        <div class="hud-title">ОРБІ</div>
-        <div class="hud-subtitle">ПОМІЧНИК</div>
+      <div class="b116-panel__text">
+        <strong>ОРБІ</strong>
+        <small>ПОМІЧНИК</small>
       </div>
     </section>
 
-    <section class="hud-top-panel hud-top-panel-right">
-
-      <img
-        class="hud-panel-bg hud-panel-bg-right"
-        src="../assets/ui/hud-panel-frame-v78.png?v=78"
-        alt=""
-      >
-
-      <div class="hud-avatar-zone hud-avatar-zone-right">
-        <img
-          id="userAvatarTop"
-          class="hud-avatar-image"
-          src="../assets/icons/default-user-avatar.png?v=1"
-          alt="USER"
-        >
+    <section class="b116-panel b116-panel--right">
+      <img class="b116-panel__bg b116-panel__bg--mirror" src="../assets/ui/hud-panel-frame-v116.png?v=116" alt="" />
+      <div class="b116-panel__avatar-box">
+        <img id="userAvatarTop" class="b116-panel__avatar plate-avatar-user" src="../assets/ui/default-user-avatar-v105.png?v=116" alt="" />
       </div>
-
-      <div class="hud-text-zone hud-text-zone-right">
-        <div id="operatorName" class="hud-title">lavash.squad</div>
-
-        <div class="hud-subtitle">
-          РІВЕНЬ ДОСТУПУ:
-          <span id="operatorRole">DEMO</span>
-        </div>
+      <div class="b116-panel__text">
+        <strong id="operatorName">lavash.squad</strong>
+        <small>РІВЕНЬ ДОСТУПУ: <span id="operatorRole">DEMO</span></small>
+        <strong id="plateOperatorName" class="b116-hidden-sync">lavash.squad</strong>
+        <span id="plateOperatorRole" class="b116-hidden-sync">DEMO</span>
       </div>
-
     </section>
-
-  </header>
-
-  <div class="b114-hud-plate b114-hud-plate--left" aria-hidden="true">
-    <img class="b114-hud-plate__bg" src="../assets/ui/top-corner-plate-left-v103.png?v=114" alt="" />
-    <div class="b114-hud-plate__layout">
-    <div class="b114-hud-plate__avatar-wrap">
-      <img class="b114-hud-plate__avatar b114-hud-plate__avatar--orbi" src="../assets/ui/default-user-avatar-v105.png?v=114" alt="" />
-    </div>
-    <div class="b114-hud-plate__copy b114-hud-plate__copy--orbi">
-      <strong>ОРБІ</strong>
-      <small>ПОМІЧНИК</small>
-    </div>
-  </div>
-</div>
-
-  <div class="b114-hud-plate b114-hud-plate--right" aria-hidden="true">
-    <img class="b114-hud-plate__bg" src="../assets/ui/top-corner-plate-right-v103.png?v=114" alt="" />
-    <div class="b114-hud-plate__layout">
-    <div class="b114-hud-plate__layout">
-    <div class="b114-hud-plate__avatar-wrap">
-      <img class="b114-hud-plate__avatar b114-hud-plate__avatar--user plate-avatar-user" src="../assets/ui/default-user-avatar-v105.png?v=114" alt="" />
-    </div>
-    <div class="b114-hud-plate__copy b114-hud-plate__copy--user">
-      <strong id="plateOperatorName">lavash.squad</strong>
-      <small>РІВЕНЬ ДОСТУПУ: <b id="plateOperatorRole">DEMO</b></small>
-    </div>
   </div>
 
-<div class="hud-plate__text-zone hud-plate__text-zone--orbi">
-      <strong>ОРБІ</strong>
-      <small>ПОМІЧНИК</small>
-    </div>
-  </div>
-<div class="hud-plate__text-zone hud-plate__text-zone--user">
-      <strong id="plateOperatorName">lavash.squad</strong>
-      <small>РІВЕНЬ ДОСТУПУ: <b id="plateOperatorRole">DEMO</b></small>
-    </div>
-  </div>
 
-</div>
-</div>
-
-</div>
-</div>
-</div>
-</div>
 
 
   <main class="core-screen">
@@ -239,6 +171,6 @@
     </section>
   </div>
 
-  <script src="../scripts/app-home.js?v=114"></script>
+  <script src="../scripts/app-home.js?v=116"></script>
 </body>
 </html>
