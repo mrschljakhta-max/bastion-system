@@ -18,6 +18,9 @@
   const saveProfileButton = document.getElementById("saveProfileButton");
   const userAvatarTop = document.getElementById("userAvatarTop");
   const userAvatarModal = document.getElementById("userAvatarModal");
+  const plateOperatorName = document.getElementById("plateOperatorName");
+  const plateOperatorRole = document.getElementById("plateOperatorRole");
+  const plateAvatarUser = document.querySelector(".plate-avatar-user");
   const iconBase = "../assets/icons/orbital/";
 
   const modules = [
@@ -50,22 +53,73 @@
     return true;
   }
 
-  function setUserInfo() {
-    const user = getStoredUser();
-    const login = user.login || "Користувач";
-    const role = user.role || "demo";
+  function safeText(value, fallback = "") {
+    return String(value ?? fallback).replace(/[<>]/g, "").trim();
+  }
 
-    if (operatorName) operatorName.textContent = login;
+  function normalizeRole(value) {
+    return safeText(value || "DEMO", "DEMO").toUpperCase();
+  }
+
+  function applyProfileToHud(profile, authUser) {
+    const email = safeText(profile?.email || authUser?.email || localStorage.getItem("bastion_email") || "");
+    const fallbackLogin = safeText(localStorage.getItem("bastion_profile_nickname") || localStorage.getItem("bastion_login") || email?.split("@")?.[0] || "lavash.squad");
+    const nickname = safeText(profile?.nickname || fallbackLogin || "lavash.squad").slice(0, 32);
+    const role = normalizeRole(profile?.access_level || localStorage.getItem("bastion_role") || "DEMO");
+    const avatarUrl = safeText(profile?.avatar_url || localStorage.getItem("bastion_profile_avatar") || "");
+
+    if (operatorName) operatorName.textContent = nickname;
     if (operatorRole) operatorRole.textContent = role;
 
-    if (profileLogin) profileLogin.textContent = login;
-    if (profileEmail) profileEmail.textContent = user.email || "email не визначено";
+    if (plateOperatorName) plateOperatorName.textContent = nickname;
+    if (plateOperatorRole) plateOperatorRole.textContent = role;
+
+    if (profileLogin) profileLogin.textContent = nickname;
+    if (profileEmail) profileEmail.textContent = email || "email не визначено";
     if (profileRole) profileRole.textContent = role;
-    if (profileNicknameInput) profileNicknameInput.value = login;
-    const savedAvatar = localStorage.getItem("bastion_profile_avatar");
-    if (savedAvatar) {
-      if (userAvatarTop) userAvatarTop.src = savedAvatar;
-      if (userAvatarModal) userAvatarModal.src = savedAvatar;
+    if (profileNicknameInput) profileNicknameInput.value = nickname;
+
+    if (avatarUrl) {
+      if (userAvatarTop) userAvatarTop.src = avatarUrl;
+      if (userAvatarModal) userAvatarModal.src = avatarUrl;
+      if (plateAvatarUser) plateAvatarUser.src = avatarUrl;
+    }
+  }
+
+  async function setUserInfo() {
+    const localUser = getStoredUser();
+
+    applyProfileToHud({
+      email: localUser.email,
+      nickname: localStorage.getItem("bastion_profile_nickname") || localUser.login || "lavash.squad",
+      access_level: localUser.role || "DEMO",
+      avatar_url: localStorage.getItem("bastion_profile_avatar") || ""
+    }, null);
+
+    const sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
+    if (!sb?.auth?.getUser) return;
+
+    try {
+      const { data: authData, error: authError } = await sb.auth.getUser();
+      if (authError || !authData?.user) return;
+
+      const authUser = authData.user;
+
+      const { data: profile, error: profileError } = await sb
+        .from("profiles")
+        .select("id,email,nickname,access_level,avatar_url")
+        .eq("id", authUser.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.warn("[BASTION profile] Не вдалося отримати profiles:", profileError);
+        applyProfileToHud({ email: authUser.email }, authUser);
+        return;
+      }
+
+      applyProfileToHud(profile || { email: authUser.email }, authUser);
+    } catch (error) {
+      console.warn("[BASTION profile] Помилка профілю:", error);
     }
   }
 
@@ -253,11 +307,28 @@
     userMenuButton?.addEventListener("click", openProfile);
     logoutButton?.addEventListener("click", logout);
 
-    saveProfileButton?.addEventListener("click", () => {
-      const nickname = (profileNicknameInput?.value || "").trim().replace(/[<>]/g, "");
+    saveProfileButton?.addEventListener("click", async () => {
+      const nickname = safeText(profileNicknameInput?.value || "").slice(0, 32);
       if (nickname.length >= 3) {
-        localStorage.setItem("bastion_profile_nickname", nickname.slice(0, 32));
-        if (operatorName) operatorName.textContent = nickname.slice(0, 32);
+        localStorage.setItem("bastion_profile_nickname", nickname);
+        if (operatorName) operatorName.textContent = nickname;
+        if (plateOperatorName) plateOperatorName.textContent = nickname;
+
+        const sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
+        try {
+          const { data: authData } = await sb?.auth?.getUser?.() || {};
+          const userId = authData?.user?.id;
+          if (userId && sb?.from) {
+            const { error } = await sb
+              .from("profiles")
+              .update({ nickname, updated_at: new Date().toISOString() })
+              .eq("id", userId);
+
+            if (error) console.warn("[BASTION profile] Не вдалося зберегти nickname:", error);
+          }
+        } catch (error) {
+          console.warn("[BASTION profile] Помилка збереження nickname:", error);
+        }
       }
       closeProfile();
     });
@@ -272,6 +343,7 @@
         localStorage.setItem("bastion_profile_avatar", dataUrl);
         if (userAvatarTop) userAvatarTop.src = dataUrl;
         if (userAvatarModal) userAvatarModal.src = dataUrl;
+        if (plateAvatarUser) plateAvatarUser.src = dataUrl;
       };
       reader.readAsDataURL(file);
     });
