@@ -5660,3 +5660,40 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
 .b116-panel--right{
     right: 8px !important;
 }
+
+/* =========================================================
+   BASTION v120 — text/avatar alignment fix
+   ========================================================= */
+
+/* Аватарки трохи правіше/лівіше до центру гекса */
+.b116-panel--left .b116-panel__avatar{
+    left: 40px !important;
+}
+
+.b116-panel--right .b116-panel__avatar{
+    right: 40px !important;
+}
+
+/* Текст далі від аватарки */
+.b116-panel--left .b116-panel__text{
+    left: 112px !important;
+}
+
+.b116-panel--right .b116-panel__text{
+    right: 112px !important;
+}
+
+/* Вертикальне вирівнювання */
+.b116-panel__text{
+    top: 60px !important;
+}
+
+/* Трохи компактніше */
+.b116-panel__text strong{
+    font-size: 14px !important;
+}
+
+.b116-panel__text small{
+    font-size: 7px !important;
+    margin-top: 4px !important;
+}
