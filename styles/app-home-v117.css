@@ -5624,3 +5624,39 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
 .b116-panel--right{
     right: 10px !important;
 }
+
+/* =========================================================
+   BASTION v119 — compact top HUD panels
+   ========================================================= */
+
+.b116-panel{
+    width: 300px !important;
+    height: 150px !important;
+
+    --avatar-size: 42px !important;
+    --avatar-top: 54px !important;
+    --avatar-edge: 34px !important;
+
+    --text-top: 58px !important;
+    --text-edge: 100px !important;
+    --text-width: 145px !important;
+}
+
+.b116-panel__text strong{
+    font-size: 14px !important;
+    line-height: 1 !important;
+}
+
+.b116-panel__text small{
+    margin-top: 3px !important;
+    font-size: 7px !important;
+    letter-spacing: .10em !important;
+}
+
+.b116-panel--left{
+    left: 8px !important;
+}
+
+.b116-panel--right{
+    right: 8px !important;
+}
