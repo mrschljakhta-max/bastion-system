@@ -46,24 +46,56 @@
   </div>
 </div>
 
-  <header class="top-hud" aria-hidden="true">
-    <section class="assistant-card">
-      <span class="assistant-icon">◉</span>
-      <div>
-        <h1>ОРБІ</h1>
-        <p>ПОМІЧНИК</p>
+  
+  <header class="top-hud-panels" aria-hidden="true">
+
+    <section class="hud-top-panel hud-top-panel-left">
+      <img class="hud-panel-bg" src="../assets/ui/hud-panel-frame-v78.png?v=78" alt="">
+
+      <div class="hud-avatar-zone hud-avatar-zone-left">
+        <img
+          class="hud-avatar-image"
+          src="../assets/ui/orbi-avatar-v2.png?v=2"
+          alt="ORBI"
+        >
+      </div>
+
+      <div class="hud-text-zone hud-text-zone-left">
+        <div class="hud-title">ОРБІ</div>
+        <div class="hud-subtitle">ПОМІЧНИК</div>
       </div>
     </section>
 
-    <button id="userMenuButton" class="user-card" type="button" aria-expanded="false">
-      <span class="user-avatar"><img id="userAvatarTop" src="../assets/icons/bastion-mark-v66.png?v=87" alt="" /></span>
-      <span class="user-info">
-        <b id="operatorName">lavash.squad</b>
-        <small>РІВЕНЬ ДОСТУПУ: <span id="operatorRole">DEMO</span></small>
-      </span>
-      <span class="user-chevron">⌄</span>
-    </button>
+    <section class="hud-top-panel hud-top-panel-right">
+
+      <img
+        class="hud-panel-bg hud-panel-bg-right"
+        src="../assets/ui/hud-panel-frame-v78.png?v=78"
+        alt=""
+      >
+
+      <div class="hud-avatar-zone hud-avatar-zone-right">
+        <img
+          id="userAvatarTop"
+          class="hud-avatar-image"
+          src="../assets/icons/default-user-avatar.png?v=1"
+          alt="USER"
+        >
+      </div>
+
+      <div class="hud-text-zone hud-text-zone-right">
+        <div id="operatorName" class="hud-title">lavash.squad</div>
+
+        <div class="hud-subtitle">
+          РІВЕНЬ ДОСТУПУ:
+          <span id="operatorRole">DEMO</span>
+        </div>
+      </div>
+
+    </section>
+
   </header>
+
   <div class="b114-hud-plate b114-hud-plate--left" aria-hidden="true">
     <img class="b114-hud-plate__bg" src="../assets/ui/top-corner-plate-left-v103.png?v=114" alt="" />
     <div class="b114-hud-plate__layout">
