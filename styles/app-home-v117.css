@@ -5590,3 +5590,37 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
     drop-shadow(0 0 10px rgba(255,43,24,.22))
     drop-shadow(0 0 20px rgba(255,35,18,.10)) !important;
 }
+
+/* =========================================================
+   BASTION v118 — smaller top HUD panels
+   ========================================================= */
+
+.b116-panel{
+    width: 360px !important;
+    height: 180px !important;
+
+    --avatar-size: 50px !important;
+    --avatar-top: 64px !important;
+    --avatar-edge: 42px !important;
+
+    --text-top: 70px !important;
+    --text-edge: 120px !important;
+    --text-width: 170px !important;
+}
+
+.b116-panel__text strong{
+    font-size: 17px !important;
+}
+
+.b116-panel__text small{
+    margin-top: 4px !important;
+    font-size: 9px !important;
+}
+
+.b116-panel--left{
+    left: 10px !important;
+}
+
+.b116-panel--right{
+    right: 10px !important;
+}
