@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — Core</title>
-  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=112" />
-  <link rel="stylesheet" href="../styles/app-home-v112.css?v=112" />
+  <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=113" />
+  <link rel="stylesheet" href="../styles/app-home-v113.css?v=113" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -63,23 +63,30 @@
       <span class="user-chevron">⌄</span>
     </button>
   </header>
-  <div class="top-corner-plate top-corner-plate-left" aria-hidden="true">
-    <img class="plate-bg" src="../assets/ui/top-corner-plate-left-v103.png?v=112" alt="" />
-    <img class="plate-avatar plate-avatar-orbi" src="../assets/ui/default-user-avatar-v105.png?v=112" alt="" />
-    <div class="plate-orbi-copy">
+  <div class="hud-plate hud-plate--left" aria-hidden="true">
+    <img class="hud-plate__bg" src="../assets/ui/top-corner-plate-left-v103.png?v=113" alt="" />
+    <div class="hud-plate__avatar-zone">
+      <img class="hud-plate__avatar hud-plate__avatar--orbi" src="../assets/ui/default-user-avatar-v105.png?v=113" alt="" />
+    </div>
+    <div class="hud-plate__text-zone hud-plate__text-zone--orbi">
       <strong>ОРБІ</strong>
       <small>ПОМІЧНИК</small>
     </div>
   </div>
 
-  <div class="top-corner-plate top-corner-plate-right" aria-hidden="true">
-    <img class="plate-bg" src="../assets/ui/top-corner-plate-right-v103.png?v=112" alt="" />
-    <img class="plate-avatar plate-avatar-user" src="../assets/ui/default-user-avatar-v105.png?v=112" alt="" />
-    <div class="plate-user-copy">
+  <div class="hud-plate hud-plate--right" aria-hidden="true">
+    <img class="hud-plate__bg" src="../assets/ui/top-corner-plate-right-v103.png?v=113" alt="" />
+    <div class="hud-plate__avatar-zone">
+      <img class="hud-plate__avatar hud-plate__avatar--user plate-avatar-user" src="../assets/ui/default-user-avatar-v105.png?v=113" alt="" />
+    </div>
+    <div class="hud-plate__text-zone hud-plate__text-zone--user">
       <strong id="plateOperatorName">lavash.squad</strong>
       <small>РІВЕНЬ ДОСТУПУ: <b id="plateOperatorRole">DEMO</b></small>
     </div>
   </div>
+
+</div>
+</div>
 
 </div>
 </div>
@@ -184,6 +191,6 @@
     </section>
   </div>
 
-  <script src="../scripts/app-home.js?v=112"></script>
+  <script src="../scripts/app-home.js?v=113"></script>
 </body>
 </html>
