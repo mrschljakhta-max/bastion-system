@@ -6011,104 +6011,122 @@ body.bastion-core-page::before {
 }
 
 /* =========================================================
-   v118.2 — HARD RESTORE: bottom-right HUD panel
-   Повертає саме фонову праву нижню HUD-плашку поверх сцени.
-   Причина: попередній ::before мав z-index:-1 і міг випадати за stacking context.
+   v118.2 — HARD RESTORE: bottom-right HUD plate
+   Причина: попередній фікс малював фон через ::before з z-index:-1,
+   через що фонова плашка провалювалась за сцену. Тепер сама .bottom-map
+   отримує PNG-фон напряму, а точки/лінія кладуться поверх.
    ========================================================= */
 
-.bottom-map {
+body.bastion-core-page .bottom-map.hud-bottom-panel.hud-bottom-right,
+body.bastion-core-page .bottom-map {
   position: fixed !important;
-  right: 42px !important;
-  bottom: 32px !important;
-  width: 402px !important;
-  min-height: 56px !important;
-  height: 56px !important;
+  right: 34px !important;
+  bottom: 22px !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 1700 !important;
+
   display: flex !important;
-  align-items: center !important;
-  gap: 20px !important;
-  padding: 12px 20px !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  clip-path: none !important;
-  overflow: visible !important;
   visibility: visible !important;
   opacity: 1 !important;
-  z-index: 1800 !important;
   pointer-events: auto !important;
-  isolation: isolate !important;
+  overflow: visible !important;
+
+  width: 430px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  padding: 0 48px 0 126px !important;
+  margin: 0 !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0 !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  color: rgba(255,255,255,.74) !important;
+  background-color: transparent !important;
+  background-image: url("../assets/ui/bottom-panel-right.png?v=1182") !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+  background-size: 100% 100% !important;
+  box-shadow:
+    0 12px 22px rgba(0,0,0,.64),
+    0 0 18px rgba(255,47,38,.10) !important;
+  filter: brightness(.94) contrast(1.08) saturate(1.03) !important;
 }
 
-.bottom-map::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: -10px -14px -12px -18px !important;
-  z-index: 0 !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: .98 !important;
-  pointer-events: none !important;
-  background: url("../assets/ui/bottom-panel-right.png?v=1182") center / 100% 100% no-repeat !important;
-  transform: none !important;
+/* Вимикаємо старий псевдофон, щоб він не перекривав PNG і не тікав за z-index. */
+body.bastion-core-page .bottom-map.hud-bottom-panel.hud-bottom-right::before,
+body.bastion-core-page .bottom-map::before {
+  content: none !important;
+  display: none !important;
+  background: none !important;
   animation: none !important;
-  filter:
-    brightness(.72)
-    contrast(1.18)
-    saturate(.86)
-    drop-shadow(0 12px 18px rgba(0,0,0,.72))
-    drop-shadow(0 0 12px rgba(255,46,34,.16)) !important;
 }
 
-.bottom-map::after {
+body.bastion-core-page .bottom-map.hud-bottom-panel.hud-bottom-right::after,
+body.bastion-core-page .bottom-map::after {
   content: "" !important;
   position: absolute !important;
-  left: 108px !important;
-  right: 72px !important;
+  left: 138px !important;
+  right: 54px !important;
   top: 50% !important;
   height: 1px !important;
   z-index: 1 !important;
   pointer-events: none !important;
-  background: linear-gradient(90deg, transparent, rgba(255,58,35,.82), transparent) !important;
-  box-shadow: 0 0 12px rgba(255,58,35,.42) !important;
-  opacity: .86 !important;
+  background: linear-gradient(90deg, rgba(255,54,42,.80), rgba(255,88,67,.22), rgba(255,54,42,.80)) !important;
+  box-shadow: 0 0 10px rgba(255,58,35,.42) !important;
+  opacity: .82 !important;
   transform: translateY(-50%) !important;
-  animation: bottomMapLinePulseV118 4.8s ease-in-out infinite !important;
+  animation: bottomRightHudPulseV1182 4.6s ease-in-out infinite !important;
 }
 
-.bottom-map > span,
-.bottom-map .sitemap-track,
-.bottom-map .map-dot {
-  position: relative !important;
-  z-index: 2 !important;
-}
-
-.bottom-map > span {
+body.bastion-core-page .bottom-map > span {
   display: none !important;
 }
 
-.bottom-map .sitemap-track {
-  margin-left: auto !important;
-  width: 198px !important;
-  flex: 0 0 198px !important;
-}
-
-.bottom-map .sitemap-track::before {
-  z-index: 0 !important;
-  opacity: .72 !important;
-}
-
-.bottom-map .map-dot {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+body.bastion-core-page .bottom-map .map-dot {
+  position: relative !important;
+  z-index: 3 !important;
   flex: 0 0 auto !important;
+  width: 13px !important;
+  height: 13px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid rgba(255,55,52,.78) !important;
+  border-radius: 50% !important;
+  background: rgba(6,4,6,.86) !important;
+  box-shadow: 0 0 7px rgba(255,45,38,.18) !important;
+  cursor: pointer !important;
 }
 
-@media (max-width: 900px) {
-  .bottom-map {
+body.bastion-core-page .bottom-map .map-dot:hover,
+body.bastion-core-page .bottom-map .map-dot.is-active {
+  transform: scale(1.28) !important;
+  border-color: rgba(255,105,92,.98) !important;
+  background: #ff4146 !important;
+  box-shadow:
+    0 0 10px rgba(255,64,58,.95),
+    0 0 26px rgba(255,45,38,.38) !important;
+}
+
+@keyframes bottomRightHudPulseV1182 {
+  0%, 100% { opacity: .42; filter: brightness(.88); }
+  48% { opacity: .95; filter: brightness(1.25); }
+  64% { opacity: .58; filter: brightness(.98); }
+}
+
+@media (max-width: 880px) {
+  body.bastion-core-page .bottom-map.hud-bottom-panel.hud-bottom-right,
+  body.bastion-core-page .bottom-map {
     right: 18px !important;
-    bottom: 74px !important;
-    transform: scale(.86) !important;
-    transform-origin: right bottom !important;
+    bottom: 82px !important;
+    width: min(430px, calc(100vw - 36px)) !important;
+    padding-left: 112px !important;
+    padding-right: 42px !important;
   }
 }
