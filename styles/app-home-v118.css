@@ -5915,3 +5915,97 @@ body.bastion-core-page::before {
     animation: none !important;
   }
 }
+
+/* =========================================================
+   v118.1 — RESTORE HUD PANELS AFTER POLISH
+   Фікс:
+   - верхня права плашка зникала, бо #userMenuButton потрапив у старий deny-list display:none;
+   - нижня права плашка зникала, бо v118 випадково перезаписав .bottom-map::before,
+     який використовується як фонова HUD-картинка панелі.
+   ========================================================= */
+
+.b116-top-panels {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 1600 !important;
+  pointer-events: none !important;
+}
+
+#userMenuButton.b116-panel,
+.b116-panel--right,
+.b116-panel--left {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#userMenuButton.b116-panel,
+.b116-panel--right {
+  pointer-events: auto !important;
+}
+
+.b116-panel--left {
+  pointer-events: none !important;
+}
+
+#userMenuButton.b116-panel .b116-panel__bg,
+#userMenuButton.b116-panel .b116-panel__avatar-box,
+#userMenuButton.b116-panel .b116-panel__text,
+.b116-panel--right .b116-panel__bg,
+.b116-panel--right .b116-panel__avatar-box,
+.b116-panel--right .b116-panel__text {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.bottom-map {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  z-index: 999 !important;
+}
+
+.bottom-map::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  opacity: .96 !important;
+  background-image: url("../assets/ui/bottom-panel-right.png?v=90") !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  transform: none !important;
+  animation: none !important;
+  filter:
+    brightness(.68)
+    contrast(1.20)
+    saturate(.78)
+    drop-shadow(0 12px 18px rgba(0,0,0,.68))
+    drop-shadow(0 0 10px rgba(255,46,34,.12)) !important;
+}
+
+.bottom-map::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 96px !important;
+  right: 76px !important;
+  top: 50% !important;
+  height: 1px !important;
+  z-index: 0 !important;
+  background: linear-gradient(90deg, transparent, rgba(255,58,35,.75), transparent) !important;
+  box-shadow: 0 0 10px rgba(255,58,35,.38) !important;
+  opacity: .9 !important;
+  transform: none !important;
+  animation: bottomMapLinePulseV118 4.8s ease-in-out infinite !important;
+}
+
+@keyframes bottomMapLinePulseV118 {
+  0%, 100% { opacity: .46; filter: brightness(.85); }
+  46% { opacity: .95; filter: brightness(1.28); }
+  62% { opacity: .62; filter: brightness(.95); }
+}
