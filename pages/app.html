@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — Core</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
-  <link rel="stylesheet" href="../styles/app-home-v117.css?v=117" />
+  <link rel="stylesheet" href="../styles/app-home-v118.css?v=118" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -38,12 +38,12 @@
 
     <svg class="beam-layer" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
       <defs>
-        <linearGradient id="beamGradient" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stop-color="rgba(255,40,32,0)" />
-          <stop offset=".18" stop-color="rgba(255,45,34,.18)" />
-          <stop offset=".5" stop-color="rgba(255,95,70,.92)" />
-          <stop offset=".82" stop-color="rgba(255,45,34,.18)" />
-          <stop offset="1" stop-color="rgba(255,40,32,0)" />
+        <linearGradient id="beamGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="rgba(255,51,56,0)" />
+          <stop offset="35%" stop-color="rgba(255,51,56,.12)" />
+          <stop offset="50%" stop-color="rgba(255,120,120,.85)" />
+          <stop offset="65%" stop-color="rgba(255,51,56,.12)" />
+          <stop offset="100%" stop-color="rgba(255,51,56,0)" />
         </linearGradient>
       </defs>
       <path class="beam" d="M0 305 C 390 300, 470 420, 800 450 C 1130 480, 1210 300, 1600 305" />
@@ -54,7 +54,7 @@
     <div class="scanlines"></div>
   </div>
 
-  <div class="b116-top-panels" aria-hidden="true">
+  <div class="b116-top-panels">
     <section class="b116-panel b116-panel--left">
       <img class="b116-panel__bg" src="../assets/ui/hud-panel-frame-v116.png?v=116" alt="" />
       <div class="b116-panel__avatar-box">
@@ -66,7 +66,7 @@
       </div>
     </section>
 
-    <section class="b116-panel b116-panel--right">
+    <button id="userMenuButton" class="b116-panel b116-panel--right" type="button" aria-haspopup="dialog" aria-expanded="false">
       <img class="b116-panel__bg b116-panel__bg--mirror" src="../assets/ui/hud-panel-frame-v116.png?v=116" alt="" />
       <div class="b116-panel__avatar-box">
         <img id="userAvatarTop" class="b116-panel__avatar plate-avatar-user" src="../assets/ui/default-user-avatar-v105.png?v=116" alt="" />
@@ -77,7 +77,7 @@
         <strong id="plateOperatorName" class="b116-hidden-sync">lavash.squad</strong>
         <span id="plateOperatorRole" class="b116-hidden-sync">DEMO</span>
       </div>
-    </section>
+    </button>
   </div>
 
 
@@ -87,7 +87,7 @@
     <section class="orbital-menu" aria-label="BASTION main modules">
       <img class="mechanical-ring-underlay" src="../assets/backgrounds/app-ring-base-v63.png?v=87" alt="" />
 
-      <div class="reactor-status">CORE <b>ONLINE</b></div>
+      <div class="reactor-status"><span>CORE</span> <b>ONLINE</b><i></i></div>
 
       <svg class="orbital-svg" viewBox="0 0 1000 1000" aria-hidden="true">
         <defs>
@@ -180,6 +180,6 @@
     </section>
   </div>
 
-  <script src="../scripts/app-home.js?v=117"></script>
+  <script src="../scripts/app-home-v118.js?v=118"></script>
 </body>
 </html>
