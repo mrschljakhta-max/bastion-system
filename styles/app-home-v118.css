@@ -6010,91 +6010,116 @@ body.bastion-core-page::before {
   62% { opacity: .62; filter: brightness(.95); }
 }
 
-/* ==========================================================
-   v77 — SAFE RESTORE + route label hover-only
-   Full file restored. This section only overrides the bottom
-   route label behavior and does not replace the whole CSS.
-   ========================================================== */
 
-.route-tooltip,
-.system-route-tooltip,
-.bottom-route-tooltip,
-.route-popup,
-.bottom-map-tooltip {
-  pointer-events: none !important;
-  opacity: 0 !important;
-  transform: translateY(6px) scale(.96) !important;
-  transition: opacity .22s ease, transform .22s ease !important;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  clip-path: none !important;
+/* =========================================================
+   BASTION — RESTORE BOTTOM RIGHT HUD
+   ========================================================= */
+
+.bottom-right-hud {
+    position: fixed;
+    right: 18px;
+    bottom: 14px;
+
+    width: 420px;
+    height: 92px;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    z-index: 35;
+
+    pointer-events: none;
 }
 
-.bottom-map:hover .route-tooltip,
-.bottom-map:hover .system-route-tooltip,
-.bottom-map:hover .bottom-route-tooltip,
-.bottom-map:hover .route-popup,
-.bottom-map:hover .bottom-map-tooltip,
-.map-dot:hover .route-tooltip,
-.map-dot:hover .system-route-tooltip,
-.map-dot:hover .bottom-route-tooltip,
-.map-dot:hover .route-popup,
-.map-dot:hover .bottom-map-tooltip {
-  opacity: 1 !important;
-  transform: translateY(0) scale(1) !important;
+.bottom-right-hud::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.06) 0%,
+            rgba(20,20,20,.72) 42%,
+            rgba(0,0,0,.92) 100%
+        );
+
+    border: 1px solid rgba(255,55,55,.55);
+
+    clip-path: polygon(
+        8% 0%,
+        92% 0%,
+        100% 26%,
+        100% 78%,
+        92% 100%,
+        8% 100%,
+        0% 76%,
+        0% 24%
+    );
+
+    box-shadow:
+        0 0 16px rgba(255, 35, 35, .28),
+        inset 0 0 22px rgba(255, 35, 35, .12);
+
+    backdrop-filter: blur(6px);
 }
 
-.route-tooltip,
-.system-route-tooltip,
-.bottom-route-tooltip,
-.route-popup,
-.bottom-map-tooltip {
-  color: rgba(255,255,255,.86) !important;
-  font-family: Arial, Helvetica, sans-serif !important;
-  text-transform: uppercase !important;
-  letter-spacing: .14em !important;
-  text-shadow:
-    0 0 8px rgba(255, 51, 56, .72),
-    0 0 18px rgba(255, 51, 56, .42) !important;
+.bottom-right-hud::after {
+    content: "";
+
+    position: absolute;
+    inset: 10px;
+
+    border: 1px solid rgba(255,50,50,.18);
+
+    clip-path: polygon(
+        8% 0%,
+        92% 0%,
+        100% 26%,
+        100% 78%,
+        92% 100%,
+        8% 100%,
+        0% 76%,
+        0% 24%
+    );
 }
 
-.route-tooltip *,
-.system-route-tooltip *,
-.bottom-route-tooltip *,
-.route-popup *,
-.bottom-map-tooltip * {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
+.bottom-right-hud .hud-line {
+    position: absolute;
+    left: 26px;
+    right: 26px;
+    bottom: 24px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    z-index: 3;
 }
 
-.route-tooltip::before,
-.system-route-tooltip::before,
-.bottom-route-tooltip::before,
-.route-popup::before,
-.bottom-map-tooltip::before {
-  content: "01" !important;
-  display: block !important;
-  color: #ff4a4f !important;
-  font-size: 22px !important;
-  line-height: 1 !important;
-  font-weight: 900 !important;
-  letter-spacing: .16em !important;
+.bottom-right-hud .hud-line span {
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    background: rgba(0,0,0,.85);
+    border: 1px solid rgba(255,70,70,.7);
+
+    box-shadow:
+        0 0 10px rgba(255,40,40,.28);
 }
 
-.route-tooltip::after,
-.system-route-tooltip::after,
-.bottom-route-tooltip::after,
-.route-popup::after,
-.bottom-map-tooltip::after {
-  content: "ДОВІДНИКИ" !important;
-  display: block !important;
-  margin-top: 4px !important;
-  color: rgba(255,255,255,.86) !important;
-  font-size: 11px !important;
-  line-height: 1 !important;
-  font-weight: 800 !important;
-  letter-spacing: .24em !important;
+.bottom-right-hud .hud-line span.active {
+    background: #ff4747;
+
+    box-shadow:
+        0 0 12px rgba(255,40,40,.9),
+        0 0 22px rgba(255,40,40,.55);
 }
 
