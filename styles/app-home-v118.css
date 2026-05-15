@@ -6281,3 +6281,145 @@ body.bastion-core-page::before {
   .bottom-map .map-dot::before { min-width: 150px !important; }
 }
 
+
+/* =========================================================
+   v119 — SYSTEM ROUTE premium plate tooltip
+   Replaces the plain rectangular popup with a long tactical HUD plate.
+   Uses: assets/ui/route-tooltip-panel.png
+   ========================================================= */
+
+.bottom-map .map-dot::before,
+.bottom-map .map-dot::after {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 31px !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transition:
+    opacity .18s ease,
+    transform .22s cubic-bezier(.16, 1, .22, 1),
+    filter .22s ease !important;
+}
+
+/* visual plate */
+.bottom-map .map-dot::before {
+  content: "" !important;
+  width: 318px !important;
+  height: 86px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: url("../assets/ui/route-tooltip-panel.png?v=119") center / 100% 100% no-repeat !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  white-space: normal !important;
+  transform: translateX(-50%) translateY(8px) scale(.965) !important;
+  transform-origin: 50% 100% !important;
+  filter:
+    brightness(.74)
+    contrast(1.16)
+    saturate(.92)
+    drop-shadow(0 16px 24px rgba(0, 0, 0, .62))
+    drop-shadow(0 0 14px rgba(255, 50, 44, .22)) !important;
+}
+
+/* text layer over the plate; the left part of the image keeps the tactical index zone */
+.bottom-map .map-dot::after {
+  width: 190px !important;
+  min-width: 0 !important;
+  height: auto !important;
+  right: auto !important;
+  top: auto !important;
+  display: block !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: rgba(255, 255, 255, .88) !important;
+  text-align: left !important;
+  white-space: pre-line !important;
+  font-size: 9.5px !important;
+  line-height: 1.34 !important;
+  letter-spacing: .08em !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  text-shadow:
+    0 0 8px rgba(255, 58, 52, .38),
+    0 1px 0 rgba(0,0,0,.72) !important;
+  transform: translateX(-22%) translateY(-13px) scale(.965) !important;
+  transform-origin: 0 100% !important;
+}
+
+.bottom-map .map-dot:hover::before,
+.bottom-map .map-dot:hover::after,
+.bottom-map .map-dot.is-active:hover::before,
+.bottom-map .map-dot.is-active:hover::after {
+  opacity: 1 !important;
+}
+
+.bottom-map .map-dot:hover::before {
+  transform: translateX(-50%) translateY(0) scale(1) !important;
+  filter:
+    brightness(.86)
+    contrast(1.22)
+    saturate(1.02)
+    drop-shadow(0 18px 28px rgba(0, 0, 0, .66))
+    drop-shadow(0 0 18px rgba(255, 59, 50, .32)) !important;
+}
+
+.bottom-map .map-dot:hover::after {
+  transform: translateX(-22%) translateY(-21px) scale(1) !important;
+}
+
+.bottom-map .map-dot:nth-of-type(1)::after { content: "01 ОСНОВНЕ МЕНЮ\A CORE ONLINE\A STATUS: ACTIVE" !important; }
+.bottom-map .map-dot:nth-of-type(2)::after { content: "02 ДОВІДНИКИ\A 12 UNRESOLVED\A STATUS: ATTENTION" !important; }
+.bottom-map .map-dot:nth-of-type(3)::after { content: "03 ЗАВАНТАЖЕННЯ\A RAW DATA READY\A STATUS: READY" !important; }
+.bottom-map .map-dot:nth-of-type(4)::after { content: "04 ЗВʼЯЗКИ\A NODE GRAPH WAITING\A STATUS: STANDBY" !important; }
+.bottom-map .map-dot:nth-of-type(5)::after { content: "05 КАЛЬКУЛЯТОР\A TOOLS RESERVED\A STATUS: STANDBY" !important; }
+.bottom-map .map-dot:nth-of-type(6)::after { content: "06 АНАЛІЗ\A NEED CLEAN DATA\A STATUS: LOCKED" !important; }
+.bottom-map .map-dot:nth-of-type(7)::after { content: "07 ВИСНОВКИ\A COMMAND REPORT\A STATUS: LOCKED" !important; }
+
+/* Small red index area in the background image already contains 01.
+   This overlay masks it softly so dynamic text stays visually consistent for all dots. */
+.bottom-map .map-dot:hover::before {
+  -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,.92), #000 18%, #000 100%);
+  mask-image: linear-gradient(90deg, rgba(0,0,0,.92), #000 18%, #000 100%);
+}
+
+/* keep the second module attention visible without the old box badge */
+.bottom-map .map-dot:nth-of-type(2) {
+  animation: routeAttentionBlinkV119 1.85s ease-in-out infinite !important;
+}
+
+@keyframes routeAttentionBlinkV119 {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 8px rgba(0,0,0,.72),
+      0 0 8px rgba(255, 45, 40, .18) !important;
+  }
+  48% {
+    box-shadow:
+      inset 0 0 8px rgba(0,0,0,.72),
+      0 0 16px rgba(255, 74, 58, .58),
+      0 0 34px rgba(255, 42, 36, .22) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .bottom-map .map-dot::before {
+    width: 274px !important;
+    height: 74px !important;
+    bottom: 29px !important;
+  }
+
+  .bottom-map .map-dot::after {
+    width: 164px !important;
+    font-size: 8.4px !important;
+    bottom: 29px !important;
+    transform: translateX(-22%) translateY(-11px) scale(.965) !important;
+  }
+
+  .bottom-map .map-dot:hover::after {
+    transform: translateX(-22%) translateY(-18px) scale(1) !important;
+  }
+}
