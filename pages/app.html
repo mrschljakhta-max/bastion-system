@@ -37,6 +37,15 @@
     </svg>
 
     <svg class="beam-layer" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="beamGradient" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="rgba(255,40,32,0)" />
+          <stop offset=".18" stop-color="rgba(255,45,34,.18)" />
+          <stop offset=".5" stop-color="rgba(255,95,70,.92)" />
+          <stop offset=".82" stop-color="rgba(255,45,34,.18)" />
+          <stop offset="1" stop-color="rgba(255,40,32,0)" />
+        </linearGradient>
+      </defs>
       <path class="beam" d="M0 305 C 390 300, 470 420, 800 450 C 1130 480, 1210 300, 1600 305" />
       <path class="beam beam--soft" d="M0 594 C 390 600, 470 480, 800 450 C 1130 420, 1210 600, 1600 594" />
     </svg>
@@ -44,7 +53,7 @@
     <canvas id="particlesCanvas" class="particles-canvas" aria-hidden="true"></canvas>
     <div class="scanlines"></div>
   </div>
-</div>
+
   <div class="b116-top-panels" aria-hidden="true">
     <section class="b116-panel b116-panel--left">
       <img class="b116-panel__bg" src="../assets/ui/hud-panel-frame-v116.png?v=116" alt="" />
