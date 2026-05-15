@@ -6423,3 +6423,265 @@ body.bastion-core-page::before {
     transform: translateX(-22%) translateY(-18px) scale(1) !important;
   }
 }
+
+/* =========================================================
+   v120 — BOTTOM RIGHT PANEL + CLEAN ROUTE HOVER TEXT
+   Fix:
+   1) Right lower HUD plate is forced visible and mirrored from
+      the left lower plate asset.
+   2) Route hover popup is simplified to one stylish text line only.
+   ========================================================= */
+
+.bottom-map.hud-bottom-right,
+.bottom-map {
+  position: fixed !important;
+  right: 34px !important;
+  bottom: 0 !important;
+  width: 470px !important;
+  height: 76px !important;
+  min-height: 76px !important;
+  padding: 0 46px 0 156px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 17px !important;
+  z-index: 999 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  isolation: isolate !important;
+}
+
+/* Real dark mirrored plate, same visual language as the left bottom HUD */
+.bottom-map.hud-bottom-right::before,
+.bottom-map::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: .94 !important;
+  background-image: url("../assets/ui/bottom-panel-left.png?v=120") !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  background-repeat: no-repeat !important;
+  transform: scaleX(-1) !important;
+  transform-origin: center center !important;
+  filter:
+    brightness(.42)
+    contrast(1.34)
+    saturate(.76)
+    drop-shadow(0 10px 18px rgba(0, 0, 0, .72))
+    drop-shadow(0 0 12px rgba(255, 46, 38, .14)) !important;
+}
+
+/* Route line stays inside the visible metal plate */
+.bottom-map.hud-bottom-right::after,
+.bottom-map::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 176px !important;
+  right: 52px !important;
+  top: 50% !important;
+  height: 1px !important;
+  z-index: 1 !important;
+  transform: translateY(-50%) !important;
+  background: linear-gradient(90deg,
+    rgba(255, 55, 50, .08),
+    rgba(255, 68, 58, .70),
+    rgba(255, 55, 50, .14)) !important;
+  box-shadow:
+    0 0 8px rgba(255, 52, 48, .32),
+    0 0 20px rgba(255, 40, 36, .14) !important;
+  opacity: .74 !important;
+  animation: bottomMapLinePulseV118 4.8s ease-in-out infinite !important;
+  pointer-events: none !important;
+}
+
+.bottom-map > *,
+.bottom-map .map-dot,
+.bottom-map > span {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Keep label area subtle; no visual conflict with dots */
+.bottom-map > span {
+  position: absolute !important;
+  left: 34px !important;
+  top: 17px !important;
+  margin: 0 !important;
+  font-size: 0 !important;
+  color: transparent !important;
+  pointer-events: none !important;
+}
+
+.bottom-map > span::before {
+  content: "SYSTEM ROUTE" !important;
+  display: block !important;
+  color: rgba(255,255,255,.62) !important;
+  font-family: "Rajdhani", "Orbitron", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 9px !important;
+  line-height: 1 !important;
+  letter-spacing: .24em !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 0 10px rgba(255, 55, 52, .22) !important;
+}
+
+.bottom-map > span::after {
+  content: "03 / 06" !important;
+  display: block !important;
+  margin-top: 8px !important;
+  color: rgba(255, 76, 70, .88) !important;
+  font-family: "Rajdhani", "Orbitron", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  letter-spacing: .08em !important;
+  font-weight: 900 !important;
+  text-shadow:
+    0 0 9px rgba(255, 55, 52, .58),
+    0 0 20px rgba(255, 34, 30, .18) !important;
+}
+
+/* Dots are above the plate */
+.bottom-map .map-dot {
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  min-height: 13px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255, 65, 58, .72) !important;
+  border-radius: 50% !important;
+  background: rgba(3, 3, 6, .92) !important;
+  cursor: pointer !important;
+  opacity: .78 !important;
+  box-shadow:
+    inset 0 0 8px rgba(0,0,0,.72),
+    0 0 8px rgba(255, 45, 40, .18) !important;
+}
+
+.bottom-map .map-dot.is-active,
+.bottom-map .map-dot:hover {
+  transform: scale(1.26) !important;
+  opacity: 1 !important;
+  border-color: rgba(255, 104, 92, 1) !important;
+  background: #ff3d43 !important;
+  box-shadow:
+    0 0 9px rgba(255, 64, 58, .95),
+    0 0 24px rgba(255, 45, 38, .46),
+    0 0 52px rgba(255, 32, 28, .18) !important;
+}
+
+/* Remove the large plate popup and old multiline status card completely */
+.bottom-map .map-dot::before {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 32px !important;
+  width: max-content !important;
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateX(-50%) translateY(7px) scale(.96) !important;
+  transform-origin: 50% 100% !important;
+  color: rgba(255,255,255,.92) !important;
+  font-family: "Rajdhani", "Orbitron", "Arial Narrow", Arial, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  letter-spacing: .16em !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  text-shadow:
+    0 0 7px rgba(255, 66, 58, .88),
+    0 0 18px rgba(255, 38, 34, .34),
+    0 2px 0 rgba(0,0,0,.92) !important;
+  transition: opacity .16s ease, transform .18s cubic-bezier(.16,1,.22,1) !important;
+  filter: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.bottom-map .map-dot:hover::before,
+.bottom-map .map-dot.is-active:hover::before {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(0) scale(1) !important;
+}
+
+/* Active pulse only; no badge/text-popup on ::after */
+.bottom-map .map-dot::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: -8px !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255, 70, 62, 0) !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+.bottom-map .map-dot.is-active::after {
+  opacity: 1 !important;
+  border-color: rgba(255, 70, 62, .44) !important;
+  animation: routeActivePulse 1.7s ease-in-out infinite !important;
+}
+
+.bottom-map .map-dot:nth-of-type(1)::before { content: "01 - ДОВІДНИКИ" !important; }
+.bottom-map .map-dot:nth-of-type(2)::before { content: "02 - ЗВʼЯЗКИ" !important; }
+.bottom-map .map-dot:nth-of-type(3)::before { content: "03 - ЗАВАНТАЖЕННЯ" !important; }
+.bottom-map .map-dot:nth-of-type(4)::before { content: "04 - КАЛЬКУЛЯТОР" !important; }
+.bottom-map .map-dot:nth-of-type(5)::before { content: "05 - АНАЛІЗ" !important; }
+.bottom-map .map-dot:nth-of-type(6)::before { content: "06 - ВИСНОВКИ" !important; }
+.bottom-map .map-dot:nth-of-type(7)::before { content: "07 - ГОЛОВНА" !important; }
+
+/* Keep attention signal on the second route point without extra badge */
+.bottom-map .map-dot:nth-of-type(2) {
+  animation: routeAttentionBlinkV119 1.85s ease-in-out infinite !important;
+}
+
+@media (max-width: 900px) {
+  .bottom-map.hud-bottom-right,
+  .bottom-map {
+    right: 18px !important;
+    bottom: 0 !important;
+    width: min(470px, calc(100vw - 36px)) !important;
+    padding-left: 142px !important;
+    padding-right: 34px !important;
+    gap: 12px !important;
+  }
+
+  .bottom-map::after {
+    left: 158px !important;
+    right: 42px !important;
+  }
+
+  .bottom-map .map-dot::before {
+    font-size: 11px !important;
+    bottom: 30px !important;
+  }
+}
