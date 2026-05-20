@@ -6287,3 +6287,233 @@ body.bastion-core-page::before {
   }
 }
 
+
+
+/* =========================================================
+   BASTION v121 — mirrored bottom sitemap + clean page dots
+   - права нижня плашка дзеркально узгоджена з лівою HUD-плашкою;
+   - прибрані декоративні зайві червоні точки;
+   - tooltip показує назву сторінки тільки при наведенні на конкретну кнопку.
+   ========================================================= */
+
+.bottom-contact .contact-disabled {
+  display: none !important;
+}
+
+.bottom-map,
+.hud-bottom-right {
+  position: fixed !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: 0 !important;
+  width: 470px !important;
+  max-width: 470px !important;
+  height: 74px !important;
+  min-height: 74px !important;
+  padding: 0 46px 0 96px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 19px !important;
+  overflow: visible !important;
+  z-index: 999 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.bottom-map::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  background-image: url("../assets/ui/bottom-panel-right.png?v=121") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+  opacity: .94 !important;
+  transform: none !important;
+  animation: none !important;
+  border: 0 !important;
+  filter:
+    brightness(.66)
+    contrast(1.18)
+    saturate(.82)
+    drop-shadow(0 12px 18px rgba(0,0,0,.68))
+    drop-shadow(0 0 12px rgba(255,46,34,.16)) !important;
+}
+
+.bottom-map::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 96px !important;
+  right: 48px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  height: 1px !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background: linear-gradient(90deg, transparent, rgba(255,58,35,.72), rgba(255,120,100,.48), transparent) !important;
+  box-shadow: 0 0 10px rgba(255,58,35,.36) !important;
+  opacity: .74 !important;
+  transform: translateY(-50%) !important;
+  animation: bottomMapLinePulseV118 4.8s ease-in-out infinite !important;
+}
+
+.bottom-map > span {
+  display: none !important;
+}
+
+.bottom-map .map-dot {
+  position: relative !important;
+  z-index: 4 !important;
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  min-height: 13px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255,72,64,.80) !important;
+  background: rgba(0,0,0,.88) !important;
+  box-shadow:
+    0 0 8px rgba(255,50,45,.22),
+    inset 0 0 8px rgba(255,50,45,.10) !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+  transition:
+    transform .18s ease,
+    background .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease !important;
+}
+
+.bottom-map .map-dot:hover,
+.bottom-map .map-dot:focus-visible,
+.bottom-map .map-dot.is-active {
+  transform: scale(1.28) !important;
+  border-color: rgba(255,118,108,1) !important;
+  background: #ff4146 !important;
+  box-shadow:
+    0 0 12px rgba(255,64,58,.90),
+    0 0 27px rgba(255,42,38,.42),
+    inset 0 0 8px rgba(255,255,255,.20) !important;
+}
+
+/* прибираємо старе кільце навколо точки, щоб не було враження зайвих dots */
+.bottom-map .map-dot::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 30px !important;
+  width: 8px !important;
+  height: 8px !important;
+  z-index: 8 !important;
+  border: 0 !important;
+  border-left: 1px solid rgba(255,88,76,.75) !important;
+  border-bottom: 1px solid rgba(255,88,76,.75) !important;
+  background: rgba(12,12,16,.96) !important;
+  border-radius: 0 !important;
+  opacity: 0 !important;
+  transform: translateX(-50%) translateY(8px) rotate(-45deg) !important;
+  pointer-events: none !important;
+  transition: opacity .18s ease, transform .18s ease !important;
+  box-shadow: none !important;
+}
+
+.bottom-map .map-dot::before {
+  content: attr(data-page-title) !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 34px !important;
+  z-index: 9 !important;
+  min-width: max-content !important;
+  padding: 10px 14px 9px !important;
+  color: rgba(255,255,255,.92) !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  letter-spacing: .035em !important;
+  white-space: nowrap !important;
+  text-transform: none !important;
+  text-shadow: 0 0 8px rgba(255,52,42,.32) !important;
+  background:
+    linear-gradient(180deg, rgba(38,38,44,.96), rgba(9,9,13,.96)) !important;
+  border: 1px solid rgba(255,82,70,.46) !important;
+  border-radius: 4px !important;
+  box-shadow:
+    0 0 18px rgba(255,48,38,.20),
+    inset 0 0 16px rgba(255,64,48,.08) !important;
+  opacity: 0 !important;
+  transform: translateX(-50%) translateY(8px) scale(.96) !important;
+  pointer-events: none !important;
+  transition: opacity .18s ease, transform .18s ease !important;
+}
+
+.bottom-map .map-dot:hover::before,
+.bottom-map .map-dot:focus-visible::before,
+.bottom-map .map-dot:hover::after,
+.bottom-map .map-dot:focus-visible::after {
+  opacity: 1 !important;
+}
+
+.bottom-map .map-dot:hover::before,
+.bottom-map .map-dot:focus-visible::before {
+  transform: translateX(-50%) translateY(0) scale(1) !important;
+}
+
+.bottom-map .map-dot:hover::after,
+.bottom-map .map-dot:focus-visible::after {
+  transform: translateX(-50%) translateY(0) rotate(-45deg) !important;
+}
+
+/* вимикаємо старі глобальні tooltip-и, які могли показувати статичне "01 — Довідники" не від тієї кнопки */
+.route-tooltip,
+.system-route-tooltip,
+.bottom-route-tooltip,
+.route-popup,
+.bottom-map-tooltip {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 1180px) {
+  .bottom-map,
+  .hud-bottom-right {
+    width: 390px !important;
+    max-width: 390px !important;
+    height: 62px !important;
+    min-height: 62px !important;
+    padding: 0 34px 0 76px !important;
+    gap: 15px !important;
+  }
+
+  .bottom-map::after {
+    left: 78px !important;
+    right: 36px !important;
+  }
+
+  .bottom-map .map-dot {
+    width: 11px !important;
+    height: 11px !important;
+    min-width: 11px !important;
+    min-height: 11px !important;
+  }
+}
+
+@media (max-width: 880px) {
+  .bottom-map,
+  .hud-bottom-right {
+    position: absolute !important;
+    right: 0 !important;
+    bottom: 72px !important;
+    width: min(390px, calc(100vw - 18px)) !important;
+    max-width: min(390px, calc(100vw - 18px)) !important;
+  }
+}
