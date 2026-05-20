@@ -6517,3 +6517,272 @@ body.bastion-core-page::before {
     max-width: min(390px, calc(100vw - 18px)) !important;
   }
 }
+
+
+/* =========================================================
+   BASTION v122 — FIX BOTTOM RIGHT PAGE NAV PANEL + EDGE TOOLTIPS
+   - права нижня плашка знову має видиму металеву основу;
+   - тільки 7 точок сторінок, без зайвих червоних декоративних точок;
+   - назва сторінки показується при hover/focus і не вилітає за правий край.
+   ========================================================= */
+
+.bottom-map,
+.hud-bottom-right {
+  position: fixed !important;
+  right: 28px !important;
+  bottom: 26px !important;
+  width: 492px !important;
+  height: 78px !important;
+  min-height: 78px !important;
+  max-width: calc(100vw - 56px) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 18px !important;
+  padding: 0 52px 0 104px !important;
+
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  z-index: 1300 !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+  background: transparent url("../assets/ui/bottom-panel-right.png?v=122") center / 100% 100% no-repeat !important;
+  clip-path: none !important;
+  box-shadow:
+    0 0 24px rgba(255, 45, 38, .18),
+    0 0 68px rgba(255, 28, 28, .08) !important;
+  filter:
+    drop-shadow(0 10px 16px rgba(0,0,0,.72))
+    drop-shadow(0 0 12px rgba(255,46,34,.14)) !important;
+}
+
+.bottom-map::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  clip-path: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+.bottom-map::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 126px !important;
+  right: 54px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  width: auto !important;
+  height: 1px !important;
+  transform: translateY(-50%) !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 58, 54, .78), rgba(255, 58, 54, .26), transparent) !important;
+  box-shadow: 0 0 12px rgba(255, 45, 40, .35) !important;
+  opacity: .86 !important;
+  animation: none !important;
+}
+
+.bottom-map > span,
+.bottom-map .route-tooltip,
+.bottom-map .system-route-tooltip,
+.bottom-map .bottom-route-tooltip,
+.bottom-map .route-popup,
+.bottom-map .bottom-map-tooltip {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.bottom-map .map-dot {
+  position: relative !important;
+  z-index: 3 !important;
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px !important;
+  min-height: 15px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255, 76, 68, .78) !important;
+  background: rgba(2, 2, 5, .86) !important;
+
+  box-shadow:
+    0 0 8px rgba(255, 50, 45, .24),
+    inset 0 0 8px rgba(255, 50, 45, .10) !important;
+
+  cursor: pointer !important;
+  opacity: 1 !important;
+  transform: none !important;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+
+.bottom-map .map-dot:hover,
+.bottom-map .map-dot:focus-visible,
+.bottom-map .map-dot.is-active {
+  transform: scale(1.34) !important;
+  border-color: rgba(255, 112, 102, 1) !important;
+  background: #ff4146 !important;
+  box-shadow:
+    0 0 12px rgba(255, 68, 58, .95),
+    0 0 28px rgba(255, 42, 38, .42),
+    inset 0 0 8px rgba(255,255,255,.22) !important;
+}
+
+.bottom-map .map-dot::before {
+  content: attr(data-page-title) !important;
+  position: absolute !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 34px !important;
+  z-index: 20 !important;
+  display: block !important;
+
+  min-width: max-content !important;
+  max-width: min(280px, calc(100vw - 44px)) !important;
+  padding: 10px 16px !important;
+
+  color: rgba(255,255,255,.95) !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  letter-spacing: .025em !important;
+  white-space: nowrap !important;
+  text-transform: none !important;
+
+  background: linear-gradient(180deg, rgba(42,42,48,.97), rgba(8,8,13,.97)) !important;
+  border: 1px solid rgba(255,82,70,.55) !important;
+  border-radius: 5px !important;
+  box-shadow:
+    0 0 20px rgba(255,48,38,.25),
+    inset 0 0 16px rgba(255,64,48,.08) !important;
+
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateX(-50%) translateY(8px) scale(.96) !important;
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease !important;
+}
+
+.bottom-map .map-dot::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 27px !important;
+  width: 10px !important;
+  height: 10px !important;
+  z-index: 19 !important;
+  background: rgba(13,13,18,.98) !important;
+  border-right: 1px solid rgba(255,82,70,.50) !important;
+  border-bottom: 1px solid rgba(255,82,70,.50) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateX(-50%) translateY(8px) rotate(45deg) !important;
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease !important;
+}
+
+.bottom-map .map-dot:hover::before,
+.bottom-map .map-dot:focus-visible::before,
+.bottom-map .map-dot:hover::after,
+.bottom-map .map-dot:focus-visible::after {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.bottom-map .map-dot:hover::before,
+.bottom-map .map-dot:focus-visible::before {
+  transform: translateX(-50%) translateY(0) scale(1) !important;
+}
+
+.bottom-map .map-dot:hover::after,
+.bottom-map .map-dot:focus-visible::after {
+  transform: translateX(-50%) translateY(0) rotate(45deg) !important;
+}
+
+/* крайні точки: підказка не має заходити за межі екрана */
+.bottom-map .map-dot:first-of-type::before {
+  left: 0 !important;
+  transform: translateX(-18px) translateY(8px) scale(.96) !important;
+}
+.bottom-map .map-dot:first-of-type:hover::before,
+.bottom-map .map-dot:first-of-type:focus-visible::before {
+  transform: translateX(-18px) translateY(0) scale(1) !important;
+}
+.bottom-map .map-dot:first-of-type::after {
+  left: 50% !important;
+}
+
+.bottom-map .map-dot:last-of-type::before {
+  left: auto !important;
+  right: 0 !important;
+  transform: translateX(18px) translateY(8px) scale(.96) !important;
+}
+.bottom-map .map-dot:last-of-type:hover::before,
+.bottom-map .map-dot:last-of-type:focus-visible::before {
+  transform: translateX(18px) translateY(0) scale(1) !important;
+}
+.bottom-map .map-dot:last-of-type::after {
+  left: 50% !important;
+}
+
+@media (max-width: 1180px) {
+  .bottom-map,
+  .hud-bottom-right {
+    right: 18px !important;
+    bottom: 22px !important;
+    width: 404px !important;
+    max-width: calc(100vw - 36px) !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    padding: 0 38px 0 88px !important;
+    gap: 14px !important;
+  }
+
+  .bottom-map::after {
+    left: 104px !important;
+    right: 42px !important;
+  }
+
+  .bottom-map .map-dot {
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+  }
+
+  .bottom-map .map-dot::before {
+    bottom: 30px !important;
+    font-size: 13px !important;
+    padding: 9px 13px !important;
+  }
+
+  .bottom-map .map-dot::after {
+    bottom: 23px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .bottom-map,
+  .hud-bottom-right {
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+    padding: 0 28px 0 72px !important;
+    gap: 12px !important;
+  }
+}
