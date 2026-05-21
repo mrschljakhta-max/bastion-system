@@ -8894,55 +8894,24 @@ body.bastion-core-page::before {
   display: none !important;
 }
 
-/* ===== BASTION v150 — TOP LEFT ORBI REAL POSITION FIX =====
-   ВАЖЛИВО: реальний контейнер верхніх плашок — .b116-top-panels,
-   тому правимо саме .b116-top-panels > .b116-panel--left.
-   Розмір самої плашки НЕ змінюється.
+/* ===== BASTION v151 — TOP LEFT ORBI SAFE MICRO-TUNE =====
+   Виправлення після v150:
+   - розмір самої лівої верхньої плашки НЕ чіпаємо;
+   - масштабуємо тільки аватарку ORBI всередині гексаграми;
+   - трохи центруємо аватарку;
+   - текст зміщуємо вправо помірно, без розтягування плашки.
 */
 
-.b116-top-panels > .b116-panel.b116-panel--left {
-  width: 520px !important;
-  height: 260px !important;
-
-  --avatar-size: 88px !important;
-  --avatar-top: 86px !important;
-  --avatar-edge: 62px !important;
-
-  --text-top: 103px !important;
-  --text-edge: 232px !important;
-  --text-width: 250px !important;
-}
-
-/* ORBI avatar box — центр гексаграми + більший внутрішній розмір */
-.b116-top-panels > .b116-panel.b116-panel--left .b116-panel__avatar-box {
-  left: 62px !important;
-  right: auto !important;
-  top: 86px !important;
-  width: 88px !important;
-  height: 88px !important;
-  transform: none !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-/* ORBI image всередині контейнера */
+/* ORBI avatar: тільки внутрішній елемент, без зміни container/panel */
 .b116-top-panels > .b116-panel.b116-panel--left .b116-panel__avatar {
-  width: 100% !important;
-  height: 100% !important;
+  transform: translate(4px, -2px) scale(1.10) !important;
+  transform-origin: 50% 50% !important;
   object-fit: contain !important;
   object-position: center center !important;
-  transform: none !important;
-  display: block !important;
 }
 
-/* Текст ORBI — вправо, без зміни розміру плашки */
+/* ORBI text: помірний зсув вправо і легке опускання */
 .b116-top-panels > .b116-panel.b116-panel--left .b116-panel__text {
-  left: 232px !important;
-  right: auto !important;
-  top: 103px !important;
-  width: 250px !important;
-  transform: none !important;
-  text-align: left !important;
+  transform: translate(18px, 3px) !important;
 }
 
