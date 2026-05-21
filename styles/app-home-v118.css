@@ -7419,9 +7419,9 @@ body.bastion-core-page::before {
 }
 
 /* =========================================================
-   BASTION v127 — RIGHT BOTTOM PANEL VISIBILITY RESTORE
-   Ліва плашка лишається зразком, але фон правої повернуто
-   напряму на контейнер, щоб корпус не зникав за шаром сцени.
+   BASTION v128 — RIGHT BOTTOM PANEL LIKE LEFT, DOTS CLEAN
+   Головне: затемнення/фільтр перенесені з контейнера на
+   підкладку, тому точки навігації більше не затемнюються.
    ========================================================= */
 
 .bottom-map,
@@ -7452,15 +7452,39 @@ body.bastion-core-page::before {
   outline: 0 !important;
   clip-path: none !important;
 
-  background:
-    transparent
-    url("../assets/ui/bottom-panel-left.png?v=127")
-    center / 100% 100%
-    no-repeat !important;
-
+  /* ВАЖЛИВО: фон і фільтри не на контейнері, щоб не затемнювати точки */
+  background: transparent !important;
   box-shadow: none !important;
+  filter: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  transform: none !important;
+}
+
+/* Корпус правої плашки + тінь як у лівої. Фільтр тільки тут, не на точках. */
+.bottom-map::before,
+.hud-bottom-right::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,.38) 0%,
+      rgba(0,0,0,.22) 48%,
+      rgba(0,0,0,0) 76%
+    ),
+    url("../assets/ui/bottom-panel-left.png?v=128") center / 100% 100% no-repeat !important;
+
+  opacity: 1 !important;
+  border: 0 !important;
+  clip-path: none !important;
+  transform: none !important;
+  animation: none !important;
 
   filter:
     brightness(.62)
@@ -7469,41 +7493,33 @@ body.bastion-core-page::before {
     drop-shadow(0 14px 20px rgba(0,0,0,.82))
     drop-shadow(0 0 32px rgba(0,0,0,.54))
     drop-shadow(0 0 14px rgba(255,46,34,.16)) !important;
-
-  transform: none !important;
 }
 
-/* Темна підкладка навколо правої плашки — як у лівої, але не ховає корпус */
-.bottom-map::before,
-.hud-bottom-right::before {
+/* Додатковий ambient fade навколо плашки, але під точками */
+.bottom-map .sitemap-track::after,
+.bottom-map .route-track::after,
+.bottom-map .bottom-route-track::after {
   content: "" !important;
-  display: block !important;
   position: absolute !important;
-  inset: -28px -48px -18px -48px !important;
+  inset: -32px -58px -22px -86px !important;
   z-index: -1 !important;
   pointer-events: none !important;
-
   background:
     radial-gradient(
       ellipse at center,
-      rgba(0,0,0,.70) 0%,
-      rgba(0,0,0,.46) 44%,
-      rgba(0,0,0,.18) 64%,
+      rgba(0,0,0,.58) 0%,
+      rgba(0,0,0,.36) 44%,
+      rgba(0,0,0,.14) 64%,
       rgba(0,0,0,0) 82%
     ),
     radial-gradient(
       ellipse at center,
-      rgba(255,38,28,.12) 0%,
-      rgba(255,38,28,.055) 42%,
+      rgba(255,38,28,.10) 0%,
+      rgba(255,38,28,.045) 42%,
       rgba(255,38,28,0) 74%
     ) !important;
-
-  opacity: 1 !important;
   filter: blur(2px) !important;
-  transform: none !important;
-  animation: none !important;
-  border: 0 !important;
-  clip-path: none !important;
+  opacity: 1 !important;
 }
 
 /* Внутрішня лінія навігації */
@@ -7573,8 +7589,10 @@ body.bastion-core-page::before {
   background: linear-gradient(90deg, rgba(255,58,54,.72), rgba(255,58,54,.22)) !important;
   box-shadow: 0 0 12px rgba(255,45,40,.28) !important;
   opacity: .62 !important;
+  z-index: 1 !important;
 }
 
+/* Точки окремо поверх плашки: без затемнення */
 .bottom-map .map-dot {
   position: relative !important;
   z-index: 4 !important;
@@ -7589,15 +7607,16 @@ body.bastion-core-page::before {
   padding: 0 !important;
   margin: 0 !important;
   border-radius: 50% !important;
-  border: 1px solid rgba(255,76,68,.78) !important;
-  background: rgba(2,2,5,.86) !important;
+  border: 1px solid rgba(255,76,68,.82) !important;
+  background: rgba(2,2,5,.94) !important;
 
   box-shadow:
-    0 0 8px rgba(255,50,45,.24),
-    inset 0 0 8px rgba(255,50,45,.10) !important;
+    0 0 8px rgba(255,50,45,.34),
+    inset 0 0 8px rgba(255,50,45,.12) !important;
 
   cursor: pointer !important;
   opacity: 1 !important;
+  filter: none !important;
   transform: none !important;
   transition: transform .18s ease, background .18s ease, box-shadow .18s ease, border-color .18s ease !important;
 }
@@ -7612,6 +7631,7 @@ body.bastion-core-page::before {
     0 0 12px rgba(255,68,58,.95),
     0 0 28px rgba(255,42,38,.42),
     inset 0 0 8px rgba(255,255,255,.22) !important;
+  filter: none !important;
 }
 
 @media (max-width: 1180px) {
