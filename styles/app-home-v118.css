@@ -8816,3 +8816,40 @@ body.bastion-core-page::before {
     --avatar-edge: 27px !important;
   }
 }
+
+/* =========================================================
+   BASTION v139 — TOP RIGHT USER PANEL ALIGNMENT
+   Центрування аватарки в гексаграмі + зсув тексту вліво
+   ========================================================= */
+
+#userMenuButton.b116-panel.b116-panel--right {
+  --avatar-edge: 32px !important;
+  --avatar-top: 46px !important;
+  --avatar-size: 58px !important;
+
+  --text-edge: 165px !important;
+  --text-top: 28px !important;
+  --text-width: 186px !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar {
+  right: var(--avatar-edge) !important;
+  top: var(--avatar-top) !important;
+  width: var(--avatar-size) !important;
+  height: var(--avatar-size) !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text {
+  right: var(--text-edge) !important;
+  top: var(--text-top) !important;
+  width: var(--text-width) !important;
+  text-align: right !important;
+}
+
