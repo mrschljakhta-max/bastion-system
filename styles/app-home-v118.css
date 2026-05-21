@@ -7115,3 +7115,219 @@ body.bastion-core-page::before {
 .bottom-map .map-dot:last-of-type:focus-visible::before {
   transform: translateX(0) translateY(0) scale(1) !important;
 }
+
+/* =========================================================
+   BASTION v125 — RIGHT BOTTOM NAV IDENTICAL SHADOW
+   Full-file override: mirrors the left bottom panel atmosphere
+   ========================================================= */
+
+.bottom-map,
+.hud-bottom-right {
+  position: fixed !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+
+  width: 420px !important;
+  max-width: 420px !important;
+  height: 66px !important;
+  min-height: 66px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 0 34px 0 72px !important;
+  gap: 15px !important;
+
+  background: transparent url("../assets/ui/bottom-panel-left.png?v=125") center / 100% 100% no-repeat !important;
+  border: 0 !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  isolation: isolate !important;
+  z-index: 30 !important;
+
+  filter:
+    drop-shadow(0 14px 22px rgba(0, 0, 0, .92))
+    drop-shadow(0 0 42px rgba(0, 0, 0, .74))
+    drop-shadow(0 0 16px rgba(255, 34, 24, .22)) !important;
+}
+
+/* Soft black vignette behind the right panel — same visual role as the left panel shadow */
+.bottom-map::before,
+.hud-bottom-right::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: -30px -56px -24px -56px !important;
+  pointer-events: none !important;
+  z-index: -2 !important;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0, 0, 0, .74) 0%,
+      rgba(0, 0, 0, .46) 42%,
+      rgba(0, 0, 0, .18) 62%,
+      rgba(0, 0, 0, 0) 80%
+    ) !important;
+  filter: blur(1px) !important;
+}
+
+/* Red atmospheric spill under/around panel */
+.bottom-map::after,
+.hud-bottom-right::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: -12px -20px -12px -20px !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+  height: auto !important;
+  transform: none !important;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 42, 22, .18) 0%,
+      rgba(255, 42, 22, .08) 42%,
+      rgba(255, 42, 22, 0) 76%
+    ) !important;
+  filter: blur(16px) !important;
+}
+
+/* Internal red guide line restored as a dedicated sitemap track line */
+.bottom-map .sitemap-track::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 50% !important;
+  height: 1px !important;
+  transform: translateY(-50%) !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 58, 35, .72),
+    rgba(255, 120, 100, .42),
+    transparent
+  ) !important;
+  box-shadow: 0 0 12px rgba(255, 48, 42, .28) !important;
+  opacity: .72 !important;
+}
+
+.bottom-map > span,
+.hud-bottom-right > span {
+  display: none !important;
+}
+
+.bottom-map .sitemap-track {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.bottom-map .map-dot {
+  position: relative !important;
+  z-index: 2 !important;
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  min-height: 13px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255, 55, 52, .74) !important;
+  border-radius: 50% !important;
+  background: rgba(3, 3, 5, .92) !important;
+  box-shadow:
+    inset 0 0 7px rgba(0, 0, 0, .88),
+    0 0 8px rgba(255, 35, 28, .12) !important;
+  cursor: pointer !important;
+  transition:
+    transform .18s ease,
+    background .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease !important;
+}
+
+.bottom-map .map-dot:hover,
+.bottom-map .map-dot:focus-visible,
+.bottom-map .map-dot.is-active {
+  transform: scale(1.18) !important;
+  border-color: rgba(255, 100, 92, .98) !important;
+  background: #ff4146 !important;
+  box-shadow:
+    0 0 10px rgba(255, 64, 58, .82),
+    0 0 24px rgba(255, 45, 38, .34),
+    0 0 42px rgba(255, 35, 30, .18) !important;
+}
+
+/* Tooltip: readable and locked inside viewport on edge dots */
+.bottom-map .map-dot::before {
+  bottom: 31px !important;
+  background:
+    linear-gradient(135deg, rgba(22, 9, 10, .96), rgba(4, 4, 6, .92)) !important;
+  border: 1px solid rgba(255, 82, 70, .52) !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, .62),
+    0 0 20px rgba(255, 48, 40, .22),
+    inset 0 0 18px rgba(255, 48, 40, .06) !important;
+  color: rgba(255, 255, 255, .94) !important;
+  white-space: nowrap !important;
+}
+
+.bottom-map .map-dot::after {
+  bottom: 24px !important;
+}
+
+.bottom-map .map-dot:first-of-type::before {
+  left: 0 !important;
+  right: auto !important;
+  transform: translateX(-6px) translateY(8px) scale(.96) !important;
+}
+
+.bottom-map .map-dot:first-of-type:hover::before,
+.bottom-map .map-dot:first-of-type:focus-visible::before {
+  transform: translateX(-6px) translateY(0) scale(1) !important;
+}
+
+.bottom-map .map-dot:last-of-type::before {
+  left: auto !important;
+  right: 0 !important;
+  transform: translateX(0) translateY(8px) scale(.96) !important;
+}
+
+.bottom-map .map-dot:last-of-type:hover::before,
+.bottom-map .map-dot:last-of-type:focus-visible::before {
+  transform: translateX(0) translateY(0) scale(1) !important;
+}
+
+@media (max-width: 1180px) {
+  .bottom-map,
+  .hud-bottom-right {
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 404px !important;
+    max-width: calc(100vw - 18px) !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    padding: 0 34px 0 68px !important;
+    gap: 14px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .bottom-map,
+  .hud-bottom-right {
+    right: 0 !important;
+    bottom: 0 !important;
+    width: calc(100vw - 10px) !important;
+    max-width: calc(100vw - 10px) !important;
+    padding: 0 24px 0 58px !important;
+    gap: 10px !important;
+  }
+}
