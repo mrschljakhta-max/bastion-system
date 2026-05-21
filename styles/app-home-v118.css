@@ -8126,3 +8126,161 @@ body.bastion-core-page::before {
     padding: 0 28px 0 62px !important;
   }
 }
+
+
+/* =========================================================
+   BASTION v131 — COMPACT DOT NAV + SOFTER RIGHT PANEL
+   Ліва плашка лишається еталоном; права світліша, точки компактніші.
+   ========================================================= */
+
+.bottom-map,
+.hud-bottom-right {
+  /* залишаємо посадку v130, але робимо блок трішки легшим візуально */
+  width: 420px !important;
+  max-width: 420px !important;
+  height: 66px !important;
+  min-height: 66px !important;
+  padding: 0 42px 0 82px !important;
+}
+
+.bottom-map .bottom-map-panel {
+  /* попередній варіант був надто темний — піднімаємо корпус ближче до лівої плашки */
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,.28) 0%,
+      rgba(0,0,0,.15) 44%,
+      rgba(0,0,0,.035) 72%,
+      rgba(0,0,0,0) 100%
+    ),
+    url("../assets/ui/bottom-panel-left.png?v=131") center / 100% 100% no-repeat !important;
+
+  filter:
+    brightness(.86)
+    contrast(1.10)
+    saturate(.96)
+    drop-shadow(0 12px 18px rgba(0,0,0,.58))
+    drop-shadow(0 0 12px rgba(255,46,34,.14)) !important;
+
+  box-shadow:
+    0 12px 20px rgba(0,0,0,.48),
+    0 0 30px rgba(0,0,0,.28),
+    0 0 20px rgba(255,46,34,.10) !important;
+}
+
+.bottom-map .bottom-map-panel::before {
+  inset: -28px -54px -22px -54px !important;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,.58) 0%,
+      rgba(0,0,0,.34) 42%,
+      rgba(0,0,0,.10) 64%,
+      rgba(0,0,0,0) 82%
+    ) !important;
+  filter: blur(2px) !important;
+  opacity: .72 !important;
+}
+
+.bottom-map .bottom-map-panel::after {
+  inset: -12px -20px -12px -20px !important;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255,38,28,.13) 0%,
+      rgba(255,38,28,.055) 42%,
+      rgba(255,38,28,0) 74%
+    ) !important;
+  filter: blur(13px) !important;
+  opacity: .70 !important;
+}
+
+.bottom-map .sitemap-track {
+  gap: 8px !important;
+  justify-content: space-between !important;
+}
+
+.bottom-map .sitemap-track::before {
+  left: 5px !important;
+  right: 5px !important;
+  height: 1px !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255,58,54,.60),
+    rgba(255,58,54,.24),
+    rgba(255,58,54,.45)
+  ) !important;
+  box-shadow: 0 0 8px rgba(255,45,40,.22) !important;
+  opacity: .48 !important;
+}
+
+/* Компактний точковий режим */
+.bottom-map .map-dot {
+  width: 8px !important;
+  height: 8px !important;
+  min-width: 8px !important;
+  min-height: 8px !important;
+
+  border: 1px solid rgba(255,76,68,.78) !important;
+  background: rgba(3,3,7,.96) !important;
+
+  box-shadow:
+    0 0 5px rgba(255,50,45,.28),
+    inset 0 0 5px rgba(255,50,45,.10) !important;
+
+  transition:
+    transform .16s ease,
+    background .16s ease,
+    box-shadow .16s ease,
+    border-color .16s ease !important;
+}
+
+.bottom-map .map-dot::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 2px !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.bottom-map .map-dot:hover,
+.bottom-map .map-dot:focus-visible {
+  transform: scale(1.28) !important;
+  border-color: rgba(255,112,102,.98) !important;
+  background: rgba(255,55,58,.52) !important;
+  box-shadow:
+    0 0 8px rgba(255,68,58,.70),
+    0 0 16px rgba(255,42,38,.28),
+    inset 0 0 5px rgba(255,255,255,.14) !important;
+}
+
+.bottom-map .map-dot.is-active {
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
+  transform: scale(1) !important;
+  border-color: rgba(255,116,104,1) !important;
+  background: #ff4146 !important;
+  box-shadow:
+    0 0 10px rgba(255,68,58,.90),
+    0 0 22px rgba(255,42,38,.34),
+    inset 0 0 6px rgba(255,255,255,.18) !important;
+}
+
+.bottom-map .map-dot.is-active:hover,
+.bottom-map .map-dot.is-active:focus-visible {
+  transform: scale(1.14) !important;
+}
+
+@media (max-width: 760px) {
+  .bottom-map,
+  .hud-bottom-right {
+    width: min(420px, 100vw) !important;
+    max-width: min(420px, 100vw) !important;
+    padding: 0 36px 0 72px !important;
+  }
+}
