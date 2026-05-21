@@ -8937,3 +8937,14 @@ body.bastion-core-page::before {
   transform: translateX(var(--orbi-text-shift)) !important;
 }
 
+
+
+/* ===== v148 ORBI FINAL MICRO-TUNE ===== */
+#orbiButton.b116-panel.b116-panel--left,
+#assistantButton.b116-panel.b116-panel--left,
+.b116-panel.b116-panel--left{
+  --orbi-avatar-size:72px !important;
+  --orbi-avatar-edge:42px !important;
+  --orbi-avatar-top:40px !important;
+  --orbi-text-shift:48px !important;
+}
