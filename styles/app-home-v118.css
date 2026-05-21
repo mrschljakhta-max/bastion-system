@@ -7881,3 +7881,248 @@ body.bastion-core-page::before {
     gap: 12px !important;
   }
 }
+
+
+/* =========================================================
+   BASTION v130 — RIGHT BOTTOM PANEL STRUCTURE FIX
+   Ліва плашка = еталон. Корпус, тінь і точки рознесені по шарах:
+   .bottom-map-panel = корпус + тінь; .sitemap-track = лінія; .map-dot = чисті точки.
+   ========================================================= */
+
+.bottom-map,
+.hud-bottom-right {
+  position: fixed !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+
+  width: 420px !important;
+  max-width: 420px !important;
+  height: 66px !important;
+  min-height: 66px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+
+  padding: 0 34px 0 72px !important;
+  gap: 0 !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+
+  opacity: 1 !important;
+  transform: none !important;
+  z-index: 1300 !important;
+}
+
+/* Старі псевдошари контейнера вимикаємо: вони конфліктували з точками і корпусом */
+.bottom-map::before,
+.bottom-map::after,
+.hud-bottom-right::before,
+.hud-bottom-right::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Окремий шар корпусу. Тінь застосовується тільки до нього, не до точок. */
+.bottom-map .bottom-map-panel {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+
+  border: 0 !important;
+  outline: 0 !important;
+  clip-path: none !important;
+  overflow: visible !important;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,.42) 0%,
+      rgba(0,0,0,.25) 44%,
+      rgba(0,0,0,.06) 72%,
+      rgba(0,0,0,0) 100%
+    ),
+    url("../assets/ui/bottom-panel-left.png?v=130") center / 100% 100% no-repeat !important;
+
+  filter:
+    brightness(.68)
+    contrast(1.20)
+    saturate(.78)
+    drop-shadow(0 12px 18px rgba(0,0,0,.68))
+    drop-shadow(0 0 10px rgba(255,46,34,.12)) !important;
+
+  box-shadow:
+    0 14px 22px rgba(0,0,0,.58),
+    0 0 36px rgba(0,0,0,.36),
+    0 0 18px rgba(255,46,34,.10) !important;
+
+  transform: none !important;
+  animation: none !important;
+}
+
+/* Чорна атмосферна підкладка — така ж логіка, як у лівої плашки */
+.bottom-map .bottom-map-panel::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: -32px -58px -24px -58px !important;
+  z-index: -2 !important;
+  pointer-events: none !important;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,.76) 0%,
+      rgba(0,0,0,.50) 42%,
+      rgba(0,0,0,.18) 64%,
+      rgba(0,0,0,0) 82%
+    ) !important;
+
+  filter: blur(2px) !important;
+  opacity: .92 !important;
+}
+
+/* М'яке червоне світіння під корпусом, не поверх точок */
+.bottom-map .bottom-map-panel::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: -14px -22px -14px -22px !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255,38,28,.14) 0%,
+      rgba(255,38,28,.065) 42%,
+      rgba(255,38,28,0) 74%
+    ) !important;
+
+  filter: blur(14px) !important;
+  opacity: .84 !important;
+}
+
+/* Ховаємо старий напис SITE MAP, якщо він раптом лишився у кеші/старому HTML */
+.bottom-map > span:not(.bottom-map-panel) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Окремий шар навігаційної лінії і точок */
+.bottom-map .sitemap-track {
+  position: relative !important;
+  z-index: 4 !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+.bottom-map .sitemap-track::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 8px !important;
+  right: 8px !important;
+  top: 50% !important;
+  height: 1px !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+
+  transform: translateY(-50%) !important;
+  background: linear-gradient(90deg, rgba(255,58,54,.72), rgba(255,58,54,.22)) !important;
+  box-shadow: 0 0 12px rgba(255,45,40,.28) !important;
+  opacity: .62 !important;
+  filter: none !important;
+}
+
+.bottom-map .sitemap-track::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Точки — чисті, яскраві, без затемнення корпусу */
+.bottom-map .map-dot {
+  position: relative !important;
+  z-index: 5 !important;
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  min-height: 13px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255,76,68,.82) !important;
+  background: rgba(2,2,5,.94) !important;
+
+  box-shadow:
+    0 0 8px rgba(255,50,45,.34),
+    inset 0 0 8px rgba(255,50,45,.12) !important;
+
+  cursor: pointer !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+
+.bottom-map .map-dot:hover,
+.bottom-map .map-dot:focus-visible,
+.bottom-map .map-dot.is-active {
+  transform: scale(1.34) !important;
+  border-color: rgba(255,112,102,1) !important;
+  background: #ff4146 !important;
+  box-shadow:
+    0 0 12px rgba(255,68,58,.95),
+    0 0 28px rgba(255,42,38,.42),
+    inset 0 0 8px rgba(255,255,255,.22) !important;
+  filter: none !important;
+}
+
+/* Підказки залишаються над усіма шарами */
+.bottom-map .map-dot::before,
+.bottom-map .map-dot::after {
+  z-index: 20 !important;
+}
+
+@media (max-width: 760px) {
+  .bottom-map,
+  .hud-bottom-right {
+    right: 0 !important;
+    bottom: 0 !important;
+    width: min(420px, 100vw) !important;
+    max-width: min(420px, 100vw) !important;
+    padding: 0 28px 0 62px !important;
+  }
+}
