@@ -8817,12 +8817,12 @@ body.bastion-core-page::before {
   }
 }
 
-/* ===== BASTION v144 — top-right panel balanced composition =====
-   Центруємо всю верхню праву конструкцію як єдиний блок:
-   - аватарка лишається у гексаграмі;
-   - nickname лишається єдиним текстом;
-   - role / access / DEMO приховані;
-   - текст вписаний у внутрішнє поле плашки, без вильоту над корпус.
+/* ===== BASTION v145 — top-right panel centered + nickname lower =====
+   Верхня права плашка:
+   - аватарка лишається відцентрована в гексаграмі;
+   - nickname лишається єдиним видимим текстом;
+   - текст не рухаємо по ширині, тільки опускаємо трохи нижче;
+   - "РІВЕНЬ ДОСТУПУ" і "DEMO" приховані.
 */
 
 #userMenuButton.b116-panel.b116-panel--right {
@@ -8831,7 +8831,7 @@ body.bastion-core-page::before {
   --avatar-top: 46px !important;
 
   --text-edge: 126px !important;
-  --text-top: 48px !important;
+  --text-top: 55px !important;
   --text-width: 210px !important;
 }
 
@@ -8850,7 +8850,7 @@ body.bastion-core-page::before {
   object-position: center center !important;
 }
 
-/* Текстовий блок: вписаний у середину плашки, поруч з аватаркою */
+/* Текстовий блок */
 #userMenuButton.b116-panel.b116-panel--right .b116-panel__text {
   position: absolute !important;
   right: var(--text-edge) !important;
