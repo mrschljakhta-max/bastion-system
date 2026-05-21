@@ -8894,92 +8894,55 @@ body.bastion-core-page::before {
   display: none !important;
 }
 
-/* ===== BASTION v147 — TOP LEFT ORBI PANEL TUNE =====
-   Верхня ліва плашка:
-   - аватарка ORBI трохи правіше, по центру гексаграми;
-   - аватарка збільшена під внутрішню рамку;
-   - текст "ОРБІ / помічник" відсунутий вправо приблизно на 50% ширини тексту.
+/* ===== BASTION v150 — TOP LEFT ORBI REAL POSITION FIX =====
+   ВАЖЛИВО: реальний контейнер верхніх плашок — .b116-top-panels,
+   тому правимо саме .b116-top-panels > .b116-panel--left.
    Розмір самої плашки НЕ змінюється.
 */
 
-#orbiButton.b116-panel.b116-panel--left,
-#assistantButton.b116-panel.b116-panel--left,
-.b116-panel.b116-panel--left {
-  --orbi-avatar-size: 64px !important;
-  --orbi-avatar-edge: 34px !important;
-  --orbi-avatar-top: 43px !important;
-  --orbi-text-shift: 34px !important;
+.b116-top-panels > .b116-panel.b116-panel--left {
+  width: 520px !important;
+  height: 260px !important;
+
+  --avatar-size: 88px !important;
+  --avatar-top: 86px !important;
+  --avatar-edge: 62px !important;
+
+  --text-top: 103px !important;
+  --text-edge: 232px !important;
+  --text-width: 250px !important;
 }
 
-/* ORBI avatar: центр у гексаграмі + більший внутрішній розмір */
-#orbiButton.b116-panel.b116-panel--left .b116-panel__avatar,
-#assistantButton.b116-panel.b116-panel--left .b116-panel__avatar,
-.b116-panel.b116-panel--left .b116-panel__avatar {
-  left: var(--orbi-avatar-edge) !important;
-  top: var(--orbi-avatar-top) !important;
-  width: var(--orbi-avatar-size) !important;
-  height: var(--orbi-avatar-size) !important;
-}
-
-#orbiButton.b116-panel.b116-panel--left .b116-panel__avatar img,
-#assistantButton.b116-panel.b116-panel--left .b116-panel__avatar img,
-.b116-panel.b116-panel--left .b116-panel__avatar img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
-  object-position: center center !important;
-}
-
-/* ORBI text: вправо, без зміни самої плашки */
-#orbiButton.b116-panel.b116-panel--left .b116-panel__text,
-#assistantButton.b116-panel.b116-panel--left .b116-panel__text,
-.b116-panel.b116-panel--left .b116-panel__text {
-  transform: translateX(var(--orbi-text-shift)) !important;
-}
-
-
-
-/* ===== v148 ORBI FINAL MICRO-TUNE ===== */
-#orbiButton.b116-panel.b116-panel--left,
-#assistantButton.b116-panel.b116-panel--left,
-.b116-panel.b116-panel--left{
-  --orbi-avatar-size:72px !important;
-  --orbi-avatar-edge:42px !important;
-  --orbi-avatar-top:40px !important;
-  --orbi-text-shift:48px !important;
-}
-
-/* ===== BASTION v149 — ORBI avatar real selector fix =====
-   Попередній блок чіпав .b116-panel__avatar, але позиція/розмір керуються
-   контейнером .b116-panel__avatar-box. Тому тут правимо саме box.
-   Ліва верхня плашка НЕ збільшується.
-*/
-
-.top-hud section.b116-panel.b116-panel--left {
-  --orbi-avatar-size-real: 88px !important;
-  --orbi-avatar-left-real: 62px !important;
-  --orbi-avatar-top-real: 85px !important;
-  --orbi-text-left-real: 225px !important;
-}
-
-.top-hud section.b116-panel.b116-panel--left .b116-panel__avatar-box {
-  left: var(--orbi-avatar-left-real) !important;
-  top: var(--orbi-avatar-top-real) !important;
-  width: var(--orbi-avatar-size-real) !important;
-  height: var(--orbi-avatar-size-real) !important;
-}
-
-.top-hud section.b116-panel.b116-panel--left .b116-panel__avatar {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
-  object-position: center center !important;
-  transform: scale(1.08) !important;
-  transform-origin: 50% 50% !important;
-}
-
-.top-hud section.b116-panel.b116-panel--left .b116-panel__text {
-  left: var(--orbi-text-left-real) !important;
+/* ORBI avatar box — центр гексаграми + більший внутрішній розмір */
+.b116-top-panels > .b116-panel.b116-panel--left .b116-panel__avatar-box {
+  left: 62px !important;
+  right: auto !important;
+  top: 86px !important;
+  width: 88px !important;
+  height: 88px !important;
   transform: none !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* ORBI image всередині контейнера */
+.b116-top-panels > .b116-panel.b116-panel--left .b116-panel__avatar {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  transform: none !important;
+  display: block !important;
+}
+
+/* Текст ORBI — вправо, без зміни розміру плашки */
+.b116-top-panels > .b116-panel.b116-panel--left .b116-panel__text {
+  left: 232px !important;
+  right: auto !important;
+  top: 103px !important;
+  width: 250px !important;
+  transform: none !important;
+  text-align: left !important;
 }
 
