@@ -5126,7 +5126,7 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
   --avatar-size: 72px;
   --avatar-top: 30px;
   --avatar-edge: 72px;
-  --copy-top: 42px;
+  --copy-top: 53px;
   --copy-edge: 158px;
   --copy-width: 260px;
 }
