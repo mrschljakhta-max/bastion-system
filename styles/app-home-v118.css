@@ -8767,3 +8767,52 @@ body.bastion-core-page::before {
     0 0 22px rgba(255,42,38,.32),
     inset 0 0 6px rgba(255,255,255,.16) !important;
 }
+
+/* =========================================================
+   BASTION v136 — top right avatar centering + inner-hex scale
+   Мета: аватарка у правій верхній плашці центрується відносно
+   гексаграми і стає трохи більшою, ближче до внутрішніх країв.
+   Ліва верхня плашка не змінюється.
+   ========================================================= */
+
+#userMenuButton.b116-panel.b116-panel--right {
+  --avatar-size: 58px !important;
+  --avatar-top: 46px !important;
+  --avatar-edge: 26px !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar-box {
+  top: var(--avatar-top) !important;
+  right: var(--avatar-edge) !important;
+  left: auto !important;
+  width: var(--avatar-size) !important;
+  height: var(--avatar-size) !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  transform: none !important;
+  z-index: 6 !important;
+  box-shadow:
+    0 0 14px rgba(255,42,24,.42),
+    0 0 30px rgba(255,42,24,.18),
+    inset 0 0 18px rgba(255,42,24,.22) !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  border-radius: 50% !important;
+  transform: scale(1.04) !important;
+  transform-origin: 50% 50% !important;
+}
+
+@media (max-width: 1280px) {
+  #userMenuButton.b116-panel.b116-panel--right {
+    --avatar-size: 55px !important;
+    --avatar-top: 47px !important;
+    --avatar-edge: 27px !important;
+  }
+}
