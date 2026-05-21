@@ -8894,48 +8894,46 @@ body.bastion-core-page::before {
   display: none !important;
 }
 
-/* ===== BASTION v146 — top-right nickname lower + 20% smaller =====
-   Фінальна точкова правка правої верхньої плашки:
-   - залишаємо тільки nickname;
-   - опускаємо nickname ще приблизно на 50% висоти тексту;
-   - зменшуємо шрифт nickname на 20%;
-   - аватарку та горизонтальне позиціонування не чіпаємо.
+/* ===== BASTION v147 — TOP LEFT ORBI PANEL TUNE =====
+   Верхня ліва плашка:
+   - аватарка ORBI трохи правіше, по центру гексаграми;
+   - аватарка збільшена під внутрішню рамку;
+   - текст "ОРБІ / помічник" відсунутий вправо приблизно на 50% ширини тексту.
+   Розмір самої плашки НЕ змінюється.
 */
 
-#userMenuButton.b116-panel.b116-panel--right {
-  --text-top: 66px !important;
+#orbiButton.b116-panel.b116-panel--left,
+#assistantButton.b116-panel.b116-panel--left,
+.b116-panel.b116-panel--left {
+  --orbi-avatar-size: 64px !important;
+  --orbi-avatar-edge: 34px !important;
+  --orbi-avatar-top: 43px !important;
+  --orbi-text-shift: 34px !important;
 }
 
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text {
-  top: var(--text-top) !important;
+/* ORBI avatar: центр у гексаграмі + більший внутрішній розмір */
+#orbiButton.b116-panel.b116-panel--left .b116-panel__avatar,
+#assistantButton.b116-panel.b116-panel--left .b116-panel__avatar,
+.b116-panel.b116-panel--left .b116-panel__avatar {
+  left: var(--orbi-avatar-edge) !important;
+  top: var(--orbi-avatar-top) !important;
+  width: var(--orbi-avatar-size) !important;
+  height: var(--orbi-avatar-size) !important;
 }
 
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text > * {
-  display: none !important;
+#orbiButton.b116-panel.b116-panel--left .b116-panel__avatar img,
+#assistantButton.b116-panel.b116-panel--left .b116-panel__avatar img,
+.b116-panel.b116-panel--left .b116-panel__avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
 }
 
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text > :first-child {
-  display: block !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  font-size: 19.2px !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  max-width: 100% !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text small,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text b,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text em,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .access-level,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .role,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .demo,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__role,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__access,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__level,
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__demo {
-  display: none !important;
+/* ORBI text: вправо, без зміни самої плашки */
+#orbiButton.b116-panel.b116-panel--left .b116-panel__text,
+#assistantButton.b116-panel.b116-panel--left .b116-panel__text,
+.b116-panel.b116-panel--left .b116-panel__text {
+  transform: translateX(var(--orbi-text-shift)) !important;
 }
 
