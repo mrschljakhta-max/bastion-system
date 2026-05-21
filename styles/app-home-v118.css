@@ -8853,3 +8853,62 @@ body.bastion-core-page::before {
   text-align: right !important;
 }
 
+/* =========================================================
+   BASTION v140 — TOP RIGHT USER PANEL FINAL TUNE
+   - avatar: move left by ~10% of current avatar size
+   - text: leave only nickname, lower to previous DEMO level
+   ========================================================= */
+
+#userMenuButton.b116-panel.b116-panel--right {
+  --avatar-size: 58px !important;
+  --avatar-edge: 38px !important; /* +6px ≈ 10% of 58px: moves avatar left */
+  --avatar-top: 46px !important;
+
+  --text-edge: 145px !important;
+  --text-top: 55px !important;
+  --text-width: 210px !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar {
+  right: var(--avatar-edge) !important;
+  top: var(--avatar-top) !important;
+  width: var(--avatar-size) !important;
+  height: var(--avatar-size) !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text {
+  right: var(--text-edge) !important;
+  top: var(--text-top) !important;
+  width: var(--text-width) !important;
+  text-align: right !important;
+  display: block !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__name,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__nickname {
+  display: block !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__role,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__access,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__level,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__demo,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text small,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text b,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text em,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .access-level,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .role,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .demo {
+  display: none !important;
+}
+
