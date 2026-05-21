@@ -8948,3 +8948,38 @@ body.bastion-core-page::before {
   --orbi-avatar-top:40px !important;
   --orbi-text-shift:48px !important;
 }
+
+/* ===== BASTION v149 — ORBI avatar real selector fix =====
+   Попередній блок чіпав .b116-panel__avatar, але позиція/розмір керуються
+   контейнером .b116-panel__avatar-box. Тому тут правимо саме box.
+   Ліва верхня плашка НЕ збільшується.
+*/
+
+.top-hud section.b116-panel.b116-panel--left {
+  --orbi-avatar-size-real: 88px !important;
+  --orbi-avatar-left-real: 62px !important;
+  --orbi-avatar-top-real: 85px !important;
+  --orbi-text-left-real: 225px !important;
+}
+
+.top-hud section.b116-panel.b116-panel--left .b116-panel__avatar-box {
+  left: var(--orbi-avatar-left-real) !important;
+  top: var(--orbi-avatar-top-real) !important;
+  width: var(--orbi-avatar-size-real) !important;
+  height: var(--orbi-avatar-size-real) !important;
+}
+
+.top-hud section.b116-panel.b116-panel--left .b116-panel__avatar {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  transform: scale(1.08) !important;
+  transform-origin: 50% 50% !important;
+}
+
+.top-hud section.b116-panel.b116-panel--left .b116-panel__text {
+  left: var(--orbi-text-left-real) !important;
+  transform: none !important;
+}
+
