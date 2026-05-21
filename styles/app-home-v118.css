@@ -8853,10 +8853,69 @@ body.bastion-core-page::before {
   text-align: right !important;
 }
 
+/* ===== BASTION v142 — top-right nickname only final =====
+   Правки:
+   1) залишаємо тільки nickname у правій верхній плашці;
+   2) прибираємо "РІВЕНЬ ДОСТУПУ" і "DEMO";
+   3) аватарку зміщуємо на ~10% її розміру вліво;
+   4) nickname опускаємо нижче і зміщуємо приблизно на 2 символи вліво.
+*/
 
+#userMenuButton.b116-panel.b116-panel--right {
+  --avatar-size: 58px !important;
+  --avatar-edge: 38px !important;
+  --avatar-top: 46px !important;
 
-/* ===== BASTION v141 — top-right nickname fine tune ===== */
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text{
-    top: calc(var(--text-top,55px) + 0.5em) !important; /* half text lower */
-    right: calc(var(--text-edge,145px) + 1.8ch) !important; /* ~2 letters left */
+  --text-edge: 177px !important;
+  --text-top: 50px !important;
+  --text-width: 220px !important;
 }
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar {
+  right: var(--avatar-edge) !important;
+  top: var(--avatar-top) !important;
+  width: var(--avatar-size) !important;
+  height: var(--avatar-size) !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text {
+  right: var(--text-edge) !important;
+  top: var(--text-top) !important;
+  width: var(--text-width) !important;
+  text-align: right !important;
+  display: block !important;
+}
+
+/* лишаємо видимим тільки перший текстовий елемент — nickname */
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text > * {
+  display: none !important;
+}
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text > :first-child {
+  display: block !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+/* додатковий страховий шар на випадок різних назв класів */
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text small,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text b,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text em,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .access-level,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .role,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .demo,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__role,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__access,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__level,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__demo {
+  display: none !important;
+}
+
