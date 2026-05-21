@@ -8817,21 +8817,25 @@ body.bastion-core-page::before {
   }
 }
 
-/* =========================================================
-   BASTION v139 — TOP RIGHT USER PANEL ALIGNMENT
-   Центрування аватарки в гексаграмі + зсув тексту вліво
-   ========================================================= */
+/* ===== BASTION v144 — top-right panel balanced composition =====
+   Центруємо всю верхню праву конструкцію як єдиний блок:
+   - аватарка лишається у гексаграмі;
+   - nickname лишається єдиним текстом;
+   - role / access / DEMO приховані;
+   - текст вписаний у внутрішнє поле плашки, без вильоту над корпус.
+*/
 
 #userMenuButton.b116-panel.b116-panel--right {
-  --avatar-edge: 32px !important;
-  --avatar-top: 46px !important;
   --avatar-size: 58px !important;
+  --avatar-edge: 36px !important;
+  --avatar-top: 46px !important;
 
-  --text-edge: 165px !important;
-  --text-top: 28px !important;
-  --text-width: 186px !important;
+  --text-edge: 126px !important;
+  --text-top: 48px !important;
+  --text-width: 210px !important;
 }
 
+/* Аватарка */
 #userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar {
   right: var(--avatar-edge) !important;
   top: var(--avatar-top) !important;
@@ -8846,17 +8850,47 @@ body.bastion-core-page::before {
   object-position: center center !important;
 }
 
+/* Текстовий блок: вписаний у середину плашки, поруч з аватаркою */
 #userMenuButton.b116-panel.b116-panel--right .b116-panel__text {
+  position: absolute !important;
   right: var(--text-edge) !important;
   top: var(--text-top) !important;
   width: var(--text-width) !important;
+  height: auto !important;
+  display: block !important;
   text-align: right !important;
+  transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-
-
-/* ===== BASTION v143 — nickname final offset ===== */
-#userMenuButton.b116-panel.b116-panel--right .b116-panel__text{
-    top: calc(var(--text-top,50px) + 0.5em) !important; /* half text lower */
-    right: calc(var(--text-edge,177px) + 2ch) !important; /* ~2 letters left */
+/* Показуємо тільки nickname */
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text > * {
+  display: none !important;
 }
+
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text > :first-child {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Страховка: прибираємо доступ/демо незалежно від класу */
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text small,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text b,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text em,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .access-level,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .role,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .demo,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__role,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__access,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__level,
+#userMenuButton.b116-panel.b116-panel--right .b116-panel__text .b116-panel__demo {
+  display: none !important;
+}
+
