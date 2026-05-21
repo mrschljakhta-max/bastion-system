@@ -4391,7 +4391,7 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
 .user-card .user-copy {
   position: absolute !important;
   right: 136px !important;
-  top: 33px !important;
+  top: 32px !important;
   z-index: 3 !important;
   text-align: right !important;
 }
@@ -4649,7 +4649,7 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
 .assistant-card .assistant-icon {
   position: absolute !important;
   left: 54px !important;
-  top: 33px !important;
+  top: 32px !important;
   z-index: 3 !important;
   width: 50px !important;
   height: 50px !important;
@@ -4704,8 +4704,8 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
 /* RIGHT: USER */
 .user-card .user-avatar {
   position: absolute !important;
-  right: 54px !important;
-  top: 33px !important;
+  right: 60px !important;
+  top: 32px !important;
   z-index: 3 !important;
   width: 50px !important;
   height: 50px !important;
@@ -4734,7 +4734,7 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
 
 .user-card .user-info {
   position: absolute !important;
-  right: 132px !important;
+  right: 150px !important;
   top: 34px !important;
   z-index: 3 !important;
   display: block !important;
@@ -6578,7 +6578,7 @@ body.bastion-core-page::before {
   content: "" !important;
   position: absolute !important;
   left: 126px !important;
-  right: 54px !important;
+  right: 60px !important;
   top: 50% !important;
   bottom: auto !important;
   width: auto !important;
