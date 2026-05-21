@@ -8594,3 +8594,105 @@ body.bastion-core-page::before {
     padding: 0 72px 0 36px !important;
   }
 }
+
+/* =========================================================
+   BASTION v134 — LEFT LOWER DECOR DOTS DIRECTION FIX
+   Ліва нижня плашка лишається bottom-panel-left, але декоративні точки
+   розгорнуті правильно: активна точка зліва, як у лівої HUD-плашки.
+   ========================================================= */
+
+.bottom-contact,
+.hud-bottom-left {
+  left: 0 !important;
+  right: auto !important;
+  bottom: 0 !important;
+  transform: none !important;
+  scale: 1 !important;
+  rotate: 0deg !important;
+  width: 420px !important;
+  max-width: 420px !important;
+  height: 66px !important;
+  min-height: 66px !important;
+  padding: 0 82px 0 42px !important;
+  overflow: visible !important;
+  background: transparent !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.bottom-contact .bottom-contact-panel {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+  transform: none !important;
+  scale: 1 !important;
+  rotate: 0deg !important;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,.24) 0%,
+      rgba(0,0,0,.13) 44%,
+      rgba(0,0,0,.03) 72%,
+      rgba(0,0,0,0) 100%
+    ),
+    url("../assets/ui/bottom-panel-left.png?v=134") center / 100% 100% no-repeat !important;
+  filter:
+    brightness(.90)
+    contrast(1.08)
+    saturate(.98)
+    drop-shadow(0 12px 18px rgba(0,0,0,.54))
+    drop-shadow(0 0 12px rgba(255,46,34,.12)) !important;
+  box-shadow:
+    0 12px 20px rgba(0,0,0,.42),
+    0 0 24px rgba(0,0,0,.24),
+    0 0 18px rgba(255,46,34,.08) !important;
+}
+
+.bottom-contact .contact-dot-track {
+  position: relative !important;
+  z-index: 2 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  pointer-events: none !important;
+  transform: none !important;
+}
+
+.bottom-contact .contact-dot-track::before {
+  left: 5px !important;
+  right: 5px !important;
+  background: linear-gradient(
+    90deg,
+    rgba(255,58,54,.60),
+    rgba(255,58,54,.24),
+    rgba(255,58,54,.45)
+  ) !important;
+  opacity: .48 !important;
+}
+
+.bottom-contact .contact-dot {
+  width: 8px !important;
+  height: 8px !important;
+  min-width: 8px !important;
+  min-height: 8px !important;
+}
+
+.bottom-contact .contact-dot.is-active {
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
+}
+
+@media (max-width: 760px) {
+  .bottom-contact,
+  .hud-bottom-left {
+    width: min(420px, 100vw) !important;
+    max-width: min(420px, 100vw) !important;
+    padding: 0 72px 0 36px !important;
+  }
+}
