@@ -1,25 +1,20 @@
-/* BASTION DICTS v157 — real rotating carousel */
+/* BASTION DICTS v160 — corrected rotating carousel */
 (() => {
-  const all = [...document.querySelectorAll(".dict-folder")];
-  const folders = all.slice(0, 5);
-  all.slice(5).forEach((el) => {
-    el.dataset.slot = "hidden";
-    el.style.display = "none";
-  });
-
+  const folders = [...document.querySelectorAll(".dict-folder")];
   const left = document.querySelector(".dicts-arrow--left");
   const right = document.querySelector(".dicts-arrow--right");
 
   if (!folders.length) return;
 
   let active = folders.findIndex((el) => el.classList.contains("dict-folder--active"));
-  if (active < 0) active = Math.floor(folders.length / 2);
+  if (active < 0) active = Math.min(1, folders.length - 1);
 
   function normalizeCountText(folder) {
     const count = folder.querySelector(".dict-folder__count");
     if (!count || count.dataset.normalized === "1") return;
-    const digits = (count.textContent || "").match(/\d+/)?.[0] || count.textContent.trim();
-    count.textContent = digits;
+
+    const digits = (count.textContent || "").match(/\d+/)?.[0];
+    if (digits) count.textContent = `${digits} записи`;
     count.dataset.normalized = "1";
   }
 
@@ -33,17 +28,21 @@
   function render() {
     folders.forEach((folder, index) => {
       normalizeCountText(folder);
-
-      folder.classList.remove("dict-folder--mini", "dict-folder--side", "dict-folder--mid", "dict-folder--active");
+      folder.classList.remove("dict-folder--side", "dict-folder--mid", "dict-folder--active");
 
       const distance = circularDistance(index, active, folders.length);
-      folder.dataset.slot = String(distance);
+      const absDistance = Math.abs(distance);
 
-      if (distance === 0) folder.classList.add("dict-folder--active");
-      else if (Math.abs(distance) === 1) folder.classList.add("dict-folder--mid");
-      else if (Math.abs(distance) === 2) folder.classList.add("dict-folder--side");
-      else {
-        folder.classList.add("dict-folder--mini");
+      if (distance === 0) {
+        folder.dataset.slot = "0";
+        folder.classList.add("dict-folder--active");
+      } else if (absDistance === 1) {
+        folder.dataset.slot = String(distance);
+        folder.classList.add("dict-folder--mid");
+      } else if (absDistance === 2) {
+        folder.dataset.slot = String(distance);
+        folder.classList.add("dict-folder--side");
+      } else {
         folder.dataset.slot = "hidden";
       }
     });

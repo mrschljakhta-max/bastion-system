@@ -6,8 +6,8 @@
   <title>BASTION — Довідники</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
-  <link rel="stylesheet" href="../styles/app-home-v118.css?v=153" />
-  <link rel="stylesheet" href="../styles/dicts.css?v=153" />
+  <link rel="stylesheet" href="../styles/app-home-v118.css?v=160" />
+  <link rel="stylesheet" href="../styles/dicts.css?v=160" />
 </head>
 <body class="bastion-core-page dicts-page" data-active-module="dicts">
   <div class="core-background" aria-hidden="true">
@@ -86,12 +86,12 @@
     <section class="dicts-carousel-wrap" aria-label="Карусель довідників">
       <button class="dicts-arrow dicts-arrow--left" type="button" aria-label="Попередній довідник">‹</button>
       <div class="dicts-carousel" id="dictsCarousel">
-        <button class="dict-folder" type="button"><span><b>BANDS</b><i>58 записів</i></span></button>
-        <button class="dict-folder" type="button"><span><b>SETTLEMENTS</b><i>124 записи</i></span></button>
-        <button class="dict-folder" type="button"><span><b>UAV</b><i>152 записи</i></span></button>
-        <button class="dict-folder" type="button"><span><b>STATIONS</b><i>87 записів</i></span></button>
-        <button class="dict-folder" type="button"><span><b>UNITS</b><i>96 записів</i></span></button>
-        <button class="dict-folder" type="button"><span><b>COVER OBJECTS</b><i>63 записи</i></span></button>
+        <button class="dict-folder" type="button" data-key="bands"><span class="dict-folder__inner"><b class="dict-folder__title">BANDS</b><i class="dict-folder__count">58 записів</i></span></button>
+        <button class="dict-folder" type="button" data-key="settlements"><span class="dict-folder__inner"><b class="dict-folder__title">SETTLEMENTS</b><i class="dict-folder__count">124 записи</i></span></button>
+        <button class="dict-folder" type="button" data-key="uav"><span class="dict-folder__inner"><b class="dict-folder__title">UAV</b><i class="dict-folder__count">152 записи</i></span></button>
+        <button class="dict-folder" type="button" data-key="stations"><span class="dict-folder__inner"><b class="dict-folder__title">STATIONS</b><i class="dict-folder__count">87 записів</i></span></button>
+        <button class="dict-folder" type="button" data-key="units"><span class="dict-folder__inner"><b class="dict-folder__title">UNITS</b><i class="dict-folder__count">96 записів</i></span></button>
+        <button class="dict-folder" type="button" data-key="cover"><span class="dict-folder__inner"><b class="dict-folder__title">COVER OBJECTS</b><i class="dict-folder__count">63 записи</i></span></button>
       </div>
       <button class="dicts-arrow dicts-arrow--right" type="button" aria-label="Наступний довідник">›</button>
     </section>
@@ -106,13 +106,7 @@
   <footer class="bottom-contact hud-bottom-panel hud-bottom-left" aria-hidden="true">
     <div class="bottom-contact-panel" aria-hidden="true"></div>
     <div class="contact-dot-track" aria-hidden="true">
-      <span class="contact-dot is-active"></span>
-      <span class="contact-dot"></span>
-      <span class="contact-dot"></span>
-      <span class="contact-dot"></span>
-      <span class="contact-dot"></span>
-      <span class="contact-dot"></span>
-      <span class="contact-dot"></span>
+      <span class="contact-dot is-active"></span><span class="contact-dot"></span><span class="contact-dot"></span><span class="contact-dot"></span><span class="contact-dot"></span><span class="contact-dot"></span><span class="contact-dot"></span>
     </div>
   </footer>
 
@@ -130,6 +124,6 @@
   </nav>
 
   <aside id="floatingDetail" class="floating-detail" aria-hidden="true"></aside>
-  <script src="../scripts/dicts.js?v=153"></script>
+  <script src="../scripts/dicts.js?v=160"></script>
 </body>
 </html>

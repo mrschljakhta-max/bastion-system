@@ -1,10 +1,16 @@
-
 /* =========================================================
-   BASTION DICTS PAGE v153 — projector carousel
+   BASTION DICTS PAGE v160
+   Clean replacement: corrected class names, real 6-item carousel,
+   stable folder text centering, lower projector, clickable bottom map.
    ========================================================= */
 
-body.dicts-page { overflow: hidden; }
-body.dicts-page .core-screen { display: none !important; }
+body.dicts-page {
+  overflow: hidden;
+}
+
+body.dicts-page .core-screen {
+  display: none !important;
+}
 
 .dicts-holo-stage {
   position: fixed;
@@ -18,119 +24,203 @@ body.dicts-page .core-screen { display: none !important; }
   position: absolute;
   left: 50%;
   top: 18.4%;
-  width: min(1500px, 94vw);
-  height: 340px;
+  width: min(1580px, 96vw);
+  height: 380px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: auto;
-  z-index: 9;
+  z-index: 12;
 }
 
 .dicts-carousel {
-  width: min(1260px, 82vw);
-  height: 330px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(14px, 1.15vw, 24px);
-  perspective: 1200px;
+  position: relative;
+  width: min(1500px, 94vw);
+  height: 360px;
+  overflow: visible;
+  pointer-events: auto;
 }
 
 .dict-folder {
-  position: relative;
-  flex: 0 0 auto;
-  width: 252px;
-  height: 168px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
-  color: rgba(255,255,255,.92);
-  text-align: left;
+  color: rgba(255, 255, 255, .92);
+  text-align: center;
   cursor: pointer;
-  filter: drop-shadow(0 0 14px rgba(255, 31, 22, .28));
-  transform-style: preserve-3d;
-  transition: transform .28s ease, filter .28s ease, opacity .28s ease;
+  transform-style: flat;
+  transform-origin: center center;
+  transition:
+    transform .42s cubic-bezier(.2, .8, .2, 1),
+    width .42s cubic-bezier(.2, .8, .2, 1),
+    height .42s cubic-bezier(.2, .8, .2, 1),
+    opacity .42s ease,
+    filter .42s ease;
 }
 
 .dict-folder::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url("../assets/ui/dict-folder-card.jpg?v=153") center / 100% 100% no-repeat;
-  opacity: .92;
+  z-index: 0;
+  background: url("../assets/ui/dict-folder-card.png") center / 100% 100% no-repeat;
+  opacity: 1;
 }
 
 .dict-folder::after {
   content: "";
   position: absolute;
-  inset: 16% 12% 16% 12%;
-  border-radius: 16px;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 44, 32, .18), transparent 58%);
+  inset: 16% 12%;
+  z-index: 1;
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 55, 44, .16), transparent 58%);
   mix-blend-mode: screen;
   opacity: .72;
+  pointer-events: none;
 }
 
-.dict-folder span {
-  position:absolute;
-  inset:0;
-  z-index:2;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  transform:translateY(-2%);
-  text-align:center;
-  text-transform:uppercase;
-  text-shadow:0 0 14px rgba(255,39,30,.42);
+.dict-folder__inner {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 12%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transform: translateY(-3%);
+  pointer-events: none;
 }
 
-.dict-folder b,
-.dict-folder em,
-.dict-folder i { display: block; font-style: normal; }
-.dict-folder b,
-.dict-folder em,
-.dict-folder i { display:block; font-style:normal; }
-
-.dict-folder b{
-  font-family:'Orbitron',sans-serif;
-  font-size:16px;
-  letter-spacing:.05em;
-  line-height:1;
+.dict-folder__title,
+.dict-folder__count {
+  display: block;
+  margin: 0;
+  font-style: normal;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
 }
 
-.dict-folder em{ display:none; }
+.dict-folder__title {
+  font-family: "Orbitron", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: .96;
+  color: #f7f7ff;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, .24),
+    0 0 18px rgba(255, 54, 45, .72);
+}
 
-.dict-folder i{
-  margin-top:10px;
-  font-family:'Rajdhani',sans-serif;
-  font-size:13px;
-  font-weight:600;
-  color:rgba(255,255,255,.88);
-  text-transform:uppercase;
+.dict-folder__count {
+  margin-top: 14px;
+  font-family: "Rajdhani", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1;
+  color: rgba(255, 226, 226, .92);
+  text-shadow: 0 0 12px rgba(255, 48, 40, .52);
 }
 
 .dict-folder--active {
-  width: 356px;
-  height: 232px;
-  transform: translateY(-22px) scale(1.04);
-  z-index: 6;
-  filter: drop-shadow(0 0 24px rgba(255, 45, 36, .64)) drop-shadow(0 0 54px rgba(255, 21, 14, .28));
+  width: 460px;
+  height: 292px;
+  z-index: 30;
+  opacity: 1;
+  transform: translate(-50%, -56%) scale(1);
+  filter:
+    drop-shadow(0 0 32px rgba(255, 45, 35, .86))
+    drop-shadow(0 0 72px rgba(255, 25, 18, .44));
 }
-.dict-folder--active b { font-size: 30px; }
-.dict-folder--active em { font-size: 18px; }
-.dict-folder--active i { font-size: 16px; }
-.dict-folder--mid { width: 296px; height: 200px; transform: translateY(-4px) rotateY(var(--tilt, 0deg)); z-index: 5; }
-.dict-folder--side { width: 210px; height: 150px; transform: translateY(16px) rotateY(var(--tilt, 0deg)); opacity: .88; z-index: 3; }
-.dict-folder--mini { width: 168px; height: 126px; transform: translateY(22px) rotateY(16deg); opacity: .72; z-index: 2; }
-.dict-folder:nth-child(1), .dict-folder:nth-child(2) { --tilt: -10deg; }
-.dict-folder:nth-child(4), .dict-folder:nth-child(5), .dict-folder:nth-child(6) { --tilt: 10deg; }
-.dict-folder:hover { filter: drop-shadow(0 0 26px rgba(255, 56, 45, .78)) drop-shadow(0 0 60px rgba(255, 26, 18, .34)); }
+
+.dict-folder--active .dict-folder__title {
+  font-size: clamp(34px, 2.45vw, 46px);
+}
+
+.dict-folder--active .dict-folder__count {
+  margin-top: 32px;
+  font-size: clamp(20px, 1.55vw, 28px);
+}
+
+.dict-folder--mid {
+  width: 330px;
+  height: 212px;
+  z-index: 20;
+  opacity: .74;
+  filter: drop-shadow(0 0 18px rgba(255, 35, 28, .42));
+}
+
+.dict-folder--mid .dict-folder__title {
+  font-size: clamp(22px, 1.45vw, 27px);
+}
+
+.dict-folder--mid .dict-folder__count {
+  margin-top: 24px;
+  font-size: clamp(15px, 1vw, 18px);
+}
+
+.dict-folder--side {
+  width: 245px;
+  height: 160px;
+  z-index: 10;
+  opacity: .46;
+  filter: drop-shadow(0 0 10px rgba(255, 35, 28, .24));
+}
+
+.dict-folder--side .dict-folder__title {
+  font-size: clamp(17px, 1.05vw, 20px);
+}
+
+.dict-folder--side .dict-folder__count {
+  margin-top: 18px;
+  font-size: clamp(13px, .8vw, 15px);
+}
+
+.dict-folder[data-slot="-2"] {
+  transform: translate(calc(-50% - 610px), -38%) scale(.86);
+}
+
+.dict-folder[data-slot="-1"] {
+  transform: translate(calc(-50% - 335px), -47%) scale(.94);
+}
+
+.dict-folder[data-slot="0"] {
+  transform: translate(-50%, -56%) scale(1);
+}
+
+.dict-folder[data-slot="1"] {
+  transform: translate(calc(-50% + 335px), -47%) scale(.94);
+}
+
+.dict-folder[data-slot="2"] {
+  transform: translate(calc(-50% + 610px), -38%) scale(.86);
+}
+
+.dict-folder[data-slot="hidden"] {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(.55);
+}
+
+.dict-folder:hover {
+  filter:
+    drop-shadow(0 0 30px rgba(255, 56, 45, .84))
+    drop-shadow(0 0 64px rgba(255, 26, 18, .34));
+}
 
 .dicts-arrow {
   position: relative;
-  z-index: 12;
+  z-index: 40;
   width: 76px;
   height: 130px;
   border: 0;
@@ -140,13 +230,20 @@ body.dicts-page .core-screen { display: none !important; }
   line-height: 1;
   text-shadow: 0 0 18px rgba(255, 35, 25, .82);
   cursor: pointer;
+  pointer-events: auto;
+  transition: color .2s ease, text-shadow .2s ease, transform .2s ease;
 }
-.dicts-arrow:hover { color: #fff; }
+
+.dicts-arrow:hover {
+  color: #fff;
+  text-shadow: 0 0 24px rgba(255, 55, 45, 1);
+  transform: scale(1.06);
+}
 
 .dicts-projector-wrap {
   position: absolute;
   left: 50%;
-  bottom: 6px;
+  bottom: -148px;
   width: min(980px, 70vw);
   height: 500px;
   transform: translateX(-50%);
@@ -157,222 +254,50 @@ body.dicts-page .core-screen { display: none !important; }
 .dicts-projector {
   position: absolute;
   left: 50%;
-  bottom: 2px;
-  width: min(820px, 66vw);
+  bottom: -18px;
+  z-index: 6;
+  width: min(720px, 56vw);
+  max-height: 190px;
   height: auto;
   transform: translateX(-50%);
-  z-index: 6;
   filter: drop-shadow(0 0 20px rgba(255, 35, 24, .42));
+  pointer-events: none;
 }
 
 .dicts-light-core {
   position: absolute;
   left: 50%;
-  bottom: 104px;
+  bottom: 20px;
+  z-index: 7;
   width: 90px;
   height: 34px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(255,255,255,.92), rgba(255, 45, 32, .76) 32%, rgba(255, 20, 14, .18) 70%, transparent);
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, .92), rgba(255, 45, 32, .76) 32%, rgba(255, 20, 14, .18) 70%, transparent);
   filter: blur(8px);
-  z-index: 7;
   animation: dictsPulse 2.4s ease-in-out infinite;
 }
 
 .dicts-light-cone {
   position: absolute;
   left: 50%;
-  bottom: 112px;
-  width: min(1300px, 92vw);
-  height: 520px;
+  bottom: 78px;
+  z-index: 2;
+  width: min(1320px, 90vw);
+  height: 500px;
   transform: translateX(-50%);
   clip-path: polygon(50% 100%, 1% 0, 99% 0);
   background:
-    repeating-linear-gradient(88deg, rgba(255,255,255,.07) 0 1px, transparent 1px 22px),
-    repeating-linear-gradient(102deg, transparent 0 18px, rgba(255,80,68,.13) 19px, transparent 21px),
-    radial-gradient(ellipse at 50% 100%, rgba(255,255,255,.52) 0 2%, rgba(255, 42, 30, .56) 4%, rgba(255, 30, 20, .20) 35%, rgba(255, 20, 14, .06) 72%, transparent 95%);
-  opacity: .86;
+    repeating-linear-gradient(88deg, rgba(255, 255, 255, .07) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(102deg, transparent 0 18px, rgba(255, 80, 68, .13) 19px, transparent 21px),
+    radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, .52) 0 2%, rgba(255, 42, 30, .56) 4%, rgba(255, 30, 20, .20) 35%, rgba(255, 20, 14, .06) 72%, transparent 95%);
+  opacity: .72;
   mix-blend-mode: screen;
-  z-index: 2;
+  pointer-events: none;
   animation: dictsCone 4s ease-in-out infinite;
 }
 
-.dicts-corner-card {
-  position: fixed;
-  z-index: 12;
-  bottom: 120px;
-  width: 320px;
-  min-height: 150px;
-  padding: 26px 26px 20px;
-  color: rgba(255,255,255,.76);
-  background: linear-gradient(135deg, rgba(16,16,18,.84), rgba(5,5,6,.62));
-  border: 1px solid rgba(255, 55, 44, .28);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 0 28px rgba(255, 35, 25, .16);
-  backdrop-filter: blur(8px);
-  clip-path: polygon(0 14px, 14px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 24px) 100%, 0 100%);
-  pointer-events: auto;
-}
-.dicts-corner-card--left { left: 36px; }
-.dicts-corner-card--right { right: 48px; width: 300px; min-height: 122px; }
-.dicts-corner-card h2 { margin: 0 0 16px; color: rgba(255,255,255,.9); font-size: 15px; letter-spacing: .08em; }
-.dicts-corner-card p { margin: 0; max-width: 245px; font-size: 14px; line-height: 1.52; color: rgba(255,255,255,.55); }
-.dicts-corner-card strong { display: block; margin-top: 20px; color: #ff3a32; font-size: 14px; letter-spacing: .06em; }
-.dicts-nav-dots { display: flex; gap: 22px; margin-top: 26px; align-items: center; }
-.dicts-nav-dots span { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.38); box-shadow: 0 0 12px rgba(255,255,255,.16); }
-.dicts-nav-dots span.is-active { background: #ff3d36; box-shadow: 0 0 18px rgba(255,55,42,.9); }
-
-@keyframes dictsCone { 0%,100% { opacity: .76; transform: translateX(-50%) scaleX(.985); } 50% { opacity: .96; transform: translateX(-50%) scaleX(1.015); } }
-@keyframes dictsPulse { 0%,100% { opacity: .75; transform: translateX(-50%) scale(.96); } 50% { opacity: 1; transform: translateX(-50%) scale(1.06); } }
-
-@media (max-width: 1300px) {
-  .dicts-carousel { transform: scale(.82); }
-  .dicts-corner-card { display: none; }
-}
-
-/* =========================================================
-   BASTION DICTS PATCH v154
-   - 5 front-facing folders
-   - cascade scale + distance opacity
-   - transparent folder image
-   - removed extra info/nav panels
-   - projector moved lower
-   ========================================================= */
-
-.dicts-info-panel,
-.dicts-nav-panel {
-  display: none !important;
-}
-
-.dicts-stage {
-  inset: 118px 0 78px !important;
-  z-index: 5 !important;
-  pointer-events: none !important;
-}
-
-.dicts-carousel-zone {
-  top: 20% !important;
-  height: 320px !important;
-  width: min(1560px, 96vw) !important;
-  pointer-events: auto !important;
-}
-
-.dicts-carousel {
-  width: min(1420px, 92vw) !important;
-  height: 320px !important;
-  gap: clamp(20px, 2.1vw, 42px) !important;
-  perspective: none !important;
-  transform-style: flat !important;
-  overflow: visible !important;
-}
-
-.dict-folder,
-.dict-folder--active,
-.dict-folder--mid,
-.dict-folder--side,
-.dict-folder--mini {
-  rotate: 0deg !important;
-  transform-style: flat !important;
-}
-
-.dict-folder::before {
-  background-image: url("../assets/ui/dict-folder-card.png") !important;
-  background-size: 100% 100% !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  opacity: 1 !important;
-}
-
-.dict-folder--active {
-  width: 370px !important;
-  height: 238px !important;
-  transform: translateY(-18px) scale(1) !important;
-  opacity: 1 !important;
-  z-index: 10 !important;
-  filter: drop-shadow(0 0 26px rgba(255, 45, 35, .72)) drop-shadow(0 0 60px rgba(255, 25, 18, .34)) !important;
-}
-
-.dict-folder--mid {
-  width: 300px !important;
-  height: 202px !important;
-  transform: translateY(8px) scale(.94) !important;
-  opacity: .74 !important;
-  z-index: 6 !important;
-  filter: drop-shadow(0 0 16px rgba(255, 35, 28, .38)) !important;
-}
-
-.dict-folder--side,
-.dict-folder--mini {
-  width: 230px !important;
-  height: 158px !important;
-  transform: translateY(32px) scale(.88) !important;
-  opacity: .46 !important;
-  z-index: 3 !important;
-  filter: drop-shadow(0 0 10px rgba(255, 35, 28, .22)) !important;
-}
-
-.dicts-carousel .dict-folder:nth-of-type(n+6) {
-  display: none !important;
-}
-
-.dict-folder {
-  background: transparent !important;
-}
-
-.dict-folder__inner {
-  width: 66% !important;
-  transform: translateY(4px) !important;
-}
-
-.dict-folder--active .dict-folder__title {
-  font-size: 30px !important;
-}
-
-.dict-folder--mid .dict-folder__title {
-  font-size: 22px !important;
-}
-
-.dict-folder--side .dict-folder__title,
-.dict-folder--mini .dict-folder__title {
-  font-size: 17px !important;
-}
-
-.dict-folder__type {
-  margin-top: 16px !important;
-}
-
-.dict-folder__count {
-  margin-top: 9px !important;
-}
-
-.dicts-projector-zone {
-  bottom: -96px !important;
-  height: 390px !important;
-  width: min(820px, 58vw) !important;
-}
-
-.dicts-projector {
-  bottom: -2px !important;
-  width: min(720px, 56vw) !important;
-  max-height: 190px !important;
-  z-index: 6 !important;
-}
-
-.dicts-projector-glow {
-  bottom: 42px !important;
-}
-
-.dicts-light-cone {
-  bottom: 118px !important;
-  height: 470px !important;
-  width: min(1320px, 90vw) !important;
-  opacity: .78 !important;
-}
-
-/* ===== BASTION DICTS v156 — bottom navigation click fix + lower projector ===== */
-
 .dicts-corner-card,
-.dicts-corner-card--left,
-.dicts-corner-card--right,
 .dicts-info-panel,
 .dicts-nav-panel {
   display: none !important;
@@ -380,283 +305,51 @@ body.dicts-page .core-screen { display: none !important; }
   pointer-events: none !important;
 }
 
-.dicts-stage {
-  pointer-events: none !important;
-  z-index: 5 !important;
-}
-
-.dicts-carousel-zone,
-.dicts-carousel,
-.dict-folder,
-.dicts-arrow {
+.hud-bottom-panel,
+.bottom-map,
+.bottom-contact,
+.sitemap-track,
+.map-dot {
   pointer-events: auto !important;
 }
 
-.dicts-projector-zone {
-  bottom: -154px !important;
-  height: 420px !important;
-  z-index: 4 !important;
-  pointer-events: none !important;
-}
-
-.dicts-projector {
-  bottom: -18px !important;
-  width: min(720px, 56vw) !important;
-  max-height: 190px !important;
-  pointer-events: none !important;
-}
-
-.dicts-projector-glow {
-  bottom: 20px !important;
-  pointer-events: none !important;
-}
-
-.dicts-light-cone {
-  bottom: 78px !important;
-  height: 500px !important;
-  opacity: .72 !important;
-  pointer-events: none !important;
-}
-
-.b116-bottom-panels,
-.b116-bottom-panel,
-.b116-bottom-panel--right,
-.b116-bottom-panel--left,
-.bottom-nav,
-.page-nav,
-.page-dots,
-.page-dot,
-.b116-page-dot,
-.b116-bottom-panel a,
-.b116-bottom-panel button {
-  pointer-events: auto !important;
-}
-
-.b116-bottom-panels,
-.b116-bottom-panel--right,
-.b116-bottom-panel--left {
+.hud-bottom-panel {
   z-index: 120 !important;
 }
 
-.b116-bottom-panel--right::before,
-.b116-bottom-panel--right::after,
-.b116-bottom-panel--left::before,
-.b116-bottom-panel--left::after {
-  pointer-events: none !important;
+@keyframes dictsCone {
+  0%, 100% { opacity: .68; transform: translateX(-50%) scaleX(.985); }
+  50% { opacity: .9; transform: translateX(-50%) scaleX(1.015); }
 }
 
-/* ===== BASTION DICTS v157 — real carousel, bigger center, sci-fi text ===== */
-
-/* Folder typography */
-.dict-folder__title,
-.dict-folder__count {
-  font-family: "Orbitron", "Rajdhani", "Eurostile", "Arial Narrow", system-ui, sans-serif !important;
-  letter-spacing: .085em !important;
-  text-transform: uppercase !important;
+@keyframes dictsPulse {
+  0%, 100% { opacity: .72; transform: translateX(-50%) scale(.96); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.06); }
 }
 
-.dict-folder__type {
-  display: none !important;
+@media (max-width: 1500px) {
+  .dicts-carousel {
+    transform: scale(.9);
+  }
 }
 
-/* Real slot carousel: папки не просто підсвічуються, а міняють позиції */
-.dicts-carousel {
-  position: relative !important;
-  display: block !important;
-  width: min(1500px, 94vw) !important;
-  height: 360px !important;
-  overflow: visible !important;
-  perspective: none !important;
-  transform-style: flat !important;
+@media (max-width: 1300px) {
+  .dicts-carousel {
+    transform: scale(.78);
+  }
+
+  .dicts-arrow {
+    width: 56px;
+    font-size: 76px;
+  }
 }
 
-.dict-folder {
-  position: absolute !important;
-  top: 50% !important;
-  left: 50% !important;
-  margin: 0 !important;
-  rotate: 0deg !important;
-  transform-style: flat !important;
-  transition:
-    transform .42s cubic-bezier(.2,.8,.2,1),
-    width .42s cubic-bezier(.2,.8,.2,1),
-    height .42s cubic-bezier(.2,.8,.2,1),
-    opacity .42s ease,
-    filter .42s ease !important;
-}
+@media (max-width: 900px) {
+  .dicts-carousel {
+    transform: scale(.58);
+  }
 
-/* Central folder — bigger */
-.dict-folder--active {
-  width: 460px !important;
-  height: 292px !important;
-  transform: translate(-50%, -56%) scale(1) !important;
-  opacity: 1 !important;
-  z-index: 30 !important;
-  filter:
-    drop-shadow(0 0 32px rgba(255, 45, 35, .86))
-    drop-shadow(0 0 72px rgba(255, 25, 18, .44)) !important;
-}
-
-.dict-folder--active .dict-folder__title {
-  font-size: 46px !important;
-  line-height: .95 !important;
-  color: #fff !important;
-  text-shadow:
-    0 0 10px rgba(255,255,255,.35),
-    0 0 22px rgba(255,40,32,.8) !important;
-}
-
-.dict-folder--active .dict-folder__count {
-  margin-top: 34px !important;
-  font-size: 28px !important;
-  color: rgba(255,255,255,.88) !important;
-}
-
-/* Adjacent folders */
-.dict-folder--mid {
-  width: 330px !important;
-  height: 212px !important;
-  opacity: .72 !important;
-  z-index: 20 !important;
-  filter: drop-shadow(0 0 18px rgba(255, 35, 28, .42)) !important;
-}
-
-.dict-folder--mid .dict-folder__title {
-  font-size: 25px !important;
-  line-height: 1 !important;
-}
-
-.dict-folder--mid .dict-folder__count {
-  margin-top: 26px !important;
-  font-size: 18px !important;
-}
-
-/* Edge folders */
-.dict-folder--side,
-.dict-folder--mini {
-  width: 245px !important;
-  height: 160px !important;
-  opacity: .43 !important;
-  z-index: 10 !important;
-  filter: drop-shadow(0 0 10px rgba(255, 35, 28, .24)) !important;
-}
-
-.dict-folder--side .dict-folder__title,
-.dict-folder--mini .dict-folder__title {
-  font-size: 18px !important;
-  line-height: 1 !important;
-}
-
-.dict-folder--side .dict-folder__count,
-.dict-folder--mini .dict-folder__count {
-  margin-top: 20px !important;
-  font-size: 14px !important;
-}
-
-/* slot positions */
-.dict-folder[data-slot="-2"] {
-  transform: translate(calc(-50% - 610px), -38%) scale(.86) !important;
-}
-
-.dict-folder[data-slot="-1"] {
-  transform: translate(calc(-50% - 335px), -47%) scale(.94) !important;
-}
-
-.dict-folder[data-slot="0"] {
-  transform: translate(-50%, -56%) scale(1) !important;
-}
-
-.dict-folder[data-slot="1"] {
-  transform: translate(calc(-50% + 335px), -47%) scale(.94) !important;
-}
-
-.dict-folder[data-slot="2"] {
-  transform: translate(calc(-50% + 610px), -38%) scale(.86) !important;
-}
-
-/* hide non-visible folders in case more than 5 exist */
-.dict-folder[data-slot="hidden"] {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transform: translate(-50%, -50%) scale(.55) !important;
-}
-
-.dict-folder__inner {
-  width: 66% !important;
-  transform: translateY(4px) !important;
-}
-
-.dict-folder__count::after {
-  content: " ЗАПИСИ";
-  font-size: .62em;
-  margin-left: .35em;
-  opacity: .86;
-}
-
-/* If count already contains word "записів", visually normalize through JS too. */
-
-
-
-/* v158 fonts + centered labels */
-.dict-folder span{
-position:absolute; inset:0;
-display:flex; flex-direction:column;
-align-items:center; justify-content:center;
-gap:10px; text-align:center;
-}
-.dict-folder b{
-font-family:'Orbitron',sans-serif!important;
-font-weight:700!important;
-letter-spacing:.08em!important;
-text-transform:uppercase;
-font-size:clamp(18px,1.8vw,34px)!important;
-color:#f2f4ff;
-text-shadow:0 0 10px rgba(255,60,60,.8);
-}
-.dict-folder em{display:none!important;}
-.dict-folder i{
-font-family:'Rajdhani',sans-serif!important;
-font-style:normal!important;
-font-size:clamp(13px,1vw,22px)!important;
-letter-spacing:.14em!important;
-color:#ffdede;
-text-transform:uppercase;
-}
-
-
-/* ===== v159 precise folder text centering ===== */
-.dict-folder span{
- position:absolute !important;
- inset:0 !important;
- display:flex !important;
- flex-direction:column !important;
- align-items:center !important;
- justify-content:center !important;
- text-align:center !important;
- width:100% !important;
- height:100% !important;
- padding:0 12% !important;
- transform:translateY(-4%) !important;
-}
-
-.dict-folder b{
- display:block !important;
- margin:0 !important;
- font-family:'Orbitron',sans-serif !important;
- font-size:clamp(18px,2vw,44px) !important;
- font-weight:700 !important;
- letter-spacing:.08em !important;
- text-transform:uppercase !important;
- line-height:1 !important;
-}
-
-.dict-folder i{
- display:block !important;
- margin-top:14px !important;
- font-style:normal !important;
- font-family:'Rajdhani',sans-serif !important;
- font-size:clamp(14px,1vw,24px) !important;
- font-weight:600 !important;
- letter-spacing:.12em !important;
- line-height:1 !important;
+  .dicts-carousel-wrap {
+    top: 24%;
+  }
 }
