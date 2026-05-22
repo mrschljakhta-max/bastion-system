@@ -73,21 +73,43 @@ body.dicts-page .core-screen { display: none !important; }
 }
 
 .dict-folder span {
-  position: absolute;
-  z-index: 2;
-  left: 25%;
-  top: 36%;
-  width: 58%;
-  text-transform: uppercase;
-  text-shadow: 0 0 14px rgba(255, 39, 30, .42);
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  transform:translateY(-2%);
+  text-align:center;
+  text-transform:uppercase;
+  text-shadow:0 0 14px rgba(255,39,30,.42);
 }
 
 .dict-folder b,
 .dict-folder em,
 .dict-folder i { display: block; font-style: normal; }
-.dict-folder b { font-size: 18px; letter-spacing: .045em; line-height: 1; }
-.dict-folder em { margin-top: 16px; font-size: 13px; color: rgba(255,255,255,.58); text-transform: lowercase; }
-.dict-folder i { margin-top: 9px; font-size: 12px; color: rgba(255,255,255,.42); text-transform: none; }
+.dict-folder b,
+.dict-folder em,
+.dict-folder i { display:block; font-style:normal; }
+
+.dict-folder b{
+  font-family:'Orbitron',sans-serif;
+  font-size:16px;
+  letter-spacing:.05em;
+  line-height:1;
+}
+
+.dict-folder em{ display:none; }
+
+.dict-folder i{
+  margin-top:10px;
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px;
+  font-weight:600;
+  color:rgba(255,255,255,.88);
+  text-transform:uppercase;
+}
 
 .dict-folder--active {
   width: 356px;
