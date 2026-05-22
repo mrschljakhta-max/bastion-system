@@ -346,3 +346,14 @@ body.dicts-page .core-screen { display: none !important; }
   opacity: .78 !important;
 }
 
+/* ===== BASTION DICTS v155 — remove extra corner cards ===== */
+.dicts-corner-card,
+.dicts-corner-card--left,
+.dicts-corner-card--right,
+.dicts-info-panel,
+.dicts-nav-panel {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
