@@ -206,3 +206,143 @@ body.dicts-page .core-screen { display: none !important; }
   .dicts-carousel { transform: scale(.82); }
   .dicts-corner-card { display: none; }
 }
+
+/* =========================================================
+   BASTION DICTS PATCH v154
+   - 5 front-facing folders
+   - cascade scale + distance opacity
+   - transparent folder image
+   - removed extra info/nav panels
+   - projector moved lower
+   ========================================================= */
+
+.dicts-info-panel,
+.dicts-nav-panel {
+  display: none !important;
+}
+
+.dicts-stage {
+  inset: 118px 0 78px !important;
+  z-index: 5 !important;
+  pointer-events: none !important;
+}
+
+.dicts-carousel-zone {
+  top: 20% !important;
+  height: 320px !important;
+  width: min(1560px, 96vw) !important;
+  pointer-events: auto !important;
+}
+
+.dicts-carousel {
+  width: min(1420px, 92vw) !important;
+  height: 320px !important;
+  gap: clamp(20px, 2.1vw, 42px) !important;
+  perspective: none !important;
+  transform-style: flat !important;
+  overflow: visible !important;
+}
+
+.dict-folder,
+.dict-folder--active,
+.dict-folder--mid,
+.dict-folder--side,
+.dict-folder--mini {
+  rotate: 0deg !important;
+  transform-style: flat !important;
+}
+
+.dict-folder::before {
+  background-image: url("../assets/ui/dict-folder-card.png") !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  opacity: 1 !important;
+}
+
+.dict-folder--active {
+  width: 370px !important;
+  height: 238px !important;
+  transform: translateY(-18px) scale(1) !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+  filter: drop-shadow(0 0 26px rgba(255, 45, 35, .72)) drop-shadow(0 0 60px rgba(255, 25, 18, .34)) !important;
+}
+
+.dict-folder--mid {
+  width: 300px !important;
+  height: 202px !important;
+  transform: translateY(8px) scale(.94) !important;
+  opacity: .74 !important;
+  z-index: 6 !important;
+  filter: drop-shadow(0 0 16px rgba(255, 35, 28, .38)) !important;
+}
+
+.dict-folder--side,
+.dict-folder--mini {
+  width: 230px !important;
+  height: 158px !important;
+  transform: translateY(32px) scale(.88) !important;
+  opacity: .46 !important;
+  z-index: 3 !important;
+  filter: drop-shadow(0 0 10px rgba(255, 35, 28, .22)) !important;
+}
+
+.dicts-carousel .dict-folder:nth-of-type(n+6) {
+  display: none !important;
+}
+
+.dict-folder {
+  background: transparent !important;
+}
+
+.dict-folder__inner {
+  width: 66% !important;
+  transform: translateY(4px) !important;
+}
+
+.dict-folder--active .dict-folder__title {
+  font-size: 30px !important;
+}
+
+.dict-folder--mid .dict-folder__title {
+  font-size: 22px !important;
+}
+
+.dict-folder--side .dict-folder__title,
+.dict-folder--mini .dict-folder__title {
+  font-size: 17px !important;
+}
+
+.dict-folder__type {
+  margin-top: 16px !important;
+}
+
+.dict-folder__count {
+  margin-top: 9px !important;
+}
+
+.dicts-projector-zone {
+  bottom: -96px !important;
+  height: 390px !important;
+  width: min(820px, 58vw) !important;
+}
+
+.dicts-projector {
+  bottom: -2px !important;
+  width: min(720px, 56vw) !important;
+  max-height: 190px !important;
+  z-index: 6 !important;
+}
+
+.dicts-projector-glow {
+  bottom: 42px !important;
+}
+
+.dicts-light-cone {
+  bottom: 118px !important;
+  height: 470px !important;
+  width: min(1320px, 90vw) !important;
+  opacity: .78 !important;
+}
+
