@@ -1,4 +1,4 @@
-/* BASTION DICTS v160 — corrected rotating carousel */
+/* BASTION DICTS v161 — corrected rotating carousel */
 (() => {
   const folders = [...document.querySelectorAll(".dict-folder")];
   const left = document.querySelector(".dicts-arrow--left");

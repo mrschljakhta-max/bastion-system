@@ -1,7 +1,7 @@
 /* =========================================================
-   BASTION DICTS PAGE v160
+   BASTION DICTS PAGE v161
    Clean replacement: corrected class names, real 6-item carousel,
-   stable folder text centering, lower projector, clickable bottom map.
+   stable folder text centering, restored visible projector, clickable bottom map.
    ========================================================= */
 
 body.dicts-page {
@@ -144,12 +144,12 @@ body.dicts-page .core-screen {
 }
 
 .dict-folder--active .dict-folder__title {
-  font-size: clamp(34px, 2.45vw, 46px);
+  font-size: clamp(17px, 1.225vw, 23px);
 }
 
 .dict-folder--active .dict-folder__count {
-  margin-top: 32px;
-  font-size: clamp(20px, 1.55vw, 28px);
+  margin-top: 16px;
+  font-size: clamp(10px, .775vw, 14px);
 }
 
 .dict-folder--mid {
@@ -161,12 +161,12 @@ body.dicts-page .core-screen {
 }
 
 .dict-folder--mid .dict-folder__title {
-  font-size: clamp(22px, 1.45vw, 27px);
+  font-size: clamp(11px, .725vw, 13.5px);
 }
 
 .dict-folder--mid .dict-folder__count {
-  margin-top: 24px;
-  font-size: clamp(15px, 1vw, 18px);
+  margin-top: 12px;
+  font-size: clamp(7.5px, .5vw, 9px);
 }
 
 .dict-folder--side {
@@ -178,12 +178,12 @@ body.dicts-page .core-screen {
 }
 
 .dict-folder--side .dict-folder__title {
-  font-size: clamp(17px, 1.05vw, 20px);
+  font-size: clamp(8.5px, .525vw, 10px);
 }
 
 .dict-folder--side .dict-folder__count {
-  margin-top: 18px;
-  font-size: clamp(13px, .8vw, 15px);
+  margin-top: 9px;
+  font-size: clamp(6.5px, .4vw, 7.5px);
 }
 
 .dict-folder[data-slot="-2"] {
@@ -243,9 +243,9 @@ body.dicts-page .core-screen {
 .dicts-projector-wrap {
   position: absolute;
   left: 50%;
-  bottom: -148px;
+  bottom: 20px;
   width: min(980px, 70vw);
-  height: 500px;
+  height: 260px;
   transform: translateX(-50%);
   pointer-events: none;
   z-index: 4;
@@ -254,7 +254,7 @@ body.dicts-page .core-screen {
 .dicts-projector {
   position: absolute;
   left: 50%;
-  bottom: -18px;
+  bottom: 0;
   z-index: 6;
   width: min(720px, 56vw);
   max-height: 190px;
@@ -267,7 +267,7 @@ body.dicts-page .core-screen {
 .dicts-light-core {
   position: absolute;
   left: 50%;
-  bottom: 20px;
+  bottom: 42px;
   z-index: 7;
   width: 90px;
   height: 34px;
@@ -281,10 +281,10 @@ body.dicts-page .core-screen {
 .dicts-light-cone {
   position: absolute;
   left: 50%;
-  bottom: 78px;
+  bottom: 92px;
   z-index: 2;
   width: min(1320px, 90vw);
-  height: 500px;
+  height: 470px;
   transform: translateX(-50%);
   clip-path: polygon(50% 100%, 1% 0, 99% 0);
   background:
