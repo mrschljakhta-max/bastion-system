@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — Довідники</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
-  <link rel="stylesheet" href="../styles/app-home-v118.css?v=132" />
+  <link rel="stylesheet" href="../styles/app-home-v118.css?v=153" />
+  <link rel="stylesheet" href="../styles/dicts.css?v=153" />
 </head>
-<body class="bastion-core-page" data-active-module="">
+<body class="bastion-core-page dicts-page" data-active-module="dicts">
   <div class="core-background" aria-hidden="true">
     <div class="core-bg-image"></div>
 
@@ -80,21 +81,36 @@
     </button>
   </div>
 
-
-
-
-  <main class="bastion-module-screen" data-module="dicts">
-    <section class="bastion-module-card">
-      <div class="bastion-module-kicker">01 — Довідники</div>
-      <h1>Довідники</h1>
-      <p>Управління довідниками, еталонними назвами та нормалізацією даних.</p>
-      <ul>
-          <li>Словники станцій, БПЛА, населених пунктів</li>
-          <li>Підтвердження нових значень</li>
-          <li>Аліаси та зв’язки між сутностями</li>
-      </ul>
-      <a class="bastion-module-back" href="./app.html">← Повернутися до основного меню</a>
+  <main class="dicts-holo-stage" aria-label="Довідники">
+    <section class="dicts-carousel-wrap" aria-label="Карусель довідників">
+      <button class="dicts-arrow dicts-arrow--left" type="button" aria-label="Попередній довідник">‹</button>
+      <div class="dicts-carousel" id="dictsCarousel">
+        <button class="dict-folder dict-folder--side" type="button" data-dict="bands"><span><b>BANDS</b><em>довідник</em><i>58 записів</i></span></button>
+        <button class="dict-folder dict-folder--mid" type="button" data-dict="settlements"><span><b>SETTLEMENTS</b><em>довідник</em><i>124 записи</i></span></button>
+        <button class="dict-folder dict-folder--active" type="button" data-dict="uav"><span><b>UAV</b><em>довідник</em><i>152 записи</i></span></button>
+        <button class="dict-folder dict-folder--mid" type="button" data-dict="stations"><span><b>STATIONS</b><em>довідник</em><i>87 записів</i></span></button>
+        <button class="dict-folder dict-folder--side" type="button" data-dict="units"><span><b>UNITS</b><em>довідник</em><i>96 записів</i></span></button>
+        <button class="dict-folder dict-folder--mini" type="button" data-dict="cover"><span><b>COVER OBJECTS</b><em>довідник</em><i>63 записи</i></span></button>
+      </div>
+      <button class="dicts-arrow dicts-arrow--right" type="button" aria-label="Наступний довідник">›</button>
     </section>
+
+    <section class="dicts-projector-wrap" aria-hidden="true">
+      <div class="dicts-light-cone"></div>
+      <div class="dicts-light-core"></div>
+      <img class="dicts-projector" src="../assets/ui/dicts-projector.png?v=153" alt="" />
+    </section>
+
+    <aside class="dicts-corner-card dicts-corner-card--left">
+      <h2>ДОВІДНИКИ — УПРАВЛІННЯ</h2>
+      <p>Централізоване управління довідниками системи. Створюйте, редагуйте, видаляйте записи та структури даних.</p>
+      <strong>СТАТУС: АКТИВНО</strong>
+    </aside>
+
+    <aside class="dicts-corner-card dicts-corner-card--right">
+      <h2>НАВІГАЦІЯ</h2>
+      <div class="dicts-nav-dots"><span class="is-active"></span><span></span><span></span><span></span><span></span><span></span></div>
+    </aside>
   </main>
 
   <footer class="bottom-contact hud-bottom-panel hud-bottom-left" aria-hidden="true">
@@ -124,28 +140,6 @@
   </nav>
 
   <aside id="floatingDetail" class="floating-detail" aria-hidden="true"></aside>
-
-  <div id="profileModal" class="profile-modal" aria-hidden="true">
-    <div class="profile-backdrop" data-close-profile></div>
-    <section class="profile-card" role="dialog" aria-modal="true" aria-label="Профіль користувача">
-      <button class="profile-close" type="button" data-close-profile>×</button>
-      <div class="profile-head">
-        <span class="profile-avatar"><img id="userAvatarModal" src="../assets/icons/bastion-mark-v66.png?v=87" alt="" /></span>
-        <div><p>USER PROFILE</p><h2 id="profileLogin">lavash.squad</h2></div>
-      </div>
-      <dl class="profile-data">
-        <div><dt>Email</dt><dd id="profileEmail">support@bastion.system</dd></div>
-        <div><dt>Рівень</dt><dd id="profileRole">demo</dd></div>
-      </dl>
-      <label class="profile-field">Nickname <input id="profileNicknameInput" type="text" maxlength="32" /></label>
-      <label class="profile-field">Avatar <input id="profileAvatarInput" type="file" accept="image/png,image/jpeg,image/webp" /></label>
-      <div class="profile-actions">
-        <button id="saveProfileButton" class="ghost-btn" type="button">Зберегти</button>
-        <button id="logoutButton" class="danger-btn" type="button">Вийти</button>
-      </div>
-    </section>
-  </div>
-
-  <script src="../scripts/app-home-v118.js?v=118"></script>
+  <script src="../scripts/dicts.js?v=153"></script>
 </body>
 </html>
