@@ -573,3 +573,30 @@ body.dicts-page .core-screen { display: none !important; }
 
 /* If count already contains word "записів", visually normalize through JS too. */
 
+
+
+/* v158 fonts + centered labels */
+.dict-folder span{
+position:absolute; inset:0;
+display:flex; flex-direction:column;
+align-items:center; justify-content:center;
+gap:10px; text-align:center;
+}
+.dict-folder b{
+font-family:'Orbitron',sans-serif!important;
+font-weight:700!important;
+letter-spacing:.08em!important;
+text-transform:uppercase;
+font-size:clamp(18px,1.8vw,34px)!important;
+color:#f2f4ff;
+text-shadow:0 0 10px rgba(255,60,60,.8);
+}
+.dict-folder em{display:none!important;}
+.dict-folder i{
+font-family:'Rajdhani',sans-serif!important;
+font-style:normal!important;
+font-size:clamp(13px,1vw,22px)!important;
+letter-spacing:.14em!important;
+color:#ffdede;
+text-transform:uppercase;
+}
