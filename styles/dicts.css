@@ -1,5 +1,5 @@
 /* =========================================================
-   BASTION DICTS PAGE v163
+   BASTION DICTS PAGE v161
    Clean replacement: corrected class names, real 6-item carousel,
    stable folder text centering, restored visible projector, clickable bottom map.
    ========================================================= */
@@ -243,7 +243,7 @@ body.dicts-page .core-screen {
 .dicts-projector-wrap {
   position: absolute;
   left: 50%;
-  bottom: -48px; /* v163: projector lowered to sit just above bottom HUD panels */
+  bottom: 20px;
   width: min(980px, 70vw);
   height: 260px;
   transform: translateX(-50%);
