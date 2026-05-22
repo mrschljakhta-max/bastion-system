@@ -346,7 +346,8 @@ body.dicts-page .core-screen { display: none !important; }
   opacity: .78 !important;
 }
 
-/* ===== BASTION DICTS v155 — remove extra corner cards ===== */
+/* ===== BASTION DICTS v156 — bottom navigation click fix + lower projector ===== */
+
 .dicts-corner-card,
 .dicts-corner-card--left,
 .dicts-corner-card--right,
@@ -354,6 +355,71 @@ body.dicts-page .core-screen { display: none !important; }
 .dicts-nav-panel {
   display: none !important;
   visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.dicts-stage {
+  pointer-events: none !important;
+  z-index: 5 !important;
+}
+
+.dicts-carousel-zone,
+.dicts-carousel,
+.dict-folder,
+.dicts-arrow {
+  pointer-events: auto !important;
+}
+
+.dicts-projector-zone {
+  bottom: -154px !important;
+  height: 420px !important;
+  z-index: 4 !important;
+  pointer-events: none !important;
+}
+
+.dicts-projector {
+  bottom: -18px !important;
+  width: min(720px, 56vw) !important;
+  max-height: 190px !important;
+  pointer-events: none !important;
+}
+
+.dicts-projector-glow {
+  bottom: 20px !important;
+  pointer-events: none !important;
+}
+
+.dicts-light-cone {
+  bottom: 78px !important;
+  height: 500px !important;
+  opacity: .72 !important;
+  pointer-events: none !important;
+}
+
+.b116-bottom-panels,
+.b116-bottom-panel,
+.b116-bottom-panel--right,
+.b116-bottom-panel--left,
+.bottom-nav,
+.page-nav,
+.page-dots,
+.page-dot,
+.b116-page-dot,
+.b116-bottom-panel a,
+.b116-bottom-panel button {
+  pointer-events: auto !important;
+}
+
+.b116-bottom-panels,
+.b116-bottom-panel--right,
+.b116-bottom-panel--left {
+  z-index: 120 !important;
+}
+
+.b116-bottom-panel--right::before,
+.b116-bottom-panel--right::after,
+.b116-bottom-panel--left::before,
+.b116-bottom-panel--left::after {
   pointer-events: none !important;
 }
 

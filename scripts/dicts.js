@@ -40,3 +40,46 @@
 
   render();
 })();
+
+
+/* ===== BASTION DICTS v156 — fallback bottom HUD navigation ===== */
+(() => {
+  const routes = [
+    "dicts.html",
+    "nodes.html",
+    "upload.html",
+    "calculator.html",
+    "analysis.html",
+    "command.html"
+  ];
+
+  const selectors = [
+    ".b116-bottom-panel--right a",
+    ".b116-bottom-panel--right button",
+    ".b116-bottom-panel--right .page-dot",
+    ".b116-bottom-panel--right .b116-page-dot",
+    ".b116-bottom-panel--right .decor-dot",
+    ".bottom-nav a",
+    ".page-nav a"
+  ];
+
+  const dots = [...document.querySelectorAll(selectors.join(","))]
+    .filter((el) => !el.dataset.bastionNavBound);
+
+  dots.forEach((el, index) => {
+    el.dataset.bastionNavBound = "1";
+    el.style.pointerEvents = "auto";
+    el.addEventListener("click", (event) => {
+      const href = el.getAttribute("href");
+      if (href && href !== "#") return;
+
+      const route = routes[index];
+      if (!route) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      window.location.href = route;
+    });
+  });
+})();
+
