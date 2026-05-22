@@ -1,24 +1,57 @@
-/* BASTION DICTS PATCH v154 */
+/* BASTION DICTS v157 — real rotating carousel */
 (() => {
-  const allFolders = [...document.querySelectorAll(".dict-folder")];
-  const folders = allFolders.slice(0, 5);
-  allFolders.slice(5).forEach((el) => (el.style.display = "none"));
+  const all = [...document.querySelectorAll(".dict-folder")];
+  const folders = all.slice(0, 5);
+  all.slice(5).forEach((el) => {
+    el.dataset.slot = "hidden";
+    el.style.display = "none";
+  });
 
   const left = document.querySelector(".dicts-arrow--left");
   const right = document.querySelector(".dicts-arrow--right");
+
   if (!folders.length) return;
 
   let active = folders.findIndex((el) => el.classList.contains("dict-folder--active"));
   if (active < 0) active = Math.floor(folders.length / 2);
 
+  function normalizeCountText(folder) {
+    const count = folder.querySelector(".dict-folder__count");
+    if (!count || count.dataset.normalized === "1") return;
+    const digits = (count.textContent || "").match(/\d+/)?.[0] || count.textContent.trim();
+    count.textContent = digits;
+    count.dataset.normalized = "1";
+  }
+
+  function circularDistance(index, center, length) {
+    let distance = index - center;
+    if (distance > length / 2) distance -= length;
+    if (distance < -length / 2) distance += length;
+    return distance;
+  }
+
   function render() {
     folders.forEach((folder, index) => {
+      normalizeCountText(folder);
+
       folder.classList.remove("dict-folder--mini", "dict-folder--side", "dict-folder--mid", "dict-folder--active");
-      const distance = index - active;
+
+      const distance = circularDistance(index, active, folders.length);
+      folder.dataset.slot = String(distance);
+
       if (distance === 0) folder.classList.add("dict-folder--active");
       else if (Math.abs(distance) === 1) folder.classList.add("dict-folder--mid");
-      else folder.classList.add("dict-folder--side");
+      else if (Math.abs(distance) === 2) folder.classList.add("dict-folder--side");
+      else {
+        folder.classList.add("dict-folder--mini");
+        folder.dataset.slot = "hidden";
+      }
     });
+  }
+
+  function rotate(direction) {
+    active = (active + direction + folders.length) % folders.length;
+    render();
   }
 
   folders.forEach((folder, index) => {
@@ -28,58 +61,13 @@
     });
   });
 
-  left?.addEventListener("click", () => {
-    active = (active - 1 + folders.length) % folders.length;
-    render();
-  });
+  left?.addEventListener("click", () => rotate(-1));
+  right?.addEventListener("click", () => rotate(1));
 
-  right?.addEventListener("click", () => {
-    active = (active + 1) % folders.length;
-    render();
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") rotate(-1);
+    if (event.key === "ArrowRight") rotate(1);
   });
 
   render();
 })();
-
-
-/* ===== BASTION DICTS v156 — fallback bottom HUD navigation ===== */
-(() => {
-  const routes = [
-    "dicts.html",
-    "nodes.html",
-    "upload.html",
-    "calculator.html",
-    "analysis.html",
-    "command.html"
-  ];
-
-  const selectors = [
-    ".b116-bottom-panel--right a",
-    ".b116-bottom-panel--right button",
-    ".b116-bottom-panel--right .page-dot",
-    ".b116-bottom-panel--right .b116-page-dot",
-    ".b116-bottom-panel--right .decor-dot",
-    ".bottom-nav a",
-    ".page-nav a"
-  ];
-
-  const dots = [...document.querySelectorAll(selectors.join(","))]
-    .filter((el) => !el.dataset.bastionNavBound);
-
-  dots.forEach((el, index) => {
-    el.dataset.bastionNavBound = "1";
-    el.style.pointerEvents = "auto";
-    el.addEventListener("click", (event) => {
-      const href = el.getAttribute("href");
-      if (href && href !== "#") return;
-
-      const route = routes[index];
-      if (!route) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      window.location.href = route;
-    });
-  });
-})();
-

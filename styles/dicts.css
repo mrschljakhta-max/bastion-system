@@ -423,3 +423,153 @@ body.dicts-page .core-screen { display: none !important; }
   pointer-events: none !important;
 }
 
+/* ===== BASTION DICTS v157 — real carousel, bigger center, sci-fi text ===== */
+
+/* Folder typography */
+.dict-folder__title,
+.dict-folder__count {
+  font-family: "Orbitron", "Rajdhani", "Eurostile", "Arial Narrow", system-ui, sans-serif !important;
+  letter-spacing: .085em !important;
+  text-transform: uppercase !important;
+}
+
+.dict-folder__type {
+  display: none !important;
+}
+
+/* Real slot carousel: папки не просто підсвічуються, а міняють позиції */
+.dicts-carousel {
+  position: relative !important;
+  display: block !important;
+  width: min(1500px, 94vw) !important;
+  height: 360px !important;
+  overflow: visible !important;
+  perspective: none !important;
+  transform-style: flat !important;
+}
+
+.dict-folder {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin: 0 !important;
+  rotate: 0deg !important;
+  transform-style: flat !important;
+  transition:
+    transform .42s cubic-bezier(.2,.8,.2,1),
+    width .42s cubic-bezier(.2,.8,.2,1),
+    height .42s cubic-bezier(.2,.8,.2,1),
+    opacity .42s ease,
+    filter .42s ease !important;
+}
+
+/* Central folder — bigger */
+.dict-folder--active {
+  width: 460px !important;
+  height: 292px !important;
+  transform: translate(-50%, -56%) scale(1) !important;
+  opacity: 1 !important;
+  z-index: 30 !important;
+  filter:
+    drop-shadow(0 0 32px rgba(255, 45, 35, .86))
+    drop-shadow(0 0 72px rgba(255, 25, 18, .44)) !important;
+}
+
+.dict-folder--active .dict-folder__title {
+  font-size: 46px !important;
+  line-height: .95 !important;
+  color: #fff !important;
+  text-shadow:
+    0 0 10px rgba(255,255,255,.35),
+    0 0 22px rgba(255,40,32,.8) !important;
+}
+
+.dict-folder--active .dict-folder__count {
+  margin-top: 34px !important;
+  font-size: 28px !important;
+  color: rgba(255,255,255,.88) !important;
+}
+
+/* Adjacent folders */
+.dict-folder--mid {
+  width: 330px !important;
+  height: 212px !important;
+  opacity: .72 !important;
+  z-index: 20 !important;
+  filter: drop-shadow(0 0 18px rgba(255, 35, 28, .42)) !important;
+}
+
+.dict-folder--mid .dict-folder__title {
+  font-size: 25px !important;
+  line-height: 1 !important;
+}
+
+.dict-folder--mid .dict-folder__count {
+  margin-top: 26px !important;
+  font-size: 18px !important;
+}
+
+/* Edge folders */
+.dict-folder--side,
+.dict-folder--mini {
+  width: 245px !important;
+  height: 160px !important;
+  opacity: .43 !important;
+  z-index: 10 !important;
+  filter: drop-shadow(0 0 10px rgba(255, 35, 28, .24)) !important;
+}
+
+.dict-folder--side .dict-folder__title,
+.dict-folder--mini .dict-folder__title {
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+.dict-folder--side .dict-folder__count,
+.dict-folder--mini .dict-folder__count {
+  margin-top: 20px !important;
+  font-size: 14px !important;
+}
+
+/* slot positions */
+.dict-folder[data-slot="-2"] {
+  transform: translate(calc(-50% - 610px), -38%) scale(.86) !important;
+}
+
+.dict-folder[data-slot="-1"] {
+  transform: translate(calc(-50% - 335px), -47%) scale(.94) !important;
+}
+
+.dict-folder[data-slot="0"] {
+  transform: translate(-50%, -56%) scale(1) !important;
+}
+
+.dict-folder[data-slot="1"] {
+  transform: translate(calc(-50% + 335px), -47%) scale(.94) !important;
+}
+
+.dict-folder[data-slot="2"] {
+  transform: translate(calc(-50% + 610px), -38%) scale(.86) !important;
+}
+
+/* hide non-visible folders in case more than 5 exist */
+.dict-folder[data-slot="hidden"] {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -50%) scale(.55) !important;
+}
+
+.dict-folder__inner {
+  width: 66% !important;
+  transform: translateY(4px) !important;
+}
+
+.dict-folder__count::after {
+  content: " ЗАПИСИ";
+  font-size: .62em;
+  margin-left: .35em;
+  opacity: .86;
+}
+
+/* If count already contains word "записів", visually normalize through JS too. */
+
