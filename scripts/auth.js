@@ -26,8 +26,51 @@ function normalizeLogin(login) {
   return String(login || "").trim().toLowerCase();
 }
 
-function looksLikeEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+function isProbablyEmail(value) {
+  return String(value || "").includes("@");
+}
+
+async function loginWithUsername(login, password) {
+  const normalizedLogin = normalizeLogin(login);
+
+  if (!normalizedLogin || !password) {
+    showAuthMessage("Введіть логін та пароль.", "warning");
+    return false;
+  }
+
+  const { data, error } = await supabaseClient.rpc("bastion_login_with_username", {
+    p_login: normalizedLogin,
+    p_password: password
+  });
+
+  if (error) {
+    console.error("Помилка входу за логіном:", error);
+    showAuthMessage(
+      error.message || "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
+      "warning"
+    );
+    return false;
+  }
+
+  if (!data?.success) {
+    showAuthMessage(
+      data?.message || "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
+      "warning"
+    );
+    return false;
+  }
+
+  localStorage.setItem("bastion_login", data.login || normalizedLogin);
+  localStorage.setItem("bastion_email", data.email || "");
+  localStorage.setItem("bastion_role", data.role || "demo");
+  localStorage.setItem("bastion_access_status", data.status || "active");
+
+  return {
+    success: true,
+    mode: "login",
+    localAuth: true,
+    data
+  };
 }
 
 function showAuthMessage(message, type = "info") {
@@ -82,54 +125,6 @@ async function checkAllowedEmail(email) {
   }
 
   return data === true;
-}
-
-async function resolveLoginIdentifier(identifier) {
-  const raw = String(identifier || "").trim();
-
-  if (!raw) {
-    return null;
-  }
-
-  // Якщо користувач все ж ввів email — працюємо напряму через email.
-  if (looksLikeEmail(raw)) {
-    const email = normalizeEmail(raw);
-    const allowed = await checkAllowedEmail(email);
-
-    return {
-      email,
-      login: email.split("@")[0],
-      role: null,
-      status: allowed ? "active" : "unknown",
-      is_active: allowed
-    };
-  }
-
-  const login = normalizeLogin(raw);
-
-  // Основний шлях: login -> email через RPC, бо пароль перевіряє Supabase Auth саме по email.
-  const { data, error } = await supabaseClient.rpc("bastion_resolve_login_email", {
-    input_login: login
-  });
-
-  if (error) {
-    console.error("Помилка пошуку email за логіном:", error);
-    return null;
-  }
-
-  const row = Array.isArray(data) ? data[0] || null : data || null;
-
-  if (!row?.email) {
-    return null;
-  }
-
-  return {
-    email: normalizeEmail(row.email),
-    login: row.login || login,
-    role: row.role || null,
-    status: row.status || null,
-    is_active: row.is_active === true
-  };
 }
 
 async function requestAccess(email) {
@@ -233,16 +228,24 @@ async function handleRegister(email, password) {
 }
 
 async function handleLogin(loginOrEmail, password) {
-  const identifier = String(loginOrEmail || "").trim();
+  const rawLogin = String(loginOrEmail || "").trim();
 
-  if (!identifier || !password) {
+  if (!rawLogin || !password) {
     showAuthMessage("Введіть логін та пароль.", "warning");
     return false;
   }
 
-  const resolved = await resolveLoginIdentifier(identifier);
+  // BASTION працює з логінами типу lavash.squad / admin.
+  // Якщо користувач ввів не email — йдемо через RPC, який мапить login -> доступ.
+  if (!isProbablyEmail(rawLogin)) {
+    return await loginWithUsername(rawLogin, password);
+  }
 
-  if (!resolved?.email || resolved.is_active !== true) {
+  // Залишаємо email-flow як fallback, якщо колись знадобиться вхід саме email+password.
+  const normalizedEmail = normalizeEmail(rawLogin);
+  const allowed = await checkAllowedEmail(normalizedEmail);
+
+  if (!allowed) {
     showAuthMessage(
       "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
       "warning"
@@ -252,7 +255,7 @@ async function handleLogin(loginOrEmail, password) {
   }
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email: resolved.email,
+    email: normalizedEmail,
     password
   });
 
@@ -267,17 +270,15 @@ async function handleLogin(loginOrEmail, password) {
     return false;
   }
 
-  localStorage.setItem("bastion_login", resolved.login || identifier);
-  localStorage.setItem("bastion_email", resolved.email);
-  if (resolved.role) localStorage.setItem("bastion_role", resolved.role);
+  localStorage.setItem("bastion_email", normalizedEmail);
+  localStorage.setItem("bastion_login", data?.user?.user_metadata?.login || normalizedEmail.split("@")[0] || "");
 
   console.log("LOGIN:", data);
 
   return {
     success: true,
     mode: "login",
-    data,
-    profile: resolved
+    data
   };
 }
 
@@ -462,6 +463,8 @@ async function getCurrentSession() {
 window.BastionAuth = {
   supabaseClient,
   normalizeEmail,
+  normalizeLogin,
+  loginWithUsername,
   toQrImageSrc,
   checkAllowedEmail,
   requestAccess,

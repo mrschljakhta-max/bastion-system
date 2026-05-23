@@ -252,7 +252,7 @@
   }
 
   async function handleCredentialsSubmit() {
-    const loginIdentifier = login.value.trim();
+    const email = login.value.trim();
     const pass = password.value;
 
     if (!window.BastionAuth) {
@@ -261,9 +261,9 @@
       return;
     }
 
-    if (!loginIdentifier || (authMode !== "register" && !pass)) {
+    if (!email || (authMode !== "register" && !pass)) {
       shakePanel();
-      alert(authMode === "register" ? "Введіть email." : "Введіть логін та пароль.");
+      alert(authMode === "register" ? "Введіть логін." : "Введіть логін та пароль.");
       return;
     }
 
@@ -271,7 +271,7 @@
 
     try {
       if (authMode === "register") {
-        const ok = await window.BastionAuth.requestAccess(loginIdentifier);
+        const ok = await window.BastionAuth.requestAccess(email);
         if (!ok) {
           shakePanel();
           return;
@@ -281,10 +281,24 @@
         return;
       }
 
-      const result = await window.BastionAuth.handleLogin(loginIdentifier, pass);
+      const result = await window.BastionAuth.handleLogin(email, pass);
 
       if (!result?.success) {
         shakePanel();
+        return;
+      }
+
+      // Локальний login-flow BASTION: користувач входить за логіном,
+      // який був створений на етапі реєстрації/активації.
+      // Supabase Auth email-flow залишено як fallback нижче.
+      if (result.localAuth) {
+        if (subtitle) subtitle.textContent = "ДОСТУП ДОЗВОЛЕНО";
+        submit.textContent = "ДОСТУП ВІДКРИТО";
+
+        setTimeout(() => {
+          window.location.href = "./pages/app.html";
+        }, 650);
+
         return;
       }
 
