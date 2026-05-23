@@ -446,22 +446,57 @@ async function prepareMfaAfterRegister() {
   };
 }
 
+async function verifyLoginTotpCode(login, code) {
+  const normalizedLogin = normalizeLogin(login || localStorage.getItem("bastion_login"));
+  const token = String(code || "").replace(/\D/g, "").slice(0, 6);
+
+  if (!normalizedLogin || token.length !== 6) {
+    showAuthMessage("Введіть 6-значний код автентифікатора.", "warning");
+    return false;
+  }
+
+  const { data, error } = await supabaseClient.rpc("bastion_verify_login_totp", {
+    p_login: normalizedLogin,
+    p_code: token
+  });
+
+  if (error) {
+    console.error("Помилка перевірки login TOTP:", error);
+    showAuthMessage(error.message || "Невірний код автентифікатора.", "error");
+    return false;
+  }
+
+  const result = Array.isArray(data) ? data[0] : data;
+
+  if (!result?.success) {
+    showAuthMessage(result?.message || "Невірний код автентифікатора.", "error");
+    return false;
+  }
+
+  try {
+    await supabaseClient.auth.refreshSession();
+  } catch (refreshError) {
+    console.warn("Не вдалося оновити Supabase session після 2FA:", refreshError);
+  }
+
+  sessionStorage.setItem("bastion_mfa_verified", "true");
+  sessionStorage.setItem("bastion_mfa_verified_at", new Date().toISOString());
+
+  return {
+    success: true,
+    data: result
+  };
+}
+
 async function prepareMfaAfterLogin() {
-  // ЗВИЧАЙНИЙ ВХІД НЕ СТВОРЮЄ 2FA І НЕ ПОКАЗУЄ QR-КОД.
-  // Він тільки перевіряє вже створений/verified TOTP factor.
+  // У BASTION QR-код створюється тільки на setup-account.html.
+  // На звичайному вході ми НЕ використовуємо Supabase Auth MFA factors,
+  // бо поточний проєкт зберігає TOTP secret через invite/Edge Function у user_invites.
   const accountRequiresMfa = localStorage.getItem("bastion_mfa_enabled") === "true";
-  const factor = await getVerifiedTotpFactor();
+  const login = localStorage.getItem("bastion_login") || "";
 
-  if (!factor) {
-    if (accountRequiresMfa) {
-      showAuthMessage(
-        "Для цього акаунта увімкнено 2FA, але підтверджений TOTP-фактор не знайдено. Повторіть активацію через invite-посилання або зверніться до адміністратора.",
-        "error"
-      );
-      await signOut();
-      return false;
-    }
-
+  if (!accountRequiresMfa) {
+    sessionStorage.setItem("bastion_mfa_verified", "not_required");
     return {
       success: true,
       mode: "login",
@@ -469,18 +504,15 @@ async function prepareMfaAfterLogin() {
     };
   }
 
-  const challenge = await challengeTotpFactor(factor.id);
-
-  if (!challenge?.success) {
-    return false;
-  }
+  sessionStorage.removeItem("bastion_mfa_verified");
 
   return {
     success: true,
-    mode: "login",
+    mode: "loginCustomMfa",
     mfaRequired: true,
-    factorId: factor.id,
-    challengeId: challenge.challengeId,
+    login,
+    factorId: "custom-totp",
+    challengeId: "custom-login",
     qrCode: "",
     qrImageSrc: "",
     secret: ""
@@ -525,6 +557,7 @@ window.BastionAuth = {
   enrollTotpFactor,
   challengeTotpFactor,
   verifyTotpCode,
+  verifyLoginTotpCode,
   prepareMfaAfterRegister,
   prepareMfaAfterLogin,
   signOut,

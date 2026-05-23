@@ -348,11 +348,13 @@
     setLoading(true, authMode);
 
     try {
-      const result = await window.BastionAuth.verifyTotpCode(
-        mfaContext.factorId,
-        mfaContext.challengeId,
-        code
-      );
+      const result = mfaContext?.mode === "loginCustomMfa"
+        ? await window.BastionAuth.verifyLoginTotpCode(mfaContext.login, code)
+        : await window.BastionAuth.verifyTotpCode(
+            mfaContext.factorId,
+            mfaContext.challengeId,
+            code
+          );
 
       if (!result?.success) {
         shakePanel();
