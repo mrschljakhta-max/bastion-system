@@ -9527,3 +9527,65 @@ button.b116-panel--right,
     drop-shadow(0 0 18px rgba(255,43,24,.45))
     drop-shadow(0 0 36px rgba(255,35,18,.22)) !important;
 }
+
+
+/* =========================================================
+   BASTION PROFILE PANEL v179 — REAL CLICK FIX
+   Earlier restore block disabled #userMenuButton with display:none.
+   This block re-enables the right HUD plate and keeps the left plate passive.
+   ========================================================= */
+.b116-top-panels {
+  pointer-events: none !important;
+  z-index: 26000 !important;
+}
+
+button#userMenuButton,
+#userMenuButton.b116-panel,
+.b116-panel#userMenuButton,
+.b116-panel--right#userMenuButton {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font: inherit !important;
+  overflow: visible !important;
+}
+
+#userMenuButton .b116-panel__bg,
+#userMenuButton .b116-panel__avatar-box,
+#userMenuButton .b116-panel__avatar,
+#userMenuButton .b116-panel__text,
+#userMenuButton .b116-panel__text * {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
+
+#userMenuButton .b116-hidden-sync {
+  display: block !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+#userMenuButton:focus-visible {
+  outline: 1px solid rgba(255, 120, 128, .92) !important;
+  outline-offset: -68px !important;
+}
+
+#userMenuButton:hover .b116-panel__bg {
+  filter:
+    brightness(1.07)
+    contrast(1.14)
+    saturate(1.15)
+    drop-shadow(0 0 18px rgba(255,43,24,.52))
+    drop-shadow(0 0 42px rgba(255,35,18,.25)) !important;
+}
