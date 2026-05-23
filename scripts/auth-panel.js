@@ -309,6 +309,26 @@
         return;
       }
 
+      // На звичайному вході QR-код не показуємо ніколи.
+      // Якщо MFA не потрібна або factor ще не існує — просто відкриваємо систему.
+      if (mfa.mfaRequired === false) {
+        if (subtitle) subtitle.textContent = "ДОСТУП ДОЗВОЛЕНО";
+        submit.textContent = "ДОСТУП ВІДКРИТО";
+
+        setTimeout(async () => {
+          try {
+            const profile = await window.BastionAccess?.getMyAccessProfile?.();
+            const target = window.BastionAccess?.routeForRole?.(profile?.role) || "./pages/app.html";
+            window.location.href = target;
+          } catch (error) {
+            console.warn("Не вдалося визначити роль, відкриваю app:", error);
+            window.location.href = "./pages/app.html";
+          }
+        }, 650);
+
+        return;
+      }
+
       showMfa(mfa);
     } catch (error) {
       console.error("Помилка auth credentials:", error);

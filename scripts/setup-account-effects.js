@@ -569,7 +569,8 @@
       if (sb?.rpc) {
         const { error: bindError } = await sb.rpc("bastion_finalize_invite_auth_mapping", {
           p_token: state.token,
-          p_login: state.loginValue
+          p_login: state.loginValue,
+          p_auth_user_id: state.authUserId || null
         });
 
         if (bindError) {
