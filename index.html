@@ -154,9 +154,21 @@
                 <input id="authLogin" name="login" type="text" placeholder="lavash.squad" autocomplete="username" spellcheck="false" />
               </label>
 
-              <label class="auth-field">
+              <label class="auth-field auth-field--password">
                 <span>ПАРОЛЬ</span>
-                <input id="authPassword" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+                <div class="auth-password-wrap">
+                  <input id="authPassword" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+                  <button
+                    type="button"
+                    class="auth-password-toggle"
+                    id="authPasswordToggle"
+                    aria-label="Показати пароль"
+                    aria-pressed="false"
+                    title="Показати пароль"
+                  >
+                    <span class="auth-password-toggle__icon" aria-hidden="true"></span>
+                  </button>
+                </div>
               </label>
 
               <button type="submit" class="auth-submit" id="authSubmit">УВІЙТИ</button>

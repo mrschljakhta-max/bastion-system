@@ -1569,6 +1569,113 @@
 
 
 /* =========================================================
+   BASTION — PASSWORD VISIBILITY TOGGLE v100
+   Показ / приховування пароля на стартовому вході
+   ========================================================= */
+
+.auth-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-password-wrap input {
+  padding-right: 54px;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 32px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+
+  border: 1px solid rgba(255, 72, 82, .36);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 80, 92, .16), rgba(6, 8, 12, .72) 62%),
+    linear-gradient(180deg, rgba(31, 36, 48, .72), rgba(8, 9, 14, .86));
+  color: rgba(255, 220, 224, .92);
+  box-shadow:
+    inset 0 0 10px rgba(255, 74, 86, .08),
+    0 0 12px rgba(255, 48, 70, .10);
+  clip-path: polygon(10% 0, 90% 0, 100% 28%, 100% 72%, 90% 100%, 10% 100%, 0 72%, 0 28%);
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease,
+    transform .2s ease,
+    opacity .2s ease;
+}
+
+.auth-password-toggle:hover,
+.auth-password-toggle.is-visible {
+  border-color: rgba(255, 120, 130, .78);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 70, 82, .28), rgba(8, 10, 16, .82) 66%),
+    linear-gradient(180deg, rgba(50, 16, 24, .82), rgba(10, 8, 12, .92));
+  box-shadow:
+    inset 0 0 12px rgba(255, 88, 98, .14),
+    0 0 16px rgba(255, 48, 70, .24);
+}
+
+.auth-password-toggle:active {
+  transform: translateY(-50%) scale(.96);
+}
+
+.auth-password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+.auth-password-toggle__icon {
+  position: relative;
+  width: 17px;
+  height: 11px;
+  border: 1.8px solid currentColor;
+  border-radius: 50% / 58%;
+  filter: drop-shadow(0 0 5px rgba(255, 70, 82, .35));
+}
+
+.auth-password-toggle__icon::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px rgba(255, 72, 82, .52);
+}
+
+.auth-password-toggle__icon::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 50%;
+  width: 23px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateY(-50%) rotate(-34deg) scaleX(1);
+  transform-origin: center;
+  box-shadow: 0 0 8px rgba(255, 72, 82, .42);
+  opacity: .92;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+.auth-password-toggle.is-visible .auth-password-toggle__icon::after {
+  opacity: 0;
+  transform: translateY(-50%) rotate(-34deg) scaleX(.2);
+}
+
+/* =========================================================
    BASTION — MFA PANEL v24
    QR-код + код Google Authenticator
    ========================================================= */

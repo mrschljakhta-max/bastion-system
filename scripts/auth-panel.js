@@ -14,6 +14,7 @@
   const submit = document.getElementById("authSubmit");
   const login = document.getElementById("authLogin");
   const password = document.getElementById("authPassword");
+  const passwordToggle = document.getElementById("authPasswordToggle");
   const subtitle = document.getElementById("modeSubtitle");
   const ring = document.getElementById("hudRing");
 
@@ -221,6 +222,7 @@
     submit.disabled = isLoading;
     login.disabled = isLoading;
     password.disabled = isLoading;
+    if (passwordToggle) passwordToggle.disabled = isLoading;
     switcher.disabled = isLoading;
     back.disabled = isLoading;
 
@@ -369,6 +371,21 @@
     setMode(next);
 
     setTimeout(() => login?.focus(), 80);
+  });
+
+
+  passwordToggle?.addEventListener("click", () => {
+    if (!password) return;
+
+    const shouldShow = password.type === "password";
+    password.type = shouldShow ? "text" : "password";
+
+    passwordToggle.classList.toggle("is-visible", shouldShow);
+    passwordToggle.setAttribute("aria-pressed", String(shouldShow));
+    passwordToggle.setAttribute("aria-label", shouldShow ? "Приховати пароль" : "Показати пароль");
+    passwordToggle.title = shouldShow ? "Приховати пароль" : "Показати пароль";
+
+    password.focus();
   });
 
   panel.addEventListener("submit", async (event) => {
