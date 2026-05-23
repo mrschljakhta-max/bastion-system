@@ -145,9 +145,18 @@
     if (login) {
       login.placeholder = authMode === "register" ? "operator@example.com" : "lavash.squad";
       login.inputMode = authMode === "register" ? "email" : "text";
-      login.pattern = authMode === "register" ? "[^\\s@]+@[^\\s@]+\\.[^\\s@]+" : "";
       login.type = authMode === "register" ? "email" : "text";
       login.autocomplete = authMode === "register" ? "email" : "username";
+
+      if (authMode === "register") {
+        login.setAttribute("pattern", "[^\\s@]+@[^\\s@]+\\.[^\\s@]+");
+        login.setAttribute("title", "Вкажіть електронну пошту у форматі operator@example.com");
+      } else {
+        // Важливо: pattern="" у браузері все одно вмикає HTML5-валидацію
+        // і блокує логіни без @. Для звичайного входу прибираємо атрибути повністю.
+        login.removeAttribute("pattern");
+        login.removeAttribute("title");
+      }
     }
     if (requestNoteField) requestNoteField.hidden = authMode !== "register";
 
