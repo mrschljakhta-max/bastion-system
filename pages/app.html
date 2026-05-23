@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — Core</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
-  <link rel="stylesheet" href="../styles/app-home-v118.css?v=132" />
+  <link rel="stylesheet" href="../styles/app-home-v118.css?v=176" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -169,27 +169,64 @@
 
   <aside id="floatingDetail" class="floating-detail" aria-hidden="true"></aside>
 
-  <div id="profileModal" class="profile-modal" aria-hidden="true">
+
+  <div id="profileModal" class="profile-modal bastion-profile-modal" aria-hidden="true">
     <div class="profile-backdrop" data-close-profile></div>
-    <section class="profile-card" role="dialog" aria-modal="true" aria-label="Профіль користувача">
-      <button class="profile-close" type="button" data-close-profile>×</button>
-      <div class="profile-head">
-        <span class="profile-avatar"><img id="userAvatarModal" src="../assets/icons/bastion-mark-v66.png?v=87" alt="" /></span>
-        <div><p>USER PROFILE</p><h2 id="profileLogin">lavash.squad</h2></div>
+    <section class="profile-card profile-command-card" role="dialog" aria-modal="true" aria-label="Профіль користувача">
+      <button class="profile-close" type="button" data-close-profile aria-label="Закрити">×</button>
+
+      <div class="profile-card__left">
+        <div class="profile-honeycomb" aria-hidden="true"></div>
+        <div class="profile-avatar-core">
+          <img id="userAvatarModal" src="../assets/ui/default-user-avatar-v105.png?v=176" alt="" />
+        </div>
+        <div class="profile-core-caption">
+          <span>BASTION ID</span>
+          <strong id="profileStatus">ACTIVE</strong>
+        </div>
       </div>
-      <dl class="profile-data">
-        <div><dt>Email</dt><dd id="profileEmail">support@bastion.system</dd></div>
-        <div><dt>Рівень</dt><dd id="profileRole">demo</dd></div>
-      </dl>
-      <label class="profile-field">Nickname <input id="profileNicknameInput" type="text" maxlength="32" /></label>
-      <label class="profile-field">Avatar <input id="profileAvatarInput" type="file" accept="image/png,image/jpeg,image/webp" /></label>
-      <div class="profile-actions">
-        <button id="saveProfileButton" class="ghost-btn" type="button">Зберегти</button>
-        <button id="logoutButton" class="danger-btn" type="button">Вийти</button>
+
+      <div class="profile-card__right">
+        <div class="profile-topline">
+          <span>USER COMMAND MODULE</span>
+          <i></i>
+        </div>
+
+        <header class="profile-title-block">
+          <p>ПРОФІЛЬ КОРИСТУВАЧА</p>
+          <h2 id="profileLogin">lavash.squad</h2>
+        </header>
+
+        <dl class="profile-data">
+          <div>
+            <dt>Логін</dt>
+            <dd id="profileLoginValue">lavash.squad</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd id="profileEmail">email не визначено</dd>
+          </div>
+          <div>
+            <dt>Рівень доступу</dt>
+            <dd id="profileRole">DEMO</dd>
+          </div>
+          <div>
+            <dt>Сесія</dt>
+            <dd id="profileSession">Захищена</dd>
+          </div>
+        </dl>
+
+        <div class="profile-actions profile-actions--single">
+          <button id="logoutButton" class="danger-btn profile-logout-btn" type="button">Вийти із сайту</button>
+        </div>
       </div>
     </section>
   </div>
 
-  <script src="../scripts/app-home-v118.js?v=118"></script>
+
+  <script src="../scripts/config.js?v=176"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/supabase-client.js?v=176"></script>
+  <script src="../scripts/app-home-v118.js?v=176"></script>
 </body>
 </html>

@@ -11,6 +11,9 @@
   const operatorName = document.getElementById("operatorName");
   const operatorRole = document.getElementById("operatorRole");
   const profileLogin = document.getElementById("profileLogin");
+  const profileLoginValue = document.getElementById("profileLoginValue");
+  const profileStatus = document.getElementById("profileStatus");
+  const profileSession = document.getElementById("profileSession");
   const profileEmail = document.getElementById("profileEmail");
   const profileRole = document.getElementById("profileRole");
   const profileNicknameInput = document.getElementById("profileNicknameInput");
@@ -75,8 +78,11 @@
     if (plateOperatorRole) plateOperatorRole.textContent = role;
 
     if (profileLogin) profileLogin.textContent = nickname;
+    if (profileLoginValue) profileLoginValue.textContent = nickname;
     if (profileEmail) profileEmail.textContent = email || "email не визначено";
     if (profileRole) profileRole.textContent = role;
+    if (profileStatus) profileStatus.textContent = "ACTIVE";
+    if (profileSession) profileSession.textContent = email ? "Захищена" : "Локальна";
     if (profileNicknameInput) profileNicknameInput.value = nickname;
 
     if (avatarUrl) {
@@ -299,6 +305,8 @@
     localStorage.removeItem("bastion_role");
     localStorage.removeItem("bastion_email");
     localStorage.removeItem("bastion_access_token");
+    localStorage.removeItem("bastion_profile_nickname");
+    localStorage.removeItem("bastion_profile_avatar");
 
     window.location.replace("../index.html");
   }
