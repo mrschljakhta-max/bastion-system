@@ -81,6 +81,7 @@ async function loginWithUsername(login, password) {
   localStorage.setItem("bastion_email", email);
   localStorage.setItem("bastion_role", account.role || "demo");
   localStorage.setItem("bastion_access_status", account.status || "active");
+  localStorage.setItem("bastion_mfa_enabled", String(Boolean(account.mfa_enabled)));
 
   return {
     success: true,
@@ -432,12 +433,20 @@ async function prepareMfaAfterRegister() {
 
 async function prepareMfaAfterLogin() {
   // ЗВИЧАЙНИЙ ВХІД НЕ СТВОРЮЄ 2FA І НЕ ПОКАЗУЄ QR-КОД.
-  // QR-код налаштовується тільки на сторінці setup-account.html за invite-посиланням.
-  // Якщо у майбутньому потрібно буде вимагати код на вході — тут можна повернути
-  // challenge для вже VERIFIED factor. Якщо verified factor немає, просто пускаємо далі.
+  // Він тільки перевіряє вже створений/verified TOTP factor.
+  const accountRequiresMfa = localStorage.getItem("bastion_mfa_enabled") === "true";
   const factor = await getVerifiedTotpFactor();
 
   if (!factor) {
+    if (accountRequiresMfa) {
+      showAuthMessage(
+        "Для цього акаунта увімкнено 2FA, але підтверджений TOTP-фактор не знайдено. Повторіть активацію через invite-посилання або зверніться до адміністратора.",
+        "error"
+      );
+      await signOut();
+      return false;
+    }
+
     return {
       success: true,
       mode: "login",
