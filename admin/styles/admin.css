@@ -1076,3 +1076,32 @@ body[data-palette="violet"] {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* =========================================================
+   Admin Settings integration v114
+   ========================================================= */
+.admin-tab .admin-settings-screen{
+  min-height:auto;
+  padding:0;
+  display:block;
+}
+.admin-tab .settings-command-card{
+  width:100%;
+  max-width:none;
+  box-sizing:border-box;
+}
+.admin-tab .settings-hero h1{
+  font-size:clamp(36px,4vw,58px);
+}
+.admin-tab .settings-panel h2{
+  font-size:20px;
+}
+.admin-tab .settings-footer-actions{
+  padding-bottom:0;
+}
+body[data-bastion-palette="ice"] .admin-nav-btn.is-active,
+body[data-bastion-palette="ice"] .admin-link,
+body[data-bastion-palette="ice"] button:not(.admin-secondary){
+  --admin-accent: var(--bastion-accent, #36dfff);
+}
