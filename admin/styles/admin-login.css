@@ -109,3 +109,40 @@
   color: rgba(255,255,255,.78);
   background: rgba(0,0,0,.38);
 }
+
+
+.admin-password-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-password-control input {
+  padding-right: 58px;
+}
+
+.admin-login-form .admin-password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  margin: 0;
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .07);
+  color: rgba(255, 255, 255, .84);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  letter-spacing: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.admin-login-form .admin-password-toggle:hover {
+  border-color: rgba(255, 52, 77, .62);
+  background: rgba(255, 52, 77, .13);
+}

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="./styles/admin-start.css?v=5" />
-  <link rel="stylesheet" href="./styles/admin-login.css?v=1" />
+  <link rel="stylesheet" href="./styles/admin-login.css?v=117" />
 </head>
 <body class="admin-start-body admin-login-body">
   <main class="admin-start-screen" aria-label="BASTION admin login">
@@ -31,7 +31,10 @@
 
         <label>
           <span>Пароль</span>
-          <input id="adminPassword" type="password" autocomplete="current-password" required placeholder="••••••••••••" />
+          <div class="admin-password-control">
+            <input id="adminPassword" type="password" autocomplete="current-password" required placeholder="••••••••••••" />
+            <button id="adminPasswordToggle" class="admin-password-toggle" type="button" aria-label="Показати пароль" title="Показати пароль">◉</button>
+          </div>
         </label>
 
         <button id="adminLoginSubmit" type="submit">УВІЙТИ</button>
@@ -44,6 +47,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../scripts/config.js?v=28"></script>
-  <script src="./scripts/admin-login.js?v=1"></script>
+  <script src="./scripts/admin-login.js?v=117"></script>
 </body>
 </html>

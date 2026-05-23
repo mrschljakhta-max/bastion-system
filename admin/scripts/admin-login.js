@@ -8,6 +8,7 @@
   const loginInput = document.getElementById('adminLogin');
   const passwordInput = document.getElementById('adminPassword');
   const submit = document.getElementById('adminLoginSubmit');
+  const passwordToggle = document.getElementById('adminPasswordToggle');
   const statusBox = document.getElementById('adminLoginStatus');
 
   const STORAGE_KEY = 'BASTION_ADMIN_SESSION_TOKEN';
@@ -23,6 +24,17 @@
     statusBox.textContent = message;
     statusBox.style.borderColor = isError ? 'rgba(255,60,80,.55)' : 'rgba(255,255,255,.12)';
   }
+
+
+
+  passwordToggle?.addEventListener('click', () => {
+    const isHidden = passwordInput.type === 'password';
+    passwordInput.type = isHidden ? 'text' : 'password';
+    passwordToggle.textContent = isHidden ? '◌' : '◉';
+    passwordToggle.setAttribute('aria-label', isHidden ? 'Сховати пароль' : 'Показати пароль');
+    passwordToggle.setAttribute('title', isHidden ? 'Сховати пароль' : 'Показати пароль');
+    passwordInput.focus();
+  });
 
   async function verifyExistingSession() {
     const token = localStorage.getItem(STORAGE_KEY);
