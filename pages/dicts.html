@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=161" />
-  <link rel="stylesheet" href="../styles/dicts.css?v=166" />
+  <link rel="stylesheet" href="../styles/dicts.css?v=167" />
 </head>
 <body class="bastion-core-page dicts-page" data-active-module="dicts">
   <div class="core-background" aria-hidden="true">
@@ -85,14 +85,7 @@
   <main class="dicts-holo-stage" aria-label="Довідники">
     <section class="dicts-carousel-wrap" aria-label="Карусель довідників">
       <button class="dicts-arrow dicts-arrow--left" type="button" aria-label="Попередній довідник">‹</button>
-      <div class="dicts-carousel" id="dictsCarousel">
-        <button class="dict-folder" type="button" data-key="bands"><span class="dict-folder__inner"><b class="dict-folder__title">BANDS</b><i class="dict-folder__count">58 записів</i></span></button>
-        <button class="dict-folder" type="button" data-key="settlements"><span class="dict-folder__inner"><b class="dict-folder__title">SETTLEMENTS</b><i class="dict-folder__count">124 записи</i></span></button>
-        <button class="dict-folder" type="button" data-key="uav"><span class="dict-folder__inner"><b class="dict-folder__title">UAV</b><i class="dict-folder__count">152 записи</i></span></button>
-        <button class="dict-folder" type="button" data-key="stations"><span class="dict-folder__inner"><b class="dict-folder__title">STATIONS</b><i class="dict-folder__count">87 записів</i></span></button>
-        <button class="dict-folder" type="button" data-key="units"><span class="dict-folder__inner"><b class="dict-folder__title">UNITS</b><i class="dict-folder__count">96 записів</i></span></button>
-        <button class="dict-folder" type="button" data-key="cover"><span class="dict-folder__inner"><b class="dict-folder__title">COVER OBJECTS</b><i class="dict-folder__count">63 записи</i></span></button>
-      </div>
+      <div class="dicts-carousel" id="dictsCarousel" aria-live="polite"></div>
       <button class="dicts-arrow dicts-arrow--right" type="button" aria-label="Наступний довідник">›</button>
     </section>
 
@@ -124,6 +117,43 @@
   </nav>
 
   <aside id="floatingDetail" class="floating-detail" aria-hidden="true"></aside>
-  <script src="../scripts/dicts.js?v=166"></script>
+
+  <section id="dictCreateModal" class="dict-create-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="dictCreateTitle">
+    <div class="dict-create-modal__backdrop" data-dict-modal-close></div>
+    <form id="dictCreateForm" class="dict-create-panel">
+      <button class="dict-create-close" type="button" data-dict-modal-close aria-label="Закрити">×</button>
+      <h2 id="dictCreateTitle">ДОДАТИ ДОВІДНИК</h2>
+      <p class="dict-create-subtitle">Створює запис у реєстрі та нову таблицю Supabase для цього довідника.</p>
+
+      <label class="dict-create-field">
+        <span>Назва довідника</span>
+        <input id="dictTitleInput" type="text" placeholder="Наприклад: Типи РЕБ" required />
+      </label>
+
+      <label class="dict-create-field">
+        <span>Назва для інтерфейсу / українською</span>
+        <input id="dictTitleUaInput" type="text" placeholder="Наприклад: Типи РЕБ" />
+      </label>
+
+      <div class="dict-create-columns-head">
+        <span>Колонки довідника</span>
+        <button id="dictAddColumnBtn" type="button">+ колонка</button>
+      </div>
+
+      <div id="dictColumnsBox" class="dict-columns-box"></div>
+
+      <div id="dictCreateStatus" class="dict-create-status" aria-live="polite"></div>
+
+      <div class="dict-create-actions">
+        <button class="dict-create-secondary" type="button" data-dict-modal-close>Скасувати</button>
+        <button class="dict-create-primary" type="submit">Створити</button>
+      </div>
+    </form>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../scripts/config.js?v=167"></script>
+  <script src="../scripts/supabase-client.js?v=167"></script>
+  <script src="../scripts/dicts.js?v=167"></script>
 </body>
 </html>
