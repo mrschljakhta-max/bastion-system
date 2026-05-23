@@ -1062,3 +1062,58 @@ body.dicts-page .core-screen {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   BASTION DICTS v172 — dynamic spreadsheet-like dictionary table
+   ========================================================= */
+.dict-records-table {
+  min-width: max(860px, 100%);
+  table-layout: auto;
+}
+
+.dict-records-table th,
+.dict-records-table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.dict-records-table th:not(.dict-col-num):not(.dict-col-actions),
+.dict-records-table td:not(.dict-col-num):not(.dict-row-actions) {
+  min-width: 150px;
+  max-width: 280px;
+}
+
+.dict-cell-value {
+  display: inline-block;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
+.dict-empty-dash {
+  color: rgba(255, 210, 210, .42);
+}
+
+.dict-row-editor-box {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.dict-row-editor-actions {
+  grid-column: 1 / -1;
+}
+
+.dict-col-actions,
+.dict-row-actions {
+  width: 96px;
+  min-width: 96px !important;
+  text-align: right !important;
+  position: sticky;
+  right: 0;
+  background: rgba(15, 3, 6, .92);
+  z-index: 1;
+}
+
+.dict-records-table th.dict-col-actions {
+  z-index: 2;
+}

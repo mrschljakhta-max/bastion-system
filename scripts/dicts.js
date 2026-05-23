@@ -1,4 +1,4 @@
-/* BASTION DICTS v169 — registry carousel + create/manage dictionaries */
+/* BASTION DICTS v172 — dynamic dictionary table like spreadsheet */
 (() => {
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -293,25 +293,54 @@
       currentColumns = data || [];
     }
     renderColumnsManager();
+    refreshSortOptions();
   }
 
   function editableColumns() {
     return currentColumns.filter((c) => !protectedColumns.has(c.column_name));
   }
 
+  // Columns visible in the dictionary table.
+  // We hide only service fields. Every user-created column is shown equally, Excel-style.
+  function displayColumns() {
+    return currentColumns.filter((c) => !protectedColumns.has(c.column_name));
+  }
+
+  // Columns writable in add/edit rows. is_active remains writable as a checkbox.
   function writableColumns() {
-    return currentColumns.filter((c) => !protectedColumns.has(c.column_name) && c.column_name !== "is_active");
+    return currentColumns.filter((c) => !protectedColumns.has(c.column_name));
   }
 
   function hasColumn(name) {
     return currentColumns.some((c) => c.column_name === name);
   }
 
-  function titleColumn() {
-    const cols = editableColumns();
+  function primaryColumn() {
+    const cols = displayColumns();
     return cols.find((c) => c.column_name === "name")
       || cols.find((c) => c.column_name !== "is_active" && normalizeType(c.data_type || c.udt_name) !== "boolean")
       || cols[0];
+  }
+
+  function textSearchColumns() {
+    return displayColumns().filter((c) => {
+      const type = normalizeType(c.data_type || c.udt_name);
+      return type === "text" && c.column_name !== "is_active";
+    });
+  }
+
+  function refreshSortOptions() {
+    if (!sortSelect) return;
+    const current = sortSelect.value;
+    const cols = displayColumns().filter((c) => c.column_name !== "is_active");
+    const options = [];
+    cols.forEach((c) => {
+      options.push(`<option value="${escapeHtml(c.column_name)}__asc">${escapeHtml(c.column_name)}: А → Я</option>`);
+      options.push(`<option value="${escapeHtml(c.column_name)}__desc">${escapeHtml(c.column_name)}: Я → А</option>`);
+    });
+    if (hasColumn("created_at")) options.push(`<option value="created_at__desc">Нові зверху</option>`);
+    sortSelect.innerHTML = options.join("") || `<option value="">Без сортування</option>`;
+    if ([...sortSelect.options].some((o) => o.value === current)) sortSelect.value = current;
   }
 
   function renderColumnsManager() {
@@ -359,20 +388,26 @@
   }
 
   function sortParams() {
-    const val = sortSelect?.value || "name_asc";
-    if (val === "name_desc") return { column: "name", ascending: false };
-    if (val === "created_desc") return { column: "created_at", ascending: false };
-    return { column: "name", ascending: true };
+    const val = sortSelect?.value || "";
+    if (!val) return { column: primaryColumn()?.column_name, ascending: true };
+    const [column, direction] = val.split("__");
+    return { column, ascending: direction !== "desc" };
   }
 
   async function loadDictionaryRows() {
     if (!sb || !currentDict?.table_name) return;
     const search = (searchInput?.value || "").trim();
     const sort = sortParams();
-    const tCol = titleColumn()?.column_name || "name";
     let query = sb.from(currentDict.table_name).select("*").limit(500);
-    if (search && tCol) query = query.ilike(tCol, `%${search}%`);
-    const orderColumn = hasColumn(sort.column) ? sort.column : tCol;
+
+    // Search across all text columns created by the user, not just name.
+    const searchCols = textSearchColumns();
+    if (search && searchCols.length) {
+      const safeSearch = search.replaceAll(",", " ");
+      query = query.or(searchCols.map((c) => `${c.column_name}.ilike.%${safeSearch}%`).join(","));
+    }
+
+    const orderColumn = hasColumn(sort.column) ? sort.column : primaryColumn()?.column_name;
     if (orderColumn) query = query.order(orderColumn, { ascending: sort.ascending, nullsFirst: false });
     const { data, error } = await query;
     if (error) {
@@ -398,25 +433,38 @@
 
   function renderRecordEditorRow(row = {}, id = null) {
     const cols = writableColumns();
-    const colspan = 5;
-    return `<tr class="dict-row-editor" data-editor-for="${escapeHtml(id || "new")}"><td colspan="${colspan}"><div class="dict-row-editor-box">${cols.map((c) => `<label><span>${escapeHtml(c.column_name)}</span>${inputForCell(row, c)}</label>`).join("")}<label class="dict-row-active-edit"><span>is_active</span><input class="dict-cell-check" type="checkbox" data-field="is_active" ${row.is_active !== false ? "checked" : ""}></label><div class="dict-row-editor-actions"><button type="button" class="dict-mini-button" data-save-editor>${id ? "ЗБЕРЕГТИ" : "СТВОРИТИ"}</button><button type="button" class="dict-mini-button dict-mini-button--ghost" data-cancel-editor>СКАСУВАТИ</button></div></div></td></tr>`;
+    const colspan = Math.max(displayColumns().length + 2, 3);
+    return `<tr class="dict-row-editor" data-editor-for="${escapeHtml(id || "new")}"><td colspan="${colspan}"><div class="dict-row-editor-box">${cols.map((c) => `<label><span>${escapeHtml(c.column_name)}</span>${inputForCell(row, c)}</label>`).join("")}<div class="dict-row-editor-actions"><button type="button" class="dict-mini-button" data-save-editor>${id ? "ЗБЕРЕГТИ" : "СТВОРИТИ"}</button><button type="button" class="dict-mini-button dict-mini-button--ghost" data-cancel-editor>СКАСУВАТИ</button></div></div></td></tr>`;
+  }
+
+  function displayCellValue(row, col) {
+    const name = col.column_name;
+    const type = normalizeType(col.data_type || col.udt_name);
+    const value = row[name];
+    if (type === "boolean" || name === "is_active") {
+      return `<input class="dict-cell-check" type="checkbox" data-toggle-field="${escapeHtml(name)}" ${value !== false ? "checked" : ""}>`;
+    }
+    if (value === null || typeof value === "undefined" || value === "") return `<span class="dict-empty-dash">—</span>`;
+    return `<span class="dict-cell-value">${escapeHtml(value)}</span>`;
   }
 
   function renderRecordsTable() {
     if (!recordsTable) return;
-    const tCol = titleColumn()?.column_name || "name";
+    const cols = displayColumns();
     recordsTable.innerHTML = "";
     const thead = document.createElement("thead");
-    thead.innerHTML = `<tr><th class="dict-col-num">№</th><th>Назва запису</th><th class="dict-col-active">Активний</th><th class="dict-col-actions">Дії</th></tr>`;
+    thead.innerHTML = `<tr><th class="dict-col-num">№</th>${cols.map((c) => `<th>${escapeHtml(c.column_name)}</th>`).join("")}<th class="dict-col-actions">Дії</th></tr>`;
     const tbody = document.createElement("tbody");
     if (!currentRows.length) {
-      tbody.innerHTML = `<tr><td colspan="4" class="dict-empty-cell">Записів немає</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${cols.length + 2}" class="dict-empty-cell">Записів немає</td></tr>`;
     } else {
       currentRows.forEach((row, idx) => {
         const tr = document.createElement("tr");
         tr.dataset.id = row.id;
-        tr.innerHTML = `<td class="dict-col-num">${idx + 1}</td><td class="dict-record-title">${escapeHtml(row[tCol] || "—")}</td><td class="dict-col-active"><input class="dict-cell-check" type="checkbox" data-toggle-active ${row.is_active !== false ? "checked" : ""}></td><td class="dict-row-actions"><button type="button" class="dict-icon-mini" data-edit-row title="Редагувати запис">✎</button><button type="button" class="dict-icon-mini dict-icon-mini--danger" data-delete-row title="Видалити запис">🗑</button></td>`;
-        tr.querySelector("[data-toggle-active]").addEventListener("change", (event) => updateRowActive(row.id, event.target.checked));
+        tr.innerHTML = `<td class="dict-col-num">${idx + 1}</td>${cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${displayCellValue(row, c)}</td>`).join("")}<td class="dict-row-actions"><button type="button" class="dict-icon-mini" data-edit-row title="Редагувати запис">✎</button><button type="button" class="dict-icon-mini dict-icon-mini--danger" data-delete-row title="Видалити запис">🗑</button></td>`;
+        tr.querySelectorAll("[data-toggle-field]").forEach((input) => {
+          input.addEventListener("change", (event) => updateRowField(row.id, event.target.dataset.toggleField, event.target.checked));
+        });
         tr.querySelector("[data-edit-row]").addEventListener("click", () => toggleEditorRow(tr, row));
         tr.querySelector("[data-delete-row]").addEventListener("click", () => deleteRow(row));
         tbody.appendChild(tr);
@@ -454,19 +502,19 @@
     setManageStatus(id ? "Запис збережено." : "Запис створено.", "success");
   }
 
-  async function updateRowActive(id, isActive) {
-    if (!id || !hasColumn("is_active")) return;
-    const payload = { is_active: isActive };
+  async function updateRowField(id, field, value) {
+    if (!id || !field || !hasColumn(field)) return;
+    const payload = { [field]: value };
     if (hasColumn("updated_at")) payload.updated_at = new Date().toISOString();
-    setManageStatus("Оновлюю активність...", "loading");
+    setManageStatus("Оновлюю поле...", "loading");
     const { error } = await sb.from(currentDict.table_name).update(payload).eq("id", id);
     if (error) return setManageStatus(`Помилка оновлення: ${error.message}`, "error");
-    setManageStatus("Активність оновлено.", "success");
+    setManageStatus("Поле оновлено.", "success");
   }
 
   async function deleteRow(row) {
-    const tCol = titleColumn()?.column_name || "name";
-    const label = row[tCol] || row.id || "цей запис";
+    const pCol = primaryColumn()?.column_name || "id";
+    const label = row[pCol] || row.id || "цей запис";
     if (!window.confirm(`Видалити запис "${label}"?`)) return;
     setManageStatus("Видаляю запис...", "loading");
     const { error } = await sb.from(currentDict.table_name).delete().eq("id", row.id);
