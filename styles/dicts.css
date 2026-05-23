@@ -1119,6 +1119,321 @@ body.dicts-page .core-screen {
 }
 
 /* =========================================================
+   BASTION DICTS v173 — dark titanium / reactor modal skin
+   ========================================================= */
+.dict-modal--wide .dict-modal__panel,
+.dict-modal__panel--wide.dict-view-panel {
+  width: min(1240px, 90vw);
+  max-height: min(780px, 84vh);
+  padding: 38px 42px 30px;
+  overflow: auto;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 78, 64, .72);
+  background:
+    radial-gradient(circle at 18% 10%, rgba(255, 64, 48, .13), transparent 34%),
+    radial-gradient(circle at 82% 22%, rgba(0, 217, 255, .055), transparent 28%),
+    linear-gradient(135deg, rgba(16, 21, 30, .96), rgba(7, 9, 13, .97) 42%, rgba(28, 9, 12, .94));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, .035) inset,
+    0 0 0 10px rgba(6, 8, 12, .58) inset,
+    0 0 34px rgba(255, 45, 35, .28),
+    0 32px 90px rgba(0, 0, 0, .72);
+  clip-path: polygon(36px 0, calc(100% - 36px) 0, 100% 36px, 100% calc(100% - 36px), calc(100% - 36px) 100%, 36px 100%, 0 calc(100% - 36px), 0 36px);
+}
+
+.dict-modal__panel--wide.dict-view-panel::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  pointer-events: none;
+  border: 1px solid rgba(255, 70, 58, .34);
+  border-radius: 22px;
+  background:
+    linear-gradient(90deg, transparent 0 48%, rgba(255, 55, 45, .32) 49%, transparent 51% 100%) top center/100% 1px no-repeat,
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .018) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, .014) 0 1px, transparent 1px 38px);
+  opacity: .75;
+  mix-blend-mode: screen;
+}
+
+.dict-modal__panel--wide.dict-view-panel::after {
+  content: "";
+  position: absolute;
+  left: 42px;
+  right: 42px;
+  top: 16px;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 55, 45, .88), transparent 42%, transparent 58%, rgba(255, 55, 45, .88), transparent);
+  filter: blur(.2px) drop-shadow(0 0 14px rgba(255, 55, 45, .78));
+  pointer-events: none;
+}
+
+.dict-view-head {
+  align-items: flex-start;
+  padding: 0 72px 22px 0;
+  margin: 0 0 24px 0;
+  border-bottom: 1px solid rgba(255, 70, 58, .28);
+}
+
+.dict-view-titlebox {
+  min-width: 0;
+}
+
+.dict-view-titlebox h2,
+.dict-modal .dict-view-titlebox h2 {
+  max-width: min(740px, 60vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(36px, 4.4vw, 68px);
+  letter-spacing: .24em;
+  color: rgba(255, 250, 246, .98);
+  text-shadow:
+    0 0 16px rgba(255, 70, 60, .75),
+    0 0 34px rgba(255, 42, 32, .36);
+}
+
+.dict-vault-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-top: 18px;
+  border-top: 1px solid rgba(255, 70, 58, .18);
+  border-bottom: 1px solid rgba(255, 70, 58, .18);
+  background: linear-gradient(90deg, rgba(255, 55, 45, .065), rgba(0, 217, 255, .025), transparent);
+}
+
+.dict-vault-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 0 22px;
+  border-right: 1px solid rgba(255, 70, 58, .16);
+  color: rgba(255, 245, 238, .88);
+  font: 700 14px Rajdhani, sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.dict-vault-meta b {
+  color: #ff5148;
+  font-family: Orbitron, sans-serif;
+  font-size: 12px;
+}
+
+.dict-vault-meta i:not(.dict-status-dot) {
+  color: rgba(255,255,255,.92);
+  font-style: normal;
+  text-transform: none;
+}
+
+.dict-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #00f0a8;
+  box-shadow: 0 0 14px rgba(0, 240, 168, .92);
+}
+
+.dict-view-tools {
+  position: relative;
+  z-index: 4;
+  padding-top: 6px;
+  gap: 12px;
+}
+
+.dict-icon-button,
+.dict-icon-mini,
+.dict-floating-plus {
+  border-color: rgba(255, 74, 58, .62);
+  background:
+    linear-gradient(180deg, rgba(32, 42, 56, .92), rgba(9, 12, 18, .96)),
+    radial-gradient(circle at 50% 0%, rgba(255, 80, 65, .28), transparent 58%);
+  box-shadow:
+    inset 0 0 18px rgba(255, 60, 48, .12),
+    0 0 0 1px rgba(255, 255, 255, .04),
+    0 0 18px rgba(255, 40, 32, .16);
+  color: rgba(255, 184, 176, .98);
+}
+
+.dict-icon-button:hover,
+.dict-icon-mini:hover,
+.dict-floating-plus:hover {
+  transform: translateY(-1px);
+  background:
+    linear-gradient(180deg, rgba(38, 54, 70, .95), rgba(9, 14, 21, .98)),
+    radial-gradient(circle at 50% 0%, rgba(0, 217, 255, .18), transparent 62%);
+  color: #fff;
+  border-color: rgba(0, 217, 255, .56);
+  box-shadow: 0 0 20px rgba(0, 217, 255, .16), 0 0 22px rgba(255, 45, 35, .22), inset 0 0 18px rgba(255, 60, 48, .15);
+}
+
+.dict-icon-button--danger,
+.dict-icon-mini--danger {
+  color: #ff766b;
+  border-color: rgba(255, 72, 58, .74);
+}
+
+.dict-records-card--clean {
+  border-radius: 22px;
+  border: 1px solid rgba(255, 72, 58, .46);
+  background:
+    linear-gradient(135deg, rgba(4, 9, 15, .86), rgba(10, 14, 21, .86) 52%, rgba(26, 7, 10, .72)),
+    repeating-linear-gradient(90deg, rgba(0, 217, 255, .025) 0 1px, transparent 1px 54px);
+  box-shadow:
+    inset 0 0 26px rgba(0, 217, 255, .025),
+    inset 0 0 38px rgba(255, 40, 32, .075),
+    0 0 22px rgba(255, 40, 32, .12);
+  padding: 16px;
+}
+
+.dict-table-wrap--clean {
+  border: 1px solid rgba(255, 72, 58, .34);
+  border-radius: 18px;
+  background: rgba(2, 5, 10, .68);
+  overflow: auto;
+}
+
+.dict-records-table th,
+.dict-records-table td,
+.dict-records-table--clean th,
+.dict-records-table--clean td {
+  border-color: rgba(255, 72, 58, .18);
+}
+
+.dict-records-table--clean th {
+  color: rgba(185, 238, 255, .96) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 60, 48, .10), rgba(0, 217, 255, .035)),
+    rgba(11, 16, 24, .82);
+  text-shadow: 0 0 10px rgba(0, 217, 255, .22);
+  letter-spacing: .12em;
+}
+
+.dict-records-table--clean tbody tr {
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.dict-records-table--clean tbody tr:hover:not(.dict-row-editor) {
+  background: linear-gradient(90deg, rgba(255, 65, 52, .10), rgba(0, 217, 255, .04), rgba(255, 65, 52, .035));
+  box-shadow: inset 3px 0 0 rgba(255, 65, 52, .72);
+}
+
+.dict-records-table--clean tbody tr:hover .dict-cell-value {
+  color: #fff;
+  text-shadow: 0 0 12px rgba(255, 80, 70, .35);
+}
+
+.dict-cell-check {
+  width: 20px;
+  height: 20px;
+  accent-color: #00f0a8;
+  filter: drop-shadow(0 0 8px rgba(0, 240, 168, .52));
+}
+
+.dict-cell-value {
+  color: rgba(255, 244, 238, .94);
+  font: 700 18px Rajdhani, sans-serif;
+}
+
+.dict-row-actions,
+.dict-col-actions {
+  background: linear-gradient(90deg, rgba(6, 10, 16, .84), rgba(10, 14, 22, .96));
+}
+
+.dict-add-row-line {
+  justify-content: flex-start;
+  padding-top: 22px;
+}
+
+.dict-floating-plus {
+  position: relative;
+  width: 210px;
+  height: 62px;
+  border-radius: 8px 22px 8px 22px;
+  font-size: 0;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.dict-floating-plus::before {
+  content: "+";
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-right: 18px;
+  border: 1px solid rgba(255, 76, 62, .64);
+  border-radius: 11px;
+  color: #ffd8d3;
+  font: 900 30px Orbitron, sans-serif;
+  box-shadow: inset 0 0 14px rgba(255, 58, 45, .12), 0 0 16px rgba(255, 58, 45, .14);
+}
+
+.dict-floating-plus::after {
+  content: "ADD RECORD";
+  color: rgba(255, 138, 126, .98);
+  font: 800 18px Orbitron, sans-serif;
+  letter-spacing: .14em;
+  text-shadow: 0 0 14px rgba(255, 58, 45, .42);
+}
+
+.dict-row-editor-box {
+  border-color: rgba(0, 217, 255, .22);
+  background: linear-gradient(135deg, rgba(5, 11, 18, .94), rgba(22, 7, 10, .86));
+  box-shadow: inset 0 0 24px rgba(0, 217, 255, .04), 0 0 24px rgba(255, 50, 40, .10);
+}
+
+.dict-cell-input,
+.dict-row-editor-box input,
+.dict-row-editor-box select {
+  border-color: rgba(0, 217, 255, .24) !important;
+  background: rgba(1, 4, 9, .78) !important;
+  box-shadow: inset 0 0 16px rgba(0, 217, 255, .035);
+}
+
+.dict-edit-panel,
+.dict-sort-panel {
+  border-color: rgba(0, 217, 255, .22);
+  background: linear-gradient(135deg, rgba(5, 11, 18, .9), rgba(24, 7, 12, .74));
+}
+
+.dict-modal__close {
+  z-index: 6;
+  top: 22px;
+  right: 22px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(35, 43, 56, .92), rgba(14, 16, 22, .94));
+  border-color: rgba(255, 78, 64, .72);
+  box-shadow: 0 0 18px rgba(255, 50, 40, .18), inset 0 0 14px rgba(255, 50, 40, .10);
+}
+
+@media (max-width: 900px) {
+  .dict-modal--wide .dict-modal__panel,
+  .dict-modal__panel--wide.dict-view-panel {
+    clip-path: none;
+    border-radius: 22px;
+    width: 94vw;
+  }
+
+  .dict-view-head {
+    padding-right: 54px;
+  }
+
+  .dict-view-titlebox h2,
+  .dict-modal .dict-view-titlebox h2 {
+    max-width: 76vw;
+    font-size: clamp(28px, 9vw, 44px);
+  }
+
+  .dict-vault-meta span {
+    width: 100%;
+  }
+}
+
+/* =========================================================
    BASTION DICTS v174 — Titanium Reactor scrollbars
    ========================================================= */
 .dict-modal__panel,
@@ -1201,3 +1516,4 @@ body.dicts-page .core-screen {
   overscroll-behavior: contain;
   background-clip: padding-box;
 }
+

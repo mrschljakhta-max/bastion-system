@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=161" />
-  <link rel="stylesheet" href="../styles/dicts.css?v=170" />
+  <link rel="stylesheet" href="../styles/dicts.css?v=175" />
 </head>
 <body class="bastion-core-page dicts-page" data-active-module="dicts">
   <div class="core-background" aria-hidden="true">
@@ -186,6 +186,11 @@
         <div class="dict-view-titlebox">
           <h2 id="dictManageTitle">ДОВІДНИК</h2>
           <p id="dictManageLead" class="dict-modal__lead">0 записів</p>
+          <div class="dict-vault-meta" aria-label="Метадані довідника">
+            <span><b>STATUS:</b> <i class="dict-status-dot"></i> ACTIVE</span>
+            <span><b>RECORDS:</b> <i id="dictMetaRecords">0</i></span>
+            <span><b>TABLE:</b> <i id="dictMetaTable">—</i></span>
+          </div>
         </div>
         <div class="dict-view-tools" aria-label="Дії з довідником">
           <button id="dictEditToggleBtn" class="dict-icon-button" type="button" title="Редагувати довідник" aria-label="Редагувати довідник">✎</button>
@@ -250,8 +255,8 @@
 
 
   <aside id="floatingDetail" class="floating-detail" aria-hidden="true"></aside>
-  <script src="../scripts/config.js?v=170"></script>
+  <script src="../scripts/config.js?v=175"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../scripts/dicts.js?v=170"></script>
+  <script src="../scripts/dicts.js?v=175"></script>
 </body>
 </html>
