@@ -906,3 +906,173 @@ body[data-palette="violet"] {
   white-space: normal;
   line-height: 1.45;
 }
+
+/* =========================================================
+   BASTION Admin v112 — control-center upgrades
+   ========================================================= */
+.admin-control-card {
+  position: relative;
+  width: min(100%, 1320px);
+}
+
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 14px;
+  margin: 0 0 22px;
+}
+
+.admin-metric {
+  min-height: 88px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.11);
+  background:
+    radial-gradient(circle at 82% 18%, var(--admin-red-soft), transparent 48%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.admin-metric span {
+  display: block;
+  margin-bottom: 10px;
+  color: rgba(255,255,255,.54);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+
+.admin-metric strong {
+  display: block;
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  text-shadow: 0 0 26px var(--admin-red-soft);
+}
+
+.admin-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, 320px);
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
+.admin-toolbar-field {
+  display: grid;
+  gap: 9px;
+}
+
+.admin-toolbar-field span {
+  color: rgba(255,255,255,.56);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.admin-toolbar-field input,
+.admin-toolbar-field select {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 14px;
+  outline: none;
+  color: rgba(255,255,255,.9);
+  background: rgba(0,0,0,.28);
+  font: inherit;
+}
+
+.admin-toolbar-field input:focus,
+.admin-toolbar-field select:focus {
+  border-color: rgba(255,49,88,.68);
+  box-shadow: 0 0 0 4px rgba(255,49,88,.09);
+}
+
+.admin-empty-cell {
+  padding: 26px !important;
+  color: rgba(255,255,255,.5) !important;
+  text-align: center !important;
+}
+
+.admin-role-pill,
+.admin-good,
+.admin-danger-text,
+.admin-muted-inline {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.admin-role-pill {
+  border: 1px solid rgba(255,255,255,.13);
+  background: rgba(255,255,255,.055);
+  color: rgba(255,255,255,.78);
+}
+
+.admin-good {
+  border: 1px solid rgba(0,255,170,.34);
+  background: rgba(0,255,170,.08);
+  color: #adffe7;
+}
+
+.admin-danger-text {
+  border: 1px solid rgba(255,49,88,.42);
+  background: rgba(255,49,88,.1);
+  color: #ffd7dd;
+}
+
+.admin-muted-inline {
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.52);
+}
+
+.admin-log-human {
+  display: block;
+  color: rgba(255,255,255,.88);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.admin-log-human + small {
+  display: block;
+  margin-top: 6px;
+  color: rgba(255,255,255,.42);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.admin-details-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 10px;
+  background: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.84);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.admin-details-btn:hover {
+  border-color: rgba(255,49,88,.68);
+  box-shadow: 0 0 18px rgba(255,49,88,.16);
+}
+
+@media (max-width: 980px) {
+  .admin-metrics-grid,
+  .admin-toolbar {
+    grid-template-columns: 1fr;
+  }
+}

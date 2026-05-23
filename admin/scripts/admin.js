@@ -1,6 +1,6 @@
 /* =========================================================
-   BASTION — Admin Control v8
-   Uses separate admin session token, no Supabase Auth / 2FA
+   BASTION — Admin Control v112
+   Access requests / users / logs control center
    ========================================================= */
 
 (function () {
@@ -24,8 +24,22 @@
   const copyInviteUrl = document.getElementById('copyInviteUrl');
   const mailtoInvite = document.getElementById('mailtoInvite');
 
+  const usersTable = document.getElementById('usersTable');
+  const requestsTable = document.getElementById('requestsTable');
+  const logsTable = document.getElementById('logsTable');
+
+  const userSearch = document.getElementById('userSearch');
+  const userStatusFilter = document.getElementById('userStatusFilter');
+  const requestSearch = document.getElementById('requestSearch');
+  const requestStatusFilter = document.getElementById('requestStatusFilter');
+  const logSearch = document.getElementById('logSearch');
+  const logActionFilter = document.getElementById('logActionFilter');
+
   let lastInvite = null;
   let adminSession = null;
+  let usersCache = [];
+  let requestsCache = [];
+  let logsCache = [];
 
   const client = window.supabase.createClient(
     window.BASTION_CONFIG.SUPABASE_URL,
@@ -65,12 +79,29 @@
       .replaceAll("'", '&#039;');
   }
 
-  function renderTable(tableId, rows, columns) {
+  function formatDate(value) {
+    if (!value) return '—';
+    try {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return escapeHtml(value);
+      return date.toLocaleString('uk-UA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (_) {
+      return escapeHtml(value);
+    }
+  }
+
+  function renderTable(tableId, rows, columns, emptyText = 'Даних немає.') {
     const table = document.getElementById(tableId);
     if (!table) return;
 
     if (!rows?.length) {
-      table.innerHTML = `<tr><td>Даних немає.</td></tr>`;
+      table.innerHTML = `<tr><td class="admin-empty-cell">${escapeHtml(emptyText)}</td></tr>`;
       return;
     }
 
@@ -101,7 +132,7 @@
   }
 
   function statusBadge(value) {
-    const v = String(value ?? '—');
+    const v = String(value ?? '—').toLowerCase();
     return `<span class="admin-status-badge" data-status="${escapeHtml(v)}">${escapeHtml(v)}</span>`;
   }
 
@@ -109,85 +140,205 @@
     return `<div class="admin-row-actions">${items.join('')}</div>`;
   }
 
+  function setMetric(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function normalizeText(value) {
+    return String(value ?? '').toLowerCase().trim();
+  }
+
+  function updateUsersMetrics(rows = usersCache) {
+    setMetric('usersTotalCount', rows.length);
+    setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && String(r.status).toLowerCase() !== 'disabled').length);
+    setMetric('usersMfaCount', rows.filter((r) => Boolean(r.mfa_enabled)).length);
+  }
+
+  function updateRequestsMetrics(rows = requestsCache) {
+    setMetric('requestsTotalCount', rows.length);
+    setMetric('requestsPendingCount', rows.filter((r) => String(r.status).toLowerCase() === 'pending').length);
+    setMetric('requestsApprovedCount', rows.filter((r) => String(r.status).toLowerCase() === 'approved').length);
+  }
+
+  function updateLogsMetrics(rows = logsCache) {
+    setMetric('logsTotalCount', rows.length);
+    setMetric('logsAdminCount', rows.filter((r) => String(r.action || '').startsWith('admin_')).length);
+    setMetric('logsMfaCount', rows.filter((r) => String(r.action || '').includes('mfa')).length);
+  }
+
+  function getFilteredUsers() {
+    const q = normalizeText(userSearch?.value);
+    const status = normalizeText(userStatusFilter?.value || 'all');
+
+    return usersCache.filter((row) => {
+      const haystack = `${row.login || ''} ${row.email || ''} ${row.role || ''} ${row.status || ''}`.toLowerCase();
+      const rowStatus = normalizeText(row.status);
+      const isActive = Boolean(row.is_active) && rowStatus !== 'disabled';
+      const matchesSearch = !q || haystack.includes(q);
+      const matchesStatus =
+        status === 'all' ||
+        (status === 'active' && isActive) ||
+        (status === 'disabled' && !isActive) ||
+        rowStatus === status;
+      return matchesSearch && matchesStatus;
+    });
+  }
+
+  function getFilteredRequests() {
+    const q = normalizeText(requestSearch?.value);
+    const status = normalizeText(requestStatusFilter?.value || 'pending');
+
+    return requestsCache.filter((row) => {
+      const haystack = `${row.email || ''} ${row.note || ''} ${row.status || ''}`.toLowerCase();
+      const rowStatus = normalizeText(row.status);
+      return (!q || haystack.includes(q)) && (status === 'all' || rowStatus === status);
+    });
+  }
+
+  function getFilteredLogs() {
+    const q = normalizeText(logSearch?.value);
+    const action = normalizeText(logActionFilter?.value || 'all');
+
+    return logsCache.filter((row) => {
+      const details = JSON.stringify(row.details || {});
+      const haystack = `${row.email || ''} ${row.action || ''} ${details}`.toLowerCase();
+      const rowAction = normalizeText(row.action);
+      const actionGroup =
+        action === 'all' ||
+        (action === 'admin' && rowAction.startsWith('admin_')) ||
+        (action === 'invite' && rowAction.includes('invite')) ||
+        (action === 'mfa' && rowAction.includes('mfa')) ||
+        (action === 'login' && rowAction.includes('login')) ||
+        (action === 'delete' && rowAction.includes('delete'));
+      return (!q || haystack.includes(q)) && actionGroup;
+    });
+  }
+
+  function renderUsers() {
+    const rows = getFilteredUsers();
+    updateUsersMetrics(usersCache);
+
+    renderTable('usersTable', rows, [
+      { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
+      { key: 'email', label: 'Email' },
+      { key: 'role', label: 'Роль', render: (row) => `<span class="admin-role-pill">${escapeHtml(row.role || '—')}</span>` },
+      { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
+      { key: 'mfa_enabled', label: '2FA', render: (row) => Boolean(row.mfa_enabled) ? '<span class="admin-good">ON</span>' : '<span class="admin-muted-inline">OFF</span>' },
+      { key: 'is_active', label: 'Доступ', render: (row) => Boolean(row.is_active) && row.status !== 'disabled' ? '<span class="admin-good">Активний</span>' : '<span class="admin-danger-text">Закрито</span>' },
+      { key: 'created_at', label: 'Створено', render: (row) => formatDate(row.created_at) },
+      {
+        key: 'actions',
+        label: 'Дії',
+        render: (row) => {
+          const email = escapeHtml(row.email || '');
+          const login = escapeHtml(row.login || '');
+          const isActive = Boolean(row.is_active) && row.status !== 'disabled';
+          return actionButtons([
+            `<button type="button" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}">${isActive ? 'Вимкнути' : 'Увімкнути'}</button>`,
+            `<button type="button" data-user-logs="${email}">Логи</button>`,
+            `<button type="button" class="danger" data-user-delete="${email}" data-login="${login}">Видалити</button>`
+          ]);
+        }
+      }
+    ], 'Користувачів не знайдено.');
+  }
+
+  function renderRequests() {
+    const rows = getFilteredRequests();
+    updateRequestsMetrics(requestsCache);
+
+    renderTable('requestsTable', rows, [
+      { key: 'email', label: 'Email', render: (row) => `<strong>${escapeHtml(row.email)}</strong>` },
+      { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
+      { key: 'requested_at', label: 'Дата', render: (row) => formatDate(row.requested_at) },
+      { key: 'note', label: 'Повідомлення', render: (row) => `<span class="admin-note-cell">${escapeHtml(row.note || '—')}</span>` },
+      {
+        key: 'actions',
+        label: 'Дії',
+        render: (row) => {
+          const id = escapeHtml(row.id || '');
+          const email = escapeHtml(row.email || '');
+          const note = escapeHtml(row.note || '');
+          return actionButtons([
+            `<button type="button" data-request-use="${id}" data-email="${email}" data-note="${note}">Взяти email</button>`,
+            `<button type="button" data-request-status="${id}" data-status="approved">Вирішено</button>`,
+            `<button type="button" class="danger" data-request-status="${id}" data-status="rejected">Відхилити</button>`
+          ]);
+        }
+      }
+    ], 'Заявок за цим фільтром немає.');
+  }
+
+  function humanLog(row) {
+    const details = row.details || {};
+    const action = String(row.action || 'подія');
+    const target = details.target_email || details.email || details.login || details.target_login || '';
+
+    const dictionary = {
+      admin_login: 'Адміністратор увійшов у панель',
+      admin_create_user_invite: `Створено invite${target ? ` для ${target}` : ''}`,
+      admin_invite_created: `Створено invite${target ? ` для ${target}` : ''}`,
+      admin_access_request_approved: `Заявку схвалено${target ? `: ${target}` : ''}`,
+      admin_access_request_rejected: `Заявку відхилено${target ? `: ${target}` : ''}`,
+      admin_enable_user: `Доступ увімкнено${target ? `: ${target}` : ''}`,
+      admin_disable_user: `Доступ вимкнено${target ? `: ${target}` : ''}`,
+      admin_delete_user_full: `Користувача видалено${target ? `: ${target}` : ''}`,
+      user_invite_activated: `Користувач активував invite${target ? `: ${target}` : ''}`,
+      bastion_invite_auth_mapping_finalized: `Завершено привʼязку акаунта${target ? `: ${target}` : ''}`
+    };
+
+    return dictionary[action] || action.replaceAll('_', ' ');
+  }
+
+  function renderLogs() {
+    const rows = getFilteredLogs();
+    updateLogsMetrics(logsCache);
+
+    renderTable('logsTable', rows, [
+      { key: 'created_at', label: 'Дата', render: (row) => formatDate(row.created_at) },
+      { key: 'email', label: 'Email/Login', render: (row) => `<strong>${escapeHtml(row.email || '—')}</strong>` },
+      { key: 'action', label: 'Подія', render: (row) => `<span class="admin-log-human">${escapeHtml(humanLog(row))}</span><small>${escapeHtml(row.action || '')}</small>` },
+      {
+        key: 'details',
+        label: 'Details',
+        render: (row) => `<button type="button" class="admin-details-btn" data-log-details="${escapeHtml(JSON.stringify(row.details || {}))}">Деталі</button>`
+      }
+    ], 'Логів за цим фільтром немає.');
+  }
+
   async function refreshUsers() {
     try {
-      const rows = await adminRpc('admin_list_allowed_users');
-      renderTable('usersTable', rows, [
-        { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
-        { key: 'email', label: 'Email' },
-        { key: 'role', label: 'Роль' },
-        { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
-        { key: 'is_active', label: 'Активний', render: (row) => row.is_active ? '✅' : '—' },
-        { key: 'created_at', label: 'Створено' },
-        {
-          key: 'actions',
-          label: 'Дії',
-          render: (row) => {
-            const email = escapeHtml(row.email || '');
-            const login = escapeHtml(row.login || '');
-            const isActive = Boolean(row.is_active) && row.status !== 'disabled';
-            return actionButtons([
-              `<button type="button" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}">${isActive ? 'Вимкнути' : 'Увімкнути'}</button>`,
-              `<button type="button" class="danger" data-user-delete="${email}" data-login="${login}">Видалити</button>`
-            ]);
-          }
-        }
-      ]);
+      usersCache = await adminRpc('admin_list_allowed_users');
+      renderUsers();
     } catch (error) {
       console.warn(error);
-      renderTable('usersTable', [], []);
+      usersCache = [];
+      renderUsers();
     }
   }
 
   async function refreshRequests() {
     try {
-      const rows = await adminRpc('admin_list_access_requests');
-      renderTable('requestsTable', rows, [
-        { key: 'email', label: 'Email', render: (row) => `<strong>${escapeHtml(row.email)}</strong>` },
-        { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
-        { key: 'requested_at', label: 'Дата' },
-        { key: 'note', label: 'Повідомлення', render: (row) => `<span class="admin-note-cell">${escapeHtml(row.note || '—')}</span>` },
-        {
-          key: 'actions',
-          label: 'Дії',
-          render: (row) => {
-            const id = escapeHtml(row.id || '');
-            const email = escapeHtml(row.email || '');
-            const note = escapeHtml(row.note || '');
-            return actionButtons([
-              `<button type="button" data-request-use="${id}" data-email="${email}" data-note="${note}">Взяти email</button>`,
-              `<button type="button" data-request-status="${id}" data-status="approved">Вирішено</button>`,
-              `<button type="button" class="danger" data-request-status="${id}" data-status="rejected">Відхилити</button>`
-            ]);
-          }
-        }
-      ]);
+      requestsCache = await adminRpc('admin_list_access_requests');
+      renderRequests();
     } catch (error) {
       console.warn(error);
-      renderTable('requestsTable', [], []);
+      requestsCache = [];
+      renderRequests();
     }
   }
 
   async function refreshLogs() {
     try {
-      const rows = await adminRpc('admin_list_activity_logs');
-      renderTable('logsTable', rows, [
-        { key: 'created_at', label: 'Дата' },
-        { key: 'email', label: 'Email/Login' },
-        { key: 'action', label: 'Дія' },
-        {
-          key: 'details',
-          label: 'Details',
-          render: (row) => `<code>${escapeHtml(JSON.stringify(row.details || {}))}</code>`
-        }
-      ]);
+      logsCache = await adminRpc('admin_list_activity_logs');
+      renderLogs();
     } catch (error) {
       console.warn(error);
-      renderTable('logsTable', [], []);
+      logsCache = [];
+      renderLogs();
     }
   }
-
-
 
   function normalizeLoginFromEmail(email) {
     const raw = String(email || '').split('@')[0] || '';
@@ -282,9 +433,9 @@
         inviteForm.dataset.requestId = '';
       }
 
-      refreshUsers();
-      refreshRequests();
-      refreshLogs();
+      await refreshUsers();
+      await refreshRequests();
+      await refreshLogs();
     } catch (error) {
       console.error(error);
       alert(error.message || 'Не вдалося створити доступ.');
@@ -359,19 +510,31 @@
   }
 
   document.querySelectorAll('[data-admin-tab]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      activateTab(btn.dataset.adminTab);
-    });
+    btn.addEventListener('click', () => activateTab(btn.dataset.adminTab));
   });
 
-  document.getElementById('usersTable')?.addEventListener('click', async (event) => {
+  usersTable?.addEventListener('click', async (event) => {
     const toggle = event.target.closest('[data-user-toggle]');
     const remove = event.target.closest('[data-user-delete]');
+    const logs = event.target.closest('[data-user-logs]');
 
     try {
+      if (logs) {
+        const email = logs.dataset.userLogs;
+        if (logSearch) logSearch.value = email;
+        if (logActionFilter) logActionFilter.value = 'all';
+        activateTab('logs');
+        renderLogs();
+        return;
+      }
+
       if (toggle) {
         const email = toggle.dataset.userToggle;
         const active = toggle.dataset.active === 'true';
+        const message = active
+          ? `Увімкнути доступ для ${email}?`
+          : `Вимкнути доступ для ${email}? Користувач не зможе зайти на сайт.`;
+        if (!confirm(message)) return;
         await adminRpc('admin_set_user_active', { p_email: email, p_is_active: active });
         await refreshUsers();
         await refreshLogs();
@@ -380,16 +543,13 @@
       if (remove) {
         const email = remove.dataset.userDelete;
         const login = remove.dataset.login || email;
-        const typed = prompt(`Повне видалення акаунта.
-
-Буде видалено доступ, invite, MFA-secret і profile binding.
-Для підтвердження введіть login або email:
-${login}`);
+        const typed = prompt(`Повне видалення акаунта.\n\nБуде видалено доступ, invite, MFA-secret і profile binding.\nДля підтвердження введіть login або email:\n${login}`);
         if (!typed) return;
         if (typed.trim().toLowerCase() !== String(login).toLowerCase() && typed.trim().toLowerCase() !== String(email).toLowerCase()) {
           alert('Підтвердження не збігається. Видалення скасовано.');
           return;
         }
+        if (!confirm(`Остаточно видалити ${email}? Цю дію не можна швидко відкотити.`)) return;
         await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: typed.trim() });
         await refreshUsers();
         await refreshLogs();
@@ -400,7 +560,7 @@ ${login}`);
     }
   });
 
-  document.getElementById('requestsTable')?.addEventListener('click', async (event) => {
+  requestsTable?.addEventListener('click', async (event) => {
     const use = event.target.closest('[data-request-use]');
     const status = event.target.closest('[data-request-status]');
 
@@ -416,9 +576,11 @@ ${login}`);
       }
 
       if (status) {
+        const newStatus = status.dataset.status;
+        if (newStatus === 'rejected' && !confirm('Відхилити цю заявку?')) return;
         await adminRpc('admin_update_access_request_status', {
           p_request_id: status.dataset.requestStatus,
-          p_status: status.dataset.status
+          p_status: newStatus
         });
         await refreshRequests();
         await refreshLogs();
@@ -428,6 +590,24 @@ ${login}`);
       alert(error.message || 'Не вдалося оновити заявку.');
     }
   });
+
+  logsTable?.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-log-details]');
+    if (!btn) return;
+    try {
+      const parsed = JSON.parse(btn.dataset.logDetails || '{}');
+      alert(JSON.stringify(parsed, null, 2));
+    } catch (_) {
+      alert(btn.dataset.logDetails || '{}');
+    }
+  });
+
+  userSearch?.addEventListener('input', renderUsers);
+  userStatusFilter?.addEventListener('change', renderUsers);
+  requestSearch?.addEventListener('input', renderRequests);
+  requestStatusFilter?.addEventListener('change', renderRequests);
+  logSearch?.addEventListener('input', renderLogs);
+  logActionFilter?.addEventListener('change', renderLogs);
 
   document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
   document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);
@@ -468,9 +648,7 @@ ${login}`);
       const savedTab = localStorage.getItem(ACTIVE_TAB_KEY) || 'invite';
       activateTab(savedTab, false);
 
-      refreshUsers();
-      refreshRequests();
-      refreshLogs();
+      await Promise.all([refreshUsers(), refreshRequests(), refreshLogs()]);
     } catch (error) {
       console.error(error);
       clearAdminSession();
