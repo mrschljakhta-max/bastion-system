@@ -288,17 +288,14 @@
         return;
       }
 
-      // Локальний login-flow BASTION: користувач входить за логіном,
-      // який був створений на етапі реєстрації/активації.
-      // Supabase Auth email-flow залишено як fallback нижче.
-      if (result.localAuth) {
-        if (subtitle) subtitle.textContent = "ДОСТУП ДОЗВОЛЕНО";
-        submit.textContent = "ДОСТУП ВІДКРИТО";
-
-        setTimeout(() => {
-          window.location.href = "./pages/app.html";
-        }, 650);
-
+      // Після логіна/пароля ніколи не переходимо в систему напряму.
+      // Спершу перевіряємо реальну Supabase-сесію і, якщо 2FA увімкнена,
+      // обов'язково показуємо поле 6-значного коду.
+      const session = await window.BastionAuth.getCurrentSession();
+      if (!session) {
+        console.warn("BASTION: login повернув success, але Supabase session відсутня.", result);
+        shakePanel();
+        alert("Сесію авторизації не створено. Повторіть вхід.");
         return;
       }
 

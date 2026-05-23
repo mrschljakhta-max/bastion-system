@@ -14,9 +14,24 @@ if (!BASTION_SUPABASE_URL || !BASTION_SUPABASE_ANON_KEY) {
   console.error("BASTION config не знайдено. Перевір scripts/config.js");
 }
 
-const supabaseClient = window.supabase && BASTION_SUPABASE_URL && BASTION_SUPABASE_ANON_KEY
-  ? window.supabase.createClient(BASTION_SUPABASE_URL, BASTION_SUPABASE_ANON_KEY)
-  : null;
+const supabaseClient =
+  window.supabaseClient ||
+  window.BastionSupabase ||
+  (window.supabase && BASTION_SUPABASE_URL && BASTION_SUPABASE_ANON_KEY
+    ? window.supabase.createClient(BASTION_SUPABASE_URL, BASTION_SUPABASE_ANON_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      })
+    : null);
+
+if (supabaseClient) {
+  window.supabaseClient = supabaseClient;
+  window.BastionSupabase = supabaseClient;
+  window.sb = supabaseClient;
+}
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
