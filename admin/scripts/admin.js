@@ -1,6 +1,6 @@
 /* =========================================================
-   BASTION — Admin Control v112
-   Access requests / users / logs control center
+   BASTION — Admin Control v115
+   Access requests / users / admin access / logs / settings control center
    ========================================================= */
 
 (function () {
@@ -35,6 +35,14 @@
   const logSearch = document.getElementById('logSearch');
   const logActionFilter = document.getElementById('logActionFilter');
 
+  const adminAccessForm = document.getElementById('adminAccessForm');
+  const adminAccessQuery = document.getElementById('adminAccessQuery');
+  const adminAccessRole = document.getElementById('adminAccessRole');
+  const adminAccessFind = document.getElementById('adminAccessFind');
+  const adminAccessGrant = document.getElementById('adminAccessGrant');
+  const adminAccessRevoke = document.getElementById('adminAccessRevoke');
+  const adminAccessResult = document.getElementById('adminAccessResult');
+
   let lastInvite = null;
   let adminSession = null;
   let usersCache = [];
@@ -47,6 +55,10 @@
   );
 
   function applyStoredPalette() {
+    if (window.BastionSettings?.apply) {
+      window.BastionSettings.apply();
+      return;
+    }
     const palette = localStorage.getItem('BASTION_ADMIN_PALETTE') || 'crimson';
     document.body.dataset.palette = palette;
   }
@@ -305,6 +317,63 @@
         render: (row) => `<button type="button" class="admin-details-btn" data-log-details="${escapeHtml(JSON.stringify(row.details || {}))}">Деталі</button>`
       }
     ], 'Логів за цим фільтром немає.');
+  }
+
+  function renderAdminAccessResult(row, mode = 'found') {
+    if (!adminAccessResult) return;
+
+    if (!row) {
+      adminAccessResult.innerHTML = `
+        <div class="admin-empty-card">
+          <strong>Користувача не знайдено</strong>
+          <span>Перевір login або email. Користувач має спочатку пройти звичайну реєстрацію.</span>
+        </div>
+      `;
+      return;
+    }
+
+    const isAdmin = Boolean(row.is_admin);
+    const adminRole = row.admin_role || '—';
+    const status = isAdmin ? 'admin enabled' : 'user only';
+    adminAccessResult.innerHTML = `
+      <div class="admin-access-profile" data-mode="${escapeHtml(mode)}">
+        <div>
+          <span>Користувач</span>
+          <strong>${escapeHtml(row.login || '—')}</strong>
+          <small>${escapeHtml(row.email || '—')}</small>
+        </div>
+        <div>
+          <span>Основна роль</span>
+          <strong>${escapeHtml(row.user_role || row.role || '—')}</strong>
+          <small>${escapeHtml(row.status || '—')}</small>
+        </div>
+        <div>
+          <span>Адмін-доступ</span>
+          <strong class="${isAdmin ? 'admin-good' : 'admin-muted-inline'}">${escapeHtml(status)}</strong>
+          <small>${escapeHtml(adminRole)}</small>
+        </div>
+        <div>
+          <span>2FA</span>
+          <strong class="${row.mfa_enabled ? 'admin-good' : 'admin-muted-inline'}">${row.mfa_enabled ? 'ON' : 'OFF'}</strong>
+          <small>${row.auth_user_id ? 'auth linked' : 'no auth binding'}</small>
+        </div>
+      </div>
+    `;
+
+    if (adminAccessRole && row.admin_role) adminAccessRole.value = row.admin_role;
+  }
+
+  async function findAdminAccessUser(silent = false) {
+    const query = adminAccessQuery?.value?.trim();
+    if (!query) {
+      if (!silent) alert('Введіть login або email користувача.');
+      return null;
+    }
+
+    const rows = await adminRpc('admin_find_user_for_admin_access', { p_query: query });
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    renderAdminAccessResult(row || null);
+    return row || null;
   }
 
   async function refreshUsers() {
@@ -608,6 +677,66 @@
   requestStatusFilter?.addEventListener('change', renderRequests);
   logSearch?.addEventListener('input', renderLogs);
   logActionFilter?.addEventListener('change', renderLogs);
+
+  adminAccessFind?.addEventListener('click', async () => {
+    adminAccessFind.disabled = true;
+    adminAccessFind.textContent = 'Шукаю…';
+    try {
+      await findAdminAccessUser();
+    } catch (error) {
+      console.error(error);
+      alert(error.message || 'Не вдалося знайти користувача.');
+    } finally {
+      adminAccessFind.disabled = false;
+      adminAccessFind.textContent = 'Знайти';
+    }
+  });
+
+  adminAccessForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const query = adminAccessQuery?.value?.trim();
+    const role = adminAccessRole?.value || 'admin';
+    if (!query) return alert('Введіть login або email користувача.');
+    if (!confirm(`Надати адмін-доступ (${role}) для ${query}?`)) return;
+
+    adminAccessGrant.disabled = true;
+    adminAccessGrant.textContent = 'Надаю…';
+    try {
+      const rows = await adminRpc('admin_grant_admin_access', { p_query: query, p_admin_role: role });
+      const row = Array.isArray(rows) ? rows[0] : rows;
+      renderAdminAccessResult(row || null, 'granted');
+      await refreshLogs();
+      alert('Адмін-доступ надано. Користувач може входити в admin/index.html тим самим login/password.');
+    } catch (error) {
+      console.error(error);
+      alert(error.message || 'Не вдалося надати адмін-доступ.');
+    } finally {
+      adminAccessGrant.disabled = false;
+      adminAccessGrant.textContent = 'Надати адмін-доступ →';
+    }
+  });
+
+  adminAccessRevoke?.addEventListener('click', async () => {
+    const query = adminAccessQuery?.value?.trim();
+    if (!query) return alert('Введіть login або email користувача.');
+    if (!confirm(`Відкликати адмін-доступ для ${query}?`)) return;
+
+    adminAccessRevoke.disabled = true;
+    adminAccessRevoke.textContent = 'Відкликаю…';
+    try {
+      const rows = await adminRpc('admin_revoke_admin_access', { p_query: query });
+      const row = Array.isArray(rows) ? rows[0] : rows;
+      renderAdminAccessResult(row || null, 'revoked');
+      await refreshLogs();
+      alert('Адмін-доступ відкликано.');
+    } catch (error) {
+      console.error(error);
+      alert(error.message || 'Не вдалося відкликати адмін-доступ.');
+    } finally {
+      adminAccessRevoke.disabled = false;
+      adminAccessRevoke.textContent = 'Відкликати';
+    }
+  });
 
   document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
   document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);

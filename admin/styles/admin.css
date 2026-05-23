@@ -1105,3 +1105,86 @@ body[data-bastion-palette="ice"] .admin-link,
 body[data-bastion-palette="ice"] button:not(.admin-secondary){
   --admin-accent: var(--bastion-accent, #36dfff);
 }
+
+/* ===== BASTION Admin v115: theme aliases + admin access tab ===== */
+body[data-palette="ice"] {
+  --admin-red: #36dfff;
+  --admin-red-soft: rgba(54, 223, 255, 0.17);
+  --admin-red-line: rgba(54, 223, 255, 0.44);
+  --admin-gold: #ff3158;
+}
+body[data-palette="gold"] {
+  --admin-red: #ffc451;
+  --admin-red-soft: rgba(255, 196, 81, 0.16);
+  --admin-red-line: rgba(255, 196, 81, 0.44);
+  --admin-gold: #ffc451;
+}
+body[data-performance-mode="performance"] * {
+  transition-duration: .08s !important;
+  animation-duration: .08s !important;
+}
+body[data-minimal-motion] *,
+body[data-minimal-motion] *::before,
+body[data-minimal-motion] *::after {
+  animation: none !important;
+  transition-duration: .01ms !important;
+}
+.admin-access-layout {
+  display: grid;
+  gap: 22px;
+}
+.admin-access-form {
+  margin-top: 12px;
+}
+.admin-access-result {
+  border: 1px solid var(--admin-red-line);
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(255,255,255,.045), rgba(0,0,0,.28));
+  min-height: 132px;
+  padding: 18px;
+}
+.admin-empty-card {
+  min-height: 96px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  color: var(--admin-muted);
+}
+.admin-empty-card strong {
+  color: var(--admin-text);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+.admin-access-profile {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.admin-access-profile > div {
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 16px;
+  background: rgba(0,0,0,.20);
+  padding: 16px;
+  min-height: 98px;
+}
+.admin-access-profile span,
+.admin-access-profile small {
+  display: block;
+  color: var(--admin-muted);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: 10px;
+}
+.admin-access-profile strong {
+  display: block;
+  margin: 8px 0 6px;
+  color: var(--admin-text);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1100px) {
+  .admin-access-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .admin-access-profile { grid-template-columns: 1fr; }
+}

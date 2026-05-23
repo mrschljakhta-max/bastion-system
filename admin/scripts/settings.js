@@ -1,4 +1,4 @@
-/* BASTION Settings Page v112 */
+/* BASTION Settings Page v115 */
 (() => {
   const defaults = {
     palette:'crimson', glowStrength:75, animationLevel:70, particleDensity:70, blurAmount:45,
@@ -7,9 +7,28 @@
     nickname:'', avatar:''
   };
   const $ = (id) => document.getElementById(id);
-  function read(){ try{return {...defaults, ...JSON.parse(localStorage.getItem('bastion_ui_settings')||'{}')}}catch{return {...defaults}} }
-  function write(s){ localStorage.setItem('bastion_ui_settings', JSON.stringify(s)); window.BastionSettings?.apply?.(); setState('SAVED'); }
-  function setState(text){ const el=$('settingsSaveState'); if(el){ el.textContent=text; clearTimeout(setState.t); setState.t=setTimeout(()=>el.textContent='READY',1400); } }
+
+  function read(){
+    try{return {...defaults, ...JSON.parse(localStorage.getItem('bastion_ui_settings')||'{}')}}
+    catch{return {...defaults}}
+  }
+
+  function write(s){
+    localStorage.setItem('bastion_ui_settings', JSON.stringify(s));
+    localStorage.setItem('BASTION_ADMIN_PALETTE', s.palette || 'crimson');
+    window.BastionSettings?.apply?.();
+    setState('SAVED');
+  }
+
+  function setState(text){
+    const el=$('settingsSaveState');
+    if(el){
+      el.textContent=text;
+      clearTimeout(setState.t);
+      setState.t=setTimeout(()=>el.textContent='READY',1400);
+    }
+  }
+
   function fill(){
     const s=read();
     document.querySelectorAll('.palette-card').forEach(b=>b.classList.toggle('is-active', b.dataset.palette===s.palette));
@@ -18,9 +37,10 @@
     if($('minimalMotion')) $('minimalMotion').checked=!!s.minimalMotion;
     if($('debugMode')) $('debugMode').checked=!!s.debugMode;
     if($('allowAiAnalysis')) $('allowAiAnalysis').checked=!!s.allowAiAnalysis;
-    if($('settingsNickname')) $('settingsNickname').value=s.nickname || localStorage.getItem('bastion_profile_nickname') || localStorage.getItem('bastion_login') || '';
+    if($('settingsNickname')) $('settingsNickname').value=s.nickname || localStorage.getItem('bastion_profile_nickname') || localStorage.getItem('BASTION_ADMIN_LOGIN') || localStorage.getItem('bastion_login') || '';
     if($('settingsAvatar')) $('settingsAvatar').value=s.avatar || localStorage.getItem('bastion_profile_avatar') || '';
   }
+
   function collect(){
     const s=read();
     ['glowStrength','animationLevel','particleDensity','blurAmount'].forEach(id=>{ if($(id)) s[id]=Number($(id).value); });
@@ -32,15 +52,42 @@
     if($('settingsAvatar')) s.avatar=$('settingsAvatar').value.trim();
     return s;
   }
+
   function bind(){
-    document.querySelectorAll('.palette-card').forEach(btn=>btn.addEventListener('click',()=>{ const s=collect(); s.palette=btn.dataset.palette; write(s); fill(); }));
-    document.querySelectorAll('#performanceMode button').forEach(btn=>btn.addEventListener('click',()=>{ const s=collect(); s.performanceMode=btn.dataset.mode; write(s); fill(); }));
-    document.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',()=>write(collect())));
+    document.querySelectorAll('.palette-card').forEach(btn=>btn.addEventListener('click',()=>{
+      const s=collect();
+      s.palette=btn.dataset.palette;
+      write(s);
+      fill();
+    }));
+    document.querySelectorAll('#performanceMode button').forEach(btn=>btn.addEventListener('click',()=>{
+      const s=collect();
+      s.performanceMode=btn.dataset.mode;
+      write(s);
+      fill();
+    }));
+    document.querySelectorAll('#tab-settings input,#tab-settings select').forEach(el=>el.addEventListener('change',()=>write(collect())));
     $('saveSettings')?.addEventListener('click',()=>write(collect()));
-    $('applyProfileSettings')?.addEventListener('click',()=>{ const s=collect(); localStorage.setItem('bastion_profile_nickname',s.nickname||''); localStorage.setItem('bastion_profile_avatar',s.avatar||''); write(s); alert('Профіль оновлено. Перезавантаж сторінку або повернись у меню.'); });
-    $('clearUiCache')?.addEventListener('click',()=>{ ['bastion_profile_nickname','bastion_profile_avatar'].forEach(k=>localStorage.removeItem(k)); setState('CACHE CLEARED'); });
+    $('applyProfileSettings')?.addEventListener('click',()=>{
+      const s=collect();
+      localStorage.setItem('bastion_profile_nickname',s.nickname||'');
+      localStorage.setItem('bastion_profile_avatar',s.avatar||'');
+      write(s);
+      alert('Профіль оновлено. Перезавантаж сторінку або повернись у меню.');
+    });
+    $('clearUiCache')?.addEventListener('click',()=>{
+      ['bastion_profile_nickname','bastion_profile_avatar'].forEach(k=>localStorage.removeItem(k));
+      setState('CACHE CLEARED');
+    });
     $('reloadAssets')?.addEventListener('click',()=>location.reload());
-    $('resetSettings')?.addEventListener('click',()=>{ if(confirm('Скинути локальні налаштування BASTION?')){ localStorage.removeItem('bastion_ui_settings'); fill(); window.BastionSettings?.apply?.(); } });
+    $('resetSettings')?.addEventListener('click',()=>{
+      if(confirm('Скинути локальні налаштування BASTION?')){
+        localStorage.removeItem('bastion_ui_settings');
+        localStorage.removeItem('BASTION_ADMIN_PALETTE');
+        fill();
+        window.BastionSettings?.apply?.();
+      }
+    });
   }
-  document.addEventListener('DOMContentLoaded',()=>{ fill(); bind(); });
+  document.addEventListener('DOMContentLoaded',()=>{ fill(); bind(); window.BastionSettings?.apply?.(); });
 })();

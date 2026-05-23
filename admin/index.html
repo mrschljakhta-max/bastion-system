@@ -8,8 +8,8 @@
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="./styles/admin.css?v=114" />
-  <link rel="stylesheet" href="./styles/settings.css?v=114" />
+  <link rel="stylesheet" href="./styles/admin.css?v=115" />
+  <link rel="stylesheet" href="./styles/settings.css?v=115" />
 </head>
 <body class="admin-body">
   <main class="admin-shell">
@@ -30,6 +30,10 @@
         <button class="admin-nav-btn" data-admin-tab="users" title="Користувачі">
           <span class="admin-nav-icon">◎</span>
           <span class="admin-nav-label">Користувачі</span>
+        </button>
+        <button class="admin-nav-btn" data-admin-tab="admin-access" title="Адмін-доступ">
+          <span class="admin-nav-icon">♛</span>
+          <span class="admin-nav-label">Адмін-доступ</span>
         </button>
         <button class="admin-nav-btn" data-admin-tab="requests" title="Заявки">
           <span class="admin-nav-icon">◇</span>
@@ -178,6 +182,64 @@
           </div>
 
           <div class="admin-table-wrap"><table id="usersTable"></table></div>
+        </div>
+      </section>
+
+      <section class="admin-tab" id="tab-admin-access" data-title="Адмін-доступ">
+        <div class="admin-card admin-card-wide admin-control-card admin-access-card">
+          <div class="admin-card-head">
+            <div>
+              <h2>Адмін-доступ</h2>
+              <p class="admin-muted">Надання або відкликання прав входу в адмінський сайт для вже зареєстрованих користувачів. Логін і пароль залишаються ті самі, що й на основному сайті.</p>
+            </div>
+            <div class="access-status-pill">admin rights node</div>
+          </div>
+
+          <div class="admin-access-layout">
+            <form class="admin-form access-form admin-access-form" id="adminAccessForm">
+              <label class="field-shell field-wide">
+                <span>Login або Email користувача</span>
+                <div class="field-control">
+                  <span class="field-icon">◎</span>
+                  <input id="adminAccessQuery" type="text" placeholder="lavash.squad або operator@example.com" autocomplete="off" required />
+                </div>
+              </label>
+
+              <label class="field-shell">
+                <span>Роль в адмінці</span>
+                <div class="field-control">
+                  <span class="field-icon">♛</span>
+                  <select id="adminAccessRole" required>
+                    <option value="admin">admin — повний доступ</option>
+                    <option value="operator">operator — обробка заявок</option>
+                    <option value="viewer">viewer — тільки перегляд</option>
+                  </select>
+                </div>
+              </label>
+
+              <label class="field-shell">
+                <span>Режим</span>
+                <div class="field-control is-readonly">
+                  <span class="field-icon">⌁</span>
+                  <input type="text" value="Пароль користувача не змінюється" readonly tabindex="-1" />
+                  <span class="readonly-badge">same login</span>
+                </div>
+              </label>
+
+              <div class="admin-actions access-actions field-wide">
+                <button type="button" class="admin-secondary" id="adminAccessFind">Знайти</button>
+                <button type="submit" id="adminAccessGrant">Надати адмін-доступ →</button>
+                <button type="button" class="admin-secondary danger" id="adminAccessRevoke">Відкликати</button>
+              </div>
+            </form>
+
+            <div class="admin-access-result" id="adminAccessResult">
+              <div class="admin-empty-card">
+                <strong>Очікується пошук</strong>
+                <span>Введи login або email користувача, якому потрібно надати права адміністратора.</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -339,7 +401,7 @@
                 <div class="settings-stack">
                   <button type="button" class="settings-ghost" id="reloadAssets">Reload assets</button>
                   <label class="settings-toggle"><input id="debugMode" type="checkbox"> Debug mode</label>
-                  <div class="version-card"><span>Version</span><strong>BASTION Admin v114</strong><small>local settings node</small></div>
+                  <div class="version-card"><span>Version</span><strong>BASTION Admin v115</strong><small>local settings node</small></div>
                 </div>
               </section>
 
@@ -366,8 +428,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../scripts/config.js?v=28"></script>
-  <script src="./scripts/settings-runtime.js?v=114"></script>
-  <script src="./scripts/admin.js?v=114"></script>
-  <script src="./scripts/settings.js?v=114"></script>
+  <script src="./scripts/settings-runtime.js?v=115"></script>
+  <script src="./scripts/admin.js?v=115"></script>
+  <script src="./scripts/settings.js?v=115"></script>
 </body>
 </html>
