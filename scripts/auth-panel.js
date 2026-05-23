@@ -141,9 +141,11 @@
       password.closest(".auth-field").hidden = authMode === "register";
     }
 
-    if (loginLabel) loginLabel.textContent = authMode === "register" ? "EMAIL ДЛЯ ЗАЯВКИ" : "ЛОГІН";
+    if (loginLabel) loginLabel.textContent = authMode === "register" ? "ЕЛЕКТРОННА ПОШТА" : "ЛОГІН";
     if (login) {
       login.placeholder = authMode === "register" ? "operator@example.com" : "lavash.squad";
+      login.inputMode = authMode === "register" ? "email" : "text";
+      login.pattern = authMode === "register" ? "[^\\s@]+@[^\\s@]+\\.[^\\s@]+" : "";
       login.type = authMode === "register" ? "email" : "text";
       login.autocomplete = authMode === "register" ? "email" : "username";
     }
@@ -276,8 +278,18 @@
 
     if (!email || (authMode !== "register" && !pass)) {
       shakePanel();
-      alert(authMode === "register" ? "Введіть логін." : "Введіть логін та пароль.");
+      alert(authMode === "register" ? "Вкажіть електронну пошту." : "Введіть логін та пароль.");
       return;
+    }
+
+    if (authMode === "register") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        shakePanel();
+        alert("Некоректна електронна пошта. Вкажіть адресу у форматі operator@example.com");
+        login.focus();
+        return;
+      }
     }
 
     setLoading(true, authMode);

@@ -163,8 +163,10 @@ async function checkAllowedEmail(email) {
 
 async function requestAccess(email, note = "") {
   const normalizedEmail = normalizeEmail(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!normalizedEmail) {
+  if (!normalizedEmail || !emailRegex.test(normalizedEmail)) {
+    console.warn("Некоректна електронна пошта для заявки:", email);
     return false;
   }
 
