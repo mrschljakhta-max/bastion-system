@@ -42,6 +42,8 @@
   const adminAccessGrant = document.getElementById('adminAccessGrant');
   const adminAccessRevoke = document.getElementById('adminAccessRevoke');
   const adminAccessResult = document.getElementById('adminAccessResult');
+  let adminAccessDropdown = null;
+  let adminAccessSelectedIndex = -1;
 
   let lastInvite = null;
   let adminSession = null;
@@ -319,6 +321,121 @@
     ], 'Логів за цим фільтром немає.');
   }
 
+
+  function getAdminAccessCandidates(query = '') {
+    const q = normalizeText(query);
+    const rows = Array.isArray(usersCache) ? usersCache : [];
+
+    return rows
+      .filter((row) => {
+        const login = normalizeText(row.login);
+        const email = normalizeText(row.email);
+        const status = normalizeText(row.status);
+        const haystack = `${login} ${email} ${normalizeText(row.role)} ${status}`;
+        const isUsable = login || email;
+        return isUsable && (!q || haystack.includes(q));
+      })
+      .slice(0, 20);
+  }
+
+  function ensureAdminAccessDropdown() {
+    if (!adminAccessQuery || adminAccessDropdown) return adminAccessDropdown;
+
+    adminAccessDropdown = document.createElement('div');
+    adminAccessDropdown.className = 'admin-autocomplete-panel';
+    adminAccessDropdown.hidden = true;
+    adminAccessDropdown.setAttribute('role', 'listbox');
+
+    const shell = adminAccessQuery.closest('.field-control') || adminAccessQuery.parentElement;
+    shell?.classList.add('has-admin-autocomplete');
+    shell?.appendChild(adminAccessDropdown);
+
+    return adminAccessDropdown;
+  }
+
+  function pickAdminAccessCandidate(row) {
+    if (!row || !adminAccessQuery) return;
+    adminAccessQuery.value = row.login || row.email || '';
+    hideAdminAccessDropdown();
+    renderAdminAccessResult({
+      login: row.login,
+      email: row.email,
+      user_role: row.role,
+      role: row.role,
+      status: row.status,
+      mfa_enabled: row.mfa_enabled,
+      auth_user_id: row.auth_user_id,
+      is_admin: row.is_admin,
+      admin_role: row.admin_role
+    }, 'selected');
+  }
+
+  function hideAdminAccessDropdown() {
+    if (!adminAccessDropdown) return;
+    adminAccessDropdown.hidden = true;
+    adminAccessSelectedIndex = -1;
+  }
+
+  function renderAdminAccessDropdown(forceAll = false) {
+    const panel = ensureAdminAccessDropdown();
+    if (!panel || !adminAccessQuery) return;
+
+    const query = adminAccessQuery.value.trim();
+    const rows = getAdminAccessCandidates(forceAll ? '' : query);
+    adminAccessSelectedIndex = -1;
+
+    if (!rows.length) {
+      panel.innerHTML = `
+        <div class="admin-autocomplete-empty">
+          <strong>Немає збігів</strong>
+          <span>Спробуй інший login або email.</span>
+        </div>
+      `;
+      panel.hidden = false;
+      return;
+    }
+
+    panel.innerHTML = rows.map((row, index) => `
+      <button type="button" class="admin-autocomplete-item" data-admin-access-option="${index}" role="option">
+        <span class="admin-autocomplete-main">
+          <strong>${escapeHtml(row.login || '—')}</strong>
+          <small>${escapeHtml(row.email || '—')}</small>
+        </span>
+        <span class="admin-autocomplete-meta">
+          <em>${escapeHtml(row.role || '—')}</em>
+          ${Boolean(row.mfa_enabled) ? '<b>2FA</b>' : ''}
+        </span>
+      </button>
+    `).join('');
+
+    panel.hidden = false;
+    panel.querySelectorAll('[data-admin-access-option]').forEach((item) => {
+      item.addEventListener('mousedown', (event) => {
+        event.preventDefault();
+        const idx = Number(item.dataset.adminAccessOption);
+        pickAdminAccessCandidate(rows[idx]);
+      });
+    });
+  }
+
+  function moveAdminAccessSelection(direction) {
+    if (!adminAccessDropdown || adminAccessDropdown.hidden) return;
+    const items = Array.from(adminAccessDropdown.querySelectorAll('.admin-autocomplete-item'));
+    if (!items.length) return;
+
+    adminAccessSelectedIndex = (adminAccessSelectedIndex + direction + items.length) % items.length;
+    items.forEach((item, index) => item.classList.toggle('is-selected', index === adminAccessSelectedIndex));
+    items[adminAccessSelectedIndex]?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function selectHighlightedAdminAccessCandidate() {
+    if (!adminAccessDropdown || adminAccessDropdown.hidden) return false;
+    const items = Array.from(adminAccessDropdown.querySelectorAll('.admin-autocomplete-item'));
+    if (!items.length || adminAccessSelectedIndex < 0) return false;
+    items[adminAccessSelectedIndex].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    return true;
+  }
+
   function renderAdminAccessResult(row, mode = 'found') {
     if (!adminAccessResult) return;
 
@@ -380,6 +497,7 @@
     try {
       usersCache = await adminRpc('admin_list_allowed_users');
       renderUsers();
+      if (adminAccessDropdown && !adminAccessDropdown.hidden) renderAdminAccessDropdown(!adminAccessQuery?.value?.trim());
     } catch (error) {
       console.warn(error);
       usersCache = [];
@@ -677,6 +795,29 @@
   requestStatusFilter?.addEventListener('change', renderRequests);
   logSearch?.addEventListener('input', renderLogs);
   logActionFilter?.addEventListener('change', renderLogs);
+
+
+  adminAccessQuery?.addEventListener('focus', () => renderAdminAccessDropdown(true));
+  adminAccessQuery?.addEventListener('input', () => renderAdminAccessDropdown(false));
+  adminAccessQuery?.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      if (!adminAccessDropdown || adminAccessDropdown.hidden) renderAdminAccessDropdown(true);
+      moveAdminAccessSelection(1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveAdminAccessSelection(-1);
+    } else if (event.key === 'Enter') {
+      if (selectHighlightedAdminAccessCandidate()) event.preventDefault();
+    } else if (event.key === 'Escape') {
+      hideAdminAccessDropdown();
+    }
+  });
+  document.addEventListener('click', (event) => {
+    if (!adminAccessDropdown || !adminAccessQuery) return;
+    const inside = adminAccessDropdown.contains(event.target) || adminAccessQuery.contains(event.target);
+    if (!inside) hideAdminAccessDropdown();
+  });
 
   adminAccessFind?.addEventListener('click', async () => {
     adminAccessFind.disabled = true;
