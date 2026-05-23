@@ -22,6 +22,14 @@ function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
 
+function normalizeLogin(login) {
+  return String(login || "").trim().toLowerCase();
+}
+
+function looksLikeEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+}
+
 function showAuthMessage(message, type = "info") {
   console.log(`[BASTION AUTH][${type}]`, message);
   alert(message);
@@ -74,6 +82,54 @@ async function checkAllowedEmail(email) {
   }
 
   return data === true;
+}
+
+async function resolveLoginIdentifier(identifier) {
+  const raw = String(identifier || "").trim();
+
+  if (!raw) {
+    return null;
+  }
+
+  // Якщо користувач все ж ввів email — працюємо напряму через email.
+  if (looksLikeEmail(raw)) {
+    const email = normalizeEmail(raw);
+    const allowed = await checkAllowedEmail(email);
+
+    return {
+      email,
+      login: email.split("@")[0],
+      role: null,
+      status: allowed ? "active" : "unknown",
+      is_active: allowed
+    };
+  }
+
+  const login = normalizeLogin(raw);
+
+  // Основний шлях: login -> email через RPC, бо пароль перевіряє Supabase Auth саме по email.
+  const { data, error } = await supabaseClient.rpc("bastion_resolve_login_email", {
+    input_login: login
+  });
+
+  if (error) {
+    console.error("Помилка пошуку email за логіном:", error);
+    return null;
+  }
+
+  const row = Array.isArray(data) ? data[0] || null : data || null;
+
+  if (!row?.email) {
+    return null;
+  }
+
+  return {
+    email: normalizeEmail(row.email),
+    login: row.login || login,
+    role: row.role || null,
+    status: row.status || null,
+    is_active: row.is_active === true
+  };
 }
 
 async function requestAccess(email) {
@@ -176,17 +232,17 @@ async function handleRegister(email, password) {
   };
 }
 
-async function handleLogin(email, password) {
-  const normalizedEmail = normalizeEmail(email);
+async function handleLogin(loginOrEmail, password) {
+  const identifier = String(loginOrEmail || "").trim();
 
-  if (!normalizedEmail || !password) {
-    showAuthMessage("Введіть email та пароль.", "warning");
+  if (!identifier || !password) {
+    showAuthMessage("Введіть логін та пароль.", "warning");
     return false;
   }
 
-  const allowed = await checkAllowedEmail(normalizedEmail);
+  const resolved = await resolveLoginIdentifier(identifier);
 
-  if (!allowed) {
+  if (!resolved?.email || resolved.is_active !== true) {
     showAuthMessage(
       "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
       "warning"
@@ -196,7 +252,7 @@ async function handleLogin(email, password) {
   }
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email: normalizedEmail,
+    email: resolved.email,
     password
   });
 
@@ -204,19 +260,24 @@ async function handleLogin(email, password) {
     console.error("Помилка входу:", error);
 
     showAuthMessage(
-      "Невірний email або пароль.",
+      "Невірний логін або пароль.",
       "error"
     );
 
     return false;
   }
 
+  localStorage.setItem("bastion_login", resolved.login || identifier);
+  localStorage.setItem("bastion_email", resolved.email);
+  if (resolved.role) localStorage.setItem("bastion_role", resolved.role);
+
   console.log("LOGIN:", data);
 
   return {
     success: true,
     mode: "login",
-    data
+    data,
+    profile: resolved
   };
 }
 

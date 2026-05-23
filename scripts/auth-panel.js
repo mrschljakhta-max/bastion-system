@@ -252,7 +252,7 @@
   }
 
   async function handleCredentialsSubmit() {
-    const email = login.value.trim();
+    const loginIdentifier = login.value.trim();
     const pass = password.value;
 
     if (!window.BastionAuth) {
@@ -261,9 +261,9 @@
       return;
     }
 
-    if (!email || (authMode !== "register" && !pass)) {
+    if (!loginIdentifier || (authMode !== "register" && !pass)) {
       shakePanel();
-      alert(authMode === "register" ? "Введіть email." : "Введіть email та пароль.");
+      alert(authMode === "register" ? "Введіть email." : "Введіть логін та пароль.");
       return;
     }
 
@@ -271,7 +271,7 @@
 
     try {
       if (authMode === "register") {
-        const ok = await window.BastionAuth.requestAccess(email);
+        const ok = await window.BastionAuth.requestAccess(loginIdentifier);
         if (!ok) {
           shakePanel();
           return;
@@ -281,7 +281,7 @@
         return;
       }
 
-      const result = await window.BastionAuth.handleLogin(email, pass);
+      const result = await window.BastionAuth.handleLogin(loginIdentifier, pass);
 
       if (!result?.success) {
         shakePanel();
