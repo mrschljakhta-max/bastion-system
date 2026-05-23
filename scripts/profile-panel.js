@@ -1,25 +1,30 @@
-/* BASTION Profile Panel v176
+/* BASTION Profile Panel v178
    Opens profile command modal from the right HUD plate and performs logout.
+   Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
 (() => {
-  const userMenuButton = document.getElementById("userMenuButton");
-  const profileModal = document.getElementById("profileModal");
-  const logoutButton = document.getElementById("logoutButton");
+  function byId(id) {
+    return document.getElementById(id);
+  }
 
-  const operatorName = document.getElementById("operatorName");
-  const operatorRole = document.getElementById("operatorRole");
-  const plateOperatorName = document.getElementById("plateOperatorName");
-  const plateOperatorRole = document.getElementById("plateOperatorRole");
+  const userMenuButton = byId("userMenuButton");
+  const profileModal = byId("profileModal");
+  const logoutButton = byId("logoutButton");
 
-  const profileLogin = document.getElementById("profileLogin");
-  const profileLoginValue = document.getElementById("profileLoginValue");
-  const profileEmail = document.getElementById("profileEmail");
-  const profileRole = document.getElementById("profileRole");
-  const profileStatus = document.getElementById("profileStatus");
-  const profileSession = document.getElementById("profileSession");
+  const operatorName = byId("operatorName");
+  const operatorRole = byId("operatorRole");
+  const plateOperatorName = byId("plateOperatorName");
+  const plateOperatorRole = byId("plateOperatorRole");
 
-  const userAvatarTop = document.getElementById("userAvatarTop");
-  const userAvatarModal = document.getElementById("userAvatarModal");
+  const profileLogin = byId("profileLogin");
+  const profileLoginValue = byId("profileLoginValue");
+  const profileEmail = byId("profileEmail");
+  const profileRole = byId("profileRole");
+  const profileStatus = byId("profileStatus");
+  const profileSession = byId("profileSession");
+
+  const userAvatarTop = byId("userAvatarTop");
+  const userAvatarModal = byId("userAvatarModal");
   const plateAvatarUser = document.querySelector(".plate-avatar-user");
 
   function safeText(value, fallback = "") {
@@ -28,6 +33,32 @@
 
   function normalizeRole(value) {
     return safeText(value || "DEMO", "DEMO").toUpperCase();
+  }
+
+  function getSupabaseClient() {
+    let sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
+
+    if (!sb?.auth && window.supabase?.createClient) {
+      const cfg = window.BASTION_CONFIG || {};
+      const url = cfg.SUPABASE_URL || window.SUPABASE_URL;
+      const key = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
+
+      if (url && key) {
+        sb = window.supabase.createClient(url, key, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+          }
+        });
+
+        window.BastionSupabase = sb;
+        window.supabaseClient = sb;
+        window.sb = sb;
+      }
+    }
+
+    return sb;
   }
 
   function getLocalProfile() {
@@ -76,16 +107,7 @@
     const local = getLocalProfile();
     applyProfile(local);
 
-    let sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
-    if (!sb?.auth?.getUser && window.supabase?.createClient) {
-      const cfg = window.BASTION_CONFIG || {};
-      const url = cfg.SUPABASE_URL || window.SUPABASE_URL;
-      const key = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
-      if (url && key) {
-        sb = window.supabase.createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-        window.BastionSupabase = window.supabaseClient = window.sb = sb;
-      }
-    }
+    const sb = getSupabaseClient();
     if (!sb?.auth?.getUser) return;
 
     try {
@@ -124,30 +146,43 @@
     }
   }
 
-  function openProfile() {
-    profileModal?.classList.add("is-open");
-    profileModal?.setAttribute("aria-hidden", "false");
+  function openProfile(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (!profileModal) {
+      console.warn("[BASTION profile-panel] #profileModal not found");
+      return;
+    }
+
+    profileModal.classList.add("is-open");
+    profileModal.setAttribute("aria-hidden", "false");
     userMenuButton?.setAttribute("aria-expanded", "true");
+    document.body.classList.add("profile-modal-open");
   }
 
-  function closeProfile() {
+  function closeProfile(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     profileModal?.classList.remove("is-open");
     profileModal?.setAttribute("aria-hidden", "true");
     userMenuButton?.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("profile-modal-open");
   }
 
-  async function logout() {
+  async function logout(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     try {
-      let sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
-      if (!sb?.auth?.signOut && window.supabase?.createClient) {
-        const cfg = window.BASTION_CONFIG || {};
-        const url = cfg.SUPABASE_URL || window.SUPABASE_URL;
-        const key = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
-        if (url && key) {
-          sb = window.supabase.createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-          window.BastionSupabase = window.supabaseClient = window.sb = sb;
-        }
-      }
+      const sb = getSupabaseClient();
       if (sb?.auth?.signOut) await sb.auth.signOut();
     } catch (error) {
       console.warn("[BASTION logout] signOut failed:", error);
@@ -166,7 +201,18 @@
   }
 
   function bind() {
+    if (!userMenuButton) {
+      console.warn("[BASTION profile-panel] #userMenuButton not found");
+    }
+
     userMenuButton?.addEventListener("click", openProfile);
+
+    /* Delegated fallback: works even if HUD child layers or future markup catch the click. */
+    document.addEventListener("click", (event) => {
+      const trigger = event.target?.closest?.("#userMenuButton, .b116-panel--right");
+      if (trigger) openProfile(event);
+    }, true);
+
     logoutButton?.addEventListener("click", logout);
 
     document.querySelectorAll("[data-close-profile]").forEach((el) => {
@@ -174,10 +220,18 @@
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeProfile();
+      if (event.key === "Escape" && profileModal?.classList.contains("is-open")) {
+        closeProfile(event);
+      }
     });
   }
 
   loadProfile();
   bind();
+
+  window.BastionProfilePanel = {
+    open: openProfile,
+    close: closeProfile,
+    reload: loadProfile
+  };
 })();

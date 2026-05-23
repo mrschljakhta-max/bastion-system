@@ -9485,3 +9485,45 @@ body.bastion-core-page::before {
   }
 }
 
+
+
+/* =========================================================
+   BASTION PROFILE PANEL v178 — clickability fix
+   Right HUD plate must be interactive even though top HUD layer
+   is pointer-events:none.
+   ========================================================= */
+.b116-top-panels {
+  pointer-events: none !important;
+}
+
+.b116-panel--right,
+button.b116-panel--right,
+#userMenuButton {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  border: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+#userMenuButton .b116-panel__bg,
+#userMenuButton .b116-panel__avatar-box,
+#userMenuButton .b116-panel__avatar,
+#userMenuButton .b116-panel__text,
+#userMenuButton .b116-panel__text * {
+  pointer-events: none !important;
+}
+
+#userMenuButton:focus-visible {
+  outline: 1px solid rgba(255, 120, 128, .85) !important;
+  outline-offset: -68px !important;
+}
+
+#userMenuButton:hover .b116-panel__bg {
+  filter:
+    brightness(1.06)
+    contrast(1.12)
+    saturate(1.12)
+    drop-shadow(0 0 18px rgba(255,43,24,.45))
+    drop-shadow(0 0 36px rgba(255,35,18,.22)) !important;
+}
