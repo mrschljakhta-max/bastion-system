@@ -38,38 +38,56 @@ async function loginWithUsername(login, password) {
     return false;
   }
 
-  const { data, error } = await supabaseClient.rpc("bastion_login_with_username", {
-    p_login: normalizedLogin,
-    p_password: password
+  // Єдина правильна схема BASTION:
+  // login -> email через user_invites/allowed_users -> Supabase Auth signInWithPassword(email,password).
+  // Пароль НЕ перевіряється у user_invites.password_hash. Його перевіряє Supabase Auth.
+  const { data: accountData, error: lookupError } = await supabaseClient.rpc("bastion_get_login_account", {
+    p_login: normalizedLogin
+  });
+
+  if (lookupError) {
+    console.error("Помилка пошуку логіна:", lookupError);
+    showAuthMessage(
+      lookupError.message || "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
+      "warning"
+    );
+    return false;
+  }
+
+  const account = Array.isArray(accountData) ? accountData[0] : accountData;
+
+  if (!account?.email) {
+    showAuthMessage(
+      "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
+      "warning"
+    );
+    return false;
+  }
+
+  const email = normalizeEmail(account.email);
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
   });
 
   if (error) {
-    console.error("Помилка входу за логіном:", error);
-    showAuthMessage(
-      error.message || "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
-      "warning"
-    );
+    console.error("Помилка входу через Supabase Auth:", error);
+    showAuthMessage("Невірний логін або пароль.", "error");
     return false;
   }
 
-  if (!data?.success) {
-    showAuthMessage(
-      data?.message || "Користувача не знайдено або доступ ще не підтверджено адміністратором.",
-      "warning"
-    );
-    return false;
-  }
-
-  localStorage.setItem("bastion_login", data.login || normalizedLogin);
-  localStorage.setItem("bastion_email", data.email || "");
-  localStorage.setItem("bastion_role", data.role || "demo");
-  localStorage.setItem("bastion_access_status", data.status || "active");
+  localStorage.setItem("bastion_login", account.login || normalizedLogin);
+  localStorage.setItem("bastion_email", email);
+  localStorage.setItem("bastion_role", account.role || "demo");
+  localStorage.setItem("bastion_access_status", account.status || "active");
 
   return {
     success: true,
     mode: "login",
-    localAuth: true,
-    data
+    localAuth: false,
+    data,
+    account
   };
 }
 

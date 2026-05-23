@@ -504,6 +504,12 @@
       state.loginValue = loginValue;
       state.passwordValue = passwordValue;
 
+      setLoading(submitBtn, true, "СТВОРЕННЯ AUTH...");
+      setMessage("Створюю/оновлюю Supabase Auth акаунт для цього логіна...", "edge");
+
+      const authData = await ensureAuthUserAndSession(state.email, passwordValue, loginValue);
+      state.authUserId = authData?.user?.id || state.authUserId || null;
+
       setLoading(submitBtn, true, "ГЕНЕРАЦІЯ MFA...");
       setMessage("Генерую серверний TOTP secret для Google Authenticator...", "edge");
 
@@ -558,6 +564,18 @@
         token: state.token,
         code
       });
+
+      const sb = client();
+      if (sb?.rpc) {
+        const { error: bindError } = await sb.rpc("bastion_finalize_invite_auth_mapping", {
+          p_token: state.token,
+          p_login: state.loginValue
+        });
+
+        if (bindError) {
+          console.warn("BASTION auth mapping warning:", bindError);
+        }
+      }
 
       localStorage.setItem("bastion_login", result.login || state.loginValue);
       localStorage.setItem("bastion_role", result.role || state.role || "user");
