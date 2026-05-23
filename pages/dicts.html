@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=161" />
-  <link rel="stylesheet" href="../styles/dicts.css?v=167" />
+  <link rel="stylesheet" href="../styles/dicts.css?v=169" />
 </head>
 <body class="bastion-core-page dicts-page" data-active-module="dicts">
   <div class="core-background" aria-hidden="true">
@@ -177,9 +177,73 @@
     </section>
   </div>
 
+  <div id="dictManageModal" class="dict-modal dict-modal--wide" aria-hidden="true">
+    <div class="dict-modal__backdrop" data-close-manage-modal></div>
+    <section class="dict-modal__panel dict-modal__panel--wide" role="dialog" aria-modal="true" aria-labelledby="dictManageTitle">
+      <button class="dict-modal__close" type="button" data-close-manage-modal aria-label="Закрити">×</button>
+      <div class="dict-manager-head">
+        <div>
+          <h2 id="dictManageTitle">КЕРУВАННЯ ДОВІДНИКОМ</h2>
+          <p id="dictManageLead" class="dict-modal__lead">Редагування назви, колонок і записів довідника.</p>
+        </div>
+        <div class="dict-manager-badge" id="dictManageTableName">—</div>
+      </div>
+
+      <div class="dict-manager-grid">
+        <section class="dict-manager-card">
+          <h3>Параметри довідника</h3>
+          <label class="dict-field">
+            <span>Назва довідника</span>
+            <input id="dictManageNameInput" type="text" autocomplete="off" />
+          </label>
+          <div class="dict-manager-actions">
+            <button id="dictSaveTitleBtn" class="dict-action dict-action--primary" type="button">ЗБЕРЕГТИ НАЗВУ</button>
+            <button id="dictDeleteBtn" class="dict-action dict-action--danger" type="button">ВИДАЛИТИ ДОВІДНИК</button>
+          </div>
+        </section>
+
+        <section class="dict-manager-card">
+          <h3>Колонки</h3>
+          <div id="dictColumnsManager" class="dict-columns-manager"></div>
+          <div class="dict-add-column-inline">
+            <input id="dictNewColumnName" type="text" placeholder="Нова колонка, наприклад: caliber" />
+            <select id="dictNewColumnType">
+              <option value="text">Текст</option>
+              <option value="integer">Ціле число</option>
+              <option value="numeric">Число</option>
+              <option value="date">Дата</option>
+              <option value="boolean">Так / Ні</option>
+            </select>
+            <button id="dictAddColumnManageBtn" class="dict-mini-button" type="button">+ ДОДАТИ</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="dict-manager-card dict-records-card">
+        <div class="dict-records-toolbar">
+          <h3>Записи таблиці</h3>
+          <input id="dictSearchInput" type="search" placeholder="Пошук за назвою..." />
+          <select id="dictSortSelect">
+            <option value="name_asc">Назва: А → Я</option>
+            <option value="name_desc">Назва: Я → А</option>
+            <option value="created_desc">Нові зверху</option>
+          </select>
+          <button id="dictAddRowBtn" class="dict-mini-button" type="button">+ РЯДОК</button>
+          <button id="dictReloadRowsBtn" class="dict-mini-button" type="button">ОНОВИТИ</button>
+        </div>
+        <div class="dict-table-wrap">
+          <table id="dictRecordsTable" class="dict-records-table"></table>
+        </div>
+      </section>
+
+      <p id="dictManageStatus" class="dict-create-status" role="status"></p>
+    </section>
+  </div>
+
+
   <aside id="floatingDetail" class="floating-detail" aria-hidden="true"></aside>
-  <script src="../scripts/config.js?v=167"></script>
+  <script src="../scripts/config.js?v=169"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../scripts/dicts.js?v=167"></script>
+  <script src="../scripts/dicts.js?v=169"></script>
 </body>
 </html>
