@@ -216,12 +216,16 @@
     setTimeout(closeCreateModal, 700);
   });
 
-  /* MANAGE MODAL */
+  /* MANAGE MODAL v170 — clean dictionary viewer + hidden edit tools */
   const manageModal = document.getElementById("dictManageModal");
+  const manageTitle = document.getElementById("dictManageTitle");
   const manageTitleInput = document.getElementById("dictManageNameInput");
-  const manageTableName = document.getElementById("dictManageTableName");
   const manageLead = document.getElementById("dictManageLead");
   const manageStatus = document.getElementById("dictManageStatus");
+  const editToggleBtn = document.getElementById("dictEditToggleBtn");
+  const sortToggleBtn = document.getElementById("dictSortToggleBtn");
+  const editPanel = document.getElementById("dictEditPanel");
+  const sortPanel = document.getElementById("dictSortPanel");
   const columnsManager = document.getElementById("dictColumnsManager");
   const newColumnName = document.getElementById("dictNewColumnName");
   const newColumnType = document.getElementById("dictNewColumnType");
@@ -234,17 +238,46 @@
   const addRowBtn = document.getElementById("dictAddRowBtn");
   const reloadRowsBtn = document.getElementById("dictReloadRowsBtn");
 
-  function setManageStatus(message, type = "") { if (manageStatus) { manageStatus.textContent = message || ""; manageStatus.dataset.type = type; } }
-  function closeManageModal() { manageModal?.classList.remove("is-open"); manageModal?.setAttribute("aria-hidden", "true"); currentDict = null; }
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function setManageStatus(message, type = "") {
+    if (manageStatus) {
+      manageStatus.textContent = message || "";
+      manageStatus.dataset.type = type;
+    }
+  }
+
+  function closeManageModal() {
+    manageModal?.classList.remove("is-open");
+    manageModal?.setAttribute("aria-hidden", "true");
+    currentDict = null;
+    currentColumns = [];
+    currentRows = [];
+    if (editPanel) editPanel.hidden = true;
+    if (sortPanel) sortPanel.hidden = true;
+  }
+
+  function dictionaryTitle(item = currentDict) {
+    return item?.title || item?.title_ua || item?.code || "ДОВІДНИК";
+  }
 
   async function openManageModal(item) {
     currentDict = item;
     manageModal?.classList.add("is-open");
     manageModal?.setAttribute("aria-hidden", "false");
-    manageTitleInput.value = item.title || item.title_ua || "";
-    manageTableName.textContent = item.table_name || "—";
-    manageLead.textContent = `${item.title || "Довідник"} • ${countLabel(item.records_count)}`;
-    setManageStatus("Завантажую структуру і записи...", "loading");
+    if (editPanel) editPanel.hidden = true;
+    if (sortPanel) sortPanel.hidden = true;
+    if (manageTitle) manageTitle.textContent = dictionaryTitle(item).toUpperCase();
+    if (manageTitleInput) manageTitleInput.value = dictionaryTitle(item);
+    if (manageLead) manageLead.textContent = countLabel(item.records_count);
+    setManageStatus("Завантажую записи...", "loading");
     await loadDictionaryStructure();
     await loadDictionaryRows();
     setManageStatus("");
@@ -256,12 +289,29 @@
     if (error) {
       setManageStatus(`Не вдалося завантажити колонки: ${error.message}`, "error");
       currentColumns = ["id", "name", "alias", "is_active", "created_at"].map((name) => ({ column_name: name, data_type: name === "is_active" ? "boolean" : "text" }));
-    } else currentColumns = data || [];
+    } else {
+      currentColumns = data || [];
+    }
     renderColumnsManager();
   }
 
   function editableColumns() {
     return currentColumns.filter((c) => !protectedColumns.has(c.column_name));
+  }
+
+  function writableColumns() {
+    return currentColumns.filter((c) => !protectedColumns.has(c.column_name) && c.column_name !== "is_active");
+  }
+
+  function hasColumn(name) {
+    return currentColumns.some((c) => c.column_name === name);
+  }
+
+  function titleColumn() {
+    const cols = editableColumns();
+    return cols.find((c) => c.column_name === "name")
+      || cols.find((c) => c.column_name !== "is_active" && normalizeType(c.data_type || c.udt_name) !== "boolean")
+      || cols[0];
   }
 
   function renderColumnsManager() {
@@ -271,7 +321,7 @@
       const row = document.createElement("div");
       row.className = "dict-column-chip";
       const type = normalizeType(col.data_type || col.udt_name);
-      row.innerHTML = `<span><b>${col.column_name}</b><small>${columnTypeLabels[type] || type}</small></span>`;
+      row.innerHTML = `<span><b>${escapeHtml(col.column_name)}</b><small>${escapeHtml(columnTypeLabels[type] || type)}</small></span>`;
       if (!protectedColumns.has(col.column_name) && col.column_name !== "is_active") {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -285,7 +335,7 @@
   }
 
   async function addColumnToCurrent() {
-    const colName = sanitizeColumnName(newColumnName.value);
+    const colName = sanitizeColumnName(newColumnName?.value);
     if (!colName) return setManageStatus("Введи назву нової колонки.", "error");
     if (currentColumns.some((c) => c.column_name === colName)) return setManageStatus("Така колонка вже існує.", "error");
     setManageStatus("Додаю колонку...", "loading");
@@ -319,9 +369,11 @@
     if (!sb || !currentDict?.table_name) return;
     const search = (searchInput?.value || "").trim();
     const sort = sortParams();
+    const tCol = titleColumn()?.column_name || "name";
     let query = sb.from(currentDict.table_name).select("*").limit(500);
-    if (search) query = query.ilike("name", `%${search}%`);
-    query = query.order(sort.column, { ascending: sort.ascending, nullsFirst: false });
+    if (search && tCol) query = query.ilike(tCol, `%${search}%`);
+    const orderColumn = hasColumn(sort.column) ? sort.column : tCol;
+    if (orderColumn) query = query.order(orderColumn, { ascending: sort.ascending, nullsFirst: false });
     const { data, error } = await query;
     if (error) {
       currentRows = [];
@@ -337,32 +389,50 @@
     const type = normalizeType(col.data_type || col.udt_name);
     const value = row[name];
     if (name === "is_active" || type === "boolean") {
-      return `<input class="dict-cell-check" type="checkbox" data-field="${name}" ${value !== false ? "checked" : ""}>`;
+      return `<input class="dict-cell-check" type="checkbox" data-field="${escapeHtml(name)}" ${value !== false ? "checked" : ""}>`;
     }
-    if (type === "date") return `<input class="dict-cell-input" type="date" data-field="${name}" value="${value || ""}">`;
-    if (type === "integer" || type === "numeric") return `<input class="dict-cell-input" type="number" step="${type === "numeric" ? "any" : "1"}" data-field="${name}" value="${value ?? ""}">`;
-    return `<input class="dict-cell-input" type="text" data-field="${name}" value="${String(value ?? "").replaceAll('"', '&quot;')}">`;
+    if (type === "date") return `<input class="dict-cell-input" type="date" data-field="${escapeHtml(name)}" value="${escapeHtml(value || "")}">`;
+    if (type === "integer" || type === "numeric") return `<input class="dict-cell-input" type="number" step="${type === "numeric" ? "any" : "1"}" data-field="${escapeHtml(name)}" value="${escapeHtml(value ?? "")}">`;
+    return `<input class="dict-cell-input" type="text" data-field="${escapeHtml(name)}" value="${escapeHtml(value ?? "")}">`;
+  }
+
+  function renderRecordEditorRow(row = {}, id = null) {
+    const cols = writableColumns();
+    const colspan = 5;
+    return `<tr class="dict-row-editor" data-editor-for="${escapeHtml(id || "new")}"><td colspan="${colspan}"><div class="dict-row-editor-box">${cols.map((c) => `<label><span>${escapeHtml(c.column_name)}</span>${inputForCell(row, c)}</label>`).join("")}<label class="dict-row-active-edit"><span>is_active</span><input class="dict-cell-check" type="checkbox" data-field="is_active" ${row.is_active !== false ? "checked" : ""}></label><div class="dict-row-editor-actions"><button type="button" class="dict-mini-button" data-save-editor>${id ? "ЗБЕРЕГТИ" : "СТВОРИТИ"}</button><button type="button" class="dict-mini-button dict-mini-button--ghost" data-cancel-editor>СКАСУВАТИ</button></div></div></td></tr>`;
   }
 
   function renderRecordsTable() {
     if (!recordsTable) return;
-    const cols = editableColumns();
+    const tCol = titleColumn()?.column_name || "name";
     recordsTable.innerHTML = "";
     const thead = document.createElement("thead");
-    thead.innerHTML = `<tr>${cols.map((c) => `<th>${c.column_name}</th>`).join("")}<th>Дії</th></tr>`;
+    thead.innerHTML = `<tr><th class="dict-col-num">№</th><th>Назва запису</th><th class="dict-col-active">Активний</th><th class="dict-col-actions">Дії</th></tr>`;
     const tbody = document.createElement("tbody");
     if (!currentRows.length) {
-      tbody.innerHTML = `<tr><td colspan="${cols.length + 1}" class="dict-empty-cell">Записів немає</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" class="dict-empty-cell">Записів немає</td></tr>`;
     } else {
-      currentRows.forEach((row) => {
+      currentRows.forEach((row, idx) => {
         const tr = document.createElement("tr");
         tr.dataset.id = row.id;
-        tr.innerHTML = `${cols.map((c) => `<td>${inputForCell(row, c)}</td>`).join("")}<td class="dict-row-actions"><button type="button" data-save-row>Зберегти</button></td>`;
-        tr.querySelector("[data-save-row]").addEventListener("click", () => saveRow(tr, row.id));
+        tr.innerHTML = `<td class="dict-col-num">${idx + 1}</td><td class="dict-record-title">${escapeHtml(row[tCol] || "—")}</td><td class="dict-col-active"><input class="dict-cell-check" type="checkbox" data-toggle-active ${row.is_active !== false ? "checked" : ""}></td><td class="dict-row-actions"><button type="button" class="dict-icon-mini" data-edit-row title="Редагувати запис">✎</button><button type="button" class="dict-icon-mini dict-icon-mini--danger" data-delete-row title="Видалити запис">🗑</button></td>`;
+        tr.querySelector("[data-toggle-active]").addEventListener("change", (event) => updateRowActive(row.id, event.target.checked));
+        tr.querySelector("[data-edit-row]").addEventListener("click", () => toggleEditorRow(tr, row));
+        tr.querySelector("[data-delete-row]").addEventListener("click", () => deleteRow(row));
         tbody.appendChild(tr);
       });
     }
     recordsTable.append(thead, tbody);
+  }
+
+  function toggleEditorRow(anchorRow, row) {
+    const next = anchorRow.nextElementSibling;
+    if (next?.classList.contains("dict-row-editor")) return next.remove();
+    recordsTable.querySelectorAll(".dict-row-editor").forEach((r) => r.remove());
+    anchorRow.insertAdjacentHTML("afterend", renderRecordEditorRow(row, row.id));
+    const editor = anchorRow.nextElementSibling;
+    editor.querySelector("[data-save-editor]").addEventListener("click", () => saveRow(editor, row.id));
+    editor.querySelector("[data-cancel-editor]").addEventListener("click", () => editor.remove());
   }
 
   function valueFromInput(input) {
@@ -374,28 +444,51 @@
   async function saveRow(tr, id = null) {
     const payload = {};
     tr.querySelectorAll("[data-field]").forEach((input) => { payload[input.dataset.field] = valueFromInput(input); });
-    payload.updated_at = new Date().toISOString();
-    setManageStatus("Зберігаю рядок...", "loading");
+    if (hasColumn("updated_at")) payload.updated_at = new Date().toISOString();
+    if (!hasColumn("is_active")) delete payload.is_active;
+    setManageStatus(id ? "Зберігаю запис..." : "Створюю запис...", "loading");
     const result = id ? await sb.from(currentDict.table_name).update(payload).eq("id", id) : await sb.from(currentDict.table_name).insert(payload);
     if (result.error) return setManageStatus(`Помилка збереження: ${result.error.message}`, "error");
     await refreshCount();
     await loadDictionaryRows();
-    setManageStatus("Рядок збережено.", "success");
+    setManageStatus(id ? "Запис збережено." : "Запис створено.", "success");
+  }
+
+  async function updateRowActive(id, isActive) {
+    if (!id || !hasColumn("is_active")) return;
+    const payload = { is_active: isActive };
+    if (hasColumn("updated_at")) payload.updated_at = new Date().toISOString();
+    setManageStatus("Оновлюю активність...", "loading");
+    const { error } = await sb.from(currentDict.table_name).update(payload).eq("id", id);
+    if (error) return setManageStatus(`Помилка оновлення: ${error.message}`, "error");
+    setManageStatus("Активність оновлено.", "success");
+  }
+
+  async function deleteRow(row) {
+    const tCol = titleColumn()?.column_name || "name";
+    const label = row[tCol] || row.id || "цей запис";
+    if (!window.confirm(`Видалити запис "${label}"?`)) return;
+    setManageStatus("Видаляю запис...", "loading");
+    const { error } = await sb.from(currentDict.table_name).delete().eq("id", row.id);
+    if (error) return setManageStatus(`Помилка видалення запису: ${error.message}`, "error");
+    await refreshCount();
+    await loadDictionaryRows();
+    setManageStatus("Запис видалено.", "success");
   }
 
   function addEmptyRow() {
     if (!recordsTable) return;
-    const cols = editableColumns();
     let tbody = recordsTable.querySelector("tbody");
     if (!tbody) { renderRecordsTable(); tbody = recordsTable.querySelector("tbody"); }
     if (tbody.querySelector(".dict-empty-cell")) tbody.innerHTML = "";
-    const tr = document.createElement("tr");
-    tr.className = "dict-new-row";
+    recordsTable.querySelectorAll(".dict-row-editor").forEach((r) => r.remove());
     const empty = {};
-    cols.forEach((c) => { empty[c.column_name] = c.column_name === "is_active" ? true : ""; });
-    tr.innerHTML = `${cols.map((c) => `<td>${inputForCell(empty, c)}</td>`).join("")}<td class="dict-row-actions"><button type="button" data-save-row>Створити</button></td>`;
-    tr.querySelector("[data-save-row]").addEventListener("click", () => saveRow(tr, null));
-    tbody.prepend(tr);
+    writableColumns().forEach((c) => { empty[c.column_name] = ""; });
+    empty.is_active = true;
+    tbody.insertAdjacentHTML("beforeend", renderRecordEditorRow(empty, null));
+    const editor = tbody.lastElementChild;
+    editor.querySelector("[data-save-editor]").addEventListener("click", () => saveRow(editor, null));
+    editor.querySelector("[data-cancel-editor]").addEventListener("click", () => editor.remove());
   }
 
   async function refreshCount() {
@@ -404,7 +497,7 @@
     if (typeof count === "number") {
       await sb.from("dict_registry").update({ records_count: count, updated_at: new Date().toISOString() }).eq("id", currentDict.id);
       currentDict.records_count = count;
-      manageLead.textContent = `${currentDict.title || "Довідник"} • ${countLabel(count)}`;
+      if (manageLead) manageLead.textContent = countLabel(count);
       await loadRegistry();
     }
   }
@@ -416,14 +509,14 @@
     const { error } = await sb.from("dict_registry").update({ title, title_ua: title, updated_at: new Date().toISOString() }).eq("id", currentDict.id);
     if (error) return setManageStatus(`Помилка: ${error.message}`, "error");
     currentDict.title = title;
-    manageLead.textContent = `${title} • ${countLabel(currentDict.records_count)}`;
+    if (manageTitle) manageTitle.textContent = title.toUpperCase();
     await loadRegistry();
     setManageStatus("Назву збережено.", "success");
   });
 
   deleteDictBtn?.addEventListener("click", async () => {
     if (!currentDict?.id) return;
-    const expected = currentDict.title || currentDict.title_ua || currentDict.code;
+    const expected = dictionaryTitle(currentDict);
     const typed = window.prompt(`Для видалення довідника введи його назву:\n${expected}`);
     if (typed !== expected) return setManageStatus("Видалення скасовано: назва не співпала.", "error");
     setManageStatus("Архівую довідник...", "loading");
@@ -431,6 +524,17 @@
     if (error) return setManageStatus(`Помилка видалення: ${error.message}`, "error");
     await loadRegistry();
     closeManageModal();
+  });
+
+  editToggleBtn?.addEventListener("click", () => {
+    if (!editPanel) return;
+    editPanel.hidden = !editPanel.hidden;
+  });
+
+  sortToggleBtn?.addEventListener("click", () => {
+    if (!sortPanel) return;
+    sortPanel.hidden = !sortPanel.hidden;
+    if (!sortPanel.hidden) searchInput?.focus();
   });
 
   addColumnManageBtn?.addEventListener("click", addColumnToCurrent);
