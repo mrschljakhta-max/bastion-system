@@ -137,7 +137,7 @@
     if (!sb) return setCarouselItems(fallbackDictionaries);
     const { data, error } = await sb
       .from("dict_registry")
-      .select("id, code, table_name, title, title_ua, records_count, is_active, sort_order")
+      .select("id, code, table_name, title, title_ua, records_count, is_active, sort_order, updated_at")
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
     if (error) {
@@ -277,6 +277,8 @@
     if (manageTitle) manageTitle.textContent = dictionaryTitle(item).toUpperCase();
     if (manageTitleInput) manageTitleInput.value = dictionaryTitle(item);
     if (manageLead) manageLead.textContent = countLabel(item.records_count);
+    if (dictMetaRecords) dictMetaRecords.textContent = String(Number(item.records_count || 0));
+    if (dictMetaTable) dictMetaTable.textContent = item.table_name || "—";
     setManageStatus("Завантажую записи...", "loading");
     await loadDictionaryStructure();
     await loadDictionaryRows();
@@ -546,6 +548,7 @@
       await sb.from("dict_registry").update({ records_count: count, updated_at: new Date().toISOString() }).eq("id", currentDict.id);
       currentDict.records_count = count;
       if (manageLead) manageLead.textContent = countLabel(count);
+      if (dictMetaRecords) dictMetaRecords.textContent = String(count);
       await loadRegistry();
     }
   }
