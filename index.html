@@ -150,8 +150,13 @@
               </div>
 
               <label class="auth-field">
-                <span>ЛОГІН</span>
+                <span id="authLoginLabel">ЛОГІН</span>
                 <input id="authLogin" name="login" type="text" placeholder="lavash.squad" autocomplete="username" spellcheck="false" />
+              </label>
+
+              <label class="auth-field auth-request-note" id="authRequestNoteField" hidden>
+                <span>ПОВІДОМЛЕННЯ АДМІНУ</span>
+                <textarea id="authRequestNote" name="request_note" maxlength="500" placeholder="Наприклад: потрібен доступ до проєкту / проблема із входом / зміна пошти..."></textarea>
               </label>
 
               <label class="auth-field auth-field--password">
@@ -190,8 +195,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./scripts/config.js?v=27"></script>
   <script src="./scripts/supabase-client.js?v=107"></script>
-  <script src="./scripts/auth.js?v=107"></script>
+  <script src="./scripts/auth.js?v=108"></script>
   <script src="./scripts/access.js?v=2"></script>
-  <script src="./scripts/auth-panel.js?v=107"></script>
+  <script src="./scripts/auth-panel.js?v=108"></script>
 </body>
 </html>

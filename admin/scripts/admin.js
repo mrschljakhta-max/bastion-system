@@ -1,5 +1,5 @@
 /* =========================================================
-   BASTION — Admin Control v6
+   BASTION — Admin Control v8
    Uses separate admin session token, no Supabase Auth / 2FA
    ========================================================= */
 
@@ -100,15 +100,38 @@
     return data || [];
   }
 
+  function statusBadge(value) {
+    const v = String(value ?? '—');
+    return `<span class="admin-status-badge" data-status="${escapeHtml(v)}">${escapeHtml(v)}</span>`;
+  }
+
+  function actionButtons(items) {
+    return `<div class="admin-row-actions">${items.join('')}</div>`;
+  }
+
   async function refreshUsers() {
     try {
       const rows = await adminRpc('admin_list_allowed_users');
       renderTable('usersTable', rows, [
+        { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
         { key: 'email', label: 'Email' },
         { key: 'role', label: 'Роль' },
-        { key: 'status', label: 'Статус' },
-        { key: 'is_active', label: 'Активний' },
-        { key: 'created_at', label: 'Створено' }
+        { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
+        { key: 'is_active', label: 'Активний', render: (row) => row.is_active ? '✅' : '—' },
+        { key: 'created_at', label: 'Створено' },
+        {
+          key: 'actions',
+          label: 'Дії',
+          render: (row) => {
+            const email = escapeHtml(row.email || '');
+            const login = escapeHtml(row.login || '');
+            const isActive = Boolean(row.is_active) && row.status !== 'disabled';
+            return actionButtons([
+              `<button type="button" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}">${isActive ? 'Вимкнути' : 'Увімкнути'}</button>`,
+              `<button type="button" class="danger" data-user-delete="${email}" data-login="${login}">Видалити</button>`
+            ]);
+          }
+        }
       ]);
     } catch (error) {
       console.warn(error);
@@ -120,10 +143,24 @@
     try {
       const rows = await adminRpc('admin_list_access_requests');
       renderTable('requestsTable', rows, [
-        { key: 'email', label: 'Email' },
-        { key: 'status', label: 'Статус' },
+        { key: 'email', label: 'Email', render: (row) => `<strong>${escapeHtml(row.email)}</strong>` },
+        { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
         { key: 'requested_at', label: 'Дата' },
-        { key: 'note', label: 'Нотатка' }
+        { key: 'note', label: 'Повідомлення', render: (row) => `<span class="admin-note-cell">${escapeHtml(row.note || '—')}</span>` },
+        {
+          key: 'actions',
+          label: 'Дії',
+          render: (row) => {
+            const id = escapeHtml(row.id || '');
+            const email = escapeHtml(row.email || '');
+            const note = escapeHtml(row.note || '');
+            return actionButtons([
+              `<button type="button" data-request-use="${id}" data-email="${email}" data-note="${note}">Взяти email</button>`,
+              `<button type="button" data-request-status="${id}" data-status="approved">Вирішено</button>`,
+              `<button type="button" class="danger" data-request-status="${id}" data-status="rejected">Відхилити</button>`
+            ]);
+          }
+        }
       ]);
     } catch (error) {
       console.warn(error);
@@ -172,6 +209,7 @@
     lastInvite = null;
     if (inviteResult) inviteResult.hidden = true;
     if (sendEmailBtn) sendEmailBtn.disabled = true;
+    if (inviteForm) inviteForm.dataset.requestId = '';
     if (inviteSubmit) inviteSubmit.textContent = 'Створити доступ →';
     updateInvitePreview();
   });
@@ -212,7 +250,8 @@
       const rows = await adminRpc('admin_create_user_invite', {
         p_email: inviteEmail.value,
         p_role: inviteRole.value,
-        p_note: inviteNote.value || null
+        p_note: inviteNote.value || null,
+        p_request_id: inviteForm?.dataset?.requestId || null
       });
 
       const row = Array.isArray(rows) ? rows[0] : rows;
@@ -231,7 +270,20 @@
       sendEmailBtn.disabled = false;
       inviteSubmit.textContent = 'Доступ створено ✓';
 
+      if (inviteForm?.dataset?.requestId) {
+        try {
+          await adminRpc('admin_update_access_request_status', {
+            p_request_id: inviteForm.dataset.requestId,
+            p_status: 'approved'
+          });
+        } catch (requestError) {
+          console.warn('Не вдалося оновити статус заявки:', requestError);
+        }
+        inviteForm.dataset.requestId = '';
+      }
+
       refreshUsers();
+      refreshRequests();
       refreshLogs();
     } catch (error) {
       console.error(error);
@@ -310,6 +362,71 @@
     btn.addEventListener('click', () => {
       activateTab(btn.dataset.adminTab);
     });
+  });
+
+  document.getElementById('usersTable')?.addEventListener('click', async (event) => {
+    const toggle = event.target.closest('[data-user-toggle]');
+    const remove = event.target.closest('[data-user-delete]');
+
+    try {
+      if (toggle) {
+        const email = toggle.dataset.userToggle;
+        const active = toggle.dataset.active === 'true';
+        await adminRpc('admin_set_user_active', { p_email: email, p_is_active: active });
+        await refreshUsers();
+        await refreshLogs();
+      }
+
+      if (remove) {
+        const email = remove.dataset.userDelete;
+        const login = remove.dataset.login || email;
+        const typed = prompt(`Повне видалення акаунта.
+
+Буде видалено доступ, invite, MFA-secret і profile binding.
+Для підтвердження введіть login або email:
+${login}`);
+        if (!typed) return;
+        if (typed.trim().toLowerCase() !== String(login).toLowerCase() && typed.trim().toLowerCase() !== String(email).toLowerCase()) {
+          alert('Підтвердження не збігається. Видалення скасовано.');
+          return;
+        }
+        await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: typed.trim() });
+        await refreshUsers();
+        await refreshLogs();
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.message || 'Не вдалося виконати дію з користувачем.');
+    }
+  });
+
+  document.getElementById('requestsTable')?.addEventListener('click', async (event) => {
+    const use = event.target.closest('[data-request-use]');
+    const status = event.target.closest('[data-request-status]');
+
+    try {
+      if (use) {
+        inviteEmail.value = use.dataset.email || '';
+        inviteNote.value = use.dataset.note || '';
+        inviteForm.dataset.requestId = use.dataset.requestUse || '';
+        updateInvitePreview();
+        activateTab('invite');
+        inviteEmail.focus();
+        return;
+      }
+
+      if (status) {
+        await adminRpc('admin_update_access_request_status', {
+          p_request_id: status.dataset.requestStatus,
+          p_status: status.dataset.status
+        });
+        await refreshRequests();
+        await refreshLogs();
+      }
+    } catch (error) {
+      console.error(error);
+      alert(error.message || 'Не вдалося оновити заявку.');
+    }
   });
 
   document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);

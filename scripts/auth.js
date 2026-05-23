@@ -161,7 +161,7 @@ async function checkAllowedEmail(email) {
   return data === true;
 }
 
-async function requestAccess(email) {
+async function requestAccess(email, note = "") {
   const normalizedEmail = normalizeEmail(email);
 
   if (!normalizedEmail) {
@@ -172,7 +172,8 @@ async function requestAccess(email) {
     .from("access_requests")
     .insert({
       email: normalizedEmail,
-      status: "pending"
+      status: "pending",
+      note: String(note || "").trim() || null
     });
 
   if (error) {

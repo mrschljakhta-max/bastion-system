@@ -197,3 +197,24 @@
     display: none;
   }
 }
+
+
+/* BASTION v108 — access request message */
+.auth-request-note textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 55, 76, .35);
+  border-radius: 0;
+  outline: none;
+  resize: vertical;
+  color: rgba(255,255,255,.92);
+  background: rgba(0,0,0,.34);
+  font: inherit;
+  letter-spacing: .03em;
+  box-shadow: inset 0 0 28px rgba(255, 36, 58, .07);
+}
+.auth-request-note textarea:focus {
+  border-color: rgba(255, 85, 105, .78);
+  box-shadow: 0 0 0 2px rgba(255, 49, 88, .12), inset 0 0 30px rgba(255, 36, 58, .1);
+}

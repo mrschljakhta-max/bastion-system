@@ -15,6 +15,9 @@
   const login = document.getElementById("authLogin");
   const password = document.getElementById("authPassword");
   const passwordToggle = document.getElementById("authPasswordToggle");
+  const loginLabel = document.getElementById("authLoginLabel");
+  const requestNoteField = document.getElementById("authRequestNoteField");
+  const requestNote = document.getElementById("authRequestNote");
   const subtitle = document.getElementById("modeSubtitle");
   const ring = document.getElementById("hudRing");
 
@@ -137,6 +140,15 @@
     if (password?.closest(".auth-field")) {
       password.closest(".auth-field").hidden = authMode === "register";
     }
+
+    if (loginLabel) loginLabel.textContent = authMode === "register" ? "EMAIL ДЛЯ ЗАЯВКИ" : "ЛОГІН";
+    if (login) {
+      login.placeholder = authMode === "register" ? "operator@example.com" : "lavash.squad";
+      login.type = authMode === "register" ? "email" : "text";
+      login.autocomplete = authMode === "register" ? "email" : "username";
+    }
+    if (requestNoteField) requestNoteField.hidden = authMode !== "register";
+
     submit.textContent = config[authMode].submit;
     switcher.textContent = config[authMode].switcher;
   }
@@ -254,6 +266,7 @@
   async function handleCredentialsSubmit() {
     const email = login.value.trim();
     const pass = password.value;
+    const note = requestNote?.value?.trim() || "";
 
     if (!window.BastionAuth) {
       console.error("BastionAuth не знайдено. Перевір підключення scripts/auth.js");
@@ -271,12 +284,12 @@
 
     try {
       if (authMode === "register") {
-        const ok = await window.BastionAuth.requestAccess(email);
+        const ok = await window.BastionAuth.requestAccess(email, note);
         if (!ok) {
           shakePanel();
           return;
         }
-        alert("Заявку на доступ надіслано. Дочекайтесь рішення адміністратора.");
+        alert("Заявку на доступ надіслано. Адміністратор побачить email і повідомлення у вкладці «Заявки».");
         closePanel();
         return;
       }
