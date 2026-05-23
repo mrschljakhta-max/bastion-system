@@ -1705,3 +1705,39 @@
 .mfa-qr-frame:has(.mfa-qr-image[src=""]) {
   opacity: .35;
 }
+
+
+/* =========================================================
+   BASTION v98 — login-only start CTA
+   Keeps the start screen focused on a single centered entry action.
+   ========================================================= */
+.access-choice.access-choice--single {
+  width: min(260px, 62vw);
+  justify-content: center;
+  gap: 0;
+  padding-inline: 32px;
+}
+
+.access-choice.access-choice--single .access-choice-btn {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  letter-spacing: .42em;
+}
+
+.access-choice.access-choice--single .access-choice-btn::after {
+  left: 12%;
+  right: 12%;
+}
+
+.access-choice.access-choice--single::before,
+.access-choice.access-choice--single::after {
+  width: 42px;
+}
+
+@media (max-width: 720px) {
+  .access-choice.access-choice--single {
+    width: min(230px, 70vw);
+    padding-inline: 24px;
+  }
+}
