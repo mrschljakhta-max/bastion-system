@@ -76,7 +76,16 @@
     const local = getLocalProfile();
     applyProfile(local);
 
-    const sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
+    let sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
+    if (!sb?.auth?.getUser && window.supabase?.createClient) {
+      const cfg = window.BASTION_CONFIG || {};
+      const url = cfg.SUPABASE_URL || window.SUPABASE_URL;
+      const key = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
+      if (url && key) {
+        sb = window.supabase.createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+        window.BastionSupabase = window.supabaseClient = window.sb = sb;
+      }
+    }
     if (!sb?.auth?.getUser) return;
 
     try {
@@ -129,7 +138,16 @@
 
   async function logout() {
     try {
-      const sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
+      let sb = window.BastionSupabase || window.supabaseClient || window.sb || null;
+      if (!sb?.auth?.signOut && window.supabase?.createClient) {
+        const cfg = window.BASTION_CONFIG || {};
+        const url = cfg.SUPABASE_URL || window.SUPABASE_URL;
+        const key = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
+        if (url && key) {
+          sb = window.supabase.createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+          window.BastionSupabase = window.supabaseClient = window.sb = sb;
+        }
+      }
       if (sb?.auth?.signOut) await sb.auth.signOut();
     } catch (error) {
       console.warn("[BASTION logout] signOut failed:", error);
