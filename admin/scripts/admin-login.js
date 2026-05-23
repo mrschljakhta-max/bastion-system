@@ -30,7 +30,7 @@
   passwordToggle?.addEventListener('click', () => {
     const isHidden = passwordInput.type === 'password';
     passwordInput.type = isHidden ? 'text' : 'password';
-    passwordToggle.textContent = isHidden ? '◌' : '◉';
+    passwordToggle.textContent = isHidden ? '🙈' : '👁';
     passwordToggle.setAttribute('aria-label', isHidden ? 'Сховати пароль' : 'Показати пароль');
     passwordToggle.setAttribute('title', isHidden ? 'Сховати пароль' : 'Показати пароль');
     passwordInput.focus();
