@@ -29,7 +29,7 @@
     { id: "upload", num: "03", icon: "upload.svg", title: "Завантаження", subtitle: "Upload / Intake", href: "./upload.html", items: ["Завантаження Word / Excel", "Імпорт даних", "Запуск ETL процесів"] },
     { id: "calculator", num: "04", icon: "calculator.svg", title: "Калькулятор", subtitle: "Combat Calculator", href: "./calculator.html", items: ["Обчислення", "Комбінації", "Сумісність", "Бойові формули"] },
     { id: "analysis", num: "05", icon: "analysis.svg", title: "Аналіз", subtitle: "Analysis Engine", href: "./analysis.html", items: ["Дашборди", "Аналітика", "Карти та Heatmaps", "Статистика"] },
-    { id: "command", num: "06", icon: "command.svg", title: "Висновки для командира", subtitle: "Command Intelligence", href: "./command.html", items: ["AI-рекомендації", "Оцінка ризиків", "Тактичні інсайти", "Critical Alerts"] }
+    { id: "command", num: "06", icon: "command.svg", title: "Висновки", subtitle: "Command Intelligence", href: "./command.html", items: ["AI-рекомендації", "Оцінка ризиків", "Тактичні інсайти", "Critical Alerts"] }
   ];
 
   function getStoredUser() {
