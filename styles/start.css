@@ -447,3 +447,121 @@
     width: min(92vw, 620px);
   }
 }
+
+
+/* =========================================================
+   BASTION v190 — refined start portal composition
+   - ring is smaller and leaves more breathing room
+   - center content scales with the new ring
+   - removed heavy dark disk inside the ring
+   ========================================================= */
+
+.login-ring-asset {
+  width: min(60vw, 640px);
+  filter:
+    drop-shadow(0 0 18px rgba(255, 32, 42, .30))
+    drop-shadow(0 0 54px rgba(255, 18, 28, .17));
+}
+
+.hud-ring {
+  width: min(52vw, 560px);
+  transform: translateY(-6px);
+}
+
+.ring-center {
+  width: 43%;
+  gap: 10px;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: 0 0 20px rgba(0,0,0,.86);
+}
+
+.ring-center::before,
+.ring-center::after {
+  content: none !important;
+  display: none !important;
+}
+
+.ring-center .brand-mark,
+.brand-mark {
+  width: clamp(42px, 4.2vw, 64px);
+  max-height: clamp(42px, 4.2vw, 64px);
+}
+
+.brand-name {
+  font-size: clamp(24px, 2.45vw, 42px);
+  letter-spacing: .22em;
+  text-shadow:
+    0 0 18px rgba(0,0,0,.82),
+    0 0 14px rgba(255,255,255,.13),
+    0 0 28px rgba(255,46,77,.15);
+}
+
+.brand-subtitle {
+  font-size: clamp(7px, .62vw, 9px);
+  letter-spacing: .26em;
+}
+
+.signal-line {
+  width: min(168px, 42%);
+}
+
+.access-choice-btn {
+  min-width: clamp(172px, 17vw, 225px);
+  min-height: clamp(40px, 4.5vw, 52px);
+  font-size: clamp(12px, 1vw, 15px);
+}
+
+/* A light inner air-glow, not a black disk. Keeps the background visible through the portal. */
+.login-ring-asset::after {
+  content: "";
+  position: absolute;
+  inset: 19%;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle,
+      rgba(255, 38, 54, .08) 0%,
+      rgba(255, 38, 54, .035) 42%,
+      transparent 73%);
+  mix-blend-mode: screen;
+}
+
+@keyframes loginRingBreath {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    filter:
+      drop-shadow(0 0 18px rgba(255, 32, 42, .28))
+      drop-shadow(0 0 54px rgba(255, 18, 28, .15));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.012);
+    filter:
+      drop-shadow(0 0 26px rgba(255, 52, 62, .38))
+      drop-shadow(0 0 74px rgba(255, 18, 28, .22));
+  }
+}
+
+@media (max-width: 900px) {
+  .login-ring-asset {
+    width: min(86vw, 560px);
+  }
+
+  .hud-ring {
+    width: min(76vw, 500px);
+  }
+}
+
+@media (max-width: 560px) {
+  .login-ring-asset {
+    width: min(94vw, 460px);
+  }
+
+  .hud-ring {
+    width: min(88vw, 420px);
+  }
+
+  .ring-center {
+    width: 52%;
+  }
+}
