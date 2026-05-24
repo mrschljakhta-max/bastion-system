@@ -639,6 +639,27 @@
     setTimeout(() => (copyInviteUrl.textContent = 'Скопіювати'), 1200);
   });
 
+
+  async function sendAdminAccessEmail(user, role) {
+    if (!user?.email) {
+      console.warn('Admin access email skipped: user email is empty', user);
+      return { skipped: true, reason: 'empty_email' };
+    }
+
+    const adminLoginUrl = `${window.location.origin}/admin/login.html`;
+    const { data, error } = await client.functions.invoke('send-admin-access-email', {
+      body: {
+        email: user.email,
+        login: user.login,
+        role: role || user.admin_role || 'admin',
+        admin_login_url: adminLoginUrl
+      }
+    });
+
+    if (error) throw error;
+    return data || { ok: true };
+  }
+
   async function sendInviteEmail(invite) {
     const token = getAdminToken();
     const { data, error } = await client.functions.invoke('send-invite-email', {
@@ -846,8 +867,17 @@
       const rows = await adminRpc('admin_grant_admin_access', { p_query: query, p_admin_role: role });
       const row = Array.isArray(rows) ? rows[0] : rows;
       renderAdminAccessResult(row || null, 'granted');
+
+      let emailNotice = 'Лист користувачу надіслано.';
+      try {
+        await sendAdminAccessEmail(row, role);
+      } catch (mailError) {
+        console.error('Admin access email failed:', mailError);
+        emailNotice = `Адмін-доступ надано, але лист не надіслано: ${mailError.message || 'помилка Edge Function'}.`;
+      }
+
       await refreshLogs();
-      alert('Адмін-доступ надано. Користувач може входити в admin/index.html тим самим login/password.');
+      alert(`Адмін-доступ надано. Користувач може входити в admin/login.html тим самим login/password.\n\n${emailNotice}`);
     } catch (error) {
       console.error(error);
       alert(error.message || 'Не вдалося надати адмін-доступ.');
