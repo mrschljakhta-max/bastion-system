@@ -20,3 +20,45 @@
   --font-ui: "BastionUI", "Oxanium", "Rajdhani", sans-serif;
   --font-text: "BastionText", "Manrope", "Inter", sans-serif;
 }
+
+/* BASTION start-page theme foundation */
+:root[data-theme="dark"] {
+  --start-bg-base: #050407;
+  --start-bg-top: #050407;
+  --start-bg-bottom: #120308;
+  --start-text-main: rgba(244, 247, 255, .94);
+  --start-text-muted: rgba(244, 247, 255, .58);
+  --start-panel-bg: rgba(10, 4, 7, .42);
+  --start-panel-border: rgba(255, 46, 77, .32);
+  --start-panel-shadow: 0 0 32px rgba(255, 30, 50, .16), inset 0 0 28px rgba(255, 35, 62, .08);
+  --start-accent: #ff2e4d;
+  --start-accent-soft: rgba(255, 46, 77, .20);
+  --start-bg-filter: saturate(1.16) contrast(1.08) brightness(1.08);
+  --start-vignette: radial-gradient(circle at 50% 54%, transparent 0 46%, rgba(0,0,0,.11) 78%, rgba(0,0,0,.42) 100%), linear-gradient(90deg, rgba(0,0,0,.32), transparent 22% 78%, rgba(0,0,0,.32));
+}
+
+:root[data-theme="light"] {
+  --black-0: #f4f6f8;
+  --black-1: #eef2f5;
+  --black-2: #e5ebf0;
+  --white-0: #1d242c;
+  --metal-1: #526170;
+  --metal-2: #7d8994;
+  --red-500: #c92835;
+  --red-400: #e23a46;
+  --glow-red: 0 0 18px rgba(226, 58, 70, .32), 0 0 44px rgba(201, 40, 53, .18);
+  --glow-soft: 0 0 18px rgba(255, 255, 255, .45);
+
+  --start-bg-base: #f4f6f8;
+  --start-bg-top: #f7f9fb;
+  --start-bg-bottom: #e9eef3;
+  --start-text-main: rgba(29, 36, 44, .95);
+  --start-text-muted: rgba(29, 36, 44, .58);
+  --start-panel-bg: rgba(255, 255, 255, .56);
+  --start-panel-border: rgba(201, 40, 53, .24);
+  --start-panel-shadow: 0 18px 70px rgba(28, 37, 47, .12), inset 0 0 32px rgba(255, 255, 255, .42);
+  --start-accent: #c92835;
+  --start-accent-soft: rgba(201, 40, 53, .15);
+  --start-bg-filter: grayscale(.12) saturate(.72) contrast(.92) brightness(1.92);
+  --start-vignette: radial-gradient(circle at 50% 56%, rgba(255,255,255,.18) 0 34%, rgba(255,255,255,.48) 78%, rgba(233,238,243,.72) 100%), linear-gradient(90deg, rgba(244,246,248,.68), transparent 22% 78%, rgba(244,246,248,.68));
+}
