@@ -173,8 +173,31 @@
   const statusEl = document.getElementById("dictCreateStatus");
 
   function setStatus(message, type = "") { if (statusEl) { statusEl.textContent = message || ""; statusEl.dataset.type = type; } }
-  function openCreateModal() { modal?.classList.add("is-open"); modal?.setAttribute("aria-hidden", "false"); setStatus(""); setTimeout(() => titleInput?.focus(), 60); }
-  function closeCreateModal() { modal?.classList.remove("is-open"); modal?.setAttribute("aria-hidden", "true"); }
+  function ensureDictModalInBody(target) {
+    if (target && target.parentElement !== document.body) {
+      document.body.appendChild(target);
+    }
+  }
+
+  function syncDictModalBodyState() {
+    const anyOpen = Boolean(document.querySelector(".dict-modal.is-open"));
+    document.body.classList.toggle("dict-modal-open", anyOpen);
+  }
+
+  function openCreateModal() {
+    ensureDictModalInBody(modal);
+    modal?.classList.add("is-open");
+    modal?.setAttribute("aria-hidden", "false");
+    document.body.classList.add("dict-modal-open");
+    setStatus("");
+    setTimeout(() => titleInput?.focus(), 60);
+  }
+
+  function closeCreateModal() {
+    modal?.classList.remove("is-open");
+    modal?.setAttribute("aria-hidden", "true");
+    syncDictModalBodyState();
+  }
 
   function createColumnRow(name = "", type = "text") {
     const row = document.createElement("div");
@@ -257,6 +280,7 @@
   function closeManageModal() {
     manageModal?.classList.remove("is-open");
     manageModal?.setAttribute("aria-hidden", "true");
+    syncDictModalBodyState();
     currentDict = null;
     currentColumns = [];
     currentRows = [];
@@ -270,8 +294,10 @@
 
   async function openManageModal(item) {
     currentDict = item;
+    ensureDictModalInBody(manageModal);
     manageModal?.classList.add("is-open");
     manageModal?.setAttribute("aria-hidden", "false");
+    document.body.classList.add("dict-modal-open");
     if (editPanel) editPanel.hidden = true;
     if (sortPanel) sortPanel.hidden = true;
     if (manageTitle) manageTitle.textContent = dictionaryTitle(item).toUpperCase();

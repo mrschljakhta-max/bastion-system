@@ -1519,28 +1519,41 @@ body.dicts-page .core-screen {
 
 
 /* =========================================================
-   BASTION DICTS v181 — modal above global HUD plates
-   The dictionary modal must cover and blur the top Orbi/User plates.
+   BASTION DICTS MODAL STACK v182 — modal above top HUD
    ========================================================= */
 .dict-modal {
-  z-index: 120000 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 800000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+  isolation: isolate !important;
 }
 
 .dict-modal.is-open {
   display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   pointer-events: auto !important;
 }
 
 .dict-modal__backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
   background:
-    radial-gradient(circle at 50% 44%, rgba(255, 48, 42, .12), transparent 46%),
-    rgba(0, 0, 0, .72) !important;
-  backdrop-filter: blur(16px) saturate(1.08) brightness(.72) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(1.08) brightness(.72) !important;
+    radial-gradient(circle at 50% 48%, rgba(255, 45, 45, .13), transparent 44%),
+    rgba(0, 0, 0, .68) !important;
+  backdrop-filter: blur(14px) saturate(1.05) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.05) !important;
 }
 
 .dict-modal__panel,
 .dict-modal__panel--wide,
 .dict-view-panel {
-  z-index: 120002 !important;
+  position: relative !important;
+  z-index: 1 !important;
 }

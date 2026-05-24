@@ -1,6 +1,6 @@
-/* BASTION Profile Panel v181
+/* BASTION Profile Panel v178
    Opens profile command modal from the right HUD plate and performs logout.
-   Fix: creates a fixed invisible hitbox over the right HUD plate, so decorative layers cannot block the click.
+   Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
 (() => {
   function byId(id) {
@@ -146,6 +146,12 @@
     }
   }
 
+  function ensureProfileInBody() {
+    if (profileModal && profileModal.parentElement !== document.body) {
+      document.body.appendChild(profileModal);
+    }
+  }
+
   function openProfile(event) {
     if (event) {
       event.preventDefault();
@@ -157,9 +163,11 @@
       return;
     }
 
+    ensureProfileInBody();
     profileModal.classList.add("is-open");
     profileModal.setAttribute("aria-hidden", "false");
     userMenuButton?.setAttribute("aria-expanded", "true");
+    document.documentElement.classList.add("profile-modal-lock");
     document.body.classList.add("profile-modal-open");
   }
 
@@ -172,6 +180,7 @@
     profileModal?.classList.remove("is-open");
     profileModal?.setAttribute("aria-hidden", "true");
     userMenuButton?.setAttribute("aria-expanded", "false");
+    document.documentElement.classList.remove("profile-modal-lock");
     document.body.classList.remove("profile-modal-open");
   }
 
@@ -200,31 +209,12 @@
     window.location.replace("../index.html");
   }
 
-
-  function ensureProfileHitbox() {
-    if (!userMenuButton) return null;
-
-    let hitbox = document.getElementById("bastionProfileHitbox");
-    if (!hitbox) {
-      hitbox = document.createElement("button");
-      hitbox.id = "bastionProfileHitbox";
-      hitbox.type = "button";
-      hitbox.setAttribute("aria-label", "Відкрити профіль користувача");
-      hitbox.setAttribute("title", "Профіль користувача");
-      document.body.appendChild(hitbox);
-    }
-
-    hitbox.addEventListener("click", openProfile);
-    return hitbox;
-  }
-
   function bind() {
     if (!userMenuButton) {
       console.warn("[BASTION profile-panel] #userMenuButton not found");
     }
 
     userMenuButton?.addEventListener("click", openProfile);
-    ensureProfileHitbox();
 
     /* Delegated fallback: works even if HUD child layers or future markup catch the click. */
     document.addEventListener("click", (event) => {

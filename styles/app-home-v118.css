@@ -9591,76 +9591,68 @@ button#userMenuButton,
 }
 
 /* =========================================================
-   BASTION PROFILE PANEL v181 — hard overlay + modal stacking
-   - top HUD remains visible, but right plate gets its own invisible hitbox;
-   - profile and dictionary modals always open ABOVE top plates;
-   - modal backdrops blur the HUD plates together with the page.
+   BASTION MODAL STACK v182 — global top layer + blur
+   Ensures profile/logout console is above HUD plates and never clipped.
    ========================================================= */
-.b116-top-panels {
-  z-index: 26000 !important;
+html.profile-modal-lock,
+body.profile-modal-open,
+body.dict-modal-open {
+  overflow: hidden !important;
+}
+
+body.profile-modal-open > *:not(#profileModal),
+body.profile-modal-open > .b116-top-panels,
+body.dict-modal-open > *:not(.dict-modal):not(#profileModal),
+body.dict-modal-open > .b116-top-panels {
+  filter: blur(8px) brightness(.48) saturate(.78) !important;
+  transition: filter .18s ease !important;
   pointer-events: none !important;
 }
 
-.b116-panel--left {
-  pointer-events: none !important;
+body.profile-modal-open #profileModal,
+body.dict-modal-open .dict-modal.is-open {
+  filter: none !important;
 }
 
-button#userMenuButton,
-#userMenuButton.b116-panel,
-.b116-panel#userMenuButton,
-.b116-panel--right#userMenuButton {
+.profile-modal,
+#profileModal.bastion-profile-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 900000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
+  contain: none !important;
+  transform: none !important;
+  isolation: isolate !important;
+}
+
+.profile-modal.is-open,
+#profileModal.bastion-profile-modal.is-open {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-  cursor: pointer !important;
-  z-index: 26002 !important;
 }
 
-#userMenuButton * {
-  pointer-events: none !important;
-}
-
-#bastionProfileHitbox {
+.profile-modal .profile-backdrop {
   position: fixed !important;
-  top: 18px !important;
-  right: 18px !important;
-  width: min(520px, 34vw) !important;
-  height: 260px !important;
-  z-index: 65000 !important;
-  border: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  background: transparent !important;
-  opacity: 0 !important;
-  cursor: pointer !important;
-  pointer-events: auto !important;
-}
-
-body.profile-modal-open #bastionProfileHitbox,
-body:has(.dict-modal.is-open) #bastionProfileHitbox {
-  pointer-events: none !important;
-}
-
-.profile-modal,
-.bastion-profile-modal {
-  z-index: 130000 !important;
-}
-
-.profile-modal.is-open,
-.bastion-profile-modal.is-open {
-  display: block !important;
-  pointer-events: auto !important;
-}
-
-.profile-backdrop {
+  inset: 0 !important;
+  z-index: 0 !important;
   background:
-    radial-gradient(circle at 50% 48%, rgba(255, 50, 55, .14), transparent 42%),
+    radial-gradient(circle at 50% 45%, rgba(255, 55, 60, .14), transparent 42%),
     rgba(0, 0, 0, .68) !important;
-  backdrop-filter: blur(16px) saturate(1.08) brightness(.72) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(1.08) brightness(.72) !important;
+  backdrop-filter: blur(14px) saturate(1.05) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.05) !important;
 }
 
-body.profile-modal-open .b116-top-panels {
+.profile-modal .profile-command-card,
+.profile-modal .profile-card {
+  z-index: 1 !important;
+}
+
+.b116-top-panels {
   z-index: 26000 !important;
 }
