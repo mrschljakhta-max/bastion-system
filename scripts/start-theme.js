@@ -1,17 +1,28 @@
 (function () {
-  const LEGACY_KEY = 'bastion:start-theme';
-  const STORAGE_KEY = 'bastion_theme';
+  const STORAGE_KEY = 'bastion:start-theme';
+  const SITE_STORAGE_KEY = 'bastion_theme';
   const root = document.documentElement;
   const toggle = document.getElementById('startThemeToggle');
-  const brandMark = document.querySelector('.brand-mark');
+  const mark = document.querySelector('.brand-mark');
+
+  const assets = {
+    dark: {
+      label: 'ТЕМНА ТЕМА',
+      mark: './assets/logo/bastion-mark.svg'
+    },
+    light: {
+      label: 'СВІТЛА ТЕМА',
+      mark: './assets/logo/bastion-mark-light.png'
+    }
+  };
 
   function normalizeTheme(value) {
     return value === 'light' ? 'light' : 'dark';
   }
 
-  function readTheme() {
+  function getSavedTheme() {
     try {
-      return normalizeTheme(localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY) || 'dark');
+      return normalizeTheme(localStorage.getItem(STORAGE_KEY) || localStorage.getItem(SITE_STORAGE_KEY) || 'dark');
     } catch (error) {
       return 'dark';
     }
@@ -20,40 +31,36 @@
   function saveTheme(theme) {
     try {
       localStorage.setItem(STORAGE_KEY, theme);
-      localStorage.setItem(LEGACY_KEY, theme);
+      localStorage.setItem(SITE_STORAGE_KEY, theme);
     } catch (error) {}
   }
 
-  function updateBrandMark(theme) {
-    if (!brandMark) return;
-    const src = theme === 'light' ? brandMark.dataset.lightSrc : brandMark.dataset.darkSrc;
-    if (src && brandMark.getAttribute('src') !== src) {
-      brandMark.setAttribute('src', src);
-    }
-  }
-
   function applyTheme(theme) {
-    theme = normalizeTheme(theme);
-    root.setAttribute('data-theme', theme);
-    if (document.body) document.body.setAttribute('data-theme', theme);
-    saveTheme(theme);
-    updateBrandMark(theme);
+    const nextTheme = normalizeTheme(theme);
+    root.setAttribute('data-theme', nextTheme);
+    if (document.body) document.body.setAttribute('data-theme', nextTheme);
+    saveTheme(nextTheme);
 
     if (toggle) {
-      toggle.dataset.theme = theme;
-      toggle.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
-      toggle.setAttribute('aria-label', theme === 'light' ? 'Увімкнена світла тема. Натисніть для темної.' : 'Увімкнена темна тема. Натисніть для світлої.');
+      toggle.dataset.theme = nextTheme;
+      toggle.setAttribute('aria-pressed', String(nextTheme === 'light'));
+      toggle.setAttribute('aria-label', nextTheme === 'light' ? 'Увімкнена світла тема' : 'Увімкнена темна тема');
+
       const label = toggle.querySelector('[data-theme-label]');
-      if (label) label.textContent = theme === 'light' ? 'СВІТЛА ТЕМА' : 'ТЕМНА ТЕМА';
+      if (label) label.textContent = assets[nextTheme].label;
+    }
+
+    if (mark && assets[nextTheme].mark) {
+      mark.setAttribute('src', assets[nextTheme].mark);
     }
   }
 
-  applyTheme(readTheme());
+  applyTheme(getSavedTheme());
 
   if (toggle) {
     toggle.addEventListener('click', function () {
-      const nextTheme = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-      applyTheme(nextTheme);
+      const current = normalizeTheme(root.getAttribute('data-theme'));
+      applyTheme(current === 'light' ? 'dark' : 'light');
     });
   }
 })();

@@ -31,12 +31,12 @@
 
   <script>
     (function(){
-      var theme = 'dark';
       try {
-        theme = localStorage.getItem('bastion_theme') || localStorage.getItem('bastion:start-theme') || 'dark';
-      } catch (e) {}
-      if (theme !== 'light') theme = 'dark';
-      document.documentElement.setAttribute('data-theme', theme);
+        var theme = localStorage.getItem('bastion:start-theme') || localStorage.getItem('bastion_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
     })();
   </script>
 
@@ -46,7 +46,7 @@
   <link rel="stylesheet" href="./styles/animations.css" />
   <link rel="stylesheet" href="./styles/hud-ring.css?v=15" />
   <link rel="stylesheet" href="./styles/logo.css" />
-  <link rel="stylesheet" href="./styles/start.css?v=191" />
+  <link rel="stylesheet" href="./styles/start.css?v=192" />
   <link rel="stylesheet" href="./styles/bastion-wordmark.css?v=26" />
   <link rel="stylesheet" href="./styles/ring-effects-v14.css?v=18" />
 
@@ -161,8 +161,6 @@
         <div class="ring-center hero-core">
           <img
             src="./assets/logo/bastion-mark.svg"
-            data-dark-src="./assets/logo/bastion-mark.svg"
-            data-light-src="./assets/logo/bastion-mark-light.png"
             alt="BASTION mark"
             class="brand-mark"
           />
