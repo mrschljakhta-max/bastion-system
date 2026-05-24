@@ -9591,36 +9591,76 @@ button#userMenuButton,
 }
 
 /* =========================================================
-   BASTION PROFILE PANEL v181 — emergency click shield fix
-   The visual HUD is decorative, but the right user plate must always stay clickable.
+   BASTION PROFILE PANEL v181 — hard overlay + modal stacking
+   - top HUD remains visible, but right plate gets its own invisible hitbox;
+   - profile and dictionary modals always open ABOVE top plates;
+   - modal backdrops blur the HUD plates together with the page.
    ========================================================= */
 .b116-top-panels {
+  z-index: 26000 !important;
   pointer-events: none !important;
-  z-index: 30000 !important;
 }
 
-button#userMenuButton.b116-panel.b116-panel--right,
-#userMenuButton.b116-panel.b116-panel--right {
+.b116-panel--left {
+  pointer-events: none !important;
+}
+
+button#userMenuButton,
+#userMenuButton.b116-panel,
+.b116-panel#userMenuButton,
+.b116-panel--right#userMenuButton {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
   cursor: pointer !important;
-  z-index: 30001 !important;
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  overflow: visible !important;
-  touch-action: manipulation !important;
+  z-index: 26002 !important;
 }
 
-#userMenuButton.b116-panel.b116-panel--right *,
-#userMenuButton.b116-panel.b116-panel--right::before,
-#userMenuButton.b116-panel.b116-panel--right::after {
+#userMenuButton * {
   pointer-events: none !important;
 }
 
-#profileModal.profile-modal {
-  z-index: 999999 !important;
+#bastionProfileHitbox {
+  position: fixed !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: min(520px, 34vw) !important;
+  height: 260px !important;
+  z-index: 65000 !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+body.profile-modal-open #bastionProfileHitbox,
+body:has(.dict-modal.is-open) #bastionProfileHitbox {
+  pointer-events: none !important;
+}
+
+.profile-modal,
+.bastion-profile-modal {
+  z-index: 130000 !important;
+}
+
+.profile-modal.is-open,
+.bastion-profile-modal.is-open {
+  display: block !important;
+  pointer-events: auto !important;
+}
+
+.profile-backdrop {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(255, 50, 55, .14), transparent 42%),
+    rgba(0, 0, 0, .68) !important;
+  backdrop-filter: blur(16px) saturate(1.08) brightness(.72) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.08) brightness(.72) !important;
+}
+
+body.profile-modal-open .b116-top-panels {
+  z-index: 26000 !important;
 }

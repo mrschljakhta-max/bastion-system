@@ -1517,3 +1517,30 @@ body.dicts-page .core-screen {
   background-clip: padding-box;
 }
 
+
+/* =========================================================
+   BASTION DICTS v181 — modal above global HUD plates
+   The dictionary modal must cover and blur the top Orbi/User plates.
+   ========================================================= */
+.dict-modal {
+  z-index: 120000 !important;
+}
+
+.dict-modal.is-open {
+  display: flex !important;
+  pointer-events: auto !important;
+}
+
+.dict-modal__backdrop {
+  background:
+    radial-gradient(circle at 50% 44%, rgba(255, 48, 42, .12), transparent 46%),
+    rgba(0, 0, 0, .72) !important;
+  backdrop-filter: blur(16px) saturate(1.08) brightness(.72) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.08) brightness(.72) !important;
+}
+
+.dict-modal__panel,
+.dict-modal__panel--wide,
+.dict-view-panel {
+  z-index: 120002 !important;
+}
