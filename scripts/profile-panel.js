@@ -1,4 +1,4 @@
-/* BASTION Profile Panel v178
+/* BASTION Profile Panel v121
    Opens profile command modal from the right HUD plate and performs logout.
    Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
@@ -196,6 +196,13 @@
       "bastion_profile_nickname",
       "bastion_profile_avatar"
     ].forEach((key) => localStorage.removeItem(key));
+
+    [
+      "bastion_mfa_verified",
+      "bastion_login",
+      "bastion_role",
+      "bastion_email"
+    ].forEach((key) => sessionStorage.removeItem(key));
 
     window.location.replace("../index.html");
   }

@@ -9589,3 +9589,44 @@ button#userMenuButton,
     drop-shadow(0 0 18px rgba(255,43,24,.52))
     drop-shadow(0 0 42px rgba(255,35,18,.25)) !important;
 }
+
+/* =========================================================
+   BASTION v121 — FIX top-right user plate click/logout
+   Причина: загальне правило .b116-panel { pointer-events:none } робило кнопку профілю неклікабельною.
+   Ліва плашка лишається декоративною, права отримує реальну зону кліку.
+   ========================================================= */
+.b116-panel--left {
+  pointer-events: none !important;
+}
+
+button.b116-panel--right,
+#userMenuButton.b116-panel--right {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  border: 0 !important;
+  padding: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  outline: none !important;
+}
+
+#userMenuButton.b116-panel--right:hover .b116-panel__bg,
+#userMenuButton.b116-panel--right:focus-visible .b116-panel__bg {
+  filter:
+    brightness(1.08)
+    contrast(1.12)
+    saturate(1.18)
+    drop-shadow(0 0 16px rgba(255,43,24,.48))
+    drop-shadow(0 0 34px rgba(255,35,18,.26)) !important;
+}
+
+#userMenuButton.b116-panel--right:focus-visible {
+  filter: drop-shadow(0 0 18px rgba(255,60,40,.42)) !important;
+}
+
+#userMenuButton.b116-panel--right .b116-panel__bg,
+#userMenuButton.b116-panel--right .b116-panel__avatar-box,
+#userMenuButton.b116-panel--right .b116-panel__text,
+#userMenuButton.b116-panel--right .b116-panel__avatar {
+  pointer-events: none !important;
+}
