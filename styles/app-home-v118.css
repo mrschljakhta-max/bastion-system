@@ -9964,3 +9964,39 @@ body.dict-modal-open .dict-modal.is-open {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v119 — Rajdhani titles replacing image labels */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600&display=swap');
+
+.sector-title-art{display:none!important;}
+
+.sector-title-text{
+  display:block;
+  font-family:'Rajdhani',sans-serif;
+  font-weight:600;
+  font-size:clamp(14px,1.0vw,19px);
+  line-height:1.0;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:rgba(245,245,245,.96);
+  text-shadow:
+      0 0 6px rgba(255,58,50,.35),
+      0 0 18px rgba(255,58,50,.15);
+  transition:all .12s ease;
+  max-width:160px;
+  margin:0 auto;
+}
+
+.module-label[data-id="command"] .sector-title-text{
+ font-size:clamp(12px,.92vw,16px);
+ letter-spacing:.10em;
+}
+
+.module-label:hover .sector-title-text,
+.module-label.is-active .sector-title-text{
+ color:#ffffff;
+ text-shadow:
+    0 0 10px rgba(255,70,60,.75),
+    0 0 26px rgba(255,70,60,.30);
+}

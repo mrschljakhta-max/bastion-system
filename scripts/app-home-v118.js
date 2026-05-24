@@ -249,12 +249,12 @@
       label.classList.toggle("is-bottom-flip", isBottomFlip);
 
       const numberImg = `<img class="sector-number-art" src="../assets/ui/sector-numbers/sector-${module.num}.svg?v=88" alt="" />`;
-      const titleImg = `<img class="sector-title-art" src="../assets/ui/sector-titles/${module.id}.svg?v=88" alt="" />`;
+      const titleText = `<span class="sector-title-text">${module.title}</span>`;
       const divider = `<span class="sector-art-divider"></span>`;
 
       label.innerHTML = `
         <span class="sector-art-stack" aria-hidden="true">
-          ${isBottomFlip ? `${titleImg}${divider}${numberImg}` : `${numberImg}${divider}${titleImg}`}
+          ${isBottomFlip ? `${titleText}${divider}${numberImg}` : `${numberImg}${divider}${titleText}`}
         </span>
         <span class="sr-only">${module.num} ${module.title}</span>
       `;
