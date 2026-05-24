@@ -78,29 +78,70 @@
     };
   }
 
+  function fitTextToBox(element, options = {}) {
+    if (!element) return;
+
+    const min = Number(options.min || 12);
+    const max = Number(options.max || 42);
+    const step = Number(options.step || 1);
+    const parent = options.box || element.parentElement;
+    if (!parent) return;
+
+    element.style.fontSize = `${max}px`;
+    element.classList.add("is-fit-text");
+
+    const available = Math.max(40, parent.clientWidth - 2);
+    let size = max;
+
+    while (size > min && element.scrollWidth > available) {
+      size -= step;
+      element.style.fontSize = `${size}px`;
+    }
+
+    element.classList.toggle("is-overflowing", element.scrollWidth > available);
+  }
+
+  function fitProfileText() {
+    requestAnimationFrame(() => {
+      fitTextToBox(profileLogin, { min: 24, max: 58, step: 1 });
+      fitTextToBox(profileLoginValue, { min: 13, max: 21, step: 1 });
+      fitTextToBox(profileEmail, { min: 12, max: 21, step: 1 });
+      fitTextToBox(profileRole, { min: 13, max: 21, step: 1 });
+    });
+  }
+
+  function setText(el, value) {
+    if (!el) return;
+    el.textContent = value;
+    el.setAttribute("title", value);
+  }
+
   function applyProfile(profile = {}) {
     const login = safeText(profile.login || profile.nickname || "lavash.squad");
     const email = safeText(profile.email || "");
     const role = normalizeRole(profile.role || profile.access_level || "DEMO");
     const avatar = safeText(profile.avatar || profile.avatar_url || "");
+    const emailLabel = email || "email не визначено";
 
     if (operatorName) operatorName.textContent = login;
     if (operatorRole) operatorRole.textContent = role;
     if (plateOperatorName) plateOperatorName.textContent = login;
     if (plateOperatorRole) plateOperatorRole.textContent = role;
 
-    if (profileLogin) profileLogin.textContent = login;
-    if (profileLoginValue) profileLoginValue.textContent = login;
-    if (profileEmail) profileEmail.textContent = email || "email не визначено";
-    if (profileRole) profileRole.textContent = role;
-    if (profileStatus) profileStatus.textContent = "ACTIVE";
-    if (profileSession) profileSession.textContent = email ? "Захищена" : "Локальна";
+    setText(profileLogin, login);
+    setText(profileLoginValue, login);
+    setText(profileEmail, emailLabel);
+    setText(profileRole, role);
+    setText(profileStatus, "ACTIVE");
+    setText(profileSession, email ? "Захищена" : "Локальна");
 
     if (avatar) {
       if (userAvatarTop) userAvatarTop.src = avatar;
       if (userAvatarModal) userAvatarModal.src = avatar;
       if (plateAvatarUser) plateAvatarUser.src = avatar;
     }
+
+    fitProfileText();
   }
 
   async function loadProfile() {
@@ -169,6 +210,7 @@
     userMenuButton?.setAttribute("aria-expanded", "true");
     document.documentElement.classList.add("profile-modal-lock");
     document.body.classList.add("profile-modal-open");
+    fitProfileText();
   }
 
   function closeProfile(event) {
@@ -233,6 +275,8 @@
         closeProfile(event);
       }
     });
+
+    window.addEventListener("resize", fitProfileText, { passive: true });
   }
 
   loadProfile();
