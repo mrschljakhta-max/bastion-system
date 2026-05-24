@@ -1288,3 +1288,111 @@ body[data-minimal-motion] *::after {
 .admin-autocomplete-empty span {
   color: rgba(255,255,255,.46);
 }
+
+/* ===== BASTION Admin v186: quick copy links ===== */
+.admin-quick-link-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: -8px 0 28px;
+  padding: 18px 18px 18px 22px;
+  border: 1px solid rgba(255,49,88,.42);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255,49,88,.20), transparent 34%),
+    linear-gradient(135deg, rgba(255,49,88,.12), rgba(0,190,255,.045) 48%, rgba(0,0,0,.20));
+  box-shadow:
+    0 18px 48px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    inset 0 0 34px rgba(255,49,88,.045);
+  overflow: hidden;
+}
+.admin-quick-link-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, transparent, #ff3158, transparent);
+  box-shadow: 0 0 18px rgba(255,49,88,.8);
+}
+.admin-quick-link-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 18px 0 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,49,88,.6), transparent);
+  pointer-events: none;
+}
+.admin-quick-link-main {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.admin-quick-link-kicker {
+  color: #ff6b7f;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+.admin-quick-link-main strong {
+  color: rgba(255,255,255,.92);
+  font-size: clamp(16px, 1.25vw, 21px);
+  font-weight: 950;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(255,255,255,.18);
+}
+.admin-quick-link-main code {
+  display: block;
+  max-width: 100%;
+  color: rgba(255,255,255,.68);
+  font-family: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-quick-copy {
+  position: relative;
+  z-index: 1;
+  min-width: 210px;
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,49,88,.68);
+  background: linear-gradient(180deg, rgba(255,49,88,.30), rgba(118,11,28,.52));
+  color: #fff;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 16px 34px rgba(255,49,88,.14), inset 0 1px 0 rgba(255,255,255,.15);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.admin-quick-copy:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,.50);
+  box-shadow: 0 20px 46px rgba(255,49,88,.22), inset 0 1px 0 rgba(255,255,255,.22);
+}
+.admin-quick-copy.is-copied {
+  border-color: rgba(55,255,178,.70);
+  background: linear-gradient(180deg, rgba(55,255,178,.24), rgba(8,90,61,.46));
+  box-shadow: 0 20px 46px rgba(55,255,178,.12), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.admin-access-card .admin-quick-link-card {
+  margin: 0 0 28px;
+}
+@media (max-width: 760px) {
+  .admin-quick-link-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .admin-quick-copy {
+    width: 100%;
+    min-width: 0;
+  }
+}

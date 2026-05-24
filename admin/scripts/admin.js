@@ -23,6 +23,8 @@
   const inviteUrl = document.getElementById('inviteUrl');
   const copyInviteUrl = document.getElementById('copyInviteUrl');
   const mailtoInvite = document.getElementById('mailtoInvite');
+  const copyMainSiteUrl = document.getElementById('copyMainSiteUrl');
+  const copyAdminStartUrl = document.getElementById('copyAdminStartUrl');
 
   const usersTable = document.getElementById('usersTable');
   const requestsTable = document.getElementById('requestsTable');
@@ -632,12 +634,54 @@
     }
   });
 
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+  }
+
+  function bindCopyButton(button, url) {
+    if (!button) return;
+    const defaultText = button.dataset.copyDefault || button.textContent || 'Копіювати';
+
+    button.addEventListener('click', async () => {
+      try {
+        await copyTextToClipboard(url);
+        button.classList.add('is-copied');
+        button.textContent = '✓ Скопійовано';
+        setTimeout(() => {
+          button.classList.remove('is-copied');
+          button.textContent = defaultText;
+        }, 1600);
+      } catch (error) {
+        console.error('Copy link failed:', error);
+        button.textContent = 'Не скопійовано';
+        setTimeout(() => (button.textContent = defaultText), 1600);
+      }
+    });
+  }
+
   copyInviteUrl?.addEventListener('click', async () => {
     if (!lastInvite?.setup_url) return;
-    await navigator.clipboard.writeText(lastInvite.setup_url);
+    await copyTextToClipboard(lastInvite.setup_url);
     copyInviteUrl.textContent = 'Скопійовано';
     setTimeout(() => (copyInviteUrl.textContent = 'Скопіювати'), 1200);
   });
+
+  bindCopyButton(copyMainSiteUrl, `${window.location.origin}/`);
+  bindCopyButton(copyAdminStartUrl, `${window.location.origin}/admin/start.html`);
 
 
   async function sendAdminAccessEmail(user, role) {
