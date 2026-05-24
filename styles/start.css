@@ -363,7 +363,7 @@
   z-index: 2;
   left: 50%;
   top: 50%;
-  width: min(72vw, 780px);
+  width: min(58vw, 560px);
   aspect-ratio: 1 / 1;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -387,6 +387,7 @@
 
 .ring-center {
   z-index: 5;
+  transform: scale(.84);
 }
 
 @keyframes loginRingBreath {
