@@ -9656,3 +9656,99 @@ body.dict-modal-open .dict-modal.is-open {
 .b116-top-panels {
   z-index: 26000 !important;
 }
+
+/* =========================================================
+   BASTION PROFILE CENTER MODAL v183 — viewport centered dialog
+   Fixes old dropdown/top-right profile rules that could pull the
+   account card upward or sideways on core pages.
+   ========================================================= */
+#profileModal.bastion-profile-modal,
+.profile-modal.bastion-profile-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100dvw !important;
+  height: 100dvh !important;
+  min-width: 100dvw !important;
+  min-height: 100dvh !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: clamp(22px, 4vh, 48px) clamp(18px, 4vw, 56px) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  z-index: 900000 !important;
+  transform: none !important;
+  contain: none !important;
+  isolation: isolate !important;
+}
+
+#profileModal.bastion-profile-modal.is-open,
+.profile-modal.bastion-profile-modal.is-open {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#profileModal.bastion-profile-modal > .profile-backdrop,
+.profile-modal.bastion-profile-modal > .profile-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 55, 60, .16), transparent 46%),
+    rgba(0, 0, 0, .72) !important;
+  backdrop-filter: blur(15px) saturate(1.05) !important;
+  -webkit-backdrop-filter: blur(15px) saturate(1.05) !important;
+}
+
+#profileModal.bastion-profile-modal > .profile-command-card,
+#profileModal.bastion-profile-modal > .profile-card,
+.profile-modal.bastion-profile-modal > .profile-command-card,
+.profile-modal.bastion-profile-modal > .profile-card {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  z-index: 2 !important;
+  width: min(1060px, calc(100dvw - 72px)) !important;
+  max-width: min(1060px, calc(100dvw - 72px)) !important;
+  max-height: calc(100dvh - 72px) !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  opacity: 1 !important;
+  overflow: hidden !important;
+  animation: profileConsoleCenterIn .24s cubic-bezier(.2,.8,.2,1) both !important;
+}
+
+@keyframes profileConsoleCenterIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(.965);
+    filter: blur(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (max-width: 820px) {
+  #profileModal.bastion-profile-modal,
+  .profile-modal.bastion-profile-modal {
+    padding: 22px !important;
+    overflow: hidden !important;
+  }
+
+  #profileModal.bastion-profile-modal > .profile-command-card,
+  #profileModal.bastion-profile-modal > .profile-card,
+  .profile-modal.bastion-profile-modal > .profile-command-card,
+  .profile-modal.bastion-profile-modal > .profile-card {
+    width: calc(100dvw - 44px) !important;
+    max-width: calc(100dvw - 44px) !important;
+    max-height: calc(100dvh - 44px) !important;
+    overflow: auto !important;
+  }
+}
