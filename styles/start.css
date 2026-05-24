@@ -292,7 +292,7 @@
 }
 
 :root[data-theme="light"] .bg-main {
-  opacity: .72;
+  opacity: 1;
 }
 
 :root[data-theme="light"] .premium-fog,
@@ -363,7 +363,7 @@
   z-index: 2;
   left: 50%;
   top: 50%;
-  width: min(58vw, 560px);
+  width: min(58vw, 650px);
   aspect-ratio: 1 / 1;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -387,7 +387,6 @@
 
 .ring-center {
   z-index: 5;
-  transform: scale(.84);
 }
 
 @keyframes loginRingBreath {
@@ -445,22 +444,130 @@
 
 @media (max-width: 900px) {
   .login-ring-asset {
-    width: min(92vw, 620px);
+    width: min(82vw, 540px);
   }
 }
 
 
-/* ===== YELLOW TEXT OVERRIDE — START PORTAL ===== */
-.auth-kicker,
-.auth-back,
-.auth-field span,
-#modeSubtitle,
-.auth-switch,
-.auth-request-note label,
-.auth-panel .muted,
-.auth-request-note-field label{
+/* ===== YELLOW TEXT OVERRIDE — START PORTAL / DARK ONLY ===== */
+:root[data-theme="dark"] .auth-kicker,
+:root[data-theme="dark"] .auth-back,
+:root[data-theme="dark"] .auth-field span,
+:root[data-theme="dark"] #modeSubtitle,
+:root[data-theme="dark"] .auth-switch,
+:root[data-theme="dark"] .auth-request-note label,
+:root[data-theme="dark"] .auth-panel .muted,
+:root[data-theme="dark"] .auth-request-note-field label{
   color: #ffd84d !important;
   text-shadow:
     0 0 10px rgba(255,216,77,.18),
     0 0 22px rgba(255,216,77,.10) !important;
+}
+
+
+/* ===== BASTION v191 — real dark/light start theme assets ===== */
+:root[data-theme="dark"] .bg-main {
+  background:
+    radial-gradient(circle at 50% 86%, rgba(255, 46, 77, .12), transparent 34%),
+    linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.24)),
+    url("../assets/images/bg-bastion-hero.webp") center center / cover no-repeat;
+}
+
+:root[data-theme="light"] .bg-main {
+  background:
+    radial-gradient(circle at 50% 78%, rgba(211, 32, 42, .08), transparent 36%),
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.12)),
+    url("../assets/images/bg-bastion-hero-light.png") center center / cover no-repeat;
+  transform: scale(1.015);
+  animation: none;
+  filter: var(--start-bg-filter);
+}
+
+:root[data-theme="dark"] .login-ring-asset {
+  background-image: url("../assets/ui/login-ring-v2.png");
+}
+
+:root[data-theme="light"] .login-ring-asset {
+  background-image: url("../assets/ui/login-ring-light-v1.png");
+  filter:
+    drop-shadow(0 18px 46px rgba(45, 57, 72, .10))
+    drop-shadow(0 0 34px rgba(215, 34, 44, .16));
+}
+
+:root[data-theme="light"] .start-theme-toggle {
+  color: rgba(29, 36, 44, .82);
+  background: rgba(255,255,255,.70);
+  border-color: rgba(201,40,53,.28);
+}
+
+:root[data-theme="light"] .premium-fog,
+:root[data-theme="light"] .field-light-wave,
+:root[data-theme="light"] .embers {
+  display: none;
+}
+
+:root[data-theme="light"] .bg-noise {
+  opacity: .018;
+  mix-blend-mode: multiply;
+}
+
+:root[data-theme="light"] .brand-mark {
+  filter:
+    drop-shadow(0 0 12px rgba(201, 40, 53, .16))
+    drop-shadow(0 12px 34px rgba(28, 37, 47, .12)) !important;
+}
+
+:root[data-theme="light"] #modeSubtitle,
+:root[data-theme="light"] .auth-kicker,
+:root[data-theme="light"] .auth-back,
+:root[data-theme="light"] .auth-switch,
+:root[data-theme="light"] .auth-field span {
+  color: rgba(211, 26, 36, .88) !important;
+  text-shadow: none !important;
+}
+
+:root[data-theme="light"] .auth-title {
+  color: rgba(30, 36, 44, .92) !important;
+  text-shadow: 0 10px 30px rgba(255,255,255,.55) !important;
+}
+
+:root[data-theme="light"] .auth-panel {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.52), rgba(255,255,255,.34)),
+    radial-gradient(circle at 50% 0%, rgba(211, 40, 53, .06), transparent 60%);
+  border-color: rgba(201, 40, 53, .20);
+  box-shadow:
+    inset 0 0 26px rgba(255,255,255,.35),
+    0 22px 72px rgba(28,37,47,.10);
+}
+
+:root[data-theme="light"] .auth-panel::before,
+:root[data-theme="light"] .auth-panel::after {
+  background: linear-gradient(90deg, transparent, rgba(201, 40, 53, .42), transparent);
+  box-shadow: none;
+}
+
+:root[data-theme="light"] .access-choice-btn,
+:root[data-theme="light"] .auth-submit {
+  color: rgba(211, 26, 36, .92) !important;
+  background: rgba(255,255,255,.48) !important;
+  border-color: rgba(211, 26, 36, .36) !important;
+}
+
+:root[data-theme="light"] .auth-field input,
+:root[data-theme="light"] .auth-request-note textarea {
+  color: rgba(30,36,44,.86) !important;
+  background: rgba(255,255,255,.55) !important;
+  border-color: rgba(30,36,44,.12) !important;
+}
+
+:root[data-theme="light"] .auth-field input::placeholder,
+:root[data-theme="light"] .auth-request-note textarea::placeholder {
+  color: rgba(30,36,44,.40) !important;
+}
+
+@media (max-width: 900px) {
+  .login-ring-asset {
+    width: min(82vw, 540px);
+  }
 }

@@ -31,9 +31,12 @@
 
   <script>
     (function(){
-      // Поки повноцінний asset-набір світлої теми не готовий, стартова сторінка завжди відкривається у темній темі.
-      try { localStorage.setItem('bastion:start-theme', 'dark'); } catch (e) {}
-      document.documentElement.setAttribute('data-theme', 'dark');
+      var theme = 'dark';
+      try {
+        theme = localStorage.getItem('bastion_theme') || localStorage.getItem('bastion:start-theme') || 'dark';
+      } catch (e) {}
+      if (theme !== 'light') theme = 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
     })();
   </script>
 
@@ -43,7 +46,7 @@
   <link rel="stylesheet" href="./styles/animations.css" />
   <link rel="stylesheet" href="./styles/hud-ring.css?v=15" />
   <link rel="stylesheet" href="./styles/logo.css" />
-  <link rel="stylesheet" href="./styles/start.css?v=190" />
+  <link rel="stylesheet" href="./styles/start.css?v=191" />
   <link rel="stylesheet" href="./styles/bastion-wordmark.css?v=26" />
   <link rel="stylesheet" href="./styles/ring-effects-v14.css?v=18" />
 
@@ -158,6 +161,8 @@
         <div class="ring-center hero-core">
           <img
             src="./assets/logo/bastion-mark.svg"
+            data-dark-src="./assets/logo/bastion-mark.svg"
+            data-light-src="./assets/logo/bastion-mark-light.png"
             alt="BASTION mark"
             class="brand-mark"
           />
@@ -228,7 +233,7 @@
   <script src="./scripts/main.js"></script>
   <script src="./scripts/hud-ring.js"></script>
   <script src="./scripts/ring-effects-v14.js?v=18"></script>
-  <script src="./scripts/start-theme.js?v=2"></script>
+  <script src="./scripts/start-theme.js?v=3"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./scripts/config.js?v=27"></script>
   <script src="./scripts/supabase-client.js?v=107"></script>
