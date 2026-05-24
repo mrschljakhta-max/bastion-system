@@ -3,52 +3,43 @@
   const root = document.documentElement;
   const toggle = document.getElementById('startThemeToggle');
 
-  function normalizeTheme(value) {
-    return value === 'light' ? 'light' : 'dark';
+  function forceDarkTheme() {
+    root.setAttribute('data-theme', 'dark');
+    if (document.body) document.body.setAttribute('data-theme', 'dark');
+    try { localStorage.setItem(STORAGE_KEY, 'dark'); } catch (error) {}
   }
 
-  function getSavedTheme() {
-    try {
-      return normalizeTheme(localStorage.getItem(STORAGE_KEY));
-    } catch (error) {
-      return 'dark';
+  function showThemeNotice() {
+    let toast = document.querySelector('.start-theme-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'start-theme-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
     }
+
+    toast.textContent = 'Поки доступна тільки темна тема. Світла тема буде підключена після підготовки окремих елементів.';
+    toast.classList.add('is-visible');
+    window.clearTimeout(showThemeNotice._timer);
+    showThemeNotice._timer = window.setTimeout(function () {
+      toast.classList.remove('is-visible');
+    }, 3200);
   }
 
-  function saveTheme(theme) {
-    try {
-      localStorage.setItem(STORAGE_KEY, theme);
-    } catch (error) {
-      // localStorage may be blocked; visual switching should still work.
-    }
-  }
-
-  function applyTheme(theme) {
-    const nextTheme = normalizeTheme(theme);
-    root.setAttribute('data-theme', nextTheme);
-    document.body && document.body.setAttribute('data-theme', nextTheme);
-
-    if (toggle) {
-      const isLight = nextTheme === 'light';
-      toggle.setAttribute('aria-pressed', String(isLight));
-      toggle.dataset.theme = nextTheme;
-
-      const label = toggle.querySelector('[data-theme-label]');
-      if (label) {
-        label.textContent = isLight ? 'СВІТЛА ТЕМА' : 'ТЕМНА ТЕМА';
-      }
-    }
-  }
-
-  const initialTheme = getSavedTheme();
-  applyTheme(initialTheme);
+  forceDarkTheme();
 
   if (toggle) {
+    toggle.setAttribute('aria-pressed', 'false');
+    toggle.dataset.theme = 'dark';
+    toggle.setAttribute('aria-label', 'Інформація про теми');
+
+    const label = toggle.querySelector('[data-theme-label]');
+    if (label) label.textContent = 'ТЕМНА ТЕМА';
+
     toggle.addEventListener('click', function () {
-      const current = normalizeTheme(root.getAttribute('data-theme'));
-      const next = current === 'light' ? 'dark' : 'light';
-      applyTheme(next);
-      saveTheme(next);
+      forceDarkTheme();
+      showThemeNotice();
     });
   }
 })();

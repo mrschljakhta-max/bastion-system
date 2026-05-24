@@ -355,3 +355,95 @@
     letter-spacing: .12em;
   }
 }
+
+
+/* BASTION v189 — dark-only theme notice + prepared asset ring */
+.login-ring-asset {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: min(72vw, 780px);
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: url("../assets/ui/login-ring-v2.png") center / contain no-repeat;
+  filter:
+    drop-shadow(0 0 24px rgba(255, 32, 42, .32))
+    drop-shadow(0 0 70px rgba(255, 18, 28, .18));
+  animation: loginRingBreath 9s ease-in-out infinite;
+}
+
+/* Старі SVG/gradient кільця лишаємо в коді як резерв, але прибираємо з візуального шару,
+   щоб нове PNG-кільце було головним елементом стартової сторінки. */
+.ring-v14-core,
+.ring-tech-layer,
+.ring-data-layer,
+.ring-inner-layer,
+.ring-active-layer,
+.ring-glass-layer {
+  opacity: 0 !important;
+}
+
+.ring-center {
+  z-index: 5;
+}
+
+@keyframes loginRingBreath {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    filter:
+      drop-shadow(0 0 22px rgba(255, 32, 42, .30))
+      drop-shadow(0 0 64px rgba(255, 18, 28, .16));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.018);
+    filter:
+      drop-shadow(0 0 34px rgba(255, 52, 62, .42))
+      drop-shadow(0 0 92px rgba(255, 18, 28, .24));
+  }
+}
+
+.start-theme-toggle {
+  cursor: pointer;
+}
+
+.start-theme-toggle[data-theme="dark"] .start-theme-toggle__icon {
+  background: radial-gradient(circle at 35% 35%, #fff 0 16%, #ff334a 17% 56%, transparent 58%);
+}
+
+.start-theme-toast {
+  position: fixed;
+  z-index: 90;
+  top: clamp(72px, 8vw, 92px);
+  right: clamp(18px, 3vw, 40px);
+  max-width: min(420px, calc(100vw - 36px));
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 46, 77, .38);
+  border-radius: 18px;
+  color: rgba(244, 247, 255, .92);
+  background: rgba(10, 4, 7, .76);
+  box-shadow: 0 0 38px rgba(255, 30, 50, .16), inset 0 0 26px rgba(255, 35, 62, .08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  line-height: 1.45;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity .22s ease, transform .22s ease;
+}
+
+.start-theme-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 900px) {
+  .login-ring-asset {
+    width: min(92vw, 620px);
+  }
+}

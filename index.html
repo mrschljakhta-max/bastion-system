@@ -31,13 +31,9 @@
 
   <script>
     (function(){
-      try {
-        var saved = localStorage.getItem('bastion:start-theme');
-        var theme = saved === 'light' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', theme);
-      } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
+      // Поки повноцінний asset-набір світлої теми не готовий, стартова сторінка завжди відкривається у темній темі.
+      try { localStorage.setItem('bastion:start-theme', 'dark'); } catch (e) {}
+      document.documentElement.setAttribute('data-theme', 'dark');
     })();
   </script>
 
@@ -75,6 +71,8 @@
 
     <section class="access-shell" aria-label="BASTION access menu">
       <div class="hud-ring" id="hudRing">
+
+        <div class="login-ring-asset" aria-hidden="true"></div>
 
         <!-- BASTION SVG HUD CORE v14 -->
         <div class="ring-v14-core" aria-hidden="true">
