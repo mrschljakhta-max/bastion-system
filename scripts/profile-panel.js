@@ -1,31 +1,13 @@
-/* BASTION Profile Panel v121
-   Opens profile command modal from the right HUD plate and performs logout.
-   Fix: robust delegated click handler for HUD layers with pointer-events overrides.
+/* BASTION Profile Panel v181
+   Hard fix: opens profile modal from the visual bounds of the top-right HUD plate,
+   even when decorative HUD layers, pseudo-elements, or pointer-events rules interfere.
 */
 (() => {
+  const PROFILE_VERSION = "181";
+
   function byId(id) {
     return document.getElementById(id);
   }
-
-  const userMenuButton = byId("userMenuButton");
-  const profileModal = byId("profileModal");
-  const logoutButton = byId("logoutButton");
-
-  const operatorName = byId("operatorName");
-  const operatorRole = byId("operatorRole");
-  const plateOperatorName = byId("plateOperatorName");
-  const plateOperatorRole = byId("plateOperatorRole");
-
-  const profileLogin = byId("profileLogin");
-  const profileLoginValue = byId("profileLoginValue");
-  const profileEmail = byId("profileEmail");
-  const profileRole = byId("profileRole");
-  const profileStatus = byId("profileStatus");
-  const profileSession = byId("profileSession");
-
-  const userAvatarTop = byId("userAvatarTop");
-  const userAvatarModal = byId("userAvatarModal");
-  const plateAvatarUser = document.querySelector(".plate-avatar-user");
 
   function safeText(value, fallback = "") {
     return String(value ?? fallback).replace(/[<>]/g, "").trim();
@@ -84,22 +66,28 @@
     const role = normalizeRole(profile.role || profile.access_level || "DEMO");
     const avatar = safeText(profile.avatar || profile.avatar_url || "");
 
-    if (operatorName) operatorName.textContent = login;
-    if (operatorRole) operatorRole.textContent = role;
-    if (plateOperatorName) plateOperatorName.textContent = login;
-    if (plateOperatorRole) plateOperatorRole.textContent = role;
+    const targets = {
+      operatorName: login,
+      operatorRole: role,
+      plateOperatorName: login,
+      plateOperatorRole: role,
+      profileLogin: login,
+      profileLoginValue: login,
+      profileEmail: email || "email не визначено",
+      profileRole: role,
+      profileStatus: "ACTIVE",
+      profileSession: email ? "Захищена" : "Локальна"
+    };
 
-    if (profileLogin) profileLogin.textContent = login;
-    if (profileLoginValue) profileLoginValue.textContent = login;
-    if (profileEmail) profileEmail.textContent = email || "email не визначено";
-    if (profileRole) profileRole.textContent = role;
-    if (profileStatus) profileStatus.textContent = "ACTIVE";
-    if (profileSession) profileSession.textContent = email ? "Захищена" : "Локальна";
+    Object.entries(targets).forEach(([id, text]) => {
+      const node = byId(id);
+      if (node) node.textContent = text;
+    });
 
     if (avatar) {
-      if (userAvatarTop) userAvatarTop.src = avatar;
-      if (userAvatarModal) userAvatarModal.src = avatar;
-      if (plateAvatarUser) plateAvatarUser.src = avatar;
+      [byId("userAvatarTop"), byId("userAvatarModal"), document.querySelector(".plate-avatar-user")]
+        .filter(Boolean)
+        .forEach((img) => { img.src = avatar; });
     }
   }
 
@@ -152,6 +140,9 @@
       event.stopPropagation();
     }
 
+    const userMenuButton = byId("userMenuButton");
+    const profileModal = byId("profileModal");
+
     if (!profileModal) {
       console.warn("[BASTION profile-panel] #profileModal not found");
       return;
@@ -168,6 +159,9 @@
       event.preventDefault();
       event.stopPropagation();
     }
+
+    const userMenuButton = byId("userMenuButton");
+    const profileModal = byId("profileModal");
 
     profileModal?.classList.remove("is-open");
     profileModal?.setAttribute("aria-hidden", "true");
@@ -197,46 +191,93 @@
       "bastion_profile_avatar"
     ].forEach((key) => localStorage.removeItem(key));
 
-    [
-      "bastion_mfa_verified",
-      "bastion_login",
-      "bastion_role",
-      "bastion_email"
-    ].forEach((key) => sessionStorage.removeItem(key));
-
+    sessionStorage.clear();
     window.location.replace("../index.html");
   }
 
+  function pointInsideRightPlate(event) {
+    const button = byId("userMenuButton");
+    if (!button || typeof event.clientX !== "number" || typeof event.clientY !== "number") return false;
+
+    const rect = button.getBoundingClientRect();
+    if (!rect.width || !rect.height) return false;
+
+    const padX = Math.max(18, rect.width * 0.06);
+    const padY = Math.max(14, rect.height * 0.08);
+
+    return (
+      event.clientX >= rect.left - padX &&
+      event.clientX <= rect.right + padX &&
+      event.clientY >= rect.top - padY &&
+      event.clientY <= rect.bottom + padY
+    );
+  }
+
+  function isRightPlateTarget(event) {
+    const target = event.target;
+    if (target?.closest?.("#userMenuButton, .b116-panel--right")) return true;
+    return pointInsideRightPlate(event);
+  }
+
+  function hardenRightPlate() {
+    const button = byId("userMenuButton");
+    if (!button) return;
+
+    button.style.pointerEvents = "auto";
+    button.style.cursor = "pointer";
+    button.style.zIndex = "30001";
+    button.style.display = "block";
+    button.style.visibility = "visible";
+    button.style.opacity = "1";
+    button.setAttribute("data-profile-panel-version", PROFILE_VERSION);
+
+    button.querySelectorAll("*").forEach((child) => {
+      child.style.pointerEvents = "none";
+    });
+  }
+
   function bind() {
-    if (!userMenuButton) {
-      console.warn("[BASTION profile-panel] #userMenuButton not found");
-    }
+    hardenRightPlate();
 
-    userMenuButton?.addEventListener("click", openProfile);
-
-    /* Delegated fallback: works even if HUD child layers or future markup catch the click. */
-    document.addEventListener("click", (event) => {
-      const trigger = event.target?.closest?.("#userMenuButton, .b116-panel--right");
-      if (trigger) openProfile(event);
-    }, true);
-
-    logoutButton?.addEventListener("click", logout);
+    byId("userMenuButton")?.addEventListener("click", openProfile);
+    byId("logoutButton")?.addEventListener("click", logout);
 
     document.querySelectorAll("[data-close-profile]").forEach((el) => {
       el.addEventListener("click", closeProfile);
     });
 
+    ["pointerdown", "mousedown", "touchstart", "click"].forEach((eventName) => {
+      document.addEventListener(eventName, (event) => {
+        if (byId("profileModal")?.classList.contains("is-open")) return;
+        if (isRightPlateTarget(event)) openProfile(event);
+      }, true);
+    });
+
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && profileModal?.classList.contains("is-open")) {
+      if ((event.key === "Enter" || event.key === " ") && document.activeElement === byId("userMenuButton")) {
+        openProfile(event);
+        return;
+      }
+
+      if (event.key === "Escape" && byId("profileModal")?.classList.contains("is-open")) {
         closeProfile(event);
       }
     });
   }
 
-  loadProfile();
-  bind();
+  function init() {
+    loadProfile();
+    bind();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
 
   window.BastionProfilePanel = {
+    version: PROFILE_VERSION,
     open: openProfile,
     close: closeProfile,
     reload: loadProfile
