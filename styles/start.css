@@ -22,7 +22,7 @@
   background:
     radial-gradient(circle at 50% 86%, rgba(255, 46, 77, .12), transparent 34%),
     linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.24)),
-    var(--start-bg-image) center center / cover no-repeat;
+    url("../assets/images/bg-bastion-hero.webp") center center / cover no-repeat;
   transform: scale(1.035);
   animation: cameraBreath 26s ease-in-out infinite;
   filter: saturate(1.16) contrast(1.08) brightness(1.08);
@@ -292,13 +292,13 @@
 }
 
 :root[data-theme="light"] .bg-main {
-  opacity: 1;
+  opacity: .72;
 }
 
 :root[data-theme="light"] .premium-fog,
 :root[data-theme="light"] .field-light-wave,
 :root[data-theme="light"] .embers {
-  opacity: 0;
+  opacity: .08;
 }
 
 :root[data-theme="light"] .ring-v14-svg,
@@ -367,7 +367,7 @@
   aspect-ratio: 1 / 1;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  background: var(--start-ring-image) center / contain no-repeat;
+  background: url("../assets/ui/login-ring-v2.png") center / contain no-repeat;
   filter:
     drop-shadow(0 0 24px rgba(255, 32, 42, .32))
     drop-shadow(0 0 70px rgba(255, 18, 28, .18));
@@ -464,56 +464,177 @@
     0 0 22px rgba(255,216,77,.10) !important;
 }
 
+/* =========================================================
+   BASTION START — REAL LIGHT THEME v194
+   Світла тема міняє саме asset-и: фон, кільце, логотип і форму.
+   ========================================================= */
 
-/* BASTION v192 — clean light theme: sharp background + red wordmark */
 :root[data-theme="light"] .bg-main {
-  filter: var(--start-bg-filter) !important;
   opacity: 1 !important;
-  transform: scale(1.0);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.05)),
+    url("../assets/images/bg-bastion-hero-light.png") center center / cover no-repeat !important;
+  transform: scale(1.01) !important;
+  animation: none !important;
+  filter: none !important;
 }
 
 :root[data-theme="light"] .bg-vignette {
-  opacity: .55;
+  opacity: .22 !important;
+  background:
+    radial-gradient(circle at 50% 56%, transparent 0 55%, rgba(255,255,255,.18) 82%, rgba(244,247,250,.26) 100%),
+    linear-gradient(90deg, rgba(255,255,255,.18), transparent 18% 82%, rgba(255,255,255,.18)) !important;
 }
 
 :root[data-theme="light"] .premium-fog,
 :root[data-theme="light"] .field-light-wave,
 :root[data-theme="light"] .embers,
 :root[data-theme="light"] .bg-noise {
-  opacity: 0 !important;
+  display: none !important;
 }
 
-:root[data-theme="light"] .brand-name {
-  color: #d71920 !important;
-  -webkit-text-fill-color: #d71920 !important;
-  background: none !important;
-  text-shadow:
-    0 0 10px rgba(215, 25, 32, .16),
-    0 6px 28px rgba(215, 25, 32, .10) !important;
+/* Фіксований розмір кільця для обох тем */
+.login-ring-asset {
+  width: min(48vw, 620px) !important;
 }
 
-:root[data-theme="light"] .brand-name::before,
-:root[data-theme="light"] .brand-name::after {
+:root[data-theme="light"] .login-ring-asset {
+  background-image: url("../assets/ui/login-ring-light-v1.png") !important;
+  filter:
+    drop-shadow(0 0 18px rgba(255, 40, 48, .20))
+    drop-shadow(0 0 60px rgba(255, 40, 48, .13)) !important;
+}
+
+/* Світла тема: центр без затемненої плями / blur */
+:root[data-theme="light"] .ring-center {
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-theme="light"] .ring-center::before,
+:root[data-theme="light"] .ring-center::after {
   opacity: 0 !important;
 }
 
 :root[data-theme="light"] .brand-mark {
-  filter: drop-shadow(0 10px 26px rgba(215, 25, 32, .16));
+  content: url("../assets/logo/bastion-mark-light.png");
+  width: clamp(74px, 4.6vw, 92px) !important;
+  filter:
+    drop-shadow(0 0 8px rgba(255, 25, 32, .22))
+    drop-shadow(0 0 20px rgba(255, 25, 32, .10)) !important;
 }
 
-/* BASTION v192b — stronger override after metallic wordmark */
-:root[data-theme="light"] .hud-ring .brand-name {
+:root[data-theme="light"] .brand-name {
   color: #d71920 !important;
-  -webkit-text-fill-color: #d71920 !important;
-  background: none !important;
-  -webkit-background-clip: border-box !important;
-  background-clip: border-box !important;
-  filter: none !important;
   text-shadow:
-    0 0 10px rgba(215, 25, 32, .16),
-    0 6px 28px rgba(215, 25, 32, .10) !important;
+    0 0 10px rgba(255,255,255,.64),
+    0 0 18px rgba(215,25,32,.12) !important;
 }
 
-:root[data-theme="light"] .bg-main {
-  animation: none !important;
+:root[data-theme="light"] .brand-subtitle,
+:root[data-theme="light"] #modeSubtitle {
+  color: rgba(215, 25, 32, .84) !important;
+  text-shadow: none !important;
+}
+
+:root[data-theme="light"] .signal-line {
+  background: linear-gradient(90deg, transparent, rgba(215,25,32,.50), transparent) !important;
+  box-shadow: 0 0 10px rgba(215,25,32,.16) !important;
+}
+
+/* Світла тема: форма входу більше не темна */
+:root[data-theme="light"] .auth-panel {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,.44)),
+    radial-gradient(circle at 50% 0%, rgba(255, 62, 70, .08), transparent 58%) !important;
+  border-color: rgba(215,25,32,.22) !important;
+  box-shadow:
+    0 20px 70px rgba(54,70,86,.13),
+    inset 0 0 28px rgba(255,255,255,.56) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-theme="light"] .auth-panel::before,
+:root[data-theme="light"] .auth-panel::after {
+  background: linear-gradient(90deg, transparent, rgba(215,25,32,.42), transparent) !important;
+  box-shadow: 0 0 10px rgba(215,25,32,.12) !important;
+}
+
+:root[data-theme="light"] .auth-title {
+  color: rgba(32, 38, 46, .92) !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.65) !important;
+}
+
+:root[data-theme="light"] .auth-kicker,
+:root[data-theme="light"] .auth-back,
+:root[data-theme="light"] .auth-field span,
+:root[data-theme="light"] #modeSubtitle,
+:root[data-theme="light"] .auth-switch,
+:root[data-theme="light"] .auth-request-note label,
+:root[data-theme="light"] .auth-panel .muted,
+:root[data-theme="light"] .auth-request-note-field label {
+  color: #d71920 !important;
+  text-shadow: none !important;
+}
+
+:root[data-theme="light"] .auth-field input,
+:root[data-theme="light"] .auth-request-note textarea {
+  color: rgba(28, 34, 42, .92) !important;
+  background: rgba(255,255,255,.74) !important;
+  border-color: rgba(215,25,32,.22) !important;
+  box-shadow:
+    inset 0 0 18px rgba(255,255,255,.70),
+    0 0 0 rgba(215,25,32,0) !important;
+}
+
+:root[data-theme="light"] .auth-field input:focus,
+:root[data-theme="light"] .auth-request-note textarea:focus {
+  background: rgba(255,255,255,.90) !important;
+  border-color: rgba(215,25,32,.48) !important;
+  box-shadow:
+    0 0 0 2px rgba(215,25,32,.08),
+    inset 0 0 18px rgba(255,255,255,.70) !important;
+}
+
+:root[data-theme="light"] .auth-field input::placeholder,
+:root[data-theme="light"] .auth-request-note textarea::placeholder {
+  color: rgba(28,34,42,.42) !important;
+}
+
+:root[data-theme="light"] .auth-password-toggle {
+  border-color: rgba(215,25,32,.24) !important;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 90, 96, .12), rgba(255,255,255,.72) 62%),
+    linear-gradient(180deg, rgba(255,255,255,.88), rgba(239,244,248,.92)) !important;
+  box-shadow: inset 0 0 10px rgba(255,255,255,.52), 0 0 12px rgba(215,25,32,.08) !important;
+}
+
+:root[data-theme="light"] .auth-submit,
+:root[data-theme="light"] .access-choice-btn {
+  color: #d71920 !important;
+  background: rgba(255,255,255,.56) !important;
+  border-color: rgba(215,25,32,.34) !important;
+  box-shadow:
+    inset 0 0 18px rgba(255,255,255,.50),
+    0 10px 34px rgba(54,70,86,.08) !important;
+}
+
+:root[data-theme="light"] .auth-submit:hover,
+:root[data-theme="light"] .auth-submit:focus-visible,
+:root[data-theme="light"] .access-choice-btn:hover,
+:root[data-theme="light"] .access-choice-btn:focus-visible {
+  border-color: rgba(215,25,32,.58) !important;
+  box-shadow:
+    inset 0 0 20px rgba(255,255,255,.60),
+    0 0 24px rgba(215,25,32,.12) !important;
+}
+
+@media (max-width: 900px) {
+  .login-ring-asset {
+    width: min(86vw, 560px) !important;
+  }
 }

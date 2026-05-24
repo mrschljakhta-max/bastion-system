@@ -26,8 +26,6 @@
   --start-bg-base: #050407;
   --start-bg-top: #050407;
   --start-bg-bottom: #120308;
-  --start-bg-image: url("../assets/images/bg-bastion-hero.webp");
-  --start-ring-image: url("../assets/ui/login-ring-v2.png");
   --start-text-main: rgba(244, 247, 255, .94);
   --start-text-muted: rgba(244, 247, 255, .58);
   --start-panel-bg: rgba(10, 4, 7, .42);
@@ -54,8 +52,6 @@
   --start-bg-base: #f4f6f8;
   --start-bg-top: #f7f9fb;
   --start-bg-bottom: #e9eef3;
-  --start-bg-image: url("../assets/backgrounds/start-bg-light-v1.png");
-  --start-ring-image: url("../assets/ui/login-ring-light-v1.png");
   --start-text-main: rgba(29, 36, 44, .95);
   --start-text-muted: rgba(29, 36, 44, .58);
   --start-panel-bg: rgba(255, 255, 255, .56);
@@ -63,6 +59,6 @@
   --start-panel-shadow: 0 18px 70px rgba(28, 37, 47, .12), inset 0 0 32px rgba(255, 255, 255, .42);
   --start-accent: #c92835;
   --start-accent-soft: rgba(201, 40, 53, .15);
-  --start-bg-filter: saturate(1.02) contrast(1.02) brightness(1.00);
-  --start-vignette: radial-gradient(circle at 50% 56%, transparent 0 58%, rgba(255,255,255,.10) 82%, rgba(233,238,243,.20) 100%), linear-gradient(90deg, rgba(244,246,248,.18), transparent 18% 82%, rgba(244,246,248,.18));
+  --start-bg-filter: none;
+  --start-vignette: radial-gradient(circle at 50% 56%, rgba(255,255,255,.18) 0 34%, rgba(255,255,255,.48) 78%, rgba(233,238,243,.72) 100%), linear-gradient(90deg, rgba(244,246,248,.68), transparent 22% 78%, rgba(244,246,248,.68));
 }
