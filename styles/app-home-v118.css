@@ -9819,3 +9819,148 @@ body.dict-modal-open .dict-modal.is-open {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* =========================================================
+   BASTION ACCOUNT THEME SWITCH v195
+   Theme controls inside account modal. Saves current UI theme
+   and applies data-theme to the whole site shell.
+   ========================================================= */
+.profile-theme-panel {
+  margin: -8px 0 24px;
+  padding: 14px 16px 16px;
+  border: 1px solid rgba(255, 78, 86, .24);
+  background:
+    linear-gradient(90deg, rgba(255, 55, 63, .075), rgba(0, 217, 255, .018));
+  box-shadow: inset 0 0 16px rgba(0,0,0,.22);
+}
+
+.profile-theme-panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-family: "Orbitron", system-ui, sans-serif;
+  text-transform: uppercase;
+}
+
+.profile-theme-panel__head span {
+  color: #ff626b;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.profile-theme-panel__head small {
+  color: rgba(255,255,255,.50);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .10em;
+  text-align: right;
+}
+
+.profile-theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.profile-theme-btn {
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 78, 86, .28);
+  border-radius: 10px;
+  color: rgba(255,255,255,.76);
+  background: rgba(0,0,0,.20);
+  font-family: "Orbitron", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform .16s ease,
+    color .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease,
+    background .16s ease;
+}
+
+.profile-theme-btn:hover {
+  transform: translateY(-1px);
+  color: #fff;
+  border-color: rgba(255, 130, 136, .62);
+  box-shadow: 0 0 18px rgba(255, 55, 63, .18);
+}
+
+.profile-theme-btn.is-active {
+  color: #fff;
+  border-color: rgba(255, 79, 87, .82);
+  background:
+    linear-gradient(145deg, rgba(255, 54, 62, .22), rgba(75, 12, 16, .54));
+  box-shadow:
+    0 0 24px rgba(255, 54, 62, .24),
+    inset 0 0 18px rgba(255,255,255,.045);
+}
+
+.profile-theme-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 auto;
+  box-shadow: 0 0 16px currentColor;
+}
+
+.profile-theme-dot--dark {
+  color: #ff3038;
+  background: radial-gradient(circle at 35% 35%, #fff 0 14%, #ff4750 18% 48%, #29070a 52% 100%);
+}
+
+.profile-theme-dot--light {
+  color: #ff3838;
+  background: radial-gradient(circle at 35% 35%, #fff 0 24%, #ffebeb 28% 56%, #ff3b3b 60% 100%);
+}
+
+:root[data-theme="light"] .profile-theme-panel {
+  border-color: rgba(218, 18, 18, .24);
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.62), rgba(255, 44, 44, .055));
+  box-shadow:
+    inset 0 0 18px rgba(255,255,255,.58),
+    0 10px 30px rgba(80, 95, 120, .08);
+}
+
+:root[data-theme="light"] .profile-theme-panel__head span {
+  color: #d71919;
+}
+
+:root[data-theme="light"] .profile-theme-panel__head small {
+  color: rgba(28, 36, 48, .58);
+}
+
+:root[data-theme="light"] .profile-theme-btn {
+  color: rgba(29, 36, 48, .68);
+  border-color: rgba(214, 24, 24, .22);
+  background: rgba(255,255,255,.58);
+}
+
+:root[data-theme="light"] .profile-theme-btn:hover,
+:root[data-theme="light"] .profile-theme-btn.is-active {
+  color: #1d2633;
+  border-color: rgba(219, 22, 22, .64);
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.90), rgba(255, 235, 235, .70));
+  box-shadow:
+    0 0 18px rgba(255, 50, 50, .18),
+    inset 0 0 18px rgba(255,255,255,.74);
+}
+
+@media (max-width: 820px) {
+  .profile-theme-options {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,4 +1,4 @@
-/* BASTION Profile Panel v178
+/* BASTION Profile Panel v195
    Opens profile command modal from the right HUD plate and performs logout.
    Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
@@ -10,6 +10,7 @@
   const userMenuButton = byId("userMenuButton");
   const profileModal = byId("profileModal");
   const logoutButton = byId("logoutButton");
+  const profileThemeStatus = byId("profileThemeStatus");
 
   const operatorName = byId("operatorName");
   const operatorRole = byId("operatorRole");
@@ -33,6 +34,49 @@
 
   function normalizeRole(value) {
     return safeText(value || "DEMO", "DEMO").toUpperCase();
+  }
+
+
+  function normalizeTheme(value) {
+    return value === "light" ? "light" : "dark";
+  }
+
+  function getStoredTheme() {
+    let theme = "dark";
+    try {
+      theme = localStorage.getItem("bastion_theme") || localStorage.getItem("bastion:start-theme") || "dark";
+    } catch (error) {}
+    return normalizeTheme(theme);
+  }
+
+  function applyTheme(theme, options = {}) {
+    const nextTheme = normalizeTheme(theme);
+
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    if (document.body) document.body.setAttribute("data-theme", nextTheme);
+
+    try {
+      localStorage.setItem("bastion_theme", nextTheme);
+      localStorage.setItem("bastion:start-theme", nextTheme);
+    } catch (error) {
+      console.warn("[BASTION theme] localStorage unavailable:", error);
+    }
+
+    document.querySelectorAll("[data-profile-theme]").forEach((button) => {
+      const isActive = button.dataset.profileTheme === nextTheme;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+
+    if (profileThemeStatus) {
+      profileThemeStatus.textContent = nextTheme === "light" ? "Обрана світла тема" : "Обрана темна тема";
+    }
+
+    window.dispatchEvent(new CustomEvent("bastion:theme-change", { detail: { theme: nextTheme, source: options.source || "profile" } }));
+  }
+
+  function initThemeControls() {
+    applyTheme(getStoredTheme(), { source: "profile-init" });
   }
 
   function getSupabaseClient() {
@@ -266,6 +310,14 @@
 
     logoutButton?.addEventListener("click", logout);
 
+    document.querySelectorAll("[data-profile-theme]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        applyTheme(button.dataset.profileTheme, { source: "profile-click" });
+      });
+    });
+
     document.querySelectorAll("[data-close-profile]").forEach((el) => {
       el.addEventListener("click", closeProfile);
     });
@@ -279,12 +331,15 @@
     window.addEventListener("resize", fitProfileText, { passive: true });
   }
 
+  initThemeControls();
   loadProfile();
   bind();
 
   window.BastionProfilePanel = {
     open: openProfile,
     close: closeProfile,
-    reload: loadProfile
+    reload: loadProfile,
+    applyTheme,
+    getTheme: getStoredTheme
   };
 })();

@@ -215,6 +215,23 @@
           </div>
         </dl>
 
+        <section class="profile-theme-panel" aria-label="Тема інтерфейсу">
+          <div class="profile-theme-panel__head">
+            <span>Тема інтерфейсу</span>
+            <small id="profileThemeStatus">Збережено локально</small>
+          </div>
+          <div class="profile-theme-options" role="group" aria-label="Вибір теми інтерфейсу">
+            <button class="profile-theme-btn" type="button" data-profile-theme="dark" aria-pressed="true">
+              <span class="profile-theme-dot profile-theme-dot--dark"></span>
+              Темна
+            </button>
+            <button class="profile-theme-btn" type="button" data-profile-theme="light" aria-pressed="false">
+              <span class="profile-theme-dot profile-theme-dot--light"></span>
+              Світла
+            </button>
+          </div>
+        </section>
+
         <div class="profile-actions profile-actions--single">
           <button id="logoutButton" class="danger-btn profile-logout-btn" type="button">Вийти із сайту</button>
         </div>
@@ -228,6 +245,6 @@
   <script src="../scripts/supabase-client.js?v=177"></script>
   <script src="../scripts/app-auth-guard.js?v=106"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
-  <script src="../scripts/profile-panel.js?v=182"></script>
+  <script src="../scripts/profile-panel.js?v=195"></script>
 </body>
 </html>
