@@ -10256,3 +10256,191 @@ body.dict-modal-open .dict-modal.is-open {
   background: linear-gradient(90deg, rgba(205, 32, 32, .18), rgba(205, 32, 32, .38), rgba(205, 32, 32, .18)) !important;
   box-shadow: 0 0 6px rgba(255, 44, 44, .10) !important;
 }
+
+/* =========================================================
+   BASTION APP WHITE THEME v199 — proportions + light panels fix
+   Fixes: snow background priority, top/bottom panel aspect ratio,
+   light sector fills, red top labels.
+   ========================================================= */
+:root[data-theme="light"] body.bastion-core-page {
+  background: #eef5f8 url("../assets/backgrounds/app-light-snow-bg-v198.png") center center / cover no-repeat fixed !important;
+}
+
+:root[data-theme="light"] .core-background {
+  background: #eef5f8 url("../assets/backgrounds/app-light-snow-bg-v198.png") center center / cover no-repeat fixed !important;
+}
+
+:root[data-theme="light"] .core-bg-image {
+  inset: 0 !important;
+  background: url("../assets/backgrounds/app-light-snow-bg-v198.png") center center / cover no-repeat !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+:root[data-theme="light"] .core-bg-image::after {
+  background:
+    radial-gradient(circle at 50% 52%, rgba(255,255,255,0) 0 42%, rgba(255,255,255,.035) 62%, rgba(224,235,240,.055) 100%) !important;
+  opacity: 1 !important;
+}
+
+:root[data-theme="light"] .beam-layer { opacity: .045 !important; mix-blend-mode: multiply !important; }
+:root[data-theme="light"] .scanlines { opacity: 0 !important; }
+:root[data-theme="light"] .particles-canvas { opacity: .10 !important; }
+:root[data-theme="light"] .circuit-traces { opacity: .28 !important; mix-blend-mode: multiply !important; }
+:root[data-theme="light"] .trace-base path { stroke: rgba(130,145,154,.24) !important; stroke-width: .72 !important; }
+:root[data-theme="light"] .trace-pulse path { stroke: rgba(255,32,32,.20) !important; filter: none !important; }
+:root[data-theme="light"] .trace-nodes circle { fill: rgba(255,45,45,.32) !important; filter: none !important; }
+
+/* Top plates: use cropped light asset so it is not compressed into a tiny square */
+:root[data-theme="light"] .b116-panel {
+  top: 18px !important;
+  width: 520px !important;
+  height: 230px !important;
+  --avatar-size: 72px !important;
+  --avatar-top: 78px !important;
+  --avatar-edge: 58px !important;
+  --text-top: 89px !important;
+  --text-edge: 184px !important;
+  --text-width: 250px !important;
+}
+
+:root[data-theme="light"] .b116-panel__bg {
+  content: url("../assets/ui/hud-panel-frame-light-v199.png") !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  opacity: 1 !important;
+  filter:
+    drop-shadow(0 10px 16px rgba(96, 112, 128, .16))
+    drop-shadow(0 0 14px rgba(255, 32, 32, .12)) !important;
+}
+
+:root[data-theme="light"] .b116-panel__bg--mirror {
+  transform: scaleX(-1) !important;
+}
+
+:root[data-theme="light"] .b116-panel__text strong,
+:root[data-theme="light"] #operatorName,
+:root[data-theme="light"] #plateOperatorName,
+:root[data-theme="light"] .b116-panel--left .b116-panel__text strong {
+  color: #e10008 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.88), 0 0 9px rgba(255,40,40,.22) !important;
+}
+
+:root[data-theme="light"] .b116-panel__text small,
+:root[data-theme="light"] #operatorRole,
+:root[data-theme="light"] #plateOperatorRole {
+  color: rgba(38,44,52,.78) !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.86) !important;
+}
+
+/* Keep top-right avatar/text aligned after the light asset crop */
+:root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right {
+  width: 520px !important;
+  height: 230px !important;
+  --avatar-size: 66px !important;
+  --avatar-top: 77px !important;
+  --avatar-edge: 56px !important;
+  --text-top: 84px !important;
+  --text-edge: 150px !important;
+  --text-width: 245px !important;
+}
+
+:root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar-box {
+  top: var(--avatar-top) !important;
+  right: var(--avatar-edge) !important;
+  width: var(--avatar-size) !important;
+  height: var(--avatar-size) !important;
+}
+
+:root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right .b116-panel__text {
+  top: var(--text-top) !important;
+  right: var(--text-edge) !important;
+  width: var(--text-width) !important;
+}
+
+/* Light sector buttons: remove the remaining dark glass feeling */
+:root[data-theme="light"] .sector-path {
+  fill: rgba(255,255,255,.82) !important;
+  fill-opacity: .86 !important;
+  stroke: rgba(255, 58, 58, .30) !important;
+  stroke-width: 1.05 !important;
+  filter: drop-shadow(0 0 4px rgba(255, 50, 50, .10)) !important;
+}
+:root[data-theme="light"] .sector-under-glow {
+  fill: rgba(255,255,255,.36) !important;
+  opacity: .34 !important;
+}
+:root[data-theme="light"] .sector-sheen {
+  fill: rgba(255,255,255,.56) !important;
+  opacity: .42 !important;
+}
+:root[data-theme="light"] .sector-edge {
+  stroke: rgba(255, 35, 35, .46) !important;
+  stroke-width: 1.45 !important;
+  opacity: .78 !important;
+  filter: drop-shadow(0 0 4px rgba(255, 40, 40, .18)) !important;
+}
+:root[data-theme="light"] .sector-beam { opacity: .22 !important; }
+:root[data-theme="light"] .sector-link:hover .sector-path,
+:root[data-theme="light"] .sector-link.is-active .sector-path,
+:root[data-theme="light"] .sector-path.is-active {
+  fill: rgba(255,255,255,.94) !important;
+  fill-opacity: .96 !important;
+  stroke: rgba(255, 25, 25, .62) !important;
+}
+
+/* Bottom plates: cropped asset + preserved natural proportions */
+:root[data-theme="light"] .bottom-contact,
+:root[data-theme="light"] .hud-bottom-left,
+:root[data-theme="light"] .bottom-map,
+:root[data-theme="light"] .hud-bottom-right {
+  width: 430px !important;
+  max-width: 430px !important;
+  height: 92px !important;
+  min-height: 92px !important;
+  bottom: 0 !important;
+  overflow: visible !important;
+}
+
+:root[data-theme="light"] .bottom-contact,
+:root[data-theme="light"] .hud-bottom-left {
+  left: 0 !important;
+  right: auto !important;
+  padding: 0 54px 0 82px !important;
+}
+
+:root[data-theme="light"] .bottom-map,
+:root[data-theme="light"] .hud-bottom-right {
+  right: 0 !important;
+  left: auto !important;
+  padding: 0 82px 0 54px !important;
+}
+
+:root[data-theme="light"] .bottom-contact .bottom-contact-panel,
+:root[data-theme="light"] .bottom-map .bottom-map-panel {
+  inset: 0 !important;
+  background: url("../assets/ui/bottom-panel-light-v199.png") center center / contain no-repeat !important;
+  filter:
+    drop-shadow(0 10px 14px rgba(96, 112, 128, .13))
+    drop-shadow(0 0 13px rgba(255, 35, 35, .14)) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="light"] .bottom-contact .bottom-contact-panel {
+  transform: scaleX(-1) !important;
+  transform-origin: 50% 50% !important;
+}
+
+:root[data-theme="light"] .bottom-contact .contact-dot-track,
+:root[data-theme="light"] .bottom-map .sitemap-track {
+  transform: translateY(2px) !important;
+}
+
+@media (max-width: 760px) {
+  :root[data-theme="light"] .b116-panel { width: 410px !important; height: 184px !important; }
+  :root[data-theme="light"] .bottom-contact,
+  :root[data-theme="light"] .bottom-map { width: min(430px, 100vw) !important; max-width: min(430px, 100vw) !important; }
+}
