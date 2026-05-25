@@ -121,7 +121,7 @@ body.bastion-core-page {
   display: flex;
   align-items: center;
   gap: 14px;
-  min-height: 78px;
+  min-height: 64px;
   border: 1px solid rgba(255,51,56,.35);
   color: var(--white);
   background: linear-gradient(135deg, rgba(16,3,7,.82), rgba(4,4,7,.54));
@@ -132,13 +132,15 @@ body.bastion-core-page {
 }
 
 .assistant-card {
-  min-width: 306px;
-  padding: 10px 20px 10px 12px;
+  min-width: 248px;
+  min-height: 64px;
+  padding: 8px 16px 8px 10px;
 }
 
 .user-card {
-  min-width: 328px;
-  padding: 10px 14px 10px 12px;
+  min-width: 264px;
+  min-height: 64px;
+  padding: 8px 12px 8px 10px;
 }
 
 .avatar-orbi,
@@ -1665,7 +1667,7 @@ body.bastion-core-page {
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 78px;
+  min-height: 64px;
   border: 1px solid rgba(255, 59, 61, .42);
   color: rgba(255,255,255,.94);
   background:
