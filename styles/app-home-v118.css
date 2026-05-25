@@ -10696,3 +10696,145 @@ body.dict-modal-open .dict-modal.is-open {
     font-size: 11px !important;
   }
 }
+
+
+/* =========================================================
+   BASTION APP WHITE THEME v203 — final TOP HUD micro alignment
+   Фінальні штрихи: аватарки точно в центрах гексаграм,
+   тексти посаджені на довгі плашки. Центр/фон/нижні HUD не чіпаємо.
+   ========================================================= */
+:root[data-theme="light"] .b116-panel {
+  --avatar-size: 44px !important;
+  --avatar-top: 39px !important;
+  --avatar-edge: 32px !important;
+  --text-top: 43px !important;
+  --text-width: 132px !important;
+}
+
+:root[data-theme="light"] .b116-panel--left {
+  --text-edge: 121px !important;
+}
+
+:root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right {
+  --avatar-size: 44px !important;
+  --avatar-top: 39px !important;
+  --avatar-edge: 32px !important;
+  --text-top: 42px !important;
+  --text-edge: 103px !important;
+  --text-width: 140px !important;
+}
+
+:root[data-theme="light"] .b116-panel__avatar-box {
+  width: var(--avatar-size) !important;
+  height: var(--avatar-size) !important;
+  top: var(--avatar-top) !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+}
+
+:root[data-theme="light"] .b116-panel--left .b116-panel__avatar-box {
+  left: var(--avatar-edge) !important;
+}
+
+:root[data-theme="light"] .b116-panel--right .b116-panel__avatar-box,
+:root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right .b116-panel__avatar-box {
+  right: var(--avatar-edge) !important;
+}
+
+:root[data-theme="light"] .b116-panel__avatar {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  transform: none !important;
+}
+
+:root[data-theme="light"] .b116-panel__text {
+  top: var(--text-top) !important;
+  width: var(--text-width) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  transform: none !important;
+}
+
+:root[data-theme="light"] .b116-panel--left .b116-panel__text {
+  left: var(--text-edge) !important;
+  right: auto !important;
+  text-align: left !important;
+  align-items: flex-start !important;
+}
+
+:root[data-theme="light"] .b116-panel--right .b116-panel__text,
+:root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right .b116-panel__text {
+  left: auto !important;
+  right: var(--text-edge) !important;
+  text-align: right !important;
+  align-items: flex-end !important;
+}
+
+:root[data-theme="light"] .b116-panel__text strong,
+:root[data-theme="light"] #operatorName,
+:root[data-theme="light"] #plateOperatorName {
+  font-size: 14px !important;
+  line-height: .95 !important;
+  letter-spacing: .018em !important;
+  color: #e10008 !important;
+  text-shadow:
+    0 0 7px rgba(255, 255, 255, .75),
+    0 0 11px rgba(255, 36, 36, .18) !important;
+}
+
+:root[data-theme="light"] .b116-panel__text small,
+:root[data-theme="light"] #operatorRole,
+:root[data-theme="light"] #plateOperatorRole {
+  margin-top: 0 !important;
+  font-size: 5.8px !important;
+  line-height: 1.05 !important;
+  letter-spacing: .08em !important;
+}
+
+:root[data-theme="light"] #userMenuButton .b116-hidden-sync {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 1280px) {
+  :root[data-theme="light"] .b116-panel {
+    --avatar-size: 38px !important;
+    --avatar-top: 33px !important;
+    --avatar-edge: 28px !important;
+    --text-top: 36px !important;
+    --text-width: 116px !important;
+  }
+
+  :root[data-theme="light"] .b116-panel--left {
+    --text-edge: 104px !important;
+  }
+
+  :root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right {
+    --avatar-size: 38px !important;
+    --avatar-top: 33px !important;
+    --avatar-edge: 28px !important;
+    --text-top: 36px !important;
+    --text-edge: 88px !important;
+    --text-width: 122px !important;
+  }
+
+  :root[data-theme="light"] .b116-panel__text strong,
+  :root[data-theme="light"] #operatorName,
+  :root[data-theme="light"] #plateOperatorName {
+    font-size: 12px !important;
+  }
+}
