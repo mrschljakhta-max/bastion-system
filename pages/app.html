@@ -6,7 +6,7 @@
   <title>BASTION — Core</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <script src="../scripts/theme-boot.js?v=1"></script>
-  <link rel="stylesheet" href="../styles/app-home-v118.css?v=206" />
+  <link rel="stylesheet" href="../styles/app-home-v118.css?v=207" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -223,22 +223,44 @@
 
         <div class="profile-action-dock" aria-label="Дії профілю">
           <button class="profile-action-icon" type="button" data-profile-panel="login" data-tooltip="Редагувати логін" aria-label="Редагувати логін">
-            <img src="../assets/icons/profile-edit-login.svg?v=206" alt="" aria-hidden="true" />
+            <svg class="profile-action-svg" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M0 0h24v24H0z" stroke="none"/>
+              <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/>
+              <path d="M6 21v-2a4 4 0 0 1 4 -4h4"/>
+              <path d="M15 19l2 2l4 -4"/>
+            </svg>
           </button>
           <button class="profile-action-icon" type="button" data-profile-panel="access" data-tooltip="Подати заявку на зміну рівня доступу" aria-label="Подати заявку на зміну рівня доступу">
-            <img src="../assets/icons/profile-access-up.svg?v=206" alt="" aria-hidden="true" />
+            <svg class="profile-action-svg" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M0 0h24v24H0z" stroke="none"/>
+              <path d="M7 21h10a2 2 0 0 0 2 -2v-14a2 2 0 0 0 -2 -2h-6.172a2 2 0 0 0 -1.414 .586l-3.828 3.828a2 2 0 0 0 -.586 1.414v10.172a2 2 0 0 0 2 2"/>
+              <path d="M13 6v2"/>
+              <path d="M16 6v2"/>
+              <path d="M10 7v1"/>
+            </svg>
           </button>
         </div>
 
         <div class="profile-theme-toggle-row" aria-label="Перемикання теми інтерфейсу">
           <span>Тема</span>
-          <label class="profile-theme-toggle" data-tooltip="Перемкнути світлу / темну тему">
-            <input id="profileThemeToggle" type="checkbox" aria-label="Перемкнути тему інтерфейсу" />
-            <i class="profile-theme-toggle__track" aria-hidden="true">
-              <b class="profile-theme-toggle__orb"></b>
-              <em class="profile-theme-toggle__dark">темна</em>
-              <em class="profile-theme-toggle__light">світла</em>
-            </i>
+          <label class="profile-theme-toggle profile-theme-morph" data-tooltip="Перемкнути світлу / темну тему">
+            <span class="profile-theme-toggle__label profile-theme-toggle__label--dark">темна</span>
+            <span class="profile-theme-toggle__wrap">
+              <input id="profileThemeToggle" class="profile-theme-toggle__input" type="checkbox" role="switch" aria-label="Перемкнути тему інтерфейсу" />
+              <span class="profile-theme-toggle__fill" aria-hidden="true"></span>
+              <span class="profile-theme-toggle__icon" aria-hidden="true">
+                <span class="profile-theme-toggle__part"></span>
+                <span class="profile-theme-toggle__part"></span>
+                <span class="profile-theme-toggle__part"></span>
+                <span class="profile-theme-toggle__part"></span>
+                <span class="profile-theme-toggle__part"></span>
+                <span class="profile-theme-toggle__part"></span>
+                <span class="profile-theme-toggle__part"></span>
+                <span class="profile-theme-toggle__part"></span>
+                <span class="profile-theme-toggle__part"></span>
+              </span>
+            </span>
+            <span class="profile-theme-toggle__label profile-theme-toggle__label--light">світла</span>
           </label>
         </div>
 
@@ -263,23 +285,6 @@
         </section>
 
 
-        <section id="profileThemePanel" class="profile-inline-panel profile-inline-panel--theme" hidden aria-label="Змінити тему інтерфейсу">
-          <div class="profile-inline-panel__head">
-            <span>Змінити тему</span>
-            <small id="profileThemeStatus">Збережено локально</small>
-            <button class="profile-inline-close" type="button" data-profile-panel-close aria-label="Закрити">×</button>
-          </div>
-          <div class="profile-theme-options" role="group" aria-label="Вибір теми інтерфейсу">
-            <button class="profile-theme-btn" type="button" data-profile-theme="dark" aria-pressed="true">
-              <span class="profile-theme-dot profile-theme-dot--dark"></span>
-              Темна
-            </button>
-            <button class="profile-theme-btn" type="button" data-profile-theme="light" aria-pressed="false">
-              <span class="profile-theme-dot profile-theme-dot--light"></span>
-              Світла
-            </button>
-          </div>
-        </section>
 
         <section id="profileAccessPanel" class="profile-inline-panel" hidden aria-label="Заявка на зміну рівня доступу">
           <div class="profile-inline-panel__head">
@@ -321,6 +326,6 @@
   <script src="../scripts/supabase-client.js?v=177"></script>
   <script src="../scripts/app-auth-guard.js?v=106"></script>
   <script src="../scripts/app-home-v118.js?v=197"></script>
-  <script src="../scripts/profile-panel.js?v=206"></script>
+  <script src="../scripts/profile-panel.js?v=207"></script>
 </body>
 </html>
