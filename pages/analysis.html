@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — Аналіз</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
-  <link rel="stylesheet" href="../styles/app-home-v118.css?v=182" />
+  <link rel="stylesheet" href="../styles/app-home-v118.css?v=203" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -131,9 +131,15 @@
 
       <div class="profile-card__left">
         <div class="profile-honeycomb" aria-hidden="true"></div>
-        <div class="profile-avatar-core">
+
+        <div class="profile-avatar-core profile-avatar-shell">
           <img id="userAvatarModal" src="../assets/ui/default-user-avatar-v105.png?v=177" alt="" />
+          <button id="profileAvatarEditButton" class="profile-avatar-edit" type="button" aria-label="Змінити аватарку" data-tooltip="Змінити аватарку">
+            <span aria-hidden="true">✎</span>
+          </button>
+          <input id="profileAvatarInput" class="profile-avatar-input" type="file" accept="image/png,image/jpeg,image/webp" hidden />
         </div>
+
         <div class="profile-core-caption">
           <span>BASTION ID</span>
           <strong id="profileStatus">ACTIVE</strong>
@@ -148,31 +154,105 @@
 
         <header class="profile-title-block">
           <p>ПРОФІЛЬ КОРИСТУВАЧА</p>
-          <h2 id="profileLogin">lavash.squad</h2>
+          <h2 id="profileLogin" data-profile-fit>lavash.squad</h2>
         </header>
 
         <dl class="profile-data">
           <div>
             <dt>Логін</dt>
-            <dd id="profileLoginValue">lavash.squad</dd>
+            <dd id="profileLoginValue" data-profile-fit>lavash.squad</dd>
           </div>
           <div>
             <dt>Email</dt>
-            <dd id="profileEmail">email не визначено</dd>
+            <dd id="profileEmail" data-profile-fit>email не визначено</dd>
           </div>
           <div>
             <dt>Рівень доступу</dt>
-            <dd id="profileRole">DEMO</dd>
+            <dd id="profileRole" data-profile-fit>DEMO</dd>
           </div>
           <div>
             <dt>Сесія</dt>
-            <dd id="profileSession">Захищена</dd>
+            <dd id="profileSession" data-profile-fit>Захищена</dd>
           </div>
         </dl>
 
-        <div class="profile-actions profile-actions--single">
-          <button id="logoutButton" class="danger-btn profile-logout-btn" type="button">Вийти із сайту</button>
+        <section class="profile-theme-panel" aria-label="Тема інтерфейсу">
+          <div class="profile-theme-panel__head">
+            <span>Тема інтерфейсу</span>
+            <small id="profileThemeStatus">Збережено локально</small>
+          </div>
+          <div class="profile-theme-options" role="group" aria-label="Вибір теми інтерфейсу">
+            <button class="profile-theme-btn" type="button" data-profile-theme="dark" aria-pressed="true">
+              <span class="profile-theme-dot profile-theme-dot--dark"></span>
+              Темна
+            </button>
+            <button class="profile-theme-btn" type="button" data-profile-theme="light" aria-pressed="false">
+              <span class="profile-theme-dot profile-theme-dot--light"></span>
+              Світла
+            </button>
+          </div>
+        </section>
+
+        <div class="profile-action-dock" aria-label="Дії профілю">
+          <button class="profile-action-icon" type="button" data-profile-panel="login" data-tooltip="Редагувати логін" aria-label="Редагувати логін">
+            <span aria-hidden="true">✎</span>
+          </button>
+          <button class="profile-action-icon" type="button" data-profile-panel="access" data-tooltip="Подати заявку на зміну рівня доступу" aria-label="Подати заявку на зміну рівня доступу">
+            <span aria-hidden="true">🛡</span>
+          </button>
+          <button class="profile-action-icon" type="button" data-profile-focus-theme data-tooltip="Налаштування теми" aria-label="Налаштування теми">
+            <span aria-hidden="true">☼</span>
+          </button>
+          <button id="logoutButton" class="profile-action-icon profile-action-icon--danger" type="button" data-tooltip="Вийти із сайту" aria-label="Вийти із сайту">
+            <span aria-hidden="true">↪</span>
+          </button>
         </div>
+
+        <section id="profileLoginPanel" class="profile-inline-panel" hidden aria-label="Редагувати логін">
+          <div class="profile-inline-panel__head">
+            <span>Редагувати логін</span>
+            <button class="profile-inline-close" type="button" data-profile-panel-close aria-label="Закрити">×</button>
+          </div>
+          <label class="profile-inline-field">
+            <span>Новий логін</span>
+            <input id="profileLoginInput" type="text" maxlength="32" placeholder="Наприклад: lavash.squad" autocomplete="nickname" />
+          </label>
+          <div class="profile-inline-actions">
+            <button id="profileSaveLoginButton" class="profile-inline-submit" type="button">Зберегти</button>
+            <button class="profile-inline-ghost" type="button" data-profile-panel-close>Скасувати</button>
+          </div>
+        </section>
+
+        <section id="profileAccessPanel" class="profile-inline-panel" hidden aria-label="Заявка на зміну рівня доступу">
+          <div class="profile-inline-panel__head">
+            <span>Заявка на рівень доступу</span>
+            <button class="profile-inline-close" type="button" data-profile-panel-close aria-label="Закрити">×</button>
+          </div>
+          <div class="profile-access-options" role="radiogroup" aria-label="Новий рівень доступу">
+            <label>
+              <input type="radio" name="profileAccessLevel" value="DEMO" />
+              <span>Demo</span>
+            </label>
+            <label>
+              <input type="radio" name="profileAccessLevel" value="OPERATOR" />
+              <span>Оператор</span>
+            </label>
+            <label>
+              <input type="radio" name="profileAccessLevel" value="SUPERVISOR" />
+              <span>Супервайзер</span>
+            </label>
+          </div>
+          <label class="profile-inline-field">
+            <span>Коментар</span>
+            <textarea id="profileAccessComment" rows="2" placeholder="Коротко опишіть причину зміни доступу..."></textarea>
+          </label>
+          <div class="profile-inline-actions">
+            <button id="profileSubmitAccessButton" class="profile-inline-submit" type="button">Подати заявку</button>
+            <button class="profile-inline-ghost" type="button" data-profile-panel-close>Скасувати</button>
+          </div>
+        </section>
+
+        <p id="profileInlineStatus" class="profile-inline-status" aria-live="polite"></p>
       </div>
     </section>
   </div>
@@ -183,6 +263,6 @@
   <script src="../scripts/supabase-client.js?v=177"></script>
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
-  <script src="../scripts/profile-panel.js?v=182"></script>
+  <script src="../scripts/profile-panel.js?v=203"></script>
 </body>
 </html>

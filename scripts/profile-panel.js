@@ -1,4 +1,4 @@
-/* BASTION Profile Panel v195
+/* BASTION Profile Panel v203
    Opens profile command modal from the right HUD plate and performs logout.
    Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
@@ -23,6 +23,15 @@
   const profileRole = byId("profileRole");
   const profileStatus = byId("profileStatus");
   const profileSession = byId("profileSession");
+  const profileAvatarEditButton = byId("profileAvatarEditButton");
+  const profileAvatarInput = byId("profileAvatarInput");
+  const profileLoginInput = byId("profileLoginInput");
+  const profileSaveLoginButton = byId("profileSaveLoginButton");
+  const profileAccessComment = byId("profileAccessComment");
+  const profileSubmitAccessButton = byId("profileSubmitAccessButton");
+  const profileInlineStatus = byId("profileInlineStatus");
+  const profileLoginPanel = byId("profileLoginPanel");
+  const profileAccessPanel = byId("profileAccessPanel");
 
   const userAvatarTop = byId("userAvatarTop");
   const userAvatarModal = byId("userAvatarModal");
@@ -151,6 +160,13 @@
       fitTextToBox(profileLoginValue, { min: 13, max: 21, step: 1 });
       fitTextToBox(profileEmail, { min: 12, max: 21, step: 1 });
       fitTextToBox(profileRole, { min: 13, max: 21, step: 1 });
+      fitTextToBox(profileSession, { min: 13, max: 21, step: 1 });
+
+      document.querySelectorAll("[data-profile-fit]").forEach((element) => {
+        if (![profileLogin, profileLoginValue, profileEmail, profileRole, profileSession].includes(element)) {
+          fitTextToBox(element, { min: 11, max: 20, step: 1 });
+        }
+      });
     });
   }
 
@@ -186,6 +202,201 @@
     }
 
     fitProfileText();
+  }
+
+
+  function setInlineStatus(message = "", tone = "info") {
+    if (!profileInlineStatus) return;
+    profileInlineStatus.textContent = message;
+    profileInlineStatus.dataset.tone = tone;
+  }
+
+  function hideInlinePanels() {
+    [profileLoginPanel, profileAccessPanel].forEach((panel) => {
+      if (panel) panel.hidden = true;
+    });
+    document.querySelectorAll("[data-profile-panel]").forEach((button) => button.classList.remove("is-active"));
+    setInlineStatus("");
+  }
+
+  function openInlinePanel(name) {
+    const panel = name === "access" ? profileAccessPanel : profileLoginPanel;
+    hideInlinePanels();
+
+    if (panel) {
+      panel.hidden = false;
+      document.querySelector(`[data-profile-panel="${name}"]`)?.classList.add("is-active");
+    }
+
+    if (name === "login" && profileLoginInput) {
+      profileLoginInput.value = profileLoginValue?.textContent?.trim() || "";
+      setTimeout(() => profileLoginInput.focus(), 30);
+    }
+
+    if (name === "access") {
+      const current = normalizeRole(profileRole?.textContent || "DEMO");
+      const selected = document.querySelector(`input[name="profileAccessLevel"][value="${current}"]`) ||
+        document.querySelector('input[name="profileAccessLevel"][value="OPERATOR"]');
+      if (selected) selected.checked = true;
+      setTimeout(() => profileAccessComment?.focus(), 30);
+    }
+  }
+
+  function applyAvatarSource(src) {
+    const avatar = safeText(src || "");
+    if (!avatar) return;
+    if (userAvatarTop) userAvatarTop.src = avatar;
+    if (userAvatarModal) userAvatarModal.src = avatar;
+    if (plateAvatarUser) plateAvatarUser.src = avatar;
+  }
+
+  async function getCurrentUserAndClient() {
+    const sb = getSupabaseClient();
+    if (!sb?.auth?.getUser) return { sb, user: null };
+    try {
+      const { data, error } = await sb.auth.getUser();
+      return { sb, user: error ? null : data?.user || null };
+    } catch (error) {
+      console.warn("[BASTION profile-panel] auth user failed:", error);
+      return { sb, user: null };
+    }
+  }
+
+  async function handleAvatarFile(file) {
+    if (!file) return;
+
+    if (!/^image\/(png|jpe?g|webp)$/i.test(file.type || "")) {
+      setInlineStatus("Підтримуються PNG, JPG або WEBP.", "error");
+      return;
+    }
+
+    const maxBytes = 5 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setInlineStatus("Файл завеликий. Максимум — 5 MB.", "error");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || "");
+      if (!dataUrl) return;
+
+      try {
+        localStorage.setItem("bastion_profile_avatar", dataUrl);
+      } catch (error) {
+        console.warn("[BASTION profile-panel] avatar local save failed:", error);
+      }
+
+      applyAvatarSource(dataUrl);
+      setInlineStatus("Аватарку оновлено локально.", "success");
+    };
+
+    reader.onerror = () => setInlineStatus("Не вдалося прочитати файл аватарки.", "error");
+    reader.readAsDataURL(file);
+  }
+
+  async function saveLogin() {
+    const nextLogin = safeText(profileLoginInput?.value || "");
+    if (nextLogin.length < 3) {
+      setInlineStatus("Логін має містити щонайменше 3 символи.", "error");
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9._-]{3,32}$/.test(nextLogin)) {
+      setInlineStatus("Дозволені латинські літери, цифри, крапка, дефіс і нижнє підкреслення.", "error");
+      return;
+    }
+
+    try {
+      localStorage.setItem("bastion_profile_nickname", nextLogin);
+      localStorage.setItem("bastion_login", nextLogin);
+    } catch (error) {
+      console.warn("[BASTION profile-panel] login local save failed:", error);
+    }
+
+    const currentEmail = safeText(profileEmail?.textContent || localStorage.getItem("bastion_email") || "");
+    const currentRole = normalizeRole(profileRole?.textContent || localStorage.getItem("bastion_role") || "DEMO");
+    applyProfile({
+      login: nextLogin,
+      email: currentEmail === "email не визначено" ? "" : currentEmail,
+      role: currentRole,
+      avatar: localStorage.getItem("bastion_profile_avatar") || ""
+    });
+
+    const { sb, user } = await getCurrentUserAndClient();
+    if (sb?.from && user?.id) {
+      try {
+        await sb.from("profiles").upsert({
+          id: user.id,
+          email: user.email || currentEmail || null,
+          nickname: nextLogin,
+          updated_at: new Date().toISOString()
+        }, { onConflict: "id" });
+      } catch (error) {
+        console.warn("[BASTION profile-panel] Supabase nickname update failed:", error);
+      }
+    }
+
+    setInlineStatus("Логін оновлено.", "success");
+    setTimeout(hideInlinePanels, 700);
+  }
+
+  async function submitAccessRequest() {
+    const selected = document.querySelector('input[name="profileAccessLevel"]:checked');
+    const requestedLevel = normalizeRole(selected?.value || "");
+    const currentLevel = normalizeRole(profileRole?.textContent || "DEMO");
+    const comment = safeText(profileAccessComment?.value || "");
+
+    if (!requestedLevel) {
+      setInlineStatus("Оберіть бажаний рівень доступу.", "error");
+      return;
+    }
+
+    if (requestedLevel === currentLevel) {
+      setInlineStatus("Цей рівень доступу вже активний.", "error");
+      return;
+    }
+
+    const email = safeText(profileEmail?.textContent || localStorage.getItem("bastion_email") || "");
+    const login = safeText(profileLoginValue?.textContent || localStorage.getItem("bastion_login") || "");
+
+    try {
+      const pending = JSON.parse(localStorage.getItem("bastion_access_requests") || "[]");
+      pending.push({
+        login,
+        email,
+        current_level: currentLevel,
+        requested_level: requestedLevel,
+        comment,
+        status: "pending",
+        created_at: new Date().toISOString()
+      });
+      localStorage.setItem("bastion_access_requests", JSON.stringify(pending.slice(-20)));
+    } catch (error) {
+      console.warn("[BASTION profile-panel] access request local save failed:", error);
+    }
+
+    const { sb, user } = await getCurrentUserAndClient();
+    if (sb?.from) {
+      try {
+        await sb.from("access_requests").insert({
+          user_id: user?.id || null,
+          email: email && email !== "email не визначено" ? email : user?.email || null,
+          login: login || null,
+          current_level: currentLevel,
+          requested_level: requestedLevel,
+          comment: comment || null,
+          status: "pending",
+          created_at: new Date().toISOString()
+        });
+      } catch (error) {
+        console.warn("[BASTION profile-panel] Supabase access request insert failed:", error);
+      }
+    }
+
+    setInlineStatus(`Заявку на рівень ${requestedLevel} підготовлено.`, "success");
+    if (profileAccessComment) profileAccessComment.value = "";
+    setTimeout(hideInlinePanels, 950);
   }
 
   async function loadProfile() {
@@ -254,6 +465,7 @@
     userMenuButton?.setAttribute("aria-expanded", "true");
     document.documentElement.classList.add("profile-modal-lock");
     document.body.classList.add("profile-modal-open");
+    hideInlinePanels();
     fitProfileText();
   }
 
@@ -307,6 +519,61 @@
       const trigger = event.target?.closest?.("#userMenuButton, .b116-panel--right");
       if (trigger) openProfile(event);
     }, true);
+
+    profileAvatarEditButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      profileAvatarInput?.click();
+    });
+
+    profileAvatarInput?.addEventListener("change", (event) => {
+      const file = event.target?.files?.[0];
+      handleAvatarFile(file);
+      if (profileAvatarInput) profileAvatarInput.value = "";
+    });
+
+    document.querySelectorAll("[data-profile-panel]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openInlinePanel(button.dataset.profilePanel);
+      });
+    });
+
+    document.querySelectorAll("[data-profile-panel-close]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        hideInlinePanels();
+      });
+    });
+
+    document.querySelectorAll("[data-profile-focus-theme]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        hideInlinePanels();
+        document.querySelector(".profile-theme-panel")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        document.querySelector(".profile-theme-panel")?.classList.add("is-pulsed");
+        setTimeout(() => document.querySelector(".profile-theme-panel")?.classList.remove("is-pulsed"), 650);
+      });
+    });
+
+    profileSaveLoginButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      saveLogin();
+    });
+
+    profileLoginInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") saveLogin();
+    });
+
+    profileSubmitAccessButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      submitAccessRequest();
+    });
 
     logoutButton?.addEventListener("click", logout);
 
