@@ -5370,7 +5370,7 @@ body[data-active-module]:not([data-active-module=""]) .center-reactor-ring {
 .b116-panel {
   position: absolute !important;
   top: 18px !important;
-  width: 520px !important;
+  width: 360px !important;
   height: 260px !important;
   pointer-events: none !important;
   overflow: visible !important;
@@ -10297,14 +10297,14 @@ body.dict-modal-open .dict-modal.is-open {
 /* Top plates: use cropped light asset so it is not compressed into a tiny square */
 :root[data-theme="light"] .b116-panel {
   top: 18px !important;
-  width: 520px !important;
-  height: 230px !important;
-  --avatar-size: 72px !important;
-  --avatar-top: 78px !important;
-  --avatar-edge: 58px !important;
-  --text-top: 89px !important;
-  --text-edge: 184px !important;
-  --text-width: 250px !important;
+  width: 360px !important;
+  height: 160px !important;
+  --avatar-size: 56px !important;
+  --avatar-top: 54px !important;
+  --avatar-edge: 40px !important;
+  --text-top: 60px !important;
+  --text-edge: 120px !important;
+  --text-width: 170px !important;
 }
 
 :root[data-theme="light"] .b116-panel__bg {
@@ -10341,7 +10341,7 @@ body.dict-modal-open .dict-modal.is-open {
 /* Keep top-right avatar/text aligned after the light asset crop */
 :root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right {
   width: 520px !important;
-  height: 230px !important;
+  height: 160px !important;
   --avatar-size: 66px !important;
   --avatar-top: 77px !important;
   --avatar-edge: 56px !important;
