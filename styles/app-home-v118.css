@@ -11634,10 +11634,10 @@ body.dict-modal-open .dict-modal.is-open {
 #profileModal.bastion-profile-modal .profile-action-zone{
   position:relative !important;
   width:min(560px,100%) !important;
-  min-height:206px !important;
+  min-height:142px !important;
   margin:18px auto 0 !important;
   display:grid !important;
-  grid-template-rows:86px 96px !important;
+  grid-template-rows:74px 52px !important;
   align-items:center !important;
   justify-items:center !important;
   gap:10px !important;
@@ -11767,8 +11767,8 @@ body.dict-modal-open .dict-modal.is-open {
 /* Asset-based switch: no captions, no cheap default checkbox */
 #profileModal.bastion-profile-modal .bastion-theme-switch{
   position:relative !important;
-  width:268px !important;
-  height:86px !important;
+  width:134px !important;
+  height:43px !important;
   padding:0 !important;
   margin:0 auto !important;
   display:block !important;
@@ -11808,9 +11808,9 @@ body.dict-modal-open .dict-modal.is-open {
 #profileModal.bastion-profile-modal .bastion-theme-switch__knob{
   position:absolute !important;
   top:50% !important;
-  left:16px !important;
-  width:62px !important;
-  height:62px !important;
+  left:8px !important;
+  width:31px !important;
+  height:31px !important;
   transform:translate3d(0,-50%,0) !important;
   transition:transform .36s cubic-bezier(.2,.9,.2,1), filter .28s ease !important;
   filter:drop-shadow(0 0 15px rgba(255,36,48,.42)) !important;
@@ -11818,7 +11818,7 @@ body.dict-modal-open .dict-modal.is-open {
 }
 
 #profileModal.bastion-profile-modal .bastion-theme-switch.is-dark .bastion-theme-switch__knob{
-  transform:translate3d(174px,-50%,0) !important;
+  transform:translate3d(87px,-50%,0) !important;
 }
 
 #profileModal.bastion-profile-modal .bastion-theme-switch__knob-img{
@@ -11925,15 +11925,50 @@ body.dict-modal-open .dict-modal.is-open {
     height:52px !important;
   }
   #profileModal.bastion-profile-modal .bastion-theme-switch{
-    width:238px !important;
-    height:76px !important;
+    width:119px !important;
+    height:38px !important;
   }
   #profileModal.bastion-profile-modal .bastion-theme-switch__knob{
-    width:56px !important;
-    height:56px !important;
-    left:14px !important;
+    width:28px !important;
+    height:28px !important;
+    left:7px !important;
   }
   #profileModal.bastion-profile-modal .bastion-theme-switch.is-dark .bastion-theme-switch__knob{
-    transform:translate3d(154px,-50%,0) !important;
+    transform:translate3d(77px,-50%,0) !important;
+  }
+}
+
+
+/* =========================================================
+   BASTION PROFILE MODAL v210 — compact asset theme switch
+   ========================================================= */
+#profileModal.bastion-profile-modal .profile-action-zone{
+  min-height:142px !important;
+  grid-template-rows:74px 52px !important;
+}
+#profileModal.bastion-profile-modal .bastion-theme-switch{
+  width:134px !important;
+  height:43px !important;
+}
+#profileModal.bastion-profile-modal .bastion-theme-switch__knob{
+  left:8px !important;
+  width:31px !important;
+  height:31px !important;
+}
+#profileModal.bastion-profile-modal .bastion-theme-switch.is-dark .bastion-theme-switch__knob{
+  transform:translate3d(87px,-50%,0) !important;
+}
+@media (max-width:980px){
+  #profileModal.bastion-profile-modal .bastion-theme-switch{
+    width:119px !important;
+    height:38px !important;
+  }
+  #profileModal.bastion-profile-modal .bastion-theme-switch__knob{
+    left:7px !important;
+    width:28px !important;
+    height:28px !important;
+  }
+  #profileModal.bastion-profile-modal .bastion-theme-switch.is-dark .bastion-theme-switch__knob{
+    transform:translate3d(77px,-50%,0) !important;
   }
 }
