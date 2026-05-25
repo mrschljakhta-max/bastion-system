@@ -25,7 +25,7 @@
 
   const modules = [
     { id: "dicts", num: "01", icon: "dicts.svg", title: "Довідники", subtitle: "Dictionaries Core", href: "./dicts.html", items: ["Управління довідниками", "Еталонні дані", "Нормалізація", "Словники"] },
-    { id: "nodes", num: "02", icon: "nodes.svg", title: "Зв’язки / Вузли", subtitle: "Network / Nodes", href: "./nodes.html", items: ["Візуалізація зв’язків", "Граф залежностей", "Intelligence Network", "Вузли системи"] },
+    { id: "nodes", num: "02", icon: "nodes.svg", title: "Зв’язки", subtitle: "Network / Nodes", href: "./nodes.html", items: ["Візуалізація зв’язків", "Граф залежностей", "Intelligence Network", "Вузли системи"] },
     { id: "upload", num: "03", icon: "upload.svg", title: "Завантаження", subtitle: "Upload / Intake", href: "./upload.html", items: ["Завантаження Word / Excel", "Імпорт даних", "Запуск ETL процесів"] },
     { id: "calculator", num: "04", icon: "calculator.svg", title: "Калькулятор", subtitle: "Combat Calculator", href: "./calculator.html", items: ["Обчислення", "Комбінації", "Сумісність", "Бойові формули"] },
     { id: "analysis", num: "05", icon: "analysis.svg", title: "Аналіз", subtitle: "Analysis Engine", href: "./analysis.html", items: ["Дашборди", "Аналітика", "Карти та Heatmaps", "Статистика"] },
