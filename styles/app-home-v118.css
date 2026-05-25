@@ -10612,3 +10612,87 @@ body.dict-modal-open .dict-modal.is-open {
     font-size: 8.5px !important;
   }
 }
+
+/* =========================================================
+   BASTION APP WHITE THEME v202b — TOP HUD +33% from v201 actual code
+   Актуальна правка поверх v201 half-size override.
+   Тільки верхні плашки світлої теми: 210x92.5 -> 280x123.
+   Нижні плашки / центр / фон / кільце не чіпаємо.
+   ========================================================= */
+:root[data-theme="light"] .b116-panel {
+  top: 20px !important;
+  width: 280px !important;
+  height: 123px !important;
+  --avatar-size: 39px !important;
+  --avatar-top: 41px !important;
+  --avatar-edge: 31px !important;
+  --text-top: 47px !important;
+  --text-edge: 99px !important;
+  --text-width: 132px !important;
+}
+
+:root[data-theme="light"] .b116-panel--left {
+  left: 24px !important;
+}
+
+:root[data-theme="light"] .b116-panel--right {
+  right: 24px !important;
+}
+
+:root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right {
+  width: 280px !important;
+  height: 123px !important;
+  --avatar-size: 39px !important;
+  --avatar-top: 41px !important;
+  --avatar-edge: 29px !important;
+  --text-top: 46px !important;
+  --text-edge: 81px !important;
+  --text-width: 137px !important;
+}
+
+:root[data-theme="light"] .b116-panel__text strong,
+:root[data-theme="light"] #operatorName,
+:root[data-theme="light"] #plateOperatorName {
+  font-size: 13px !important;
+  line-height: 1 !important;
+  color: #e10008 !important;
+}
+
+:root[data-theme="light"] .b116-panel__text small,
+:root[data-theme="light"] #operatorRole,
+:root[data-theme="light"] #plateOperatorRole {
+  margin-top: 3px !important;
+  font-size: 5.5px !important;
+  line-height: 1.05 !important;
+}
+
+:root[data-theme="light"] .b116-panel__bg {
+  filter:
+    drop-shadow(0 5px 8px rgba(96, 112, 128, .13))
+    drop-shadow(0 0 8px rgba(255, 32, 32, .11)) !important;
+}
+
+@media (max-width: 1280px) {
+  :root[data-theme="light"] .b116-panel,
+  :root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right {
+    width: 240px !important;
+    height: 105px !important;
+    --avatar-size: 33px !important;
+    --avatar-top: 35px !important;
+    --avatar-edge: 27px !important;
+    --text-top: 40px !important;
+    --text-edge: 84px !important;
+    --text-width: 113px !important;
+  }
+
+  :root[data-theme="light"] #userMenuButton.b116-panel.b116-panel--right {
+    --text-edge: 69px !important;
+    --text-width: 116px !important;
+  }
+
+  :root[data-theme="light"] .b116-panel__text strong,
+  :root[data-theme="light"] #operatorName,
+  :root[data-theme="light"] #plateOperatorName {
+    font-size: 11px !important;
+  }
+}
