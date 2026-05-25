@@ -11,6 +11,7 @@
   const profileModal = byId("profileModal");
   const logoutButton = byId("logoutButton");
   const profileThemeStatus = byId("profileThemeStatus");
+  const profileThemeToggle = byId("profileThemeToggle");
 
   const operatorName = byId("operatorName");
   const operatorRole = byId("operatorRole");
@@ -80,6 +81,11 @@
 
     if (profileThemeStatus) {
       profileThemeStatus.textContent = nextTheme === "light" ? "Обрана світла тема" : "Обрана темна тема";
+    }
+
+    if (profileThemeToggle) {
+      profileThemeToggle.checked = nextTheme === "light";
+      profileThemeToggle.setAttribute("aria-checked", String(nextTheme === "light"));
     }
 
     window.dispatchEvent(new CustomEvent("bastion:theme-change", { detail: { theme: nextTheme, source: options.source || "profile" } }));
@@ -569,6 +575,11 @@
     });
 
     logoutButton?.addEventListener("click", logout);
+
+    profileThemeToggle?.addEventListener("change", (event) => {
+      event.stopPropagation();
+      applyTheme(profileThemeToggle.checked ? "light" : "dark", { source: "profile-toggle" });
+    });
 
     document.querySelectorAll("[data-profile-theme]").forEach((button) => {
       button.addEventListener("click", (event) => {
