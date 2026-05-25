@@ -221,23 +221,6 @@
           </div>
         </dl>
 
-        <section class="profile-theme-panel" aria-label="Тема інтерфейсу">
-          <div class="profile-theme-panel__head">
-            <span>Тема інтерфейсу</span>
-            <small id="profileThemeStatus">Збережено локально</small>
-          </div>
-          <div class="profile-theme-options" role="group" aria-label="Вибір теми інтерфейсу">
-            <button class="profile-theme-btn" type="button" data-profile-theme="dark" aria-pressed="true">
-              <span class="profile-theme-dot profile-theme-dot--dark"></span>
-              Темна
-            </button>
-            <button class="profile-theme-btn" type="button" data-profile-theme="light" aria-pressed="false">
-              <span class="profile-theme-dot profile-theme-dot--light"></span>
-              Світла
-            </button>
-          </div>
-        </section>
-
         <div class="profile-action-dock" aria-label="Дії профілю">
           <button class="profile-action-icon" type="button" data-profile-panel="login" data-tooltip="Редагувати логін" aria-label="Редагувати логін">
             <span aria-hidden="true">✎</span>
@@ -245,7 +228,7 @@
           <button class="profile-action-icon" type="button" data-profile-panel="access" data-tooltip="Подати заявку на зміну рівня доступу" aria-label="Подати заявку на зміну рівня доступу">
             <span aria-hidden="true">🛡</span>
           </button>
-          <button class="profile-action-icon" type="button" data-profile-focus-theme data-tooltip="Налаштування теми" aria-label="Налаштування теми">
+          <button class="profile-action-icon" type="button" data-profile-panel="theme" data-tooltip="Змінити тему" aria-label="Змінити тему">
             <span aria-hidden="true">☼</span>
           </button>
           <button id="logoutButton" class="profile-action-icon profile-action-icon--danger" type="button" data-tooltip="Вийти із сайту" aria-label="Вийти із сайту">
@@ -265,6 +248,25 @@
           <div class="profile-inline-actions">
             <button id="profileSaveLoginButton" class="profile-inline-submit" type="button">Зберегти</button>
             <button class="profile-inline-ghost" type="button" data-profile-panel-close>Скасувати</button>
+          </div>
+        </section>
+
+
+        <section id="profileThemePanel" class="profile-inline-panel profile-inline-panel--theme" hidden aria-label="Змінити тему інтерфейсу">
+          <div class="profile-inline-panel__head">
+            <span>Змінити тему</span>
+            <small id="profileThemeStatus">Збережено локально</small>
+            <button class="profile-inline-close" type="button" data-profile-panel-close aria-label="Закрити">×</button>
+          </div>
+          <div class="profile-theme-options" role="group" aria-label="Вибір теми інтерфейсу">
+            <button class="profile-theme-btn" type="button" data-profile-theme="dark" aria-pressed="true">
+              <span class="profile-theme-dot profile-theme-dot--dark"></span>
+              Темна
+            </button>
+            <button class="profile-theme-btn" type="button" data-profile-theme="light" aria-pressed="false">
+              <span class="profile-theme-dot profile-theme-dot--light"></span>
+              Світла
+            </button>
           </div>
         </section>
 
@@ -308,6 +310,6 @@
   <script src="../scripts/supabase-client.js?v=177"></script>
   <script src="../scripts/app-auth-guard.js?v=106"></script>
   <script src="../scripts/app-home-v118.js?v=197"></script>
-  <script src="../scripts/profile-panel.js?v=203"></script>
+  <script src="../scripts/profile-panel.js?v=204"></script>
 </body>
 </html>

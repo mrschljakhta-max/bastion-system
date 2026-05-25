@@ -1,4 +1,4 @@
-/* BASTION Profile Panel v203
+/* BASTION Profile Panel v204
    Opens profile command modal from the right HUD plate and performs logout.
    Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
@@ -32,6 +32,7 @@
   const profileInlineStatus = byId("profileInlineStatus");
   const profileLoginPanel = byId("profileLoginPanel");
   const profileAccessPanel = byId("profileAccessPanel");
+  const profileThemePanel = byId("profileThemePanel");
 
   const userAvatarTop = byId("userAvatarTop");
   const userAvatarModal = byId("userAvatarModal");
@@ -212,7 +213,7 @@
   }
 
   function hideInlinePanels() {
-    [profileLoginPanel, profileAccessPanel].forEach((panel) => {
+    [profileLoginPanel, profileAccessPanel, profileThemePanel].forEach((panel) => {
       if (panel) panel.hidden = true;
     });
     document.querySelectorAll("[data-profile-panel]").forEach((button) => button.classList.remove("is-active"));
@@ -220,7 +221,9 @@
   }
 
   function openInlinePanel(name) {
-    const panel = name === "access" ? profileAccessPanel : profileLoginPanel;
+    let panel = profileLoginPanel;
+    if (name === "access") panel = profileAccessPanel;
+    if (name === "theme") panel = profileThemePanel;
     hideInlinePanels();
 
     if (panel) {
@@ -548,16 +551,6 @@
       });
     });
 
-    document.querySelectorAll("[data-profile-focus-theme]").forEach((button) => {
-      button.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        hideInlinePanels();
-        document.querySelector(".profile-theme-panel")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        document.querySelector(".profile-theme-panel")?.classList.add("is-pulsed");
-        setTimeout(() => document.querySelector(".profile-theme-panel")?.classList.remove("is-pulsed"), 650);
-      });
-    });
 
     profileSaveLoginButton?.addEventListener("click", (event) => {
       event.preventDefault();
