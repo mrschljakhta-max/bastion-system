@@ -308,38 +308,28 @@
             <dd id="profileSession" data-profile-fit>Захищена</dd>
           </div>
         </dl>
-
-        <section class="profile-theme-panel" aria-label="Тема інтерфейсу">
-          <div class="profile-theme-panel__head">
-            <span>Тема інтерфейсу</span>
-            <small id="profileThemeStatus">Збережено локально</small>
-          </div>
-          <div class="profile-theme-options" role="group" aria-label="Вибір теми інтерфейсу">
-            <button class="profile-theme-btn" type="button" data-profile-theme="dark" aria-pressed="true">
-              <span class="profile-theme-dot profile-theme-dot--dark"></span>
-              Темна
-            </button>
-            <button class="profile-theme-btn" type="button" data-profile-theme="light" aria-pressed="false">
-              <span class="profile-theme-dot profile-theme-dot--light"></span>
-              Світла
-            </button>
-          </div>
-        </section>
-
         <div class="profile-action-dock" aria-label="Дії профілю">
           <button class="profile-action-icon" type="button" data-profile-panel="login" data-tooltip="Редагувати логін" aria-label="Редагувати логін">
-            <span aria-hidden="true">✎</span>
+            <img src="../assets/icons/profile-edit-login.svg" alt="" aria-hidden="true" />
           </button>
           <button class="profile-action-icon" type="button" data-profile-panel="access" data-tooltip="Подати заявку на зміну рівня доступу" aria-label="Подати заявку на зміну рівня доступу">
-            <span aria-hidden="true">🛡</span>
-          </button>
-          <button class="profile-action-icon" type="button" data-profile-focus-theme data-tooltip="Налаштування теми" aria-label="Налаштування теми">
-            <span aria-hidden="true">☼</span>
-          </button>
-          <button id="logoutButton" class="profile-action-icon profile-action-icon--danger" type="button" data-tooltip="Вийти із сайту" aria-label="Вийти із сайту">
-            <span aria-hidden="true">↪</span>
+            <img src="../assets/icons/profile-access-request.svg" alt="" aria-hidden="true" />
           </button>
         </div>
+
+        <button id="logoutButton" class="profile-power-exit" type="button" data-tooltip="Вийти із сайту" aria-label="Вийти із сайту">
+          <span aria-hidden="true"></span>
+        </button>
+
+        <label class="profile-theme-toggle" aria-label="Перемкнути тему інтерфейсу">
+          <input id="profileCyberThemeToggle" class="profile-theme-toggle__input" type="checkbox" role="switch" aria-label="Перемкнути тему інтерфейсу" />
+          <span class="profile-theme-toggle__track" aria-hidden="true">
+            <span class="profile-theme-toggle__thumb">
+              <img class="profile-theme-toggle__icon profile-theme-toggle__icon--sun" src="../assets/ui/theme-toggle-sun-v1.png" alt="" />
+              <img class="profile-theme-toggle__icon profile-theme-toggle__icon--moon" src="../assets/ui/theme-toggle-moon-v1.png" alt="" />
+            </span>
+          </span>
+        </label>
 
         <section id="profileLoginPanel" class="profile-inline-panel" hidden aria-label="Редагувати логін">
           <div class="profile-inline-panel__head">

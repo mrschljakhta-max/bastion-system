@@ -11,7 +11,7 @@
   const profileModal = byId("profileModal");
   const logoutButton = byId("logoutButton");
   const profileThemeStatus = byId("profileThemeStatus");
-  const profileThemeToggle = byId("profileThemeToggle");
+  const profileCyberThemeToggle = byId("profileCyberThemeToggle");
 
   const operatorName = byId("operatorName");
   const operatorRole = byId("operatorRole");
@@ -79,13 +79,13 @@
       button.setAttribute("aria-pressed", String(isActive));
     });
 
-    if (profileThemeStatus) {
-      profileThemeStatus.textContent = nextTheme === "light" ? "Обрана світла тема" : "Обрана темна тема";
+    if (profileCyberThemeToggle) {
+      profileCyberThemeToggle.checked = nextTheme === "dark";
+      profileCyberThemeToggle.setAttribute("aria-checked", String(nextTheme === "dark"));
     }
 
-    if (profileThemeToggle) {
-      profileThemeToggle.checked = nextTheme === "light";
-      profileThemeToggle.setAttribute("aria-checked", String(nextTheme === "light"));
+    if (profileThemeStatus) {
+      profileThemeStatus.textContent = nextTheme === "light" ? "Обрана світла тема" : "Обрана темна тема";
     }
 
     window.dispatchEvent(new CustomEvent("bastion:theme-change", { detail: { theme: nextTheme, source: options.source || "profile" } }));
@@ -212,47 +212,6 @@
   }
 
 
-
-  let profileTooltipEl = null;
-
-  function ensureProfileTooltip() {
-    if (profileTooltipEl) return profileTooltipEl;
-    profileTooltipEl = document.createElement("div");
-    profileTooltipEl.className = "profile-floating-tooltip";
-    profileTooltipEl.setAttribute("role", "tooltip");
-    document.body.appendChild(profileTooltipEl);
-    return profileTooltipEl;
-  }
-
-  function showProfileTooltip(target) {
-    const text = safeText(target?.dataset?.tooltip || target?.getAttribute?.("aria-label") || "");
-    if (!text) return;
-
-    const tooltip = ensureProfileTooltip();
-    tooltip.textContent = text;
-
-    const rect = target.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.bottom + 10;
-
-    tooltip.style.left = `${x}px`;
-    tooltip.style.top = `${y}px`;
-    tooltip.classList.add("is-visible");
-  }
-
-  function hideProfileTooltip() {
-    profileTooltipEl?.classList.remove("is-visible");
-  }
-
-  function bindProfileTooltips() {
-    document.querySelectorAll("#profileModal [data-tooltip]").forEach((target) => {
-      target.addEventListener("mouseenter", () => showProfileTooltip(target));
-      target.addEventListener("mouseleave", hideProfileTooltip);
-      target.addEventListener("focus", () => showProfileTooltip(target));
-      target.addEventListener("blur", hideProfileTooltip);
-    });
-  }
-
   function setInlineStatus(message = "", tone = "info") {
     if (!profileInlineStatus) return;
     profileInlineStatus.textContent = message;
@@ -260,7 +219,7 @@
   }
 
   function hideInlinePanels() {
-    [profileLoginPanel, profileAccessPanel, profileThemePanel].forEach((panel) => {
+    [profileLoginPanel, profileAccessPanel].forEach((panel) => {
       if (panel) panel.hidden = true;
     });
     document.querySelectorAll("[data-profile-panel]").forEach((button) => button.classList.remove("is-active"));
@@ -525,7 +484,6 @@
       event.stopPropagation();
     }
 
-    hideProfileTooltip();
     profileModal?.classList.remove("is-open");
     profileModal?.setAttribute("aria-hidden", "true");
     userMenuButton?.setAttribute("aria-expanded", "false");
@@ -572,7 +530,6 @@
     }, true);
 
     profileAvatarEditButton?.addEventListener("click", (event) => {
-      hideProfileTooltip();
       event.preventDefault();
       event.stopPropagation();
       profileAvatarInput?.click();
@@ -586,7 +543,6 @@
 
     document.querySelectorAll("[data-profile-panel]").forEach((button) => {
       button.addEventListener("click", (event) => {
-        hideProfileTooltip();
         event.preventDefault();
         event.stopPropagation();
         openInlinePanel(button.dataset.profilePanel);
@@ -618,15 +574,12 @@
       submitAccessRequest();
     });
 
-    logoutButton?.addEventListener("click", (event) => {
-      hideProfileTooltip();
-      logout(event);
-    });
+    logoutButton?.addEventListener("click", logout);
 
-    profileThemeToggle?.addEventListener("change", (event) => {
-      hideProfileTooltip();
+    profileCyberThemeToggle?.addEventListener("change", (event) => {
+      event.preventDefault();
       event.stopPropagation();
-      applyTheme(profileThemeToggle.checked ? "light" : "dark", { source: "profile-toggle" });
+      applyTheme(profileCyberThemeToggle.checked ? "dark" : "light", { source: "profile-cyber-toggle" });
     });
 
     document.querySelectorAll("[data-profile-theme]").forEach((button) => {
@@ -653,7 +606,6 @@
   initThemeControls();
   loadProfile();
   bind();
-  bindProfileTooltips();
 
   window.BastionProfilePanel = {
     open: openProfile,
