@@ -1,4 +1,4 @@
-/* BASTION Profile Panel v204
+/* BASTION Profile Panel v209
    Opens profile command modal from the right HUD plate and performs logout.
    Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
@@ -10,8 +10,7 @@
   const userMenuButton = byId("userMenuButton");
   const profileModal = byId("profileModal");
   const logoutButton = byId("logoutButton");
-  const profileThemeStatus = byId("profileThemeStatus");
-  const profileCyberThemeToggle = byId("profileCyberThemeToggle");
+  const profileThemeSwitch = byId("profileThemeSwitch");
 
   const operatorName = byId("operatorName");
   const operatorRole = byId("operatorRole");
@@ -33,7 +32,6 @@
   const profileInlineStatus = byId("profileInlineStatus");
   const profileLoginPanel = byId("profileLoginPanel");
   const profileAccessPanel = byId("profileAccessPanel");
-  const profileThemePanel = byId("profileThemePanel");
 
   const userAvatarTop = byId("userAvatarTop");
   const userAvatarModal = byId("userAvatarModal");
@@ -79,13 +77,12 @@
       button.setAttribute("aria-pressed", String(isActive));
     });
 
-    if (profileCyberThemeToggle) {
-      profileCyberThemeToggle.checked = nextTheme === "dark";
-      profileCyberThemeToggle.setAttribute("aria-checked", String(nextTheme === "dark"));
-    }
-
-    if (profileThemeStatus) {
-      profileThemeStatus.textContent = nextTheme === "light" ? "Обрана світла тема" : "Обрана темна тема";
+    if (profileThemeSwitch) {
+      const isDark = nextTheme === "dark";
+      profileThemeSwitch.classList.toggle("is-dark", isDark);
+      profileThemeSwitch.classList.toggle("is-light", !isDark);
+      profileThemeSwitch.setAttribute("aria-pressed", String(isDark));
+      profileThemeSwitch.dataset.theme = nextTheme;
     }
 
     window.dispatchEvent(new CustomEvent("bastion:theme-change", { detail: { theme: nextTheme, source: options.source || "profile" } }));
@@ -229,7 +226,6 @@
   function openInlinePanel(name) {
     let panel = profileLoginPanel;
     if (name === "access") panel = profileAccessPanel;
-    if (name === "theme") panel = profileThemePanel;
     hideInlinePanels();
 
     if (panel) {
@@ -576,10 +572,11 @@
 
     logoutButton?.addEventListener("click", logout);
 
-    profileCyberThemeToggle?.addEventListener("change", (event) => {
+    profileThemeSwitch?.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
-      applyTheme(profileCyberThemeToggle.checked ? "dark" : "light", { source: "profile-cyber-toggle" });
+      const nextTheme = getStoredTheme() === "dark" ? "light" : "dark";
+      applyTheme(nextTheme, { source: "profile-switch" });
     });
 
     document.querySelectorAll("[data-profile-theme]").forEach((button) => {

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — Аналіз</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
-  <link rel="stylesheet" href="../styles/app-home-v118.css?v=203" />
+  <link rel="stylesheet" href="../styles/app-home-v118.css?v=209" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -175,28 +175,31 @@
             <dd id="profileSession" data-profile-fit>Захищена</dd>
           </div>
         </dl>
-        <div class="profile-action-dock" aria-label="Дії профілю">
-          <button class="profile-action-icon" type="button" data-profile-panel="login" data-tooltip="Редагувати логін" aria-label="Редагувати логін">
-            <img src="../assets/icons/profile-edit-login.svg" alt="" aria-hidden="true" />
+        <div class="profile-action-zone" aria-label="Команди профілю">
+          <div class="profile-action-dock" aria-label="Дії профілю">
+            <button class="profile-action-icon" type="button" data-profile-panel="login" data-tooltip="Редагувати логін" aria-label="Редагувати логін">
+              <span class="profile-action-glyph profile-action-glyph--login" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4"/><path d="M15 19l2 2l4 -4"/></svg></span>
+            </button>
+            <button class="profile-action-icon" type="button" data-profile-panel="access" data-tooltip="Подати заявку на зміну рівня доступу" aria-label="Подати заявку на зміну рівня доступу">
+              <span class="profile-action-glyph profile-action-glyph--access" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 21h10a2 2 0 0 0 2 -2v-14a2 2 0 0 0 -2 -2h-6.172a2 2 0 0 0 -1.414 .586l-3.828 3.828a2 2 0 0 0 -.586 1.414v10.172a2 2 0 0 0 2 2"/><path d="M13 6v2"/><path d="M16 6v2"/><path d="M10 7v1"/></svg></span>
+            </button>
+          </div>
+
+          <button id="profileThemeSwitch" class="bastion-theme-switch" type="button" aria-label="Перемкнути тему інтерфейсу" aria-pressed="false">
+            <span class="bastion-theme-switch__track" aria-hidden="true">
+              <img class="bastion-theme-switch__track-img bastion-theme-switch__track-img--light" src="../assets/ui/bastion-theme-track-light.png" alt="" />
+              <img class="bastion-theme-switch__track-img bastion-theme-switch__track-img--dark" src="../assets/ui/bastion-theme-track-dark.png" alt="" />
+            </span>
+            <span class="bastion-theme-switch__knob" aria-hidden="true">
+              <img class="bastion-theme-switch__knob-img bastion-theme-switch__knob-img--sun" src="../assets/ui/bastion-theme-knob-sun.png" alt="" />
+              <img class="bastion-theme-switch__knob-img bastion-theme-switch__knob-img--moon" src="../assets/ui/bastion-theme-knob-moon.png" alt="" />
+            </span>
           </button>
-          <button class="profile-action-icon" type="button" data-profile-panel="access" data-tooltip="Подати заявку на зміну рівня доступу" aria-label="Подати заявку на зміну рівня доступу">
-            <img src="../assets/icons/profile-access-request.svg" alt="" aria-hidden="true" />
+
+          <button id="logoutButton" class="profile-power-button" type="button" data-tooltip="Вийти із сайту" aria-label="Вийти із сайту">
+            <span aria-hidden="true">⏻</span>
           </button>
         </div>
-
-        <button id="logoutButton" class="profile-power-exit" type="button" data-tooltip="Вийти із сайту" aria-label="Вийти із сайту">
-          <span aria-hidden="true"></span>
-        </button>
-
-        <label class="profile-theme-toggle" aria-label="Перемкнути тему інтерфейсу">
-          <input id="profileCyberThemeToggle" class="profile-theme-toggle__input" type="checkbox" role="switch" aria-label="Перемкнути тему інтерфейсу" />
-          <span class="profile-theme-toggle__track" aria-hidden="true">
-            <span class="profile-theme-toggle__thumb">
-              <img class="profile-theme-toggle__icon profile-theme-toggle__icon--sun" src="../assets/ui/theme-toggle-sun-v1.png" alt="" />
-              <img class="profile-theme-toggle__icon profile-theme-toggle__icon--moon" src="../assets/ui/theme-toggle-moon-v1.png" alt="" />
-            </span>
-          </span>
-        </label>
 
         <section id="profileLoginPanel" class="profile-inline-panel" hidden aria-label="Редагувати логін">
           <div class="profile-inline-panel__head">
@@ -253,6 +256,6 @@
   <script src="../scripts/supabase-client.js?v=177"></script>
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
-  <script src="../scripts/profile-panel.js?v=203"></script>
+  <script src="../scripts/profile-panel.js?v=209"></script>
 </body>
 </html>
