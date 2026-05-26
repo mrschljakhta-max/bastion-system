@@ -1681,15 +1681,15 @@ body[data-theme="light"].dicts-page .dict-folder:hover {
 
 :root[data-theme="light"] body.dicts-page .dicts-projector-wrap,
 body[data-theme="light"].dicts-page .dicts-projector-wrap {
-  bottom: 26px;
+  bottom: 42px;
   width: min(980px, 66vw);
-  height: 150px;
+  height: 135px;
 }
 
 :root[data-theme="light"] body.dicts-page .dicts-projector,
 body[data-theme="light"].dicts-page .dicts-projector {
-  content: url("../assets/ui/dicts-projector-light-v185.png");
-  width: min(820px, 58vw);
+  content: url("../assets/ui/dicts-projector-light-v186.png");
+  width: min(700px, 50vw);
   height: auto;
   max-height: none;
   object-fit: contain;
