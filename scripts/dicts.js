@@ -806,14 +806,25 @@
   }
 
   function setExportMode(enabled) {
-    const card = document.querySelector("#dictManageModal .dict-records-card");
+    const modal = document.getElementById("dictManageModal");
+    const panelShell = modal?.querySelector(".dict-view-panel");
+    const card = modal?.querySelector(".dict-records-card");
     const panel = ensureExportPanel();
     if (!card || !panel) return;
     const tableWrap = card.querySelector(".dict-table-wrap");
-    const addLine = card.querySelector(".dict-add-row-line");
+
     panel.hidden = !enabled;
     if (tableWrap) tableWrap.hidden = enabled;
-    if (addLine) addLine.hidden = enabled;
+
+    // У режимі експорту кнопка додавання запису не повинна відображатись.
+    modal?.querySelectorAll(".dict-add-row-line, #dictAddRowBtn").forEach((item) => {
+      item.hidden = enabled;
+      item.classList.toggle("is-export-hidden", enabled);
+    });
+
+    modal?.classList.toggle("dict-export-mode", enabled);
+    panelShell?.classList.toggle("dict-export-mode", enabled);
+    card.classList.toggle("dict-export-mode", enabled);
     exportToggleBtn?.classList.toggle("is-active", enabled);
   }
 

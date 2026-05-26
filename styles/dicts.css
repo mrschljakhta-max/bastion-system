@@ -340,3 +340,44 @@ body.dicts-page.dicts-theme-light .dict-export-img--dark {
 }
 
 /* cache-marker: BASTION-DICTS-EXPORT-PANEL-v203 */
+
+/* =========================================================
+   BASTION DICTS v204 — export panel compact mode
+   ========================================================= */
+#dictManageModal.dict-export-mode .dict-add-row-line,
+#dictManageModal.dict-export-mode #dictAddRowBtn,
+#dictManageModal .dict-add-row-line[hidden],
+#dictManageModal #dictAddRowBtn[hidden] {
+  display: none !important;
+}
+
+#dictManageModal .dict-records-card.dict-export-mode {
+  padding-bottom: clamp(18px, 2.2vw, 30px) !important;
+}
+
+#dictManageModal .dict-records-card.dict-export-mode .dict-export-panel {
+  min-height: 0 !important;
+  height: clamp(260px, 31vh, 340px) !important;
+  padding: clamp(14px, 2vw, 28px) clamp(18px, 2.4vw, 36px) !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#dictManageModal .dict-records-card.dict-export-mode .dict-export-grid {
+  width: min(900px, 96%) !important;
+  gap: clamp(18px, 3vw, 54px) !important;
+}
+
+#dictManageModal .dict-records-card.dict-export-mode .dict-export-format {
+  width: clamp(122px, 12vw, 168px) !important;
+  max-width: 168px !important;
+}
+
+@media (max-width: 900px) {
+  #dictManageModal .dict-records-card.dict-export-mode .dict-export-panel {
+    height: auto !important;
+    min-height: 300px !important;
+  }
+}
+
+/* cache-marker: BASTION-DICTS-EXPORT-COMPACT-v204 */
