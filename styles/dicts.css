@@ -1557,3 +1557,109 @@ body.dicts-page .core-screen {
   position: relative !important;
   z-index: 1 !important;
 }
+
+
+/* =========================================================
+   BASTION DICTS v183 — Light theme visual replacements
+   Replaces only the carousel folder and bottom projector in light mode.
+   Dark theme remains untouched.
+   ========================================================= */
+:root[data-theme="light"] body.dicts-page .dict-folder {
+  color: rgba(118, 0, 0, .94);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder::before {
+  background-image: url("../assets/ui/dict-folder-card-light.png?v=183");
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  filter:
+    drop-shadow(0 0 10px rgba(255, 255, 255, .84))
+    drop-shadow(0 0 18px rgba(255, 38, 32, .30));
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder::after {
+  inset: 18% 13% 16%;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .42), transparent 58%),
+    radial-gradient(circle at 50% 50%, rgba(255, 40, 34, .18), transparent 70%);
+  mix-blend-mode: multiply;
+  opacity: .72;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder__inner {
+  transform: translateY(2%);
+  padding: 0 16%;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder__title {
+  color: rgba(185, 0, 0, .96);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .88),
+    0 0 10px rgba(255, 42, 34, .34),
+    0 0 18px rgba(255, 42, 34, .22);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder__count {
+  color: rgba(118, 18, 18, .74);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, .88),
+    0 0 10px rgba(255, 42, 34, .20);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--active {
+  filter:
+    drop-shadow(0 0 26px rgba(255, 255, 255, .92))
+    drop-shadow(0 0 32px rgba(255, 48, 42, .54))
+    drop-shadow(0 0 72px rgba(255, 38, 30, .22));
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--mid {
+  filter:
+    drop-shadow(0 0 18px rgba(255, 255, 255, .70))
+    drop-shadow(0 0 24px rgba(255, 46, 40, .30));
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--side {
+  filter:
+    drop-shadow(0 0 12px rgba(255, 255, 255, .58))
+    drop-shadow(0 0 18px rgba(255, 46, 40, .22));
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder:hover {
+  filter:
+    drop-shadow(0 0 26px rgba(255, 255, 255, .96))
+    drop-shadow(0 0 42px rgba(255, 45, 38, .58));
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-projector {
+  content: url("../assets/ui/dicts-projector-light.png?v=183");
+  width: min(760px, 58vw);
+  height: 96px;
+  object-fit: fill;
+  bottom: 12px;
+  filter:
+    drop-shadow(0 0 12px rgba(255, 255, 255, .78))
+    drop-shadow(0 0 22px rgba(255, 42, 34, .36));
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-projector-wrap {
+  bottom: 18px;
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-light-core {
+  bottom: 70px;
+  width: 128px;
+  height: 34px;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, .95), rgba(255, 50, 42, .58) 34%, rgba(255, 24, 16, .16) 74%, transparent);
+  filter: blur(10px);
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-light-cone {
+  bottom: 98px;
+  background:
+    linear-gradient(90deg, transparent 0 49%, rgba(255, 66, 58, .11) 49.5% 50.5%, transparent 51% 100%),
+    radial-gradient(ellipse at 50% 100%, rgba(255, 45, 38, .34), rgba(255, 45, 38, .12) 44%, transparent 72%);
+  opacity: .82;
+}
