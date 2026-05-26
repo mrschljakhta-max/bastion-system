@@ -939,3 +939,95 @@ body.dicts-page.dicts-theme-light .dict-title-inline-input {
 }
 
 /* cache-marker: BASTION-DICTS-CREATE-AND-TITLE-POLISH-v209 */
+
+
+/* =========================================================
+   BASTION DICTS v210 — create modal compact + title edit anchor
+   ========================================================= */
+
+/* Create dictionary modal: close button always belongs to the top-right corner */
+#dictCreateModal .dict-modal__panel > .dict-modal__close {
+  position: absolute !important;
+  top: 24px !important;
+  right: 26px !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 12 !important;
+  transform: none !important;
+}
+
+/* Remove the duplicate small + column button safely if an older HTML copy is cached */
+#dictCreateModal #addDictColumnBtn,
+#dictCreateModal .dict-columns-head .dict-mini-button {
+  display: none !important;
+}
+
+/* Compact vertical rhythm inside the “add dictionary” modal */
+#dictCreateModal.dict-create-structure-mode .dict-modal__panel,
+#dictCreateModal .dict-modal__panel {
+  padding-top: clamp(38px, 4.2vh, 54px) !important;
+}
+
+#dictCreateModal .dict-modal__lead {
+  margin-bottom: clamp(18px, 2.4vh, 26px) !important;
+}
+
+#dictCreateModal .dict-form {
+  gap: 12px !important;
+}
+
+#dictCreateModal .dict-field {
+  margin: 0 !important;
+  gap: 8px !important;
+}
+
+#dictCreateModal .dict-columns-head {
+  margin-top: 12px !important;
+  margin-bottom: 2px !important;
+  min-height: auto !important;
+}
+
+#dictCreateModal .dict-create-structure {
+  gap: 10px !important;
+}
+
+#dictCreateModal .dict-structure-add,
+#dictCreateModal .dict-create-structure-add {
+  margin-top: 0 !important;
+  padding: 12px 14px !important;
+}
+
+#dictCreateModal .dict-create-structure-table-wrap {
+  margin-top: 6px !important;
+  max-height: 330px !important;
+}
+
+#dictCreateModal #dictTitleInput {
+  height: 54px !important;
+}
+
+/* Inline title edit button: attach it to the bottom-right corner of the title text */
+#dictManageTitle {
+  position: relative !important;
+  display: inline-block !important;
+  padding-right: 50px !important;
+}
+
+#dictManageTitle .dict-title-inline-edit-btn {
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 2px !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 5 !important;
+}
+
+/* Fallback if an older script inserts the button after the title */
+.dict-view-titlebox > .dict-title-inline-edit-btn {
+  position: relative !important;
+  display: inline-flex !important;
+  margin-left: 8px !important;
+  transform: translateY(10px) !important;
+}
+
+/* cache-marker: BASTION-DICTS-CREATE-COMPACT-TITLE-ANCHOR-v210 */

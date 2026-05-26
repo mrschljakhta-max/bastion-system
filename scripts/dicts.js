@@ -591,6 +591,14 @@
     return item?.title || item?.title_ua || item?.code || "ДОВІДНИК";
   }
 
+  function setManageTitleText(value) {
+    if (!manageTitle) return;
+    const text = String(value || "ДОВІДНИК").toUpperCase();
+    const editBtn = document.getElementById("dictTitleInlineEditBtn");
+    manageTitle.textContent = text;
+    if (editBtn) manageTitle.appendChild(editBtn);
+  }
+
   async function openManageModal(item) {
     currentDict = item;
     loadColumnPrefs();
@@ -601,7 +609,7 @@
     setEditMode(false);
     if (sortPanel) sortPanel.hidden = true;
     setExportMode(false);
-    if (manageTitle) manageTitle.textContent = dictionaryTitle(item).toUpperCase();
+    setManageTitleText(dictionaryTitle(item));
     if (manageTitleInput) manageTitleInput.value = dictionaryTitle(item);
     if (manageLead) manageLead.textContent = countLabel(item.records_count);
     if (dictMetaRecords) dictMetaRecords.textContent = String(Number(item.records_count || 0));
@@ -761,7 +769,7 @@
     }
     currentDict.title = title;
     currentDict.title_ua = title;
-    if (manageTitle) manageTitle.textContent = title.toUpperCase();
+    setManageTitleText(title);
     if (manageTitleInput) manageTitleInput.value = title;
     await loadRegistry();
     setManageStatus("Назву довідника збережено.", "success");
@@ -788,8 +796,12 @@
     btn.title = "Перейменувати довідник";
     btn.setAttribute("aria-label", "Перейменувати довідник");
     btn.innerHTML = actionIcon("pencil");
-    manageTitle.insertAdjacentElement("afterend", btn);
-    btn.addEventListener("click", startInlineTitleEdit);
+    manageTitle.appendChild(btn);
+    btn.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      startInlineTitleEdit();
+    });
   }
 
   function syncInlineTitleEditorState() {
