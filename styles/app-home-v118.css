@@ -12032,273 +12032,403 @@ body.dict-modal-open .dict-modal.is-open {
 }
 
 /* =========================================================
-   BASTION PROFILE MODAL v212 — clean info layout + inline login edit
+   BASTION PROFILE MODAL v213 — clean profile info flow
+   - Login edit moved to the left avatar panel
+   - Session and right-side command buttons removed
+   - Access request expands inside the access placeholder
+   - Equal image-based power buttons for dark/light themes
+   - Light-theme backdrop switches from black blur to white glass
    ========================================================= */
+
 #profileModal.bastion-profile-modal .profile-card__left{
-  position:relative !important;
+  grid-template-rows: 1fr auto !important;
+  place-items: center !important;
+  align-items: center !important;
+  padding: 26px 28px 28px !important;
 }
 
-#profileModal.bastion-profile-modal .profile-core-caption{
-  display:none !important;
-}
-
-#profileModal.bastion-profile-modal .profile-login-editor{
+#profileModal.bastion-profile-modal .profile-login-card{
   position:absolute !important;
-  left:38px !important;
-  right:38px !important;
-  bottom:42px !important;
-  z-index:5 !important;
-  min-height:66px !important;
-  padding:10px 12px 10px 18px !important;
-  border:1px solid rgba(255,60,70,.28) !important;
-  background:linear-gradient(90deg, rgba(11,13,18,.68), rgba(18,8,11,.54)) !important;
-  box-shadow:inset 0 0 20px rgba(255,30,42,.055), 0 0 18px rgba(255,30,42,.08) !important;
+  left:28px !important;
+  right:28px !important;
+  bottom:24px !important;
+  min-height:70px !important;
+  padding:11px 12px 10px !important;
+  border:1px solid rgba(255,72,82,.30) !important;
+  background:linear-gradient(90deg, rgba(255,55,63,.08), rgba(0,217,255,.018)), rgba(0,0,0,.26) !important;
+  box-shadow:inset 0 0 18px rgba(0,0,0,.22), 0 0 16px rgba(255,35,45,.08) !important;
+  z-index:3 !important;
 }
 
-#profileModal.bastion-profile-modal .profile-login-editor label{
+#profileModal.bastion-profile-modal .profile-login-card label{
   display:block !important;
-  margin:0 0 3px !important;
-  color:#ff6570 !important;
-  font:900 12px/1 Rajdhani, Orbitron, sans-serif !important;
+  margin:0 0 6px !important;
+  color:#ff626b !important;
+  font:900 11px/1 Orbitron, system-ui, sans-serif !important;
   letter-spacing:.18em !important;
   text-transform:uppercase !important;
 }
 
-#profileModal.bastion-profile-modal .profile-login-editor__box{
+#profileModal.bastion-profile-modal .profile-login-edit-row{
   display:grid !important;
-  grid-template-columns:1fr 42px !important;
+  grid-template-columns: minmax(0,1fr) 42px !important;
   align-items:center !important;
   gap:10px !important;
 }
 
-#profileModal.bastion-profile-modal .profile-login-editor__input{
-  width:100% !important;
+#profileModal.bastion-profile-modal .profile-login-inline-input{
   min-width:0 !important;
+  width:100% !important;
   height:34px !important;
-  padding:0 !important;
-  color:#fff !important;
-  font:900 24px/1 Rajdhani, Orbitron, sans-serif !important;
-  letter-spacing:.04em !important;
-  background:transparent !important;
+  padding:0 2px !important;
   border:0 !important;
   outline:0 !important;
-  overflow:hidden !important;
+  color:rgba(255,255,255,.95) !important;
+  background:transparent !important;
+  font:900 clamp(19px,1.8vw,27px)/1 Rajdhani, system-ui, sans-serif !important;
+  letter-spacing:.045em !important;
   text-overflow:ellipsis !important;
-  white-space:nowrap !important;
-  text-shadow:0 0 10px rgba(255,255,255,.18) !important;
 }
 
-#profileModal.bastion-profile-modal .profile-login-editor__input.is-editing{
+#profileModal.bastion-profile-modal .profile-login-inline-input[readonly]{
+  pointer-events:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-inline-input.is-editing{
   padding:0 8px !important;
-  border-radius:7px !important;
-  background:rgba(255,255,255,.06) !important;
-  box-shadow:inset 0 0 0 1px rgba(255,60,70,.36), 0 0 14px rgba(255,35,45,.18) !important;
+  border:1px solid rgba(255,83,91,.44) !important;
+  border-radius:8px !important;
+  background:rgba(0,0,0,.24) !important;
+  box-shadow:0 0 14px rgba(255,35,45,.18), inset 0 0 12px rgba(255,255,255,.035) !important;
 }
 
-#profileModal.bastion-profile-modal .profile-login-editor__button{
+#profileModal.bastion-profile-modal .profile-login-inline-toggle{
   position:relative !important;
-  width:38px !important;
-  height:38px !important;
+  width:40px !important;
+  height:40px !important;
+  border:1px solid rgba(255,85,94,.46) !important;
+  border-radius:10px !important;
   display:grid !important;
   place-items:center !important;
-  border-radius:9px !important;
-  border:1px solid rgba(255,80,90,.42) !important;
   color:#fff !important;
-  background:linear-gradient(145deg, rgba(255,65,75,.80), rgba(88,8,14,.88)) !important;
-  box-shadow:inset 0 0 12px rgba(255,255,255,.12), 0 0 20px rgba(255,40,50,.22) !important;
+  background:linear-gradient(145deg, rgba(255,53,62,.46), rgba(95,13,18,.78)) !important;
+  box-shadow:0 0 18px rgba(255,35,45,.22), inset 0 0 16px rgba(255,255,255,.08) !important;
   cursor:pointer !important;
   transition:transform .18s ease, filter .18s ease, box-shadow .18s ease !important;
 }
 
-#profileModal.bastion-profile-modal .profile-login-editor__button:hover{
+#profileModal.bastion-profile-modal .profile-login-inline-toggle:hover{
   transform:translateY(-1px) scale(1.04) !important;
-  filter:brightness(1.15) !important;
+  filter:brightness(1.16) !important;
 }
 
-#profileModal.bastion-profile-modal .profile-login-editor__icon{
+#profileModal.bastion-profile-modal .profile-login-icon{
   position:absolute !important;
-  inset:0 !important;
-  display:grid !important;
-  place-items:center !important;
-  font:900 21px/1 Rajdhani, Orbitron, sans-serif !important;
-  transition:opacity .18s ease, transform .18s ease !important;
+  font:900 22px/1 Rajdhani, system-ui, sans-serif !important;
+  text-shadow:0 0 10px rgba(255,255,255,.34) !important;
+  transition:opacity .16s ease, transform .16s ease !important;
 }
 
-#profileModal.bastion-profile-modal .profile-login-editor__icon--save{
+#profileModal.bastion-profile-modal .profile-login-inline-toggle[data-mode="edit"] .profile-login-icon--save,
+#profileModal.bastion-profile-modal .profile-login-inline-toggle[data-mode="save"] .profile-login-icon--edit{
   opacity:0 !important;
-  transform:scale(.75) rotate(-12deg) !important;
+  transform:scale(.72) rotate(-16deg) !important;
 }
-#profileModal.bastion-profile-modal .profile-login-editor__button.is-saving .profile-login-editor__icon--edit{
-  opacity:0 !important;
-  transform:scale(.75) rotate(12deg) !important;
-}
-#profileModal.bastion-profile-modal .profile-login-editor__button.is-saving .profile-login-editor__icon--save{
+
+#profileModal.bastion-profile-modal .profile-login-inline-toggle[data-mode="save"] .profile-login-icon--save,
+#profileModal.bastion-profile-modal .profile-login-inline-toggle[data-mode="edit"] .profile-login-icon--edit{
   opacity:1 !important;
   transform:scale(1) rotate(0deg) !important;
 }
 
-#profileModal.bastion-profile-modal .profile-data.profile-data--compact{
+#profileModal.bastion-profile-modal .profile-card__right{
+  grid-template-rows:auto auto auto 1fr !important;
+  padding-right:72px !important;
+}
+
+#profileModal.bastion-profile-modal .profile-title-block h2{
+  margin-bottom:28px !important;
+}
+
+#profileModal.bastion-profile-modal .profile-data.profile-data--clean{
   display:grid !important;
   grid-template-columns:1fr !important;
   gap:12px !important;
-  margin-top:22px !important;
-  width:min(650px, 100%) !important;
+  width:min(610px,100%) !important;
+  margin:0 0 0 !important;
 }
 
-#profileModal.bastion-profile-modal .profile-data.profile-data--compact .profile-data__item{
-  min-height:64px !important;
+#profileModal.bastion-profile-modal .profile-info-card{
+  position:relative !important;
+  min-height:68px !important;
+  padding:15px 18px !important;
+  border:1px solid rgba(255,78,86,.26) !important;
+  border-radius:14px !important;
   display:grid !important;
-  grid-template-columns:175px minmax(0,1fr) 34px !important;
+  grid-template-columns:180px minmax(0,1fr) !important;
   align-items:center !important;
-  gap:14px !important;
-  padding:0 16px 0 18px !important;
+  background:linear-gradient(90deg, rgba(255,55,63,.08), rgba(0,217,255,.024)) !important;
+  box-shadow:inset 0 0 16px rgba(0,0,0,.28) !important;
+  overflow:hidden !important;
+  transition:min-height .22s ease, background .22s ease, box-shadow .22s ease !important;
 }
 
-#profileModal.bastion-profile-modal .profile-data.profile-data--compact .profile-data__item--email{
-  grid-template-columns:175px minmax(0,1fr) !important;
-}
-
-#profileModal.bastion-profile-modal .profile-data.profile-data--compact dt{
+#profileModal.bastion-profile-modal .profile-info-card dt{
   margin:0 !important;
+  color:#ff5f68 !important;
+  font:900 11px/1.15 Orbitron, system-ui, sans-serif !important;
+  letter-spacing:.18em !important;
+  text-transform:uppercase !important;
 }
 
-#profileModal.bastion-profile-modal .profile-data.profile-data--compact dd{
-  justify-self:start !important;
-  text-align:left !important;
-  max-width:100% !important;
+#profileModal.bastion-profile-modal .profile-info-card dd{
+  margin:0 !important;
+  min-width:0 !important;
+  color:rgba(255,255,255,.93) !important;
+  font:900 clamp(18px,1.55vw,25px)/1 Rajdhani, system-ui, sans-serif !important;
+  letter-spacing:.025em !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
 }
 
-#profileModal.bastion-profile-modal .profile-data__item--role{
+#profileModal.bastion-profile-modal .profile-access-view{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 38px !important;
+  align-items:center !important;
+  gap:12px !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-chevron{
+  width:34px !important;
+  height:34px !important;
+  display:grid !important;
+  place-items:center !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:8px !important;
+  background:transparent !important;
   cursor:pointer !important;
-  transition:filter .18s ease, transform .18s ease, box-shadow .18s ease !important;
-}
-#profileModal.bastion-profile-modal .profile-data__item--role:hover{
-  filter:brightness(1.12) !important;
-  transform:translateY(-1px) !important;
-  box-shadow:inset 0 0 18px rgba(255,30,42,.10), 0 0 18px rgba(255,35,45,.12) !important;
+  transition:transform .18s ease, filter .18s ease !important;
 }
 
-#profileModal.bastion-profile-modal .profile-role-chevron{
+#profileModal.bastion-profile-modal .profile-access-chevron img{
   width:24px !important;
   height:24px !important;
   object-fit:contain !important;
-  justify-self:end !important;
-  filter:drop-shadow(0 0 8px rgba(255,35,45,.65)) !important;
-  opacity:.92 !important;
+  filter:brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,56,66,.36)) !important;
+  transition:transform .18s ease, filter .18s ease !important;
 }
 
-#profileModal.bastion-profile-modal .profile-action-zone--power-only{
-  position:absolute !important;
-  right:118px !important;
-  bottom:76px !important;
-  width:84px !important;
-  height:84px !important;
+#profileModal.bastion-profile-modal .profile-access-chevron:hover img{
+  transform:translateY(2px) scale(1.08) !important;
+  filter:brightness(0) invert(1) drop-shadow(0 0 12px rgba(255,56,66,.62)) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card.is-access-open{
+  min-height:240px !important;
+  grid-template-columns:1fr !important;
+  align-items:start !important;
+  padding:14px 18px 16px !important;
+  background:linear-gradient(145deg, rgba(255,55,63,.10), rgba(0,217,255,.022)), rgba(0,0,0,.18) !important;
+  box-shadow:inset 0 0 20px rgba(0,0,0,.30), 0 0 22px rgba(255,35,45,.10) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card.is-access-open > dt,
+#profileModal.bastion-profile-modal .profile-access-card.is-access-open > .profile-access-view{
+  display:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card .profile-inline-panel{
+  width:100% !important;
   min-height:0 !important;
-  display:block !important;
+  max-height:none !important;
   margin:0 !important;
   padding:0 !important;
-  background:transparent !important;
   border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
   box-shadow:none !important;
+  overflow:visible !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card .profile-inline-panel[hidden]{
+  display:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card .profile-inline-panel__head{
+  margin:0 0 12px !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card .profile-access-options{
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:10px !important;
+  margin:0 0 10px !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card .profile-access-options label{
+  min-height:38px !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card .profile-inline-field textarea{
+  height:54px !important;
+  min-height:54px !important;
+  resize:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-access-card .profile-inline-actions{
+  margin-top:8px !important;
+  justify-content:flex-end !important;
+}
+
+#profileModal.bastion-profile-modal .profile-action-zone,
+#profileModal.bastion-profile-modal .profile-action-zone--power-only{
+  position:absolute !important;
+  right:92px !important;
+  bottom:64px !important;
+  width:76px !important;
+  height:76px !important;
+  min-height:0 !important;
+  margin:0 !important;
+  display:block !important;
   pointer-events:none !important;
 }
 
-#profileModal.bastion-profile-modal .profile-action-zone--power-only::before,
-#profileModal.bastion-profile-modal .profile-action-zone--power-only::after{
+#profileModal.bastion-profile-modal .profile-action-dock{
   display:none !important;
 }
 
 #profileModal.bastion-profile-modal .profile-power-button{
-  position:absolute !important;
-  inset:0 !important;
-  width:84px !important;
-  height:84px !important;
-  display:block !important;
+  position:relative !important;
+  inset:auto !important;
+  width:76px !important;
+  height:76px !important;
   padding:0 !important;
   border:0 !important;
   border-radius:50% !important;
   background:transparent !important;
   box-shadow:none !important;
+  display:grid !important;
+  place-items:center !important;
   overflow:visible !important;
   pointer-events:auto !important;
-}
-
-#profileModal.bastion-profile-modal .profile-power-button__img{
-  position:absolute !important;
-  inset:0 !important;
-  width:100% !important;
-  height:100% !important;
-  object-fit:contain !important;
-  transition:opacity .22s ease, transform .18s ease, filter .18s ease !important;
-  user-select:none !important;
-  pointer-events:none !important;
-}
-
-#profileModal.bastion-profile-modal .profile-power-button__img--dark{ opacity:1 !important; }
-#profileModal.bastion-profile-modal .profile-power-button__img--light{ opacity:0 !important; }
-#profileModal.bastion-profile-modal .profile-power-button:hover .profile-power-button__img{
-  transform:scale(1.06) !important;
-  filter:brightness(1.12) drop-shadow(0 0 14px rgba(255,35,45,.35)) !important;
+  cursor:pointer !important;
+  transition:transform .18s ease, filter .18s ease !important;
 }
 
 #profileModal.bastion-profile-modal .profile-power-button > span{
   display:none !important;
 }
 
-#profileModal.bastion-profile-modal .profile-inline-panel{
-  width:min(650px,100%) !important;
-  min-height:132px !important;
-  margin:16px 0 0 !important;
+#profileModal.bastion-profile-modal .profile-power-img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  pointer-events:none !important;
+  user-select:none !important;
+  transition:opacity .18s ease, filter .18s ease !important;
 }
 
-:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-backdrop,
-:root[data-theme="light"] .profile-backdrop{
+#profileModal.bastion-profile-modal .profile-power-img--dark{ opacity:1 !important; }
+#profileModal.bastion-profile-modal .profile-power-img--light{ opacity:0 !important; }
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-power-img--dark{ opacity:0 !important; }
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-power-img--light{ opacity:1 !important; }
+
+#profileModal.bastion-profile-modal .profile-power-button:hover{
+  transform:scale(1.055) !important;
+  filter:brightness(1.12) drop-shadow(0 0 16px rgba(255,35,45,.42)) !important;
+  box-shadow:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-inline-status{
+  position:absolute !important;
+  left:0 !important;
+  right:110px !important;
+  bottom:18px !important;
+  margin:0 !important;
+  min-height:18px !important;
+}
+
+/* Light modal glass and white blur atmosphere */
+:root[data-theme="light"] body.profile-modal-open > *:not(#profileModal),
+:root[data-theme="light"] body.profile-modal-open > .b116-top-panels{
+  filter:blur(10px) brightness(1.08) saturate(.82) !important;
+}
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal > .profile-backdrop,
+:root[data-theme="light"] .profile-modal .profile-backdrop{
   background:
-    radial-gradient(circle at 42% 45%, rgba(255,255,255,.72), rgba(255,255,255,.38) 28%, rgba(244,249,252,.62) 58%, rgba(224,233,240,.70) 100%) !important;
-  backdrop-filter:blur(15px) saturate(1.12) brightness(1.06) !important;
+    radial-gradient(circle at 43% 45%, rgba(255,44,52,.14), transparent 34%),
+    radial-gradient(circle at 66% 58%, rgba(255,255,255,.72), transparent 44%),
+    rgba(245,248,250,.58) !important;
+  backdrop-filter:blur(16px) saturate(1.04) brightness(1.08) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(1.04) brightness(1.08) !important;
 }
 
-:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-editor{
-  background:linear-gradient(90deg, rgba(255,255,255,.70), rgba(255,245,246,.52)) !important;
-  border-color:rgba(255,56,66,.22) !important;
-  box-shadow:inset 0 0 20px rgba(255,30,42,.045), 0 10px 28px rgba(31,43,55,.10) !important;
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-card{
+  border-color:rgba(255,42,52,.24) !important;
+  background:linear-gradient(145deg, rgba(255,255,255,.74), rgba(255,239,241,.48)) !important;
+  box-shadow:0 16px 34px rgba(96,112,128,.10), inset 0 0 18px rgba(255,255,255,.62) !important;
 }
-:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-editor__input{
-  color:#202936 !important;
-  text-shadow:none !important;
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-card label,
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-info-card dt{
+  color:#e01818 !important;
 }
-:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-editor__button{
-  color:#ff202b !important;
-  background:linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,226,230,.82)) !important;
-  border-color:rgba(255,45,56,.32) !important;
-  box-shadow:0 0 18px rgba(255,45,56,.18), inset 0 0 12px rgba(255,40,50,.08) !important;
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-inline-input,
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-info-card dd{
+  color:#1f2935 !important;
 }
-:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-role-chevron{
-  filter:drop-shadow(0 0 7px rgba(255,35,45,.36)) !important;
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-inline-input.is-editing{
+  background:rgba(255,255,255,.72) !important;
+  border-color:rgba(224,26,26,.36) !important;
+  box-shadow:0 0 16px rgba(255,42,52,.16), inset 0 0 12px rgba(255,255,255,.78) !important;
 }
-:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-power-button__img--dark{ opacity:0 !important; }
-:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-power-button__img--light{ opacity:1 !important; }
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-inline-toggle{
+  color:#ff1e2a !important;
+  border-color:rgba(224,26,26,.30) !important;
+  background:linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,226,230,.76)) !important;
+  box-shadow:0 0 18px rgba(255,35,45,.16), inset 0 0 14px rgba(255,255,255,.84) !important;
+}
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-info-card{
+  border-color:rgba(198,210,220,.76) !important;
+  background:linear-gradient(145deg, rgba(255,255,255,.78), rgba(247,250,252,.58)) !important;
+  box-shadow:0 14px 32px rgba(96,112,128,.10), inset 0 0 16px rgba(255,255,255,.72) !important;
+}
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-access-card.is-access-open{
+  background:linear-gradient(145deg, rgba(255,255,255,.84), rgba(255,237,239,.54)) !important;
+  box-shadow:0 18px 36px rgba(96,112,128,.12), inset 0 0 18px rgba(255,255,255,.82) !important;
+}
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-access-chevron img{
+  filter:brightness(0) saturate(1) invert(15%) sepia(95%) saturate(5562%) hue-rotate(352deg) brightness(94%) contrast(95%) drop-shadow(0 0 8px rgba(255,42,52,.22)) !important;
+}
 
 @media (max-width:980px){
-  #profileModal.bastion-profile-modal .profile-login-editor{
-    left:24px !important;
-    right:24px !important;
-    bottom:30px !important;
-  }
-  #profileModal.bastion-profile-modal .profile-data.profile-data--compact .profile-data__item{
-    grid-template-columns:135px minmax(0,1fr) 28px !important;
-  }
-  #profileModal.bastion-profile-modal .profile-data.profile-data--compact .profile-data__item--email{
-    grid-template-columns:135px minmax(0,1fr) !important;
-  }
+  #profileModal.bastion-profile-modal .profile-action-zone,
   #profileModal.bastion-profile-modal .profile-action-zone--power-only{
-    right:72px !important;
-    bottom:54px !important;
-    width:68px !important;
-    height:68px !important;
+    right:62px !important;
+    bottom:42px !important;
+    width:64px !important;
+    height:64px !important;
   }
   #profileModal.bastion-profile-modal .profile-power-button{
-    width:68px !important;
-    height:68px !important;
+    width:64px !important;
+    height:64px !important;
+  }
+  #profileModal.bastion-profile-modal .profile-access-card .profile-access-options{
+    grid-template-columns:1fr !important;
+  }
+  #profileModal.bastion-profile-modal .profile-info-card{
+    grid-template-columns:1fr !important;
+    gap:8px !important;
   }
 }

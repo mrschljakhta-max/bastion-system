@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BASTION — Зв’язки / Вузли</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
-  <link rel="stylesheet" href="../styles/app-home-v118.css?v=212" />
+  <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -140,13 +140,13 @@
           <input id="profileAvatarInput" class="profile-avatar-input" type="file" accept="image/png,image/jpeg,image/webp" hidden />
         </div>
 
-        <div class="profile-login-editor" aria-label="Редагування логіна">
+        <div class="profile-login-card" aria-label="Редагування логіну">
           <label for="profileLoginValue">Логін</label>
-          <div class="profile-login-editor__box">
-            <input id="profileLoginValue" class="profile-login-editor__input" data-profile-fit type="text" value="lavash.squad" maxlength="32" autocomplete="nickname" readonly />
-            <button id="profileLoginQuickEditButton" class="profile-login-editor__button" type="button" aria-label="Редагувати логін" data-tooltip="Редагувати логін">
-              <span class="profile-login-editor__icon profile-login-editor__icon--edit" aria-hidden="true">✎</span>
-              <span class="profile-login-editor__icon profile-login-editor__icon--save" aria-hidden="true">✓</span>
+          <div class="profile-login-edit-row">
+            <input id="profileLoginValue" class="profile-login-inline-input" type="text" maxlength="32" value="lavash.squad" readonly autocomplete="nickname" />
+            <button id="profileLoginInlineToggle" class="profile-login-inline-toggle" type="button" aria-label="Редагувати логін" data-mode="edit">
+              <span class="profile-login-icon profile-login-icon--edit" aria-hidden="true">✎</span>
+              <span class="profile-login-icon profile-login-icon--save" aria-hidden="true">✓</span>
             </button>
           </div>
         </div>
@@ -175,65 +175,56 @@
           <h2 id="profileLogin" data-profile-fit>lavash.squad</h2>
         </header>
 
-        <dl class="profile-data profile-data--compact">
-          <div class="profile-data__item profile-data__item--email">
+        <dl class="profile-data profile-data--clean">
+          <div class="profile-info-card profile-email-card">
             <dt>Email</dt>
             <dd id="profileEmail" data-profile-fit>email не визначено</dd>
           </div>
-          <div class="profile-data__item profile-data__item--role" data-profile-panel="access" data-tooltip="Подати заявку на зміну рівня доступу" role="button" tabindex="0" aria-label="Подати заявку на зміну рівня доступу">
+          <div id="profileAccessCard" class="profile-info-card profile-access-card">
             <dt>Рівень доступу</dt>
-            <dd id="profileRole" data-profile-fit>DEMO</dd>
-            <img class="profile-role-chevron" src="../assets/ui/profile-access-chevron-badges.svg?v=212" alt="" aria-hidden="true" />
+            <dd class="profile-access-view">
+              <span id="profileRole" data-profile-fit>DEMO</span>
+              <button id="profileAccessToggle" class="profile-access-chevron" type="button" aria-label="Подати заявку на зміну рівня доступу">
+                <img src="../assets/ui/profile-access-chevron.svg" alt="" aria-hidden="true" />
+              </button>
+            </dd>
+
+            <section id="profileAccessPanel" class="profile-inline-panel profile-inline-panel--access" hidden aria-label="Заявка на зміну рівня доступу">
+              <div class="profile-inline-panel__head">
+                <span>Заявка на рівень доступу</span>
+                <button class="profile-inline-close" type="button" data-profile-panel-close aria-label="Закрити">×</button>
+              </div>
+              <div class="profile-access-options" role="radiogroup" aria-label="Новий рівень доступу">
+                <label>
+                  <input type="radio" name="profileAccessLevel" value="DEMO" />
+                  <span>Demo</span>
+                </label>
+                <label>
+                  <input type="radio" name="profileAccessLevel" value="OPERATOR" />
+                  <span>Оператор</span>
+                </label>
+                <label>
+                  <input type="radio" name="profileAccessLevel" value="SUPERVISOR" />
+                  <span>Супервайзер</span>
+                </label>
+              </div>
+              <label class="profile-inline-field">
+                <span>Коментар</span>
+                <textarea id="profileAccessComment" rows="2" placeholder="Коротко опишіть причину зміни доступу..."></textarea>
+              </label>
+              <div class="profile-inline-actions">
+                <button id="profileSubmitAccessButton" class="profile-inline-submit" type="button">Подати заявку</button>
+                <button class="profile-inline-ghost" type="button" data-profile-panel-close>Скасувати</button>
+              </div>
+            </section>
           </div>
         </dl>
-        <div class="profile-action-zone profile-action-zone--power-only" aria-label="Команди профілю">
+        <div class="profile-action-zone profile-action-zone--power-only" aria-label="Дії профілю">
           <button id="logoutButton" class="profile-power-button" type="button" data-tooltip="Вийти із сайту" aria-label="Вийти із сайту">
-            <img class="profile-power-button__img profile-power-button__img--dark" src="../assets/ui/profile-power-dark.png?v=212" alt="" aria-hidden="true" />
-            <img class="profile-power-button__img profile-power-button__img--light" src="../assets/ui/profile-power-light.png?v=212" alt="" aria-hidden="true" />
+            <img class="profile-power-img profile-power-img--dark" src="../assets/ui/profile-power-dark.png" alt="" aria-hidden="true" />
+            <img class="profile-power-img profile-power-img--light" src="../assets/ui/profile-power-light.png" alt="" aria-hidden="true" />
           </button>
-        </div><section id="profileLoginPanel" class="profile-inline-panel" hidden aria-label="Редагувати логін">
-          <div class="profile-inline-panel__head">
-            <span>Редагувати логін</span>
-            <button class="profile-inline-close" type="button" data-profile-panel-close aria-label="Закрити">×</button>
-          </div>
-          <label class="profile-inline-field">
-            <span>Новий логін</span>
-            <input id="profileLoginInput" type="text" maxlength="32" placeholder="Наприклад: lavash.squad" autocomplete="nickname" />
-          </label>
-          <div class="profile-inline-actions">
-            <button id="profileSaveLoginButton" class="profile-inline-submit" type="button">Зберегти</button>
-            <button class="profile-inline-ghost" type="button" data-profile-panel-close>Скасувати</button>
-          </div>
-        </section>
-
-        <section id="profileAccessPanel" class="profile-inline-panel" hidden aria-label="Заявка на зміну рівня доступу">
-          <div class="profile-inline-panel__head">
-            <span>Заявка на рівень доступу</span>
-            <button class="profile-inline-close" type="button" data-profile-panel-close aria-label="Закрити">×</button>
-          </div>
-          <div class="profile-access-options" role="radiogroup" aria-label="Новий рівень доступу">
-            <label>
-              <input type="radio" name="profileAccessLevel" value="DEMO" />
-              <span>Demo</span>
-            </label>
-            <label>
-              <input type="radio" name="profileAccessLevel" value="OPERATOR" />
-              <span>Оператор</span>
-            </label>
-            <label>
-              <input type="radio" name="profileAccessLevel" value="SUPERVISOR" />
-              <span>Супервайзер</span>
-            </label>
-          </div>
-          <label class="profile-inline-field">
-            <span>Коментар</span>
-            <textarea id="profileAccessComment" rows="2" placeholder="Коротко опишіть причину зміни доступу..."></textarea>
-          </label>
-          <div class="profile-inline-actions">
-            <button id="profileSubmitAccessButton" class="profile-inline-submit" type="button">Подати заявку</button>
-            <button class="profile-inline-ghost" type="button" data-profile-panel-close>Скасувати</button>
-          </div>
-        </section>
+        </div>
 
         <p id="profileInlineStatus" class="profile-inline-status" aria-live="polite"></p>
       </div>
@@ -246,6 +237,6 @@
   <script src="../scripts/supabase-client.js?v=177"></script>
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
-  <script src="../scripts/profile-panel.js?v=212"></script>
+  <script src="../scripts/profile-panel.js?v=213"></script>
 </body>
 </html>

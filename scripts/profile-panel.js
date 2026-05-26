@@ -1,4 +1,4 @@
-/* BASTION Profile Panel v212
+/* BASTION Profile Panel v209
    Opens profile command modal from the right HUD plate and performs logout.
    Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
@@ -21,11 +21,15 @@
   const profileLoginValue = byId("profileLoginValue");
   const profileEmail = byId("profileEmail");
   const profileRole = byId("profileRole");
+  const profileStatus = byId("profileStatus");
+  const profileSession = byId("profileSession");
   const profileAvatarEditButton = byId("profileAvatarEditButton");
   const profileAvatarInput = byId("profileAvatarInput");
-  const profileLoginQuickEditButton = byId("profileLoginQuickEditButton");
   const profileLoginInput = byId("profileLoginInput");
   const profileSaveLoginButton = byId("profileSaveLoginButton");
+  const profileLoginInlineToggle = byId("profileLoginInlineToggle");
+  const profileAccessToggle = byId("profileAccessToggle");
+  const profileAccessCard = byId("profileAccessCard");
   const profileAccessComment = byId("profileAccessComment");
   const profileSubmitAccessButton = byId("profileSubmitAccessButton");
   const profileInlineStatus = byId("profileInlineStatus");
@@ -163,9 +167,10 @@
       fitTextToBox(profileLoginValue, { min: 13, max: 21, step: 1 });
       fitTextToBox(profileEmail, { min: 12, max: 21, step: 1 });
       fitTextToBox(profileRole, { min: 13, max: 21, step: 1 });
+      fitTextToBox(profileSession, { min: 13, max: 21, step: 1 });
 
       document.querySelectorAll("[data-profile-fit]").forEach((element) => {
-        if (![profileLogin, profileLoginValue, profileEmail, profileRole].includes(element)) {
+        if (![profileLogin, profileLoginValue, profileEmail, profileRole, profileSession].includes(element)) {
           fitTextToBox(element, { min: 11, max: 20, step: 1 });
         }
       });
@@ -174,33 +179,12 @@
 
   function setText(el, value) {
     if (!el) return;
-    if ("value" in el) el.value = value;
-    else el.textContent = value;
-    el.setAttribute("title", value);
-  }
-
-  function readText(el) {
-    if (!el) return "";
-    return safeText(("value" in el ? el.value : el.textContent) || "");
-  }
-
-  function setLoginQuickEditMode(isEditing) {
-    if (!profileLoginValue || !profileLoginQuickEditButton) return;
-    profileLoginValue.toggleAttribute("readonly", !isEditing);
-    profileLoginValue.classList.toggle("is-editing", isEditing);
-    profileLoginQuickEditButton.classList.toggle("is-saving", isEditing);
-    profileLoginQuickEditButton.setAttribute("aria-label", isEditing ? "Підтвердити логін" : "Редагувати логін");
-    profileLoginQuickEditButton.dataset.tooltip = isEditing ? "Підтвердити логін" : "Редагувати логін";
-    if (isEditing) {
-      setTimeout(() => {
-        profileLoginValue.focus();
-        profileLoginValue.select?.();
-      }, 20);
+    if ("value" in el) {
+      el.value = value;
+    } else {
+      el.textContent = value;
     }
-  }
-
-  function isLoginQuickEditing() {
-    return !!profileLoginValue && !profileLoginValue.hasAttribute("readonly");
+    el.setAttribute("title", value);
   }
 
   function applyProfile(profile = {}) {
@@ -219,6 +203,8 @@
     setText(profileLoginValue, login);
     setText(profileEmail, emailLabel);
     setText(profileRole, role);
+    setText(profileStatus, "ACTIVE");
+    setText(profileSession, email ? "Захищена" : "Локальна");
 
     if (avatar) {
       if (userAvatarTop) userAvatarTop.src = avatar;
@@ -240,6 +226,8 @@
     [profileLoginPanel, profileAccessPanel].forEach((panel) => {
       if (panel) panel.hidden = true;
     });
+    profileAccessCard?.classList.remove("is-access-open");
+    profileAccessToggle?.setAttribute("aria-expanded", "false");
     document.querySelectorAll("[data-profile-panel]").forEach((button) => button.classList.remove("is-active"));
     setInlineStatus("");
   }
@@ -252,10 +240,14 @@
     if (panel) {
       panel.hidden = false;
       document.querySelector(`[data-profile-panel="${name}"]`)?.classList.add("is-active");
+      if (name === "access") {
+        profileAccessCard?.classList.add("is-access-open");
+        profileAccessToggle?.setAttribute("aria-expanded", "true");
+      }
     }
 
     if (name === "login" && profileLoginInput) {
-      profileLoginInput.value = readText(profileLoginValue) || "";
+      profileLoginInput.value = profileLoginValue?.value?.trim?.() || profileLoginValue?.textContent?.trim() || "";
       setTimeout(() => profileLoginInput.focus(), 30);
     }
 
@@ -321,29 +313,29 @@
     reader.readAsDataURL(file);
   }
 
-  async function saveLogin() {
-    const nextLogin = safeText((isLoginQuickEditing() ? profileLoginValue?.value : profileLoginInput?.value) || "");
-    if (nextLogin.length < 3) {
+  async function saveLoginValue(nextLogin) {
+    const cleanLogin = safeText(nextLogin || "");
+    if (cleanLogin.length < 3) {
       setInlineStatus("Логін має містити щонайменше 3 символи.", "error");
-      return;
+      return false;
     }
 
-    if (!/^[a-zA-Z0-9._-]{3,32}$/.test(nextLogin)) {
+    if (!/^[a-zA-Z0-9._-]{3,32}$/.test(cleanLogin)) {
       setInlineStatus("Дозволені латинські літери, цифри, крапка, дефіс і нижнє підкреслення.", "error");
-      return;
+      return false;
     }
 
     try {
-      localStorage.setItem("bastion_profile_nickname", nextLogin);
-      localStorage.setItem("bastion_login", nextLogin);
+      localStorage.setItem("bastion_profile_nickname", cleanLogin);
+      localStorage.setItem("bastion_login", cleanLogin);
     } catch (error) {
       console.warn("[BASTION profile-panel] login local save failed:", error);
     }
 
     const currentEmail = safeText(profileEmail?.textContent || localStorage.getItem("bastion_email") || "");
-    const currentRole = normalizeRole(readText(profileRole) || localStorage.getItem("bastion_role") || "DEMO");
+    const currentRole = normalizeRole(profileRole?.textContent || localStorage.getItem("bastion_role") || "DEMO");
     applyProfile({
-      login: nextLogin,
+      login: cleanLogin,
       email: currentEmail === "email не визначено" ? "" : currentEmail,
       role: currentRole,
       avatar: localStorage.getItem("bastion_profile_avatar") || ""
@@ -355,7 +347,7 @@
         await sb.from("profiles").upsert({
           id: user.id,
           email: user.email || currentEmail || null,
-          nickname: nextLogin,
+          nickname: cleanLogin,
           updated_at: new Date().toISOString()
         }, { onConflict: "id" });
       } catch (error) {
@@ -364,14 +356,18 @@
     }
 
     setInlineStatus("Логін оновлено.", "success");
-    setLoginQuickEditMode(false);
-    setTimeout(hideInlinePanels, 700);
+    return true;
+  }
+
+  async function saveLogin() {
+    const ok = await saveLoginValue(profileLoginInput?.value || "");
+    if (ok) setTimeout(hideInlinePanels, 700);
   }
 
   async function submitAccessRequest() {
     const selected = document.querySelector('input[name="profileAccessLevel"]:checked');
     const requestedLevel = normalizeRole(selected?.value || "");
-    const currentLevel = normalizeRole(readText(profileRole) || "DEMO");
+    const currentLevel = normalizeRole(profileRole?.textContent || "DEMO");
     const comment = safeText(profileAccessComment?.value || "");
 
     if (!requestedLevel) {
@@ -384,8 +380,8 @@
       return;
     }
 
-    const email = readText(profileEmail) || safeText(localStorage.getItem("bastion_email") || "");
-    const login = readText(profileLoginValue) || safeText(localStorage.getItem("bastion_login") || "");
+    const email = safeText(profileEmail?.textContent || localStorage.getItem("bastion_email") || "");
+    const login = safeText(profileLoginValue?.value || profileLoginValue?.textContent || localStorage.getItem("bastion_login") || "");
 
     try {
       const pending = JSON.parse(localStorage.getItem("bastion_access_requests") || "[]");
@@ -502,7 +498,6 @@
       event.stopPropagation();
     }
 
-    setLoginQuickEditMode(false);
     profileModal?.classList.remove("is-open");
     profileModal?.setAttribute("aria-hidden", "true");
     userMenuButton?.setAttribute("aria-expanded", "false");
@@ -535,6 +530,37 @@
     window.location.replace("../index.html");
   }
 
+  async function toggleInlineLoginEdit(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    if (!profileLoginValue || !profileLoginInlineToggle) return;
+
+    const isEditing = profileLoginInlineToggle.dataset.mode === "save";
+    if (!isEditing) {
+      profileLoginValue.removeAttribute("readonly");
+      profileLoginValue.focus();
+      profileLoginValue.select?.();
+      profileLoginInlineToggle.dataset.mode = "save";
+      profileLoginInlineToggle.setAttribute("aria-label", "Підтвердити зміну логіну");
+      profileLoginValue.classList.add("is-editing");
+      return;
+    }
+
+    const ok = await saveLoginValue(profileLoginValue.value || "");
+    if (!ok) {
+      profileLoginValue.focus();
+      return;
+    }
+
+    profileLoginValue.setAttribute("readonly", "readonly");
+    profileLoginInlineToggle.dataset.mode = "edit";
+    profileLoginInlineToggle.setAttribute("aria-label", "Редагувати логін");
+    profileLoginValue.classList.remove("is-editing");
+  }
+
   function bind() {
     if (!userMenuButton) {
       console.warn("[BASTION profile-panel] #userMenuButton not found");
@@ -560,26 +586,6 @@
       if (profileAvatarInput) profileAvatarInput.value = "";
     });
 
-    profileLoginQuickEditButton?.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (isLoginQuickEditing()) saveLogin();
-      else setLoginQuickEditMode(true);
-    });
-
-    profileLoginValue?.addEventListener("keydown", (event) => {
-      if (!isLoginQuickEditing()) return;
-      if (event.key === "Enter") {
-        event.preventDefault();
-        saveLogin();
-      }
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setText(profileLoginValue, profileLogin?.textContent || getLocalProfile().login);
-        setLoginQuickEditMode(false);
-      }
-    });
-
     document.querySelectorAll("[data-profile-panel]").forEach((button) => {
       button.addEventListener("click", (event) => {
         event.preventDefault();
@@ -603,8 +609,28 @@
       saveLogin();
     });
 
+    profileLoginInlineToggle?.addEventListener("click", toggleInlineLoginEdit);
+
+    profileLoginValue?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && profileLoginInlineToggle?.dataset.mode === "save") toggleInlineLoginEdit(event);
+      if (event.key === "Escape" && profileLoginInlineToggle?.dataset.mode === "save") {
+        event.preventDefault();
+        applyProfile(getLocalProfile());
+        profileLoginValue.setAttribute("readonly", "readonly");
+        profileLoginInlineToggle.dataset.mode = "edit";
+        profileLoginValue.classList.remove("is-editing");
+      }
+    });
+
     profileLoginInput?.addEventListener("keydown", (event) => {
       if (event.key === "Enter") saveLogin();
+    });
+
+    profileAccessToggle?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (profileAccessPanel && !profileAccessPanel.hidden) hideInlinePanels();
+      else openInlinePanel("access");
     });
 
     profileSubmitAccessButton?.addEventListener("click", (event) => {
