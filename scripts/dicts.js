@@ -520,18 +520,19 @@
     const name = col.column_name;
     const type = normalizeType(col.data_type || col.udt_name);
     const value = row[name];
+    const label = escapeHtml(columnLabel(name));
     if (name === "is_active" || type === "boolean") {
-      return `<input class="dict-cell-check" type="checkbox" data-field="${escapeHtml(name)}" ${value !== false ? "checked" : ""}>`;
+      return `<input class="dict-cell-check dict-inline-check" type="checkbox" data-field="${escapeHtml(name)}" aria-label="${label}" ${value !== false ? "checked" : ""}>`;
     }
-    if (type === "date") return `<input class="dict-cell-input" type="date" data-field="${escapeHtml(name)}" value="${escapeHtml(value || "")}">`;
-    if (type === "integer" || type === "numeric") return `<input class="dict-cell-input" type="number" step="${type === "numeric" ? "any" : "1"}" data-field="${escapeHtml(name)}" value="${escapeHtml(value ?? "")}">`;
-    return `<input class="dict-cell-input" type="text" data-field="${escapeHtml(name)}" value="${escapeHtml(value ?? "")}">`;
+    if (type === "date") return `<input class="dict-cell-input dict-inline-input" type="date" data-field="${escapeHtml(name)}" aria-label="${label}" value="${escapeHtml(value || "")}">`;
+    if (type === "integer" || type === "numeric") return `<input class="dict-cell-input dict-inline-input" type="number" step="${type === "numeric" ? "any" : "1"}" data-field="${escapeHtml(name)}" aria-label="${label}" placeholder="${label}" value="${escapeHtml(value ?? "")}">`;
+    return `<input class="dict-cell-input dict-inline-input" type="text" data-field="${escapeHtml(name)}" aria-label="${label}" placeholder="${label}" value="${escapeHtml(value ?? "")}">`;
   }
 
   function renderRecordEditorRow(row = {}, id = null) {
-    const cols = writableColumns();
-    const colspan = Math.max(displayColumns().length + 2, 3);
-    return `<tr class="dict-row-editor" data-editor-for="${escapeHtml(id || "new")}"><td colspan="${colspan}"><div class="dict-row-editor-box">${cols.map((c) => `<label><span>${escapeHtml(columnLabel(c.column_name))}</span>${inputForCell(row, c)}</label>`).join("")}<div class="dict-row-editor-actions"><button type="button" class="dict-mini-button" data-save-editor>${id ? "ЗБЕРЕГТИ" : "СТВОРИТИ"}</button><button type="button" class="dict-mini-button dict-mini-button--ghost" data-cancel-editor>СКАСУВАТИ</button></div></div></td></tr>`;
+    const cols = displayColumns();
+    const rowNumber = id ? "↳" : (currentRows.length + 1);
+    return `<tr class="dict-row-editor dict-row-editor--inline${id ? "" : " dict-row-editor--new"}" data-editor-for="${escapeHtml(id || "new")}"><td class="dict-col-num dict-inline-row-num">${rowNumber}</td>${cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${inputForCell(row, c)}</td>`).join("")}<td class="dict-row-actions dict-row-actions--editor"><button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-save-editor title="${id ? "Зберегти зміни" : "Створити запис"}" aria-label="${id ? "Зберегти зміни" : "Створити запис"}">${actionIcon("check")}</button><button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-cancel-editor title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button></td></tr>`;
   }
 
   function displayCellValue(row, col) {
@@ -591,6 +592,14 @@
     tr.querySelectorAll("[data-field]").forEach((input) => { payload[input.dataset.field] = valueFromInput(input); });
     if (hasColumn("updated_at")) payload.updated_at = new Date().toISOString();
     if (!hasColumn("is_active")) delete payload.is_active;
+    if (!id) {
+      const meaningful = Object.entries(payload).some(([key, value]) => key !== "is_active" && value !== "" && value !== null && typeof value !== "undefined");
+      if (!meaningful) {
+        setManageStatus("Заповни хоча б одне поле нового запису.", "error");
+        tr.querySelector("[data-field]")?.focus();
+        return;
+      }
+    }
     setManageStatus(id ? "Зберігаю запис..." : "Створюю запис...", "loading");
     const result = id ? await sb.from(currentDict.table_name).update(payload).eq("id", id) : await sb.from(currentDict.table_name).insert(payload);
     if (result.error) return setManageStatus(`Помилка збереження: ${result.error.message}`, "error");
@@ -626,14 +635,24 @@
     let tbody = recordsTable.querySelector("tbody");
     if (!tbody) { renderRecordsTable(); tbody = recordsTable.querySelector("tbody"); }
     if (tbody.querySelector(".dict-empty-cell")) tbody.innerHTML = "";
+    const existing = tbody.querySelector('.dict-row-editor--new');
+    if (existing) {
+      existing.querySelector("[data-field]")?.focus();
+      return;
+    }
     recordsTable.querySelectorAll(".dict-row-editor").forEach((r) => r.remove());
     const empty = {};
-    writableColumns().forEach((c) => { empty[c.column_name] = ""; });
+    writableColumns().forEach((c) => { empty[c.column_name] = c.column_name === "is_active" ? true : ""; });
     empty.is_active = true;
     tbody.insertAdjacentHTML("beforeend", renderRecordEditorRow(empty, null));
     const editor = tbody.lastElementChild;
     editor.querySelector("[data-save-editor]").addEventListener("click", () => saveRow(editor, null));
-    editor.querySelector("[data-cancel-editor]").addEventListener("click", () => editor.remove());
+    editor.querySelector("[data-cancel-editor]").addEventListener("click", () => {
+      editor.remove();
+      if (!currentRows.length) renderRecordsTable();
+    });
+    editor.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    setTimeout(() => editor.querySelector("[data-field]")?.focus(), 60);
   }
 
   async function refreshCount() {
