@@ -5,7 +5,7 @@
    - imports the current full Dicts stylesheet from the previous commit;
    - removes the red projector cone in light theme;
    - forces account-modal-like light palette for dictionary table modals;
-   - brightens action SVG icons in dark theme.
+   - brightens action SVG icons in dark theme.мпролдж
    ========================================================= */
 
 html[data-theme="light"] body.dicts-page .dicts-light-cone,
