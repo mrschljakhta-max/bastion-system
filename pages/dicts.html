@@ -128,7 +128,7 @@
   <div id="dictCreateModal" class="dict-modal" aria-hidden="true">
     <div class="dict-modal__backdrop" data-close-dict-modal></div>
     <section class="dict-modal__panel" role="dialog" aria-modal="true" aria-labelledby="dictCreateTitle">
-      <button class="dict-modal__close" type="button" data-close-dict-modal aria-label="Закрити">×</button>
+      <button class="dict-modal__close dict-svg-button" type="button" data-close-dict-modal aria-label="Закрити"><img src="../assets/icons/actions/x.svg" alt="" aria-hidden="true"></button>
       <h2 id="dictCreateTitle">ДОДАТИ ДОВІДНИК</h2>
       <p class="dict-modal__lead">Створює новий довідник у реєстрі та окрему таблицю Supabase для його записів.</p>
 
@@ -153,7 +153,7 @@
               <option value="date">Дата</option>
               <option value="boolean">Так / Ні</option>
             </select>
-            <button type="button" class="dict-remove-column" aria-label="Прибрати колонку">×</button>
+            <button type="button" class="dict-remove-column dict-svg-button" aria-label="Прибрати колонку"><img src="../assets/icons/actions/x.svg" alt="" aria-hidden="true"></button>
           </div>
           <div class="dict-column-row">
             <input type="text" value="alias" data-column-name required />
@@ -164,7 +164,7 @@
               <option value="date">Дата</option>
               <option value="boolean">Так / Ні</option>
             </select>
-            <button type="button" class="dict-remove-column" aria-label="Прибрати колонку">×</button>
+            <button type="button" class="dict-remove-column dict-svg-button" aria-label="Прибрати колонку"><img src="../assets/icons/actions/x.svg" alt="" aria-hidden="true"></button>
           </div>
         </div>
 
@@ -181,22 +181,22 @@
   <div id="dictManageModal" class="dict-modal dict-modal--wide" aria-hidden="true">
     <div class="dict-modal__backdrop" data-close-manage-modal></div>
     <section class="dict-modal__panel dict-modal__panel--wide dict-view-panel" role="dialog" aria-modal="true" aria-labelledby="dictManageTitle">
-      <button class="dict-modal__close" type="button" data-close-manage-modal aria-label="Закрити">×</button>
+      <button class="dict-modal__close dict-svg-button" type="button" data-close-manage-modal aria-label="Закрити"><img src="../assets/icons/actions/x.svg" alt="" aria-hidden="true"></button>
 
       <header class="dict-view-head">
         <div class="dict-view-titlebox">
           <h2 id="dictManageTitle">ДОВІДНИК</h2>
           <p id="dictManageLead" class="dict-modal__lead">0 записів</p>
           <div class="dict-vault-meta" aria-label="Метадані довідника">
-            <span><b>STATUS:</b> <i class="dict-status-dot"></i> ACTIVE</span>
-            <span><b>RECORDS:</b> <i id="dictMetaRecords">0</i></span>
-            <span><b>TABLE:</b> <i id="dictMetaTable">—</i></span>
+            <span><b>СТАТУС:</b> <i class="dict-status-dot"></i> АКТИВНИЙ</span>
+            <span><b>ЗАПИСІВ:</b> <i id="dictMetaRecords">0</i></span>
+            <span><b>ТАБЛИЦЯ:</b> <i id="dictMetaTable">—</i></span>
           </div>
         </div>
         <div class="dict-view-tools" aria-label="Дії з довідником">
-          <button id="dictEditToggleBtn" class="dict-icon-button" type="button" title="Редагувати довідник" aria-label="Редагувати довідник">✎</button>
-          <button id="dictSortToggleBtn" class="dict-icon-button" type="button" title="Сортування і пошук" aria-label="Сортування і пошук">⇅</button>
-          <button id="dictDeleteBtn" class="dict-icon-button dict-icon-button--danger" type="button" title="Видалити довідник" aria-label="Видалити довідник">🗑</button>
+          <button id="dictEditToggleBtn" class="dict-icon-button dict-svg-button" type="button" title="Редагувати довідник" aria-label="Редагувати довідник"><img src="../assets/icons/actions/pencil.svg" alt="" aria-hidden="true"></button>
+          <button id="dictSortToggleBtn" class="dict-icon-button dict-svg-button" type="button" title="Пошук і фільтр" aria-label="Пошук і фільтр"><img src="../assets/icons/actions/filter.svg" alt="" aria-hidden="true"></button>
+          <button id="dictDeleteBtn" class="dict-icon-button dict-icon-button--danger dict-svg-button" type="button" title="Видалити довідник" aria-label="Видалити довідник"><img src="../assets/icons/actions/trash.svg" alt="" aria-hidden="true"></button>
         </div>
       </header>
 
@@ -246,7 +246,7 @@
           <table id="dictRecordsTable" class="dict-records-table dict-records-table--clean"></table>
         </div>
         <div class="dict-add-row-line">
-          <button id="dictAddRowBtn" class="dict-floating-plus" type="button" title="Додати запис" aria-label="Додати запис">+</button>
+          <button id="dictAddRowBtn" class="dict-floating-plus dict-svg-button" type="button" title="Додати запис" aria-label="Додати запис"><img src="../assets/icons/actions/circle-plus.svg" alt="" aria-hidden="true"></button>
         </div>
       </section>
 

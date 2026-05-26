@@ -1824,13 +1824,57 @@ body[data-theme="light"].dicts-page .dicts-light-cone {
   opacity: .56;
 }
 
-/* =========================================================
-   BASTION DICTS v188 — light theme: remove red projector cone
-   Keeps projector and soft core glow, hides only the cone beam.
-   ========================================================= */
-:root[data-theme="light"] body.dicts-page .dicts-light-cone,
-body[data-theme="light"].dicts-page .dicts-light-cone {
+
+/* BASTION v189 — unified SVG action icons + Ukrainian table labels */
+.dict-svg-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dict-svg-button > img,
+.dict-action-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(255, 72, 62, .78));
+}
+
+.dict-modal__close > img {
+  width: 24px;
+  height: 24px;
+}
+
+.dict-remove-column > img {
+  width: 20px;
+  height: 20px;
+}
+
+.dict-icon-mini > img {
+  width: 18px;
+  height: 18px;
+}
+
+.dict-floating-plus > img {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  margin-right: 18px;
+}
+
+.dict-floating-plus::before {
+  content: "" !important;
   display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
+}
+
+.dict-floating-plus::after {
+  content: "ДОДАТИ ЗАПИС" !important;
+}
+
+.dict-records-table th {
+  letter-spacing: .08em;
 }

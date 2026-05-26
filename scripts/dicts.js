@@ -14,6 +14,58 @@
   const protectedColumns = new Set(["id", "created_at", "updated_at"]);
   const columnTypeLabels = { text: "Текст", integer: "Ціле число", numeric: "Число", date: "Дата", boolean: "Так / Ні", uuid: "UUID", timestamptz: "Дата/час" };
 
+  const columnLabels = {
+    id: "№",
+    name: "Назва",
+    alias: "Альтернативна назва",
+    aliases: "Альтернативні назви",
+    is_active: "Статус",
+    active: "Активний",
+    code: "Код",
+    type: "Тип",
+    category: "Категорія",
+    caliber: "Калібр",
+    weight: "Вага",
+    unit: "Одиниця",
+    description: "Опис",
+    note: "Примітка",
+    notes: "Примітки",
+    sort_order: "Порядок",
+    table_name: "Технічна таблиця",
+    records_count: "Кількість записів",
+    created_at: "Створено",
+    updated_at: "Оновлено",
+    deleted_at: "Видалено",
+    title: "Назва",
+    short_name: "Скорочення",
+    full_name: "Повна назва",
+    display_name: "Назва для відображення",
+    settlement: "Населений пункт",
+    station: "Станція",
+    uav_type: "Тип БпЛА",
+    frequency: "Частота",
+    direction: "Напрямок",
+    range: "Дальність",
+    latitude: "Широта",
+    longitude: "Довгота",
+    lat: "Широта",
+    lon: "Довгота",
+    lng: "Довгота"
+  };
+
+  function columnLabel(key) {
+    const raw = String(key || "").trim();
+    const normalized = raw.toLowerCase();
+    if (columnLabels[normalized]) return columnLabels[normalized];
+    return raw
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (m) => m.toUpperCase());
+  }
+
+  function actionIcon(name) {
+    return `<img class="dict-action-icon" src="../assets/icons/actions/${name}.svg" alt="" aria-hidden="true">`;
+  }
+
   let folders = [];
   let active = 0;
   let sb = null;
@@ -202,7 +254,7 @@
   function createColumnRow(name = "", type = "text") {
     const row = document.createElement("div");
     row.className = "dict-column-row";
-    row.innerHTML = `<input type="text" value="${name}" data-column-name required /><select data-column-type><option value="text">Текст</option><option value="integer">Ціле число</option><option value="numeric">Число</option><option value="date">Дата</option><option value="boolean">Так / Ні</option></select><button type="button" class="dict-remove-column" aria-label="Прибрати колонку">×</button>`;
+    row.innerHTML = `<input type="text" value="${name}" data-column-name required /><select data-column-type><option value="text">Текст</option><option value="integer">Ціле число</option><option value="numeric">Число</option><option value="date">Дата</option><option value="boolean">Так / Ні</option></select><button type="button" class="dict-remove-column dict-svg-button" aria-label="Прибрати колонку">${actionIcon("x")}</button>`;
     row.querySelector("select").value = type;
     row.querySelector(".dict-remove-column").addEventListener("click", () => {
       if (columnsList.querySelectorAll(".dict-column-row").length <= 1) return setStatus("Має залишитись хоча б одна колонка.", "error");
@@ -363,8 +415,8 @@
     const cols = displayColumns().filter((c) => c.column_name !== "is_active");
     const options = [];
     cols.forEach((c) => {
-      options.push(`<option value="${escapeHtml(c.column_name)}__asc">${escapeHtml(c.column_name)}: А → Я</option>`);
-      options.push(`<option value="${escapeHtml(c.column_name)}__desc">${escapeHtml(c.column_name)}: Я → А</option>`);
+      options.push(`<option value="${escapeHtml(c.column_name)}__asc">${escapeHtml(columnLabel(c.column_name))}: А → Я</option>`);
+      options.push(`<option value="${escapeHtml(c.column_name)}__desc">${escapeHtml(columnLabel(c.column_name))}: Я → А</option>`);
     });
     if (hasColumn("created_at")) options.push(`<option value="created_at__desc">Нові зверху</option>`);
     sortSelect.innerHTML = options.join("") || `<option value="">Без сортування</option>`;
@@ -378,11 +430,12 @@
       const row = document.createElement("div");
       row.className = "dict-column-chip";
       const type = normalizeType(col.data_type || col.udt_name);
-      row.innerHTML = `<span><b>${escapeHtml(col.column_name)}</b><small>${escapeHtml(columnTypeLabels[type] || type)}</small></span>`;
+      row.innerHTML = `<span><b>${escapeHtml(columnLabel(col.column_name))}</b><small>${escapeHtml(columnTypeLabels[type] || type)}</small></span>`;
       if (!protectedColumns.has(col.column_name) && col.column_name !== "is_active") {
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.textContent = "×";
+        btn.className = "dict-svg-button";
+        btn.innerHTML = actionIcon("x");
         btn.title = "Видалити колонку";
         btn.addEventListener("click", () => dropColumn(col.column_name));
         row.appendChild(btn);
@@ -405,7 +458,7 @@
   }
 
   async function dropColumn(colName) {
-    const ok = window.confirm(`Видалити колонку "${colName}"? Дані в цій колонці будуть втрачені.`);
+    const ok = window.confirm(`Видалити колонку "${columnLabel(colName)}"? Дані в цій колонці будуть втрачені.`);
     if (!ok) return;
     setManageStatus("Видаляю колонку...", "loading");
     const { error } = await sb.rpc("drop_bastion_dictionary_column", { p_table_name: currentDict.table_name, p_column_name: colName });
@@ -462,7 +515,7 @@
   function renderRecordEditorRow(row = {}, id = null) {
     const cols = writableColumns();
     const colspan = Math.max(displayColumns().length + 2, 3);
-    return `<tr class="dict-row-editor" data-editor-for="${escapeHtml(id || "new")}"><td colspan="${colspan}"><div class="dict-row-editor-box">${cols.map((c) => `<label><span>${escapeHtml(c.column_name)}</span>${inputForCell(row, c)}</label>`).join("")}<div class="dict-row-editor-actions"><button type="button" class="dict-mini-button" data-save-editor>${id ? "ЗБЕРЕГТИ" : "СТВОРИТИ"}</button><button type="button" class="dict-mini-button dict-mini-button--ghost" data-cancel-editor>СКАСУВАТИ</button></div></div></td></tr>`;
+    return `<tr class="dict-row-editor" data-editor-for="${escapeHtml(id || "new")}"><td colspan="${colspan}"><div class="dict-row-editor-box">${cols.map((c) => `<label><span>${escapeHtml(columnLabel(c.column_name))}</span>${inputForCell(row, c)}</label>`).join("")}<div class="dict-row-editor-actions"><button type="button" class="dict-mini-button" data-save-editor>${id ? "ЗБЕРЕГТИ" : "СТВОРИТИ"}</button><button type="button" class="dict-mini-button dict-mini-button--ghost" data-cancel-editor>СКАСУВАТИ</button></div></div></td></tr>`;
   }
 
   function displayCellValue(row, col) {
@@ -481,7 +534,7 @@
     const cols = displayColumns();
     recordsTable.innerHTML = "";
     const thead = document.createElement("thead");
-    thead.innerHTML = `<tr><th class="dict-col-num">№</th>${cols.map((c) => `<th>${escapeHtml(c.column_name)}</th>`).join("")}<th class="dict-col-actions">Дії</th></tr>`;
+    thead.innerHTML = `<tr><th class="dict-col-num">№</th>${cols.map((c) => `<th>${escapeHtml(columnLabel(c.column_name))}</th>`).join("")}<th class="dict-col-actions">Дії</th></tr>`;
     const tbody = document.createElement("tbody");
     if (!currentRows.length) {
       tbody.innerHTML = `<tr><td colspan="${cols.length + 2}" class="dict-empty-cell">Записів немає</td></tr>`;
@@ -489,7 +542,7 @@
       currentRows.forEach((row, idx) => {
         const tr = document.createElement("tr");
         tr.dataset.id = row.id;
-        tr.innerHTML = `<td class="dict-col-num">${idx + 1}</td>${cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${displayCellValue(row, c)}</td>`).join("")}<td class="dict-row-actions"><button type="button" class="dict-icon-mini" data-edit-row title="Редагувати запис">✎</button><button type="button" class="dict-icon-mini dict-icon-mini--danger" data-delete-row title="Видалити запис">🗑</button></td>`;
+        tr.innerHTML = `<td class="dict-col-num">${idx + 1}</td>${cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${displayCellValue(row, c)}</td>`).join("")}<td class="dict-row-actions"><button type="button" class="dict-icon-mini dict-svg-button" data-edit-row title="Редагувати запис" aria-label="Редагувати запис">${actionIcon("pencil")}</button><button type="button" class="dict-icon-mini dict-icon-mini--danger dict-svg-button" data-delete-row title="Видалити запис" aria-label="Видалити запис">${actionIcon("trash")}</button></td>`;
         tr.querySelectorAll("[data-toggle-field]").forEach((input) => {
           input.addEventListener("change", (event) => updateRowField(row.id, event.target.dataset.toggleField, event.target.checked));
         });
