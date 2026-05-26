@@ -570,3 +570,104 @@ body.dicts-page.dicts-theme-light .dict-structure-name-cell small {
 }
 
 /* cache-marker: BASTION-DICTS-STRUCTURE-EDIT-v206 */
+
+
+/* =========================================================
+   BASTION DICTS v207 — structure add column + drag ordering
+   ========================================================= */
+.dict-structure-add {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 150px auto;
+  gap: 12px;
+  align-items: center;
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px solid rgba(255, 70, 64, .22);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 58, 54, .055), rgba(0, 12, 18, .18));
+}
+
+.dict-structure-add-input,
+.dict-structure-add-type {
+  height: 42px !important;
+}
+
+.dict-structure-add-btn {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 74, 66, .44);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(120, 24, 24, .95), rgba(60, 12, 16, .92));
+  color: rgba(255, 248, 246, .96);
+  font: 900 17px/1 Rajdhani, Orbitron, sans-serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: inset 0 0 18px rgba(255, 82, 72, .16), 0 0 18px rgba(255, 54, 48, .10);
+}
+
+.dict-structure-add-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 95, 86, .72);
+  box-shadow: inset 0 0 20px rgba(255, 82, 72, .22), 0 0 24px rgba(255, 54, 48, .20);
+}
+
+.dict-structure-row[draggable="true"] {
+  cursor: grab;
+}
+
+.dict-structure-row[draggable="true"]:active,
+.dict-structure-row.is-dragging {
+  cursor: grabbing;
+}
+
+.dict-structure-row.is-dragging {
+  opacity: .56;
+  outline: 1px dashed rgba(255, 75, 68, .70);
+  outline-offset: -4px;
+  background: rgba(255, 62, 54, .10) !important;
+}
+
+.dict-drag-grip {
+  display: inline-flex;
+  width: 22px;
+  margin-right: 8px;
+  justify-content: center;
+  color: rgba(255, 95, 88, .62);
+  font-weight: 900;
+  letter-spacing: -0.12em;
+  user-select: none;
+}
+
+.dict-structure-row.is-virtual .dict-drag-grip {
+  display: none;
+}
+
+.dict-structure-row.is-protected .dict-structure-name::after {
+  content: "  СИСТЕМНА" !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-structure-add,
+body[data-theme="light"].dicts-page .dict-structure-add,
+body.dicts-page.dicts-theme-light .dict-structure-add {
+  background: rgba(255,255,255,.62) !important;
+  border-color: rgba(255, 58, 58, .18) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.60), 0 12px 28px rgba(100, 112, 130, .055) !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-structure-add-btn,
+body[data-theme="light"].dicts-page .dict-structure-add-btn,
+body.dicts-page.dicts-theme-light .dict-structure-add-btn {
+  background: linear-gradient(135deg, #ff3d42, #d71920) !important;
+  color: #fff !important;
+  border-color: rgba(255, 64, 64, .56) !important;
+  box-shadow: 0 10px 24px rgba(255, 54, 48, .18), inset 0 0 18px rgba(255,255,255,.16) !important;
+}
+
+@media (max-width: 900px) {
+  .dict-structure-add {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* cache-marker: BASTION-DICTS-STRUCTURE-ADD-DRAG-v207 */

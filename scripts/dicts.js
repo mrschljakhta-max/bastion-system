@@ -1,4 +1,4 @@
-/* BASTION DICTS v206 — dictionary column structure edit mode */
+/* BASTION DICTS v207 — structure columns add + drag order */
 (() => {
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -15,6 +15,7 @@
   const columnTypeLabels = { text: "Текст", integer: "Ціле число", numeric: "Число", date: "Дата", boolean: "Так / Ні", uuid: "UUID", timestamptz: "Дата/час" };
 
   const columnLabels = {
+    __rownum: "Порядковий номер",
     id: "№",
     name: "Назва",
     alias: "Альтернативна назва",
@@ -95,7 +96,7 @@
   let currentDict = null;
   let currentColumns = [];
   let currentRows = [];
-  let columnPrefs = { hidden: {}, labels: {} };
+  let columnPrefs = { hidden: {}, labels: {}, order: [] };
 
   function createSupabaseClient() {
     const cfg = window.BASTION_CONFIG || {};
@@ -132,12 +133,12 @@
   }
 
   function loadColumnPrefs() {
-    columnPrefs = { hidden: {}, labels: {} };
+    columnPrefs = { hidden: {}, labels: {}, order: [] };
     try {
       const raw = localStorage.getItem(prefsStorageKey());
-      if (raw) columnPrefs = { hidden: {}, labels: {}, ...JSON.parse(raw) };
+      if (raw) columnPrefs = { hidden: {}, labels: {}, order: [], ...JSON.parse(raw) };
     } catch (error) {
-      columnPrefs = { hidden: {}, labels: {} };
+      columnPrefs = { hidden: {}, labels: {}, order: [] };
     }
   }
 
@@ -166,6 +167,25 @@
     else columnPrefs.labels[columnName] = clean;
     saveColumnPrefs();
   }
+
+  function orderedColumns(cols) {
+    const order = Array.isArray(columnPrefs?.order) ? columnPrefs.order : [];
+    return [...cols].sort((a, b) => {
+      const ai = order.indexOf(a.column_name);
+      const bi = order.indexOf(b.column_name);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  }
+
+  function setColumnOrder(order) {
+    if (!columnPrefs.order) columnPrefs.order = [];
+    columnPrefs.order = order.filter(Boolean);
+    saveColumnPrefs();
+  }
+
 
   function isProtectedStructureColumn(columnName) {
     return columnName === "__rownum" || columnName === "name" || columnName === "is_active" || protectedColumns.has(columnName);
@@ -405,7 +425,7 @@
     currentDict = null;
     currentColumns = [];
     currentRows = [];
-    columnPrefs = { hidden: {}, labels: {} };
+    columnPrefs = { hidden: {}, labels: {}, order: [] };
     setEditMode(false);
     if (sortPanel) sortPanel.hidden = true;
     setExportMode(false);
@@ -457,12 +477,12 @@
   // Columns visible in the dictionary table.
   // We hide only service fields. Every user-created column is shown equally, Excel-style.
   function displayColumns() {
-    return currentColumns.filter((c) => !protectedColumns.has(c.column_name) && isColumnVisible(c.column_name));
+    return orderedColumns(currentColumns.filter((c) => !protectedColumns.has(c.column_name) && isColumnVisible(c.column_name)));
   }
 
   // Columns writable in add/edit rows. is_active remains writable as a checkbox.
   function writableColumns() {
-    return currentColumns.filter((c) => !protectedColumns.has(c.column_name));
+    return orderedColumns(currentColumns.filter((c) => !protectedColumns.has(c.column_name)));
   }
 
   function hasColumn(name) {
@@ -521,7 +541,7 @@
   function structureColumns() {
     return [
       { column_name: "__rownum", data_type: "integer", virtual: true },
-      ...currentColumns.filter((c) => !protectedColumns.has(c.column_name))
+      ...orderedColumns(currentColumns.filter((c) => !protectedColumns.has(c.column_name)))
     ];
   }
 
@@ -533,9 +553,22 @@
         <header class="dict-structure-head">
           <div>
             <h3>СТРУКТУРА ДОВІДНИКА</h3>
-            <p>Керуйте назвами, видимістю та колонками поточного довідника.</p>
+            <p>Керуйте назвами, видимістю, порядком та колонками поточного довідника.</p>
           </div>
         </header>
+
+        <div class="dict-structure-add">
+          <input id="dictStructureNewColumnName" class="dict-cell-input dict-structure-add-input" type="text" placeholder="Нова колонка, наприклад: калібр" aria-label="Назва нової колонки">
+          <select id="dictStructureNewColumnType" class="dict-cell-input dict-structure-add-type" aria-label="Тип нової колонки">
+            <option value="text">Текст</option>
+            <option value="integer">Ціле число</option>
+            <option value="numeric">Число</option>
+            <option value="date">Дата</option>
+            <option value="boolean">Так / Ні</option>
+          </select>
+          <button id="dictStructureAddColumnBtn" type="button" class="dict-structure-add-btn">+ ДОДАТИ КОЛОНКУ</button>
+        </div>
+
         <div class="dict-structure-table-wrap">
           <table id="dictStructureTable" class="dict-records-table dict-structure-table">
             <thead>
@@ -552,6 +585,9 @@
           </table>
         </div>
       </section>`;
+
+    editPanel.querySelector("#dictStructureAddColumnBtn")?.addEventListener("click", addColumnToCurrent);
+    initStructureDrag();
   }
 
   function renderStructureRow(col, index) {
@@ -559,11 +595,11 @@
     const protectedCol = isProtectedStructureColumn(name);
     const deleteDisabled = protectedCol || col.virtual;
     const visible = isColumnVisible(name);
-    return `<tr class="dict-structure-row${protectedCol ? " is-protected" : ""}" data-column="${escapeHtml(name)}">
-      <td class="dict-col-num">${index + 1}</td>
+    return `<tr class="dict-structure-row${protectedCol ? " is-protected" : ""}${col.virtual ? " is-virtual" : ""}" data-column="${escapeHtml(name)}" draggable="${col.virtual ? "false" : "true"}">
+      <td class="dict-col-num"><span class="dict-drag-grip" aria-hidden="true">${col.virtual ? "" : "⋮⋮"}</span>${index + 1}</td>
       <td class="dict-structure-name-cell">
         <span class="dict-structure-name" data-column-label>${escapeHtml(columnLabel(name))}</span>
-        <small>${escapeHtml(name === "__rownum" ? "system:number" : name)}</small>
+        <small>${escapeHtml(name === "__rownum" ? "Системна колонка номера" : name)}</small>
       </td>
       <td>
         <input class="dict-cell-check" type="checkbox" data-column-visible ${visible ? "checked" : ""} aria-label="Показувати колонку ${escapeHtml(columnLabel(name))}">
@@ -575,6 +611,43 @@
     </tr>`;
   }
 
+  function initStructureDrag() {
+    const tbody = editPanel?.querySelector("#dictStructureTable tbody");
+    if (!tbody) return;
+    let dragged = null;
+
+    tbody.querySelectorAll(".dict-structure-row[draggable='true']").forEach((row) => {
+      row.addEventListener("dragstart", (event) => {
+        dragged = row;
+        row.classList.add("is-dragging");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", row.dataset.column || "");
+      });
+
+      row.addEventListener("dragend", () => {
+        row.classList.remove("is-dragging");
+        dragged = null;
+        const order = [...tbody.querySelectorAll(".dict-structure-row")]
+          .map((item) => item.dataset.column)
+          .filter((name) => name && name !== "__rownum");
+        setColumnOrder(order);
+        renderRecordsTable();
+        refreshSortOptions();
+        setManageStatus("Порядок колонок оновлено.", "success");
+      });
+    });
+
+    tbody.addEventListener("dragover", (event) => {
+      if (!dragged) return;
+      event.preventDefault();
+      const target = event.target.closest(".dict-structure-row[draggable='true']");
+      if (!target || target === dragged) return;
+      const rect = target.getBoundingClientRect();
+      const after = event.clientY > rect.top + rect.height / 2;
+      tbody.insertBefore(dragged, after ? target.nextSibling : target);
+    });
+  }
+
   function startStructureNameEdit(row) {
     const colName = row?.dataset?.column;
     if (!colName) return;
@@ -583,7 +656,7 @@
     if (!cell || !actions || cell.querySelector("input")) return;
     const current = columnLabel(colName);
     cell.innerHTML = `<input class="dict-cell-input dict-structure-name-input" type="text" data-structure-name-input value="${escapeHtml(current)}" aria-label="Нова назва колонки">
-      <small>${escapeHtml(colName === "__rownum" ? "system:number" : colName)}</small>`;
+      <small>${escapeHtml(colName === "__rownum" ? "Системна колонка номера" : colName)}</small>`;
     actions.innerHTML = `
       <button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-structure-save title="Зберегти назву" aria-label="Зберегти назву">${actionIcon("check")}</button>
       <button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-structure-cancel title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button>`;
@@ -626,15 +699,24 @@
   }
 
   async function addColumnToCurrent() {
-    const colName = sanitizeColumnName(newColumnName?.value);
+    const structureNameInput = document.getElementById("dictStructureNewColumnName");
+    const structureTypeInput = document.getElementById("dictStructureNewColumnType");
+    const sourceNameInput = structureNameInput || newColumnName;
+    const sourceTypeInput = structureTypeInput || newColumnType;
+    const rawLabel = String(sourceNameInput?.value || "").trim();
+    const colName = sanitizeColumnName(rawLabel);
+    const colType = sourceTypeInput?.value || "text";
     if (!colName) return setManageStatus("Введи назву нової колонки.", "error");
     if (currentColumns.some((c) => c.column_name === colName)) return setManageStatus("Така колонка вже існує.", "error");
     setManageStatus("Додаю колонку...", "loading");
-    const { error } = await sb.rpc("add_bastion_dictionary_column", { p_table_name: currentDict.table_name, p_column_name: colName, p_column_type: newColumnType.value });
+    const { error } = await sb.rpc("add_bastion_dictionary_column", { p_table_name: currentDict.table_name, p_column_name: colName, p_column_type: colType });
     if (error) return setManageStatus(`Помилка додавання колонки: ${error.message}`, "error");
-    newColumnName.value = "";
+    if (sourceNameInput) sourceNameInput.value = "";
+    setColumnCustomLabel(colName, rawLabel);
+    setColumnOrder([...(columnPrefs.order || []), colName]);
     await loadDictionaryStructure();
     await loadDictionaryRows();
+    renderStructureEditPanel();
     setManageStatus("Колонку додано.", "success");
   }
 
