@@ -1,4 +1,4 @@
-/* BASTION DICTS v199 — inline table row editor polish */
+/* BASTION DICTS v201 — Excel export button in dictionary toolbar */
 (() => {
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -323,6 +323,7 @@
   const addColumnManageBtn = document.getElementById("dictAddColumnManageBtn");
   const saveTitleBtn = document.getElementById("dictSaveTitleBtn");
   const deleteDictBtn = document.getElementById("dictDeleteBtn");
+  const exportExcelBtn = document.getElementById("dictExportExcelBtn");
   const recordsTable = document.getElementById("dictRecordsTable");
   const searchInput = document.getElementById("dictSearchInput");
   const sortSelect = document.getElementById("dictSortSelect");
@@ -401,6 +402,69 @@
   function displayColumns() {
     return currentColumns.filter((c) => !protectedColumns.has(c.column_name));
   }
+
+  function normalizeExportValue(value) {
+    if (value === null || typeof value === "undefined") return "";
+    if (typeof value === "boolean") return value ? "Так" : "Ні";
+    if (Array.isArray(value)) return value.join(", ");
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+  }
+
+  function safeFileName(value) {
+    return String(value || "dictionary")
+      .trim()
+      .replace(/[\\/:*?"<>|]+/g, "_")
+      .replace(/\s+/g, "_")
+      .slice(0, 90) || "dictionary";
+  }
+
+  function exportCurrentDictionaryToExcel() {
+    if (!currentDict) return setManageStatus("Спочатку відкрий довідник.", "error");
+    const cols = displayColumns();
+    if (!cols.length) return setManageStatus("Немає колонок для експорту.", "error");
+
+    const title = dictionaryTitle(currentDict);
+    const rows = currentRows || [];
+    const tableHead = cols.map((c) => `<th>${escapeHtml(columnLabel(c.column_name))}</th>`).join("");
+    const tableRows = rows.map((row) => {
+      const cells = cols.map((c) => `<td>${escapeHtml(normalizeExportValue(row[c.column_name]))}</td>`).join("");
+      return `<tr>${cells}</tr>`;
+    }).join("");
+
+    const htmlDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    table { border-collapse: collapse; font-family: Arial, sans-serif; }
+    th { background: #f2f2f2; font-weight: 700; }
+    th, td { border: 1px solid #999; padding: 6px 10px; mso-number-format:"\\@"; }
+    caption { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <table>
+    <caption>${escapeHtml(title)}</caption>
+    <thead><tr>${tableHead}</tr></thead>
+    <tbody>${tableRows || `<tr><td colspan="${cols.length}">Записів немає</td></tr>`}</tbody>
+  </table>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlDoc], { type: "application/vnd.ms-excel;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0, 10);
+    link.href = url;
+    link.download = `${safeFileName(title)}_${stamp}.xls`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setManageStatus("Excel-файл сформовано.", "success");
+  }
+
 
   // Columns writable in add/edit rows. is_active remains writable as a checkbox.
   function writableColumns() {
@@ -534,7 +598,7 @@
       ? (currentRows.findIndex((item) => String(item.id) === String(id)) + 1 || "")
       : (currentRows.length + 1);
     const cells = cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${inputForCell(row, c)}</td>`).join("");
-    return `<tr class="dict-row-editor dict-row-editor--inline${id ? " dict-row-editor--edit" : " dict-row-editor--new"}" data-editor-for="${escapeHtml(id || "new")}"><td class="dict-col-num">${rowNumber}</td>${cells}<td class="dict-row-actions dict-row-actions--editor"><button type="button" class="dict-icon-mini dict-icon-mini--accept dict-icon-mini--filled dict-svg-button" data-save-editor title="Зберегти запис" aria-label="Зберегти запис">${actionIcon("check")}</button><button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-icon-mini--filled dict-svg-button" data-cancel-editor title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button></td></tr>`;
+    return `<tr class="dict-row-editor dict-row-editor--inline${id ? " dict-row-editor--edit" : " dict-row-editor--new"}" data-editor-for="${escapeHtml(id || "new")}"><td class="dict-col-num">${rowNumber}</td>${cells}<td class="dict-row-actions dict-row-actions--editor"><button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-save-editor title="Зберегти запис" aria-label="Зберегти запис">${actionIcon("check")}</button><button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-cancel-editor title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button></td></tr>`;
   }
 
   function displayCellValue(row, col) {
@@ -687,6 +751,7 @@
   });
 
   addColumnManageBtn?.addEventListener("click", addColumnToCurrent);
+  exportExcelBtn?.addEventListener("click", exportCurrentDictionaryToExcel);
   addRowBtn?.addEventListener("click", addEmptyRow);
   reloadRowsBtn?.addEventListener("click", loadDictionaryRows);
   searchInput?.addEventListener("input", () => { clearTimeout(searchInput._t); searchInput._t = setTimeout(loadDictionaryRows, 250); });
