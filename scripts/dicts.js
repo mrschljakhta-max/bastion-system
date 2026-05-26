@@ -534,7 +534,7 @@
       ? (currentRows.findIndex((item) => String(item.id) === String(id)) + 1 || "")
       : (currentRows.length + 1);
     const cells = cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${inputForCell(row, c)}</td>`).join("");
-    return `<tr class="dict-row-editor dict-row-editor--inline${id ? " dict-row-editor--edit" : " dict-row-editor--new"}" data-editor-for="${escapeHtml(id || "new")}"><td class="dict-col-num">${rowNumber}</td>${cells}<td class="dict-row-actions dict-row-actions--editor"><button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-save-editor title="Зберегти запис" aria-label="Зберегти запис">${actionIcon("check")}</button><button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-cancel-editor title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button></td></tr>`;
+    return `<tr class="dict-row-editor dict-row-editor--inline${id ? " dict-row-editor--edit" : " dict-row-editor--new"}" data-editor-for="${escapeHtml(id || "new")}"><td class="dict-col-num">${rowNumber}</td>${cells}<td class="dict-row-actions dict-row-actions--editor"><button type="button" class="dict-icon-mini dict-icon-mini--accept dict-icon-mini--filled dict-svg-button" data-save-editor title="Зберегти запис" aria-label="Зберегти запис">${actionIcon("check")}</button><button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-icon-mini--filled dict-svg-button" data-cancel-editor title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button></td></tr>`;
   }
 
   function displayCellValue(row, col) {
