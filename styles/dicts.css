@@ -1558,108 +1558,149 @@ body.dicts-page .core-screen {
   z-index: 1 !important;
 }
 
-
 /* =========================================================
-   BASTION DICTS v183 — Light theme visual replacements
-   Replaces only the carousel folder and bottom projector in light mode.
-   Dark theme remains untouched.
+   BASTION DICTS v183 — окрема геометрія світлої теми
+   Не зачіпає темну тему: замінює тільки PNG папок/проектора
+   і прибирає примусове розтягування під старі пропорції.
    ========================================================= */
-:root[data-theme="light"] body.dicts-page .dict-folder {
-  color: rgba(118, 0, 0, .94);
+:root[data-theme="light"] body.dicts-page .dicts-carousel-wrap,
+body[data-theme="light"].dicts-page .dicts-carousel-wrap {
+  top: 19.1%;
+  height: 430px;
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder::before {
-  background-image: url("../assets/ui/dict-folder-card-light.png?v=183");
+:root[data-theme="light"] body.dicts-page .dicts-carousel,
+body[data-theme="light"].dicts-page .dicts-carousel {
+  height: 410px;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder,
+body[data-theme="light"].dicts-page .dict-folder {
+  color: #b60000;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder::before,
+body[data-theme="light"].dicts-page .dict-folder::before {
+  background-image: url("../assets/ui/dict-folder-card-light-v183.png");
   background-position: center;
-  background-size: 100% 100%;
+  background-size: contain;
   background-repeat: no-repeat;
-  filter:
-    drop-shadow(0 0 10px rgba(255, 255, 255, .84))
-    drop-shadow(0 0 18px rgba(255, 38, 32, .30));
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder::after {
-  inset: 18% 13% 16%;
-  border-radius: 22px;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .42), transparent 58%),
-    radial-gradient(circle at 50% 50%, rgba(255, 40, 34, .18), transparent 70%);
+:root[data-theme="light"] body.dicts-page .dict-folder::after,
+body[data-theme="light"].dicts-page .dict-folder::after {
+  inset: 28% 19% 24%;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 70, 60, .15), transparent 62%);
+  opacity: .68;
   mix-blend-mode: multiply;
-  opacity: .72;
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder__inner {
-  transform: translateY(2%);
-  padding: 0 16%;
+:root[data-theme="light"] body.dicts-page .dict-folder__inner,
+body[data-theme="light"].dicts-page .dict-folder__inner {
+  padding: 21% 17% 15%;
+  transform: none;
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder__title {
-  color: rgba(185, 0, 0, .96);
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, .88),
-    0 0 10px rgba(255, 42, 34, .34),
-    0 0 18px rgba(255, 42, 34, .22);
+:root[data-theme="light"] body.dicts-page .dict-folder__title,
+body[data-theme="light"].dicts-page .dict-folder__title {
+  color: #b90d0d;
+  text-shadow: 0 0 8px rgba(255, 255, 255, .86), 0 0 16px rgba(255, 50, 42, .26);
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder__count {
-  color: rgba(118, 18, 18, .74);
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, .88),
-    0 0 10px rgba(255, 42, 34, .20);
+:root[data-theme="light"] body.dicts-page .dict-folder__count,
+body[data-theme="light"].dicts-page .dict-folder__count {
+  color: rgba(120, 24, 24, .78);
+  text-shadow: 0 0 8px rgba(255, 255, 255, .72), 0 0 12px rgba(255, 52, 42, .18);
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder--active {
-  filter:
-    drop-shadow(0 0 26px rgba(255, 255, 255, .92))
-    drop-shadow(0 0 32px rgba(255, 48, 42, .54))
-    drop-shadow(0 0 72px rgba(255, 38, 30, .22));
+:root[data-theme="light"] body.dicts-page .dict-folder--active,
+body[data-theme="light"].dicts-page .dict-folder--active {
+  width: 430px;
+  height: 342px;
+  transform: translate(-50%, -54%) scale(1);
+  filter: drop-shadow(0 0 22px rgba(255, 70, 60, .46)) drop-shadow(0 22px 42px rgba(130, 20, 20, .18));
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder--mid {
-  filter:
-    drop-shadow(0 0 18px rgba(255, 255, 255, .70))
-    drop-shadow(0 0 24px rgba(255, 46, 40, .30));
+:root[data-theme="light"] body.dicts-page .dict-folder--active .dict-folder__title,
+body[data-theme="light"].dicts-page .dict-folder--active .dict-folder__title {
+  font-size: clamp(18px, 1.18vw, 24px);
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder--side {
-  filter:
-    drop-shadow(0 0 12px rgba(255, 255, 255, .58))
-    drop-shadow(0 0 18px rgba(255, 46, 40, .22));
+:root[data-theme="light"] body.dicts-page .dict-folder--active .dict-folder__count,
+body[data-theme="light"].dicts-page .dict-folder--active .dict-folder__count {
+  margin-top: 14px;
+  font-size: clamp(10px, .72vw, 14px);
 }
 
-:root[data-theme="light"] body.dicts-page .dict-folder:hover {
-  filter:
-    drop-shadow(0 0 26px rgba(255, 255, 255, .96))
-    drop-shadow(0 0 42px rgba(255, 45, 38, .58));
+:root[data-theme="light"] body.dicts-page .dict-folder--mid,
+body[data-theme="light"].dicts-page .dict-folder--mid {
+  width: 310px;
+  height: 247px;
+  opacity: .70;
+  filter: drop-shadow(0 0 14px rgba(255, 66, 56, .28));
 }
 
-:root[data-theme="light"] body.dicts-page .dicts-projector {
-  content: url("../assets/ui/dicts-projector-light.png?v=183");
-  width: min(760px, 58vw);
-  height: 96px;
-  object-fit: fill;
-  bottom: 12px;
-  filter:
-    drop-shadow(0 0 12px rgba(255, 255, 255, .78))
-    drop-shadow(0 0 22px rgba(255, 42, 34, .36));
+:root[data-theme="light"] body.dicts-page .dict-folder--side,
+body[data-theme="light"].dicts-page .dict-folder--side {
+  width: 230px;
+  height: 183px;
+  opacity: .42;
+  filter: drop-shadow(0 0 9px rgba(255, 66, 56, .20));
 }
 
-:root[data-theme="light"] body.dicts-page .dicts-projector-wrap {
-  bottom: 18px;
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="-2"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="-2"] {
+  transform: translate(calc(-50% - 610px), -35%) scale(.86);
 }
 
-:root[data-theme="light"] body.dicts-page .dicts-light-core {
-  bottom: 70px;
-  width: 128px;
-  height: 34px;
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, .95), rgba(255, 50, 42, .58) 34%, rgba(255, 24, 16, .16) 74%, transparent);
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="-1"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="-1"] {
+  transform: translate(calc(-50% - 335px), -44%) scale(.94);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="0"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="0"] {
+  transform: translate(-50%, -54%) scale(1);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="1"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="1"] {
+  transform: translate(calc(-50% + 335px), -44%) scale(.94);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="2"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="2"] {
+  transform: translate(calc(-50% + 610px), -35%) scale(.86);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder:hover,
+body[data-theme="light"].dicts-page .dict-folder:hover {
+  filter: drop-shadow(0 0 28px rgba(255, 54, 44, .56)) drop-shadow(0 24px 48px rgba(130, 20, 20, .20));
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-projector-wrap,
+body[data-theme="light"].dicts-page .dicts-projector-wrap {
+  bottom: 26px;
+  width: min(920px, 62vw);
+  height: 130px;
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-projector,
+body[data-theme="light"].dicts-page .dicts-projector {
+  content: url("../assets/ui/dicts-projector-light-v183.png");
+  width: min(760px, 54vw);
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  filter: drop-shadow(0 0 16px rgba(255, 44, 34, .34));
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-light-core,
+body[data-theme="light"].dicts-page .dicts-light-core {
+  bottom: 34px;
+  width: 150px;
+  height: 28px;
+  opacity: .62;
   filter: blur(10px);
-}
-
-:root[data-theme="light"] body.dicts-page .dicts-light-cone {
-  bottom: 98px;
-  background:
-    linear-gradient(90deg, transparent 0 49%, rgba(255, 66, 58, .11) 49.5% 50.5%, transparent 51% 100%),
-    radial-gradient(ellipse at 50% 100%, rgba(255, 45, 38, .34), rgba(255, 45, 38, .12) 44%, transparent 72%);
-  opacity: .82;
 }
