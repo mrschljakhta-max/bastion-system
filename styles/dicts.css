@@ -1823,3 +1823,14 @@ body[data-theme="light"].dicts-page .dicts-light-cone {
   height: 390px;
   opacity: .56;
 }
+
+/* =========================================================
+   BASTION DICTS v188 — light theme: remove red projector cone
+   Keeps projector and soft core glow, hides only the cone beam.
+   ========================================================= */
+:root[data-theme="light"] body.dicts-page .dicts-light-cone,
+body[data-theme="light"].dicts-page .dicts-light-cone {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
