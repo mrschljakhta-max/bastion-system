@@ -112,101 +112,123 @@ body.dicts-page.dicts-theme-light .dict-table-wrap--clean {
 
 /* cache-marker: BASTION-DICTS-NO-RED-SPOT-v197 */
 
-
 /* =========================================================
-   BASTION DICTS v198 — inline table add/edit rows
+   BASTION DICTS v199 — inline add/edit row visual polish
+   - row number matches normal table rows
+   - accept/cancel buttons are inverse: red button + white icon
    ========================================================= */
+
 .dict-row-editor--inline td {
-  background: rgba(255, 246, 245, .72) !important;
-  border-bottom: 1px solid rgba(255, 70, 64, .18) !important;
   vertical-align: middle !important;
+  border-bottom: 1px solid rgba(255,70,64,.14) !important;
 }
 
-.dict-row-editor--inline .dict-inline-row-num {
-  color: rgba(255, 80, 72, .92) !important;
-  font: 900 16px/1 Orbitron, Rajdhani, sans-serif !important;
+.dict-row-editor--inline .dict-col-num {
+  width: 64px !important;
+  min-width: 64px !important;
   text-align: center !important;
+  font: 800 18px/1 Rajdhani, Orbitron, sans-serif !important;
+  letter-spacing: .04em !important;
+  color: inherit !important;
+  opacity: .96 !important;
+  padding: 0 14px !important;
 }
 
-.dict-row-editor--inline .dict-inline-input {
-  width: min(240px, 94%) !important;
-  min-width: 110px !important;
-  height: 38px !important;
-  border-radius: 10px !important;
-  padding: 0 10px !important;
-  color: rgba(255,245,245,.94) !important;
-  background: rgba(3, 5, 10, .72) !important;
-  border: 1px solid rgba(255, 70, 62, .34) !important;
-  box-shadow: inset 0 0 12px rgba(255, 35, 28, .08) !important;
+.dict-row-editor--inline .dict-cell-input {
+  width: min(260px, 92%) !important;
+  height: 40px !important;
+  padding: 0 14px !important;
+  border-radius: 12px !important;
+  font: 800 16px/1 Rajdhani, Orbitron, sans-serif !important;
+  letter-spacing: .03em !important;
 }
 
-.dict-row-editor--inline .dict-inline-input::placeholder {
-  color: rgba(255, 210, 210, .38) !important;
+.dict-row-editor--inline .dict-cell-check {
+  transform: scale(1.02) !important;
+  margin-left: 0 !important;
 }
 
 .dict-row-actions--editor {
+  width: 120px !important;
+  min-width: 120px !important;
+  display: table-cell !important;
   white-space: nowrap !important;
+  text-align: center !important;
 }
 
-.dict-icon-mini--accept,
-.dict-icon-mini--cancel {
-  width: 38px !important;
-  height: 38px !important;
+.dict-row-actions--editor .dict-icon-mini {
+  width: 40px !important;
+  height: 40px !important;
+  margin: 0 4px !important;
+  border-radius: 13px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: 11px !important;
-  padding: 0 !important;
+  border: 1px solid rgba(255,55,55,.72) !important;
+  background: linear-gradient(135deg, rgba(255,58,58,.96), rgba(182,18,26,.94)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.22),
+    inset 0 0 14px rgba(255,255,255,.10),
+    0 0 18px rgba(255,55,55,.28) !important;
 }
 
-.dict-icon-mini--accept {
-  border-color: rgba(0, 214, 156, .42) !important;
-  background: rgba(7, 30, 24, .66) !important;
-  box-shadow: 0 0 16px rgba(0, 214, 156, .16), inset 0 0 12px rgba(0, 214, 156, .08) !important;
+.dict-row-actions--editor .dict-icon-mini:hover {
+  transform: translateY(-1px) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.32),
+    inset 0 0 18px rgba(255,255,255,.14),
+    0 0 24px rgba(255,55,55,.42) !important;
 }
 
-.dict-icon-mini--cancel {
-  border-color: rgba(255, 52, 56, .42) !important;
-  background: rgba(40, 7, 10, .66) !important;
-  box-shadow: 0 0 16px rgba(255, 52, 56, .14), inset 0 0 12px rgba(255, 52, 56, .08) !important;
-}
-
-.dict-icon-mini--accept > img {
-  filter: brightness(0) saturate(100%) invert(65%) sepia(82%) saturate(1267%) hue-rotate(112deg) brightness(96%) contrast(101%) drop-shadow(0 0 7px rgba(0,214,156,.32)) !important;
-}
-
-.dict-icon-mini--cancel > img {
-  filter: brightness(0) saturate(100%) invert(27%) sepia(97%) saturate(2394%) hue-rotate(343deg) brightness(105%) contrast(105%) drop-shadow(0 0 7px rgba(255,64,64,.26)) !important;
+.dict-row-actions--editor .dict-icon-mini > img,
+.dict-row-actions--editor .dict-action-icon {
+  width: 18px !important;
+  height: 18px !important;
+  opacity: 1 !important;
+  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,.42)) !important;
 }
 
 html[data-theme="light"] body.dicts-page .dict-row-editor--inline td,
 body[data-theme="light"].dicts-page .dict-row-editor--inline td,
 body.dicts-page.dicts-theme-light .dict-row-editor--inline td {
-  background: rgba(255,255,255,.76) !important;
+  background: rgba(255,255,255,.58) !important;
+  color: #263241 !important;
 }
 
-html[data-theme="light"] body.dicts-page .dict-row-editor--inline .dict-inline-input,
-body[data-theme="light"].dicts-page .dict-row-editor--inline .dict-inline-input,
-body.dicts-page.dicts-theme-light .dict-row-editor--inline .dict-inline-input {
-  color: #263544 !important;
+html[data-theme="light"] body.dicts-page .dict-row-editor--inline .dict-col-num,
+body[data-theme="light"].dicts-page .dict-row-editor--inline .dict-col-num,
+body.dicts-page.dicts-theme-light .dict-row-editor--inline .dict-col-num {
+  color: #263241 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-row-editor--inline .dict-cell-input,
+body[data-theme="light"].dicts-page .dict-row-editor--inline .dict-cell-input,
+body.dicts-page.dicts-theme-light .dict-row-editor--inline .dict-cell-input {
+  color: #263241 !important;
   background: rgba(255,255,255,.90) !important;
-  border-color: rgba(225,64,60,.25) !important;
-  box-shadow: inset 0 0 14px rgba(255,255,255,.84) !important;
+  border-color: rgba(255,70,64,.28) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.66),
+    0 0 14px rgba(255,70,64,.10) !important;
 }
 
-html[data-theme="light"] body.dicts-page .dict-row-editor--inline .dict-inline-input::placeholder,
-body[data-theme="light"].dicts-page .dict-row-editor--inline .dict-inline-input::placeholder,
-body.dicts-page.dicts-theme-light .dict-row-editor--inline .dict-inline-input::placeholder {
-  color: rgba(167,42,42,.42) !important;
+html[data-theme="light"] body.dicts-page .dict-row-editor--inline .dict-cell-input::placeholder,
+body[data-theme="light"].dicts-page .dict-row-editor--inline .dict-cell-input::placeholder,
+body.dicts-page.dicts-theme-light .dict-row-editor--inline .dict-cell-input::placeholder {
+  color: rgba(184,58,58,.46) !important;
 }
 
-html[data-theme="light"] body.dicts-page .dict-icon-mini--accept,
-body[data-theme="light"].dicts-page .dict-icon-mini--accept,
-body.dicts-page.dicts-theme-light .dict-icon-mini--accept,
-html[data-theme="light"] body.dicts-page .dict-icon-mini--cancel,
-body[data-theme="light"].dicts-page .dict-icon-mini--cancel,
-body.dicts-page.dicts-theme-light .dict-icon-mini--cancel {
-  background: rgba(255,255,255,.70) !important;
+html:not([data-theme="light"]) body.dicts-page .dict-row-editor--inline td,
+body.dicts-page.dicts-theme-dark .dict-row-editor--inline td {
+  background: rgba(9,12,18,.84) !important;
 }
 
-/* cache-marker: BASTION-DICTS-INLINE-ADD-ROW-v198 */
+html:not([data-theme="light"]) body.dicts-page .dict-row-editor--inline .dict-cell-input,
+body.dicts-page.dicts-theme-dark .dict-row-editor--inline .dict-cell-input {
+  color: rgba(255,245,245,.94) !important;
+  background: rgba(2,10,14,.86) !important;
+  border-color: rgba(255,70,64,.34) !important;
+}
+
+/* cache-marker: BASTION-DICTS-INLINE-ROW-POLISH-v199 */
