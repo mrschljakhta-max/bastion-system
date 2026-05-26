@@ -1,4 +1,4 @@
-/* BASTION DICTS v203 — export mode panel */
+/* BASTION DICTS v205 — active toolbar mode toggles */
 (() => {
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -353,7 +353,7 @@
     currentDict = null;
     currentColumns = [];
     currentRows = [];
-    if (editPanel) editPanel.hidden = true;
+    setEditMode(false);
     if (sortPanel) sortPanel.hidden = true;
     setExportMode(false);
   }
@@ -368,7 +368,7 @@
     manageModal?.classList.add("is-open");
     manageModal?.setAttribute("aria-hidden", "false");
     document.body.classList.add("dict-modal-open");
-    if (editPanel) editPanel.hidden = true;
+    setEditMode(false);
     if (sortPanel) sortPanel.hidden = true;
     setExportMode(false);
     if (manageTitle) manageTitle.textContent = dictionaryTitle(item).toUpperCase();
@@ -805,6 +805,14 @@
     return panel;
   }
 
+  function setEditMode(enabled) {
+    if (!editPanel) return;
+    editPanel.hidden = !enabled;
+    editToggleBtn?.classList.toggle("is-active", enabled);
+    editToggleBtn?.setAttribute("aria-pressed", enabled ? "true" : "false");
+    if (enabled && sortPanel) sortPanel.hidden = true;
+  }
+
   function setExportMode(enabled) {
     const modal = document.getElementById("dictManageModal");
     const panelShell = modal?.querySelector(".dict-view-panel");
@@ -822,10 +830,16 @@
       item.classList.toggle("is-export-hidden", enabled);
     });
 
+    if (enabled) {
+      setEditMode(false);
+      if (sortPanel) sortPanel.hidden = true;
+    }
+
     modal?.classList.toggle("dict-export-mode", enabled);
     panelShell?.classList.toggle("dict-export-mode", enabled);
     card.classList.toggle("dict-export-mode", enabled);
     exportToggleBtn?.classList.toggle("is-active", enabled);
+    exportToggleBtn?.setAttribute("aria-pressed", enabled ? "true" : "false");
   }
 
   function toggleExportMode() {
@@ -873,11 +887,15 @@
 
   editToggleBtn?.addEventListener("click", () => {
     if (!editPanel) return;
-    editPanel.hidden = !editPanel.hidden;
+    const willOpen = !!editPanel.hidden;
+    setExportMode(false);
+    setEditMode(willOpen);
   });
 
   sortToggleBtn?.addEventListener("click", () => {
     if (!sortPanel) return;
+    setExportMode(false);
+    setEditMode(false);
     sortPanel.hidden = !sortPanel.hidden;
     if (!sortPanel.hidden) searchInput?.focus();
   });
