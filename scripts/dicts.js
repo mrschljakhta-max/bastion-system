@@ -1,4 +1,4 @@
-/* BASTION DICTS v201 — Excel export button in dictionary toolbar */
+/* BASTION DICTS v203 — export mode panel */
 (() => {
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -313,6 +313,7 @@
   const manageTitleInput = document.getElementById("dictManageNameInput");
   const manageLead = document.getElementById("dictManageLead");
   const manageStatus = document.getElementById("dictManageStatus");
+  const exportToggleBtn = document.getElementById("dictExportToggleBtn");
   const editToggleBtn = document.getElementById("dictEditToggleBtn");
   const sortToggleBtn = document.getElementById("dictSortToggleBtn");
   const editPanel = document.getElementById("dictEditPanel");
@@ -323,7 +324,6 @@
   const addColumnManageBtn = document.getElementById("dictAddColumnManageBtn");
   const saveTitleBtn = document.getElementById("dictSaveTitleBtn");
   const deleteDictBtn = document.getElementById("dictDeleteBtn");
-  const exportExcelBtn = document.getElementById("dictExportExcelBtn");
   const recordsTable = document.getElementById("dictRecordsTable");
   const searchInput = document.getElementById("dictSearchInput");
   const sortSelect = document.getElementById("dictSortSelect");
@@ -355,6 +355,7 @@
     currentRows = [];
     if (editPanel) editPanel.hidden = true;
     if (sortPanel) sortPanel.hidden = true;
+    setExportMode(false);
   }
 
   function dictionaryTitle(item = currentDict) {
@@ -369,6 +370,7 @@
     document.body.classList.add("dict-modal-open");
     if (editPanel) editPanel.hidden = true;
     if (sortPanel) sortPanel.hidden = true;
+    setExportMode(false);
     if (manageTitle) manageTitle.textContent = dictionaryTitle(item).toUpperCase();
     if (manageTitleInput) manageTitleInput.value = dictionaryTitle(item);
     if (manageLead) manageLead.textContent = countLabel(item.records_count);
@@ -402,69 +404,6 @@
   function displayColumns() {
     return currentColumns.filter((c) => !protectedColumns.has(c.column_name));
   }
-
-  function normalizeExportValue(value) {
-    if (value === null || typeof value === "undefined") return "";
-    if (typeof value === "boolean") return value ? "Так" : "Ні";
-    if (Array.isArray(value)) return value.join(", ");
-    if (typeof value === "object") return JSON.stringify(value);
-    return String(value);
-  }
-
-  function safeFileName(value) {
-    return String(value || "dictionary")
-      .trim()
-      .replace(/[\\/:*?"<>|]+/g, "_")
-      .replace(/\s+/g, "_")
-      .slice(0, 90) || "dictionary";
-  }
-
-  function exportCurrentDictionaryToExcel() {
-    if (!currentDict) return setManageStatus("Спочатку відкрий довідник.", "error");
-    const cols = displayColumns();
-    if (!cols.length) return setManageStatus("Немає колонок для експорту.", "error");
-
-    const title = dictionaryTitle(currentDict);
-    const rows = currentRows || [];
-    const tableHead = cols.map((c) => `<th>${escapeHtml(columnLabel(c.column_name))}</th>`).join("");
-    const tableRows = rows.map((row) => {
-      const cells = cols.map((c) => `<td>${escapeHtml(normalizeExportValue(row[c.column_name]))}</td>`).join("");
-      return `<tr>${cells}</tr>`;
-    }).join("");
-
-    const htmlDoc = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    table { border-collapse: collapse; font-family: Arial, sans-serif; }
-    th { background: #f2f2f2; font-weight: 700; }
-    th, td { border: 1px solid #999; padding: 6px 10px; mso-number-format:"\\@"; }
-    caption { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-  </style>
-</head>
-<body>
-  <table>
-    <caption>${escapeHtml(title)}</caption>
-    <thead><tr>${tableHead}</tr></thead>
-    <tbody>${tableRows || `<tr><td colspan="${cols.length}">Записів немає</td></tr>`}</tbody>
-  </table>
-</body>
-</html>`;
-
-    const blob = new Blob([htmlDoc], { type: "application/vnd.ms-excel;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const stamp = new Date().toISOString().slice(0, 10);
-    link.href = url;
-    link.download = `${safeFileName(title)}_${stamp}.xls`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-    setManageStatus("Excel-файл сформовано.", "success");
-  }
-
 
   // Columns writable in add/edit rows. is_active remains writable as a checkbox.
   function writableColumns() {
@@ -703,6 +642,186 @@
     editor.querySelector("[data-cancel-editor]").addEventListener("click", () => editor.remove());
   }
 
+
+  function exportFileName(ext) {
+    const title = dictionaryTitle(currentDict).toLowerCase()
+      .replace(/[\\/:*?"<>|]+/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-") || "dictionary";
+    const stamp = new Date().toISOString().slice(0, 10);
+    return `${title}-${stamp}.${ext}`;
+  }
+
+  function exportHeaders() {
+    return ["№", ...displayColumns().map((c) => columnLabel(c.column_name))];
+  }
+
+  function exportCell(row, col) {
+    const name = col.column_name;
+    const type = normalizeType(col.data_type || col.udt_name);
+    const value = row[name];
+    if (type === "boolean" || name === "is_active") return value !== false ? "✓" : "";
+    if (value === null || typeof value === "undefined") return "";
+    return String(value);
+  }
+
+  function exportRows() {
+    const cols = displayColumns();
+    return currentRows.map((row, index) => [index + 1, ...cols.map((c) => exportCell(row, c))]);
+  }
+
+  function downloadBlob(content, mime, filename) {
+    const blob = content instanceof Blob ? content : new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 400);
+  }
+
+  function exportJson() {
+    const columns = exportHeaders();
+    const rows = exportRows().map((row) => Object.fromEntries(columns.map((name, idx) => [name, row[idx]])));
+    const payload = {
+      title: dictionaryTitle(currentDict),
+      table: currentDict?.table_name || "",
+      generated_at: new Date().toISOString(),
+      columns,
+      rows
+    };
+    downloadBlob(JSON.stringify(payload, null, 2), "application/json;charset=utf-8", exportFileName("json"));
+  }
+
+  function csvEscape(value) {
+    const s = String(value ?? "");
+    if (/[";\n\r]/.test(s)) return `"${s.replaceAll('"', '""')}"`;
+    return s;
+  }
+
+  function exportCsv() {
+    const lines = [exportHeaders(), ...exportRows()].map((row) => row.map(csvEscape).join(";"));
+    downloadBlob("\ufeff" + lines.join("\r\n"), "text/csv;charset=utf-8", exportFileName("csv"));
+  }
+
+  function exportExcel() {
+    const headers = exportHeaders();
+    const rows = exportRows();
+    const htmlTable = `
+      <html><head><meta charset="UTF-8"></head><body>
+      <table border="1">
+        <caption>${escapeHtml(dictionaryTitle(currentDict))}</caption>
+        <thead><tr>${headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
+        <tbody>${rows.map((r) => `<tr>${r.map((v) => `<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody>
+      </table>
+      </body></html>`;
+    downloadBlob("\ufeff" + htmlTable, "application/vnd.ms-excel;charset=utf-8", exportFileName("xls"));
+  }
+
+  function profileInfo() {
+    const login = document.getElementById("profileLogin")?.textContent?.trim()
+      || document.getElementById("operatorName")?.textContent?.trim()
+      || "невідомо";
+    const email = document.getElementById("profileEmail")?.textContent?.trim()
+      || "email не визначено";
+    return { login, email };
+  }
+
+  function exportPdf() {
+    const headers = exportHeaders();
+    const rows = exportRows();
+    const now = new Date();
+    const user = profileInfo();
+    const isLight = document.documentElement.dataset.theme === "light" || document.body.dataset.theme === "light" || document.body.classList.contains("dicts-theme-light");
+    const bg = isLight ? "#f8fbfd" : "#07090d";
+    const fg = isLight ? "#202a36" : "#fff2f2";
+    const soft = isLight ? "#5b6572" : "#ffb8b8";
+    const tableBg = isLight ? "#ffffff" : "#0b1118";
+    const html = `<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><title>${escapeHtml(dictionaryTitle(currentDict))}</title>
+      <style>
+        @page { size: A4 landscape; margin: 14mm; }
+        body { margin:0; background:${bg}; color:${fg}; font-family: Arial, sans-serif; }
+        .pdf-shell { border:2px solid #ff3038; border-radius:18px; padding:22px; box-shadow:0 0 24px rgba(255,48,56,.22); }
+        h1 { margin:0 0 8px; color:#ff3038; letter-spacing:.08em; font-size:26px; text-transform:uppercase; }
+        .meta { display:grid; grid-template-columns:repeat(2, minmax(220px, 1fr)); gap:8px 22px; margin:14px 0 20px; color:${soft}; font-size:13px; }
+        .meta b { color:#ff3038; }
+        table { width:100%; border-collapse:collapse; background:${tableBg}; font-size:12px; }
+        th { color:#ff3038; text-transform:uppercase; letter-spacing:.06em; background:${isLight ? '#f4f8fa' : '#121a22'}; }
+        th, td { border:1px solid rgba(255,48,56,.35); padding:8px 10px; text-align:left; }
+        td:first-child, th:first-child { text-align:center; width:44px; }
+        .footer { margin-top:14px; color:${soft}; font-size:11px; text-align:right; }
+      </style></head><body><section class="pdf-shell">
+        <h1>${escapeHtml(dictionaryTitle(currentDict))}</h1>
+        <div class="meta">
+          <div><b>Дата формування:</b> ${now.toLocaleDateString("uk-UA")}</div>
+          <div><b>Час формування:</b> ${now.toLocaleTimeString("uk-UA")}</div>
+          <div><b>Виконавець:</b> ${escapeHtml(user.login)}</div>
+          <div><b>Email:</b> ${escapeHtml(user.email)}</div>
+          <div><b>Таблиця:</b> ${escapeHtml(currentDict?.table_name || "—")}</div>
+          <div><b>Записів:</b> ${rows.length}</div>
+        </div>
+        <table><thead><tr>${headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
+        <tbody>${rows.map((r) => `<tr>${r.map((v) => `<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>
+        <div class="footer">BASTION Dictionary Export</div>
+      </section><script>window.onload=()=>setTimeout(()=>window.print(),250);<\/script></body></html>`;
+    const win = window.open("", "_blank");
+    if (!win) return downloadBlob(html, "text/html;charset=utf-8", exportFileName("html"));
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  }
+
+  function ensureExportPanel() {
+    const card = document.querySelector("#dictManageModal .dict-records-card");
+    if (!card) return null;
+    let panel = document.getElementById("dictExportPanel");
+    if (panel) return panel;
+    panel = document.createElement("section");
+    panel.id = "dictExportPanel";
+    panel.className = "dict-export-panel";
+    panel.hidden = true;
+    panel.innerHTML = `
+      <div class="dict-export-grid" aria-label="Формати експорту">
+        ${["json", "excel", "pdf", "csv"].map((format) => `
+          <button type="button" class="dict-export-format" data-export-format="${format}" aria-label="Експорт ${format.toUpperCase()}">
+            <img class="dict-export-img dict-export-img--light" src="../assets/icons/export/export-${format}-light.png" alt="${format.toUpperCase()}" draggable="false">
+            <img class="dict-export-img dict-export-img--dark" src="../assets/icons/export/export-${format}-dark.png" alt="${format.toUpperCase()}" draggable="false">
+          </button>`).join("")}
+      </div>`;
+    const tableWrap = card.querySelector(".dict-table-wrap");
+    if (tableWrap) card.insertBefore(panel, tableWrap);
+    else card.prepend(panel);
+    panel.querySelectorAll("[data-export-format]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const format = btn.dataset.exportFormat;
+        if (format === "json") exportJson();
+        if (format === "excel") exportExcel();
+        if (format === "csv") exportCsv();
+        if (format === "pdf") exportPdf();
+      });
+    });
+    return panel;
+  }
+
+  function setExportMode(enabled) {
+    const card = document.querySelector("#dictManageModal .dict-records-card");
+    const panel = ensureExportPanel();
+    if (!card || !panel) return;
+    const tableWrap = card.querySelector(".dict-table-wrap");
+    const addLine = card.querySelector(".dict-add-row-line");
+    panel.hidden = !enabled;
+    if (tableWrap) tableWrap.hidden = enabled;
+    if (addLine) addLine.hidden = enabled;
+    exportToggleBtn?.classList.toggle("is-active", enabled);
+  }
+
+  function toggleExportMode() {
+    const panel = ensureExportPanel();
+    setExportMode(!!panel?.hidden);
+  }
+
   async function refreshCount() {
     if (!sb || !currentDict?.table_name || !currentDict?.id) return;
     const { count } = await sb.from(currentDict.table_name).select("id", { count: "exact", head: true });
@@ -739,6 +858,8 @@
     closeManageModal();
   });
 
+  exportToggleBtn?.addEventListener("click", toggleExportMode);
+
   editToggleBtn?.addEventListener("click", () => {
     if (!editPanel) return;
     editPanel.hidden = !editPanel.hidden;
@@ -751,7 +872,6 @@
   });
 
   addColumnManageBtn?.addEventListener("click", addColumnToCurrent);
-  exportExcelBtn?.addEventListener("click", exportCurrentDictionaryToExcel);
   addRowBtn?.addEventListener("click", addEmptyRow);
   reloadRowsBtn?.addEventListener("click", loadDictionaryRows);
   searchInput?.addEventListener("input", () => { clearTimeout(searchInput._t); searchInput._t = setTimeout(loadDictionaryRows, 250); });

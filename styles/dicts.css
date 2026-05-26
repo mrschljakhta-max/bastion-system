@@ -235,51 +235,108 @@ body.dicts-page.dicts-theme-dark .dict-row-editor--inline .dict-cell-input {
 
 
 /* =========================================================
-   BASTION DICTS v202 — clean download toolbar button
+   BASTION DICTS v203 — export format panel
    ========================================================= */
-.dict-view-tools .dict-export-button {
-  position: relative !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 52px !important;
-  height: 52px !important;
-  padding: 0 !important;
-  border-radius: 14px !important;
+.dict-view-tools #dictExportToggleBtn img {
+  width: 21px !important;
+  height: 21px !important;
+  object-fit: contain !important;
 }
 
-.dict-view-tools .dict-export-button::before,
-.dict-view-tools .dict-export-button::after {
-  content: none !important;
+.dict-view-tools #dictExportToggleBtn.is-active {
+  border-color: rgba(255, 48, 56, .58) !important;
+  background: rgba(255, 48, 56, .10) !important;
+  box-shadow: 0 0 22px rgba(255, 48, 56, .22), inset 0 0 14px rgba(255, 48, 56, .08) !important;
+}
+
+.dict-export-panel {
+  width: 100% !important;
+  min-height: 380px !important;
+  padding: clamp(20px, 3vw, 44px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.dict-export-panel[hidden] {
   display: none !important;
 }
 
-.dict-view-tools .dict-export-button > img {
-  display: block !important;
-  width: 24px !important;
-  height: 24px !important;
+.dict-export-grid {
+  width: min(980px, 100%) !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(150px, 1fr)) !important;
+  gap: clamp(16px, 2.2vw, 28px) !important;
+  align-items: center !important;
+  justify-items: center !important;
+}
+
+.dict-export-format {
+  appearance: none !important;
+  border: 0 !important;
+  background: transparent !important;
+  width: min(190px, 100%) !important;
+  aspect-ratio: 1 / 1 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  transition: transform .22s ease, filter .22s ease !important;
+}
+
+.dict-export-format:hover {
+  transform: translateY(-5px) scale(1.035) !important;
+  filter: drop-shadow(0 0 24px rgba(255,48,56,.30)) !important;
+}
+
+.dict-export-format:active {
+  transform: translateY(-1px) scale(.985) !important;
+}
+
+.dict-export-img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
   object-fit: contain !important;
-  opacity: 1 !important;
+  pointer-events: none !important;
+  user-select: none !important;
 }
 
-html[data-theme="light"] body.dicts-page .dict-view-tools .dict-export-button,
-body[data-theme="light"].dicts-page .dict-view-tools .dict-export-button,
-body.dicts-page.dicts-theme-light .dict-view-tools .dict-export-button {
-  color: #ff3438 !important;
-  border-color: rgba(255,52,56,.34) !important;
-  background: rgba(255,255,255,.62) !important;
-  box-shadow: 0 0 16px rgba(255,52,56,.08), inset 0 0 0 1px rgba(255,255,255,.72) !important;
+.dict-export-img--dark {
+  display: none !important;
 }
 
-html[data-theme="light"] body.dicts-page .dict-view-tools .dict-export-button > img,
-body[data-theme="light"].dicts-page .dict-view-tools .dict-export-button > img,
-body.dicts-page.dicts-theme-light .dict-view-tools .dict-export-button > img {
-  filter: brightness(0) saturate(100%) invert(27%) sepia(97%) saturate(2394%) hue-rotate(343deg) brightness(105%) contrast(105%) drop-shadow(0 0 7px rgba(255,64,64,.18)) !important;
+html:not([data-theme="light"]) body.dicts-page .dict-export-img--light,
+body.dicts-page.dicts-theme-dark .dict-export-img--light {
+  display: none !important;
 }
 
-html:not([data-theme="light"]) body.dicts-page .dict-view-tools .dict-export-button > img,
-body.dicts-page.dicts-theme-dark .dict-view-tools .dict-export-button > img {
-  filter: brightness(0) saturate(100%) invert(67%) sepia(100%) saturate(2155%) hue-rotate(316deg) brightness(111%) contrast(103%) drop-shadow(0 0 8px rgba(255,86,78,.42)) !important;
+html:not([data-theme="light"]) body.dicts-page .dict-export-img--dark,
+body.dicts-page.dicts-theme-dark .dict-export-img--dark {
+  display: block !important;
 }
 
-/* cache-marker: BASTION-DICTS-CLEAN-DOWNLOAD-BUTTON-v202 */
+html[data-theme="light"] body.dicts-page .dict-export-img--light,
+body[data-theme="light"].dicts-page .dict-export-img--light,
+body.dicts-page.dicts-theme-light .dict-export-img--light {
+  display: block !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-export-img--dark,
+body[data-theme="light"].dicts-page .dict-export-img--dark,
+body.dicts-page.dicts-theme-light .dict-export-img--dark {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .dict-export-grid {
+    grid-template-columns: repeat(2, minmax(140px, 1fr)) !important;
+  }
+  .dict-export-format {
+    width: min(170px, 100%) !important;
+  }
+}
+
+/* cache-marker: BASTION-DICTS-EXPORT-PANEL-v203 */
