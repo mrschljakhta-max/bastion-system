@@ -1682,14 +1682,14 @@ body[data-theme="light"].dicts-page .dict-folder:hover {
 :root[data-theme="light"] body.dicts-page .dicts-projector-wrap,
 body[data-theme="light"].dicts-page .dicts-projector-wrap {
   bottom: 26px;
-  width: min(920px, 62vw);
-  height: 130px;
+  width: min(980px, 66vw);
+  height: 150px;
 }
 
 :root[data-theme="light"] body.dicts-page .dicts-projector,
 body[data-theme="light"].dicts-page .dicts-projector {
-  content: url("../assets/ui/dicts-projector-light-v183.png");
-  width: min(760px, 54vw);
+  content: url("../assets/ui/dicts-projector-light-v185.png");
+  width: min(820px, 58vw);
   height: auto;
   max-height: none;
   object-fit: contain;
