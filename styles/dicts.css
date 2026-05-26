@@ -232,3 +232,34 @@ body.dicts-page.dicts-theme-dark .dict-row-editor--inline .dict-cell-input {
 }
 
 /* cache-marker: BASTION-DICTS-INLINE-ROW-POLISH-v199 */
+
+
+/* v201 — inline add row action buttons aligned like edit/delete buttons */
+.dict-row-actions--editor{
+  padding-right:14px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:12px !important;
+}
+
+.dict-row-actions--editor .dict-icon-mini{
+  width:42px !important;
+  height:42px !important;
+  min-width:42px !important;
+  min-height:42px !important;
+  margin:0 !important;
+  padding:0 !important;
+  position:relative !important;
+}
+
+.dict-row-actions--editor .dict-icon-mini > img,
+.dict-row-actions--editor .dict-action-icon,
+.dict-row-actions--editor .dict-icon-mini svg{
+  position:absolute !important;
+  left:50% !important;
+  top:50% !important;
+  transform:translate(-50%,-50%) !important;
+  color:#fff !important;
+  fill:#fff !important;
+}
