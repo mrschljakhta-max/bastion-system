@@ -2076,3 +2076,245 @@ body[data-theme="dark"].dicts-page .dict-svg-button:hover .dict-action-icon {
     drop-shadow(0 0 10px rgba(255, 188, 180, .96))
     drop-shadow(0 0 20px rgba(255, 72, 58, .70)) !important;
 }
+
+
+/* BASTION DICTS v193 — Account-style light modal palette + hard light theme sync
+   Uses the same bright white / soft red visual language as the profile modal.
+   Keeps DB fields and functionality unchanged. */
+:root[data-theme="light"] body.dicts-page .dicts-light-cone,
+html[data-theme="light"] body.dicts-page .dicts-light-cone,
+body[data-theme="light"].dicts-page .dicts-light-cone,
+body.dicts-theme-light .dicts-light-cone {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: none !important;
+  animation: none !important;
+  filter: none !important;
+  clip-path: none !important;
+  pointer-events: none !important;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-modal__backdrop,
+html[data-theme="light"] body.dicts-page .dict-modal__backdrop,
+body[data-theme="light"].dicts-page .dict-modal__backdrop,
+body.dicts-theme-light .dict-modal__backdrop {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(255, 45, 45, .10), transparent 38%),
+    rgba(238, 244, 248, .48) !important;
+  backdrop-filter: blur(14px) saturate(1.03) brightness(1.04) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.03) brightness(1.04) !important;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-modal__panel,
+:root[data-theme="light"] body.dicts-page .dict-modal__panel--wide,
+:root[data-theme="light"] body.dicts-page .dict-view-panel,
+html[data-theme="light"] body.dicts-page .dict-modal__panel,
+html[data-theme="light"] body.dicts-page .dict-modal__panel--wide,
+html[data-theme="light"] body.dicts-page .dict-view-panel,
+body[data-theme="light"].dicts-page .dict-modal__panel,
+body[data-theme="light"].dicts-page .dict-modal__panel--wide,
+body[data-theme="light"].dicts-page .dict-view-panel,
+body.dicts-theme-light .dict-modal__panel,
+body.dicts-theme-light .dict-modal__panel--wide,
+body.dicts-theme-light .dict-view-panel {
+  color: rgba(30, 38, 50, .94) !important;
+  border-color: rgba(255, 52, 52, .30) !important;
+  background:
+    linear-gradient(90deg, rgba(255, 60, 60, .035), transparent 38%, rgba(255,255,255,.22)),
+    radial-gradient(circle at 24% 45%, rgba(255, 60, 60, .10), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,.96), rgba(238, 243, 247,.91)) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.90) inset,
+    0 0 42px rgba(255, 60, 60, .16),
+    0 30px 100px rgba(120, 140, 160, .26) !important;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-modal__panel::before,
+:root[data-theme="light"] body.dicts-page .dict-modal__panel--wide::before,
+:root[data-theme="light"] body.dicts-page .dict-view-panel::before,
+html[data-theme="light"] body.dicts-page .dict-modal__panel::before,
+html[data-theme="light"] body.dicts-page .dict-modal__panel--wide::before,
+html[data-theme="light"] body.dicts-page .dict-view-panel::before,
+body[data-theme="light"].dicts-page .dict-modal__panel::before,
+body[data-theme="light"].dicts-page .dict-modal__panel--wide::before,
+body[data-theme="light"].dicts-page .dict-view-panel::before,
+body.dicts-theme-light .dict-modal__panel::before,
+body.dicts-theme-light .dict-modal__panel--wide::before,
+body.dicts-theme-light .dict-view-panel::before {
+  border-color: rgba(255, 55, 55, .22) !important;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 55, 55, .28), transparent),
+    linear-gradient(180deg, rgba(255,255,255,.42), transparent) !important;
+  box-shadow:
+    inset 0 0 28px rgba(255, 55, 55, .055),
+    inset 0 0 80px rgba(255,255,255,.62) !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-modal__panel::after,
+:root[data-theme="light"] body.dicts-page .dict-view-panel::after,
+html[data-theme="light"] body.dicts-page .dict-modal__panel::after,
+html[data-theme="light"] body.dicts-page .dict-view-panel::after,
+body[data-theme="light"].dicts-page .dict-modal__panel::after,
+body[data-theme="light"].dicts-page .dict-view-panel::after,
+body.dicts-theme-light .dict-modal__panel::after,
+body.dicts-theme-light .dict-view-panel::after {
+  opacity: .16 !important;
+  background:
+    linear-gradient(rgba(135,146,158,.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(135,146,158,.10) 1px, transparent 1px) !important;
+  background-size: 34px 34px !important;
+}
+
+body.dicts-theme-light .dict-view-titlebox h2,
+:root[data-theme="light"] body.dicts-page .dict-view-titlebox h2,
+html[data-theme="light"] body.dicts-page .dict-view-titlebox h2,
+body[data-theme="light"].dicts-page .dict-view-titlebox h2,
+body.dicts-theme-light .dict-modal h2,
+:root[data-theme="light"] body.dicts-page .dict-modal h2 {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  text-shadow: 0 0 22px rgba(255, 55, 55, .16) !important;
+  filter: none !important;
+}
+
+body.dicts-theme-light .dict-modal__lead,
+body.dicts-theme-light .dict-vault-meta,
+body.dicts-theme-light .dict-vault-meta span,
+:root[data-theme="light"] body.dicts-page .dict-modal__lead,
+:root[data-theme="light"] body.dicts-page .dict-vault-meta {
+  color: rgba(82, 90, 104, .86) !important;
+  text-shadow: none !important;
+}
+
+body.dicts-theme-light .dict-vault-meta b,
+body.dicts-theme-light .dict-vault-meta i,
+:root[data-theme="light"] body.dicts-page .dict-vault-meta b,
+:root[data-theme="light"] body.dicts-page .dict-vault-meta i {
+  color: #e01818 !important;
+  -webkit-text-fill-color: #e01818 !important;
+  text-shadow: 0 0 12px rgba(255, 55, 55, .14) !important;
+}
+
+body.dicts-theme-light .dict-records-card,
+body.dicts-theme-light .dict-records-card--clean,
+body.dicts-theme-light .dict-table-wrap,
+body.dicts-theme-light .dict-table-wrap--clean,
+body.dicts-theme-light .dict-records-table,
+body.dicts-theme-light .dict-records-table--clean,
+:root[data-theme="light"] body.dicts-page .dict-records-card,
+:root[data-theme="light"] body.dicts-page .dict-table-wrap,
+:root[data-theme="light"] body.dicts-page .dict-records-table {
+  border-color: rgba(224, 26, 26, .24) !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 55, 55, .055), transparent 44%),
+    linear-gradient(145deg, rgba(255,255,255,.76), rgba(239, 244, 247,.62)) !important;
+  box-shadow:
+    inset 0 0 36px rgba(255,255,255,.70),
+    inset 0 0 20px rgba(255, 55, 55, .035) !important;
+}
+
+body.dicts-theme-light .dict-records-table th,
+body.dicts-theme-light .dict-records-table--clean th,
+:root[data-theme="light"] body.dicts-page .dict-records-table th {
+  color: #697386 !important;
+  -webkit-text-fill-color: #697386 !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,249,252,.78)) !important;
+  border-bottom-color: rgba(210, 220, 228, .86) !important;
+  text-shadow: none !important;
+}
+
+body.dicts-theme-light .dict-records-table td,
+body.dicts-theme-light .dict-records-table--clean td,
+:root[data-theme="light"] body.dicts-page .dict-records-table td {
+  color: #1f2937 !important;
+  background: rgba(255,255,255,.46) !important;
+  border-bottom-color: rgba(210, 220, 228, .72) !important;
+  text-shadow: none !important;
+}
+
+body.dicts-theme-light .dict-cell-value,
+body.dicts-theme-light .dict-empty-cell,
+body.dicts-theme-light .dict-empty-dash,
+:root[data-theme="light"] body.dicts-page .dict-cell-value,
+:root[data-theme="light"] body.dicts-page .dict-empty-cell,
+:root[data-theme="light"] body.dicts-page .dict-empty-dash {
+  color: rgba(34, 43, 55, .92) !important;
+  -webkit-text-fill-color: rgba(34, 43, 55, .92) !important;
+  text-shadow: none !important;
+}
+
+body.dicts-theme-light .dict-icon-button,
+body.dicts-theme-light .dict-icon-mini,
+body.dicts-theme-light .dict-modal__close,
+body.dicts-theme-light .dict-floating-plus,
+body.dicts-theme-light .dict-mini-button,
+body.dicts-theme-light .dict-action,
+:root[data-theme="light"] body.dicts-page .dict-icon-button,
+:root[data-theme="light"] body.dicts-page .dict-icon-mini,
+:root[data-theme="light"] body.dicts-page .dict-modal__close,
+:root[data-theme="light"] body.dicts-page .dict-floating-plus,
+:root[data-theme="light"] body.dicts-page .dict-mini-button,
+:root[data-theme="light"] body.dicts-page .dict-action {
+  color: #e01818 !important;
+  border-color: rgba(224, 26, 26, .34) !important;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255,255,255,.99), rgba(255,255,255,.70) 45%, rgba(255, 232, 232, .50)),
+    linear-gradient(145deg, rgba(255,255,255,.98), rgba(255, 239, 239, .74)) !important;
+  box-shadow:
+    0 0 18px rgba(255, 54, 62, .14),
+    0 12px 28px rgba(130, 150, 170, .12),
+    inset 0 0 16px rgba(255,255,255,.82) !important;
+  text-shadow: none !important;
+}
+
+body.dicts-theme-light .dict-svg-button > img,
+body.dicts-theme-light .dict-action-icon,
+:root[data-theme="light"] body.dicts-page .dict-svg-button > img,
+:root[data-theme="light"] body.dicts-page .dict-action-icon {
+  filter:
+    brightness(0) saturate(100%)
+    invert(20%) sepia(97%) saturate(3832%) hue-rotate(352deg) brightness(100%) contrast(98%)
+    drop-shadow(0 0 7px rgba(255, 64, 64, .22)) !important;
+  opacity: .96 !important;
+}
+
+body.dicts-theme-light .dict-cell-check {
+  accent-color: #ef2b2b !important;
+  filter: drop-shadow(0 0 10px rgba(255, 55, 55, .24)) !important;
+}
+
+body.dicts-theme-light .dict-field input,
+body.dicts-theme-light .dict-field select,
+body.dicts-theme-light .dict-column-row input,
+body.dicts-theme-light .dict-column-row select,
+body.dicts-theme-light .dict-add-column-inline input,
+body.dicts-theme-light .dict-add-column-inline select,
+body.dicts-theme-light .dict-sort-panel input,
+body.dicts-theme-light .dict-sort-panel select,
+body.dicts-theme-light .dict-cell-input,
+:root[data-theme="light"] body.dicts-page .dict-field input,
+:root[data-theme="light"] body.dicts-page .dict-field select,
+:root[data-theme="light"] body.dicts-page .dict-cell-input {
+  color: #1f2937 !important;
+  border-color: rgba(210, 220, 228, .92) !important;
+  background: rgba(255,255,255,.72) !important;
+  box-shadow: inset 0 0 18px rgba(255,255,255,.68) !important;
+}
+
+body.dicts-theme-light .dict-manager-card,
+body.dicts-theme-light .dict-edit-panel,
+body.dicts-theme-light .dict-sort-panel,
+:root[data-theme="light"] body.dicts-page .dict-manager-card,
+:root[data-theme="light"] body.dicts-page .dict-edit-panel,
+:root[data-theme="light"] body.dicts-page .dict-sort-panel {
+  color: rgba(30, 38, 50, .94) !important;
+  border-color: rgba(224, 26, 26, .18) !important;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.78), rgba(239, 244, 247,.58)) !important;
+}

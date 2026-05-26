@@ -1,5 +1,13 @@
 /* BASTION DICTS v172 — dynamic dictionary table like spreadsheet */
 (() => {
+  function syncDictsThemeClass() {
+    const theme = document.documentElement.getAttribute("data-theme") || document.body?.getAttribute("data-theme") || "dark";
+    document.body?.classList.toggle("dicts-theme-light", theme === "light");
+    document.body?.classList.toggle("dicts-theme-dark", theme !== "light");
+  }
+  syncDictsThemeClass();
+  new MutationObserver(syncDictsThemeClass).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
   const right = document.querySelector(".dicts-arrow--right");
