@@ -1,4 +1,4 @@
-/* BASTION DICTS v207 — structure columns add + drag order */
+/* BASTION DICTS v208 — create dictionary structure builder + rename */
 (() => {
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -304,13 +304,24 @@
     });
   }
 
-  /* CREATE MODAL */
+  /* CREATE MODAL v208 — structure-style dictionary builder */
   const modal = document.getElementById("dictCreateModal");
   const form = document.getElementById("dictCreateForm");
   const titleInput = document.getElementById("dictTitleInput");
   const columnsList = document.getElementById("dictColumnsList");
   const addColumnBtn = document.getElementById("addDictColumnBtn");
   const statusEl = document.getElementById("dictCreateStatus");
+
+  const createSystemColumns = [
+    { column_name: "__rownum", label: "Порядковий номер", data_type: "integer", virtual: true, system: true },
+    { column_name: "name", label: "Назва", data_type: "text", system: true },
+    { column_name: "is_active", label: "Статус", data_type: "boolean", system: true }
+  ];
+  let createColumns = [];
+
+  function resetCreateColumns() {
+    createColumns = createSystemColumns.map((c) => ({ ...c }));
+  }
 
   function setStatus(message, type = "") { if (statusEl) { statusEl.textContent = message || ""; statusEl.dataset.type = type; } }
   function ensureDictModalInBody(target) {
@@ -326,7 +337,9 @@
 
   function openCreateModal() {
     ensureDictModalInBody(modal);
-    modal?.classList.add("is-open");
+    resetCreateColumns();
+    renderCreateStructureBuilder();
+    modal?.classList.add("is-open", "dict-create-structure-mode");
     modal?.setAttribute("aria-hidden", "false");
     document.body.classList.add("dict-modal-open");
     setStatus("");
@@ -334,27 +347,169 @@
   }
 
   function closeCreateModal() {
-    modal?.classList.remove("is-open");
+    modal?.classList.remove("is-open", "dict-create-structure-mode");
     modal?.setAttribute("aria-hidden", "true");
     syncDictModalBodyState();
   }
 
-  function createColumnRow(name = "", type = "text") {
-    const row = document.createElement("div");
-    row.className = "dict-column-row";
-    row.innerHTML = `<input type="text" value="${name}" data-column-name required /><select data-column-type><option value="text">Текст</option><option value="integer">Ціле число</option><option value="numeric">Число</option><option value="date">Дата</option><option value="boolean">Так / Ні</option></select><button type="button" class="dict-remove-column dict-svg-button" aria-label="Прибрати колонку">${actionIcon("x")}</button>`;
-    row.querySelector("select").value = type;
-    row.querySelector(".dict-remove-column").addEventListener("click", () => {
-      if (columnsList.querySelectorAll(".dict-column-row").length <= 1) return setStatus("Має залишитись хоча б одна колонка.", "error");
-      row.remove();
-    });
-    return row;
+  function createBuilderTypeOptions(selected = "text") {
+    return Object.entries(columnTypeLabels)
+      .filter(([key]) => !["uuid", "timestamptz"].includes(key))
+      .map(([key, label]) => `<option value="${escapeHtml(key)}" ${key === selected ? "selected" : ""}>${escapeHtml(label)}</option>`)
+      .join("");
   }
 
-  addColumnBtn?.addEventListener("click", () => columnsList?.appendChild(createColumnRow("note", "text")));
-  columnsList?.querySelectorAll(".dict-remove-column").forEach((btn) => btn.addEventListener("click", () => {
-    if (columnsList.querySelectorAll(".dict-column-row").length > 1) btn.closest(".dict-column-row")?.remove();
-  }));
+  function renderCreateStructureBuilder() {
+    if (!columnsList) return;
+    columnsList.classList.add("dict-create-structure");
+    columnsList.innerHTML = `
+      <div class="dict-structure-add dict-create-structure-add">
+        <input id="dictCreateNewColumnName" class="dict-cell-input dict-structure-add-input" type="text" placeholder="Нова колонка, наприклад: калібр" aria-label="Назва нової колонки">
+        <select id="dictCreateNewColumnType" class="dict-cell-input dict-structure-add-type" aria-label="Тип нової колонки">
+          ${createBuilderTypeOptions("text")}
+        </select>
+        <button id="dictCreateAddColumnBtn" type="button" class="dict-structure-add-btn">+ ДОДАТИ КОЛОНКУ</button>
+      </div>
+      <div class="dict-structure-table-wrap dict-create-structure-table-wrap">
+        <table id="dictCreateStructureTable" class="dict-records-table dict-structure-table dict-create-structure-table">
+          <thead>
+            <tr>
+              <th class="dict-col-num">№</th>
+              <th>Назва колонки</th>
+              <th>Активна</th>
+              <th class="dict-col-actions">Дії</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${createColumns.map((col, index) => renderCreateStructureRow(col, index)).join("")}
+          </tbody>
+        </table>
+      </div>`;
+    columnsList.querySelector("#dictCreateAddColumnBtn")?.addEventListener("click", addCreateColumn);
+    columnsList.querySelector("#dictCreateStructureTable")?.addEventListener("click", handleCreateStructureClick);
+    columnsList.querySelector("#dictCreateStructureTable")?.addEventListener("change", handleCreateStructureChange);
+    initCreateStructureDrag();
+  }
+
+  function renderCreateStructureRow(col, index) {
+    const system = !!col.system || !!col.virtual || ["name", "is_active"].includes(col.column_name);
+    const deleteDisabled = system;
+    const draggable = !col.virtual;
+    return `<tr class="dict-structure-row dict-create-structure-row${system ? " is-protected" : ""}${col.virtual ? " is-virtual" : ""}" data-create-column="${escapeHtml(col.column_name)}" draggable="${draggable ? "true" : "false"}">
+      <td class="dict-col-num"><span class="dict-drag-grip" aria-hidden="true">${draggable ? "⋮⋮" : ""}</span>${index + 1}</td>
+      <td class="dict-structure-name-cell">
+        <span class="dict-structure-name" data-create-column-label>${escapeHtml(col.label || columnLabel(col.column_name))}</span>
+        <small>${escapeHtml(col.virtual ? "Системна колонка номера" : col.column_name)}</small>
+      </td>
+      <td><input class="dict-cell-check" type="checkbox" data-create-column-visible ${col.visible === false ? "" : "checked"} ${system ? "disabled" : ""} aria-label="Показувати колонку ${escapeHtml(col.label || col.column_name)}"></td>
+      <td class="dict-row-actions dict-structure-actions">
+        <button type="button" class="dict-icon-mini dict-svg-button" data-create-structure-edit title="Перейменувати колонку" aria-label="Перейменувати колонку">${actionIcon("pencil")}</button>
+        <button type="button" class="dict-icon-mini dict-icon-mini--danger dict-svg-button" data-create-structure-delete ${deleteDisabled ? "disabled" : ""} title="${deleteDisabled ? "Системну колонку неможливо видалити" : "Видалити колонку"}" aria-label="Видалити колонку">${actionIcon("trash")}</button>
+      </td>
+    </tr>`;
+  }
+
+  function addCreateColumn() {
+    const nameInput = document.getElementById("dictCreateNewColumnName");
+    const typeInput = document.getElementById("dictCreateNewColumnType");
+    const rawLabel = String(nameInput?.value || "").trim();
+    const columnName = sanitizeColumnName(rawLabel);
+    if (!columnName) return setStatus("Введи назву нової колонки.", "error");
+    if (createColumns.some((c) => c.column_name === columnName)) return setStatus("Така колонка вже є в новому довіднику.", "error");
+    createColumns.push({ column_name: columnName, label: rawLabel, data_type: typeInput?.value || "text", visible: true, system: false });
+    if (nameInput) nameInput.value = "";
+    renderCreateStructureBuilder();
+    setStatus("Колонку додано до структури.", "success");
+  }
+
+  function findCreateColumn(columnName) {
+    return createColumns.find((c) => c.column_name === columnName);
+  }
+
+  function startCreateStructureNameEdit(row) {
+    const colName = row?.dataset?.createColumn;
+    const col = findCreateColumn(colName);
+    if (!col) return;
+    const cell = row.querySelector(".dict-structure-name-cell");
+    const actions = row.querySelector(".dict-structure-actions");
+    if (!cell || !actions || cell.querySelector("input")) return;
+    cell.innerHTML = `<input class="dict-cell-input dict-structure-name-input" type="text" data-create-structure-name-input value="${escapeHtml(col.label || columnLabel(col.column_name))}" aria-label="Нова назва колонки">
+      <small>${escapeHtml(col.virtual ? "Системна колонка номера" : col.column_name)}</small>`;
+    actions.innerHTML = `
+      <button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-create-structure-save title="Зберегти назву" aria-label="Зберегти назву">${actionIcon("check")}</button>
+      <button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-create-structure-cancel title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button>`;
+    cell.querySelector("input")?.focus();
+  }
+
+  function saveCreateStructureName(row) {
+    const colName = row?.dataset?.createColumn;
+    const col = findCreateColumn(colName);
+    const input = row?.querySelector("[data-create-structure-name-input]");
+    if (!col || !input) return;
+    const label = input.value.trim();
+    if (!label) return setStatus("Назва колонки не може бути порожньою.", "error");
+    col.label = label;
+    if (!col.system && !col.virtual) col.column_name = sanitizeColumnName(label) || col.column_name;
+    renderCreateStructureBuilder();
+    setStatus("Назву колонки збережено.", "success");
+  }
+
+  function handleCreateStructureClick(event) {
+    const row = event.target.closest(".dict-create-structure-row");
+    if (!row) return;
+    if (event.target.closest("[data-create-structure-edit]")) startCreateStructureNameEdit(row);
+    if (event.target.closest("[data-create-structure-save]")) saveCreateStructureName(row);
+    if (event.target.closest("[data-create-structure-cancel]")) renderCreateStructureBuilder();
+    if (event.target.closest("[data-create-structure-delete]")) {
+      const btn = event.target.closest("[data-create-structure-delete]");
+      if (btn.disabled) return;
+      createColumns = createColumns.filter((c) => c.column_name !== row.dataset.createColumn);
+      renderCreateStructureBuilder();
+      setStatus("Колонку видалено зі структури.", "success");
+    }
+  }
+
+  function handleCreateStructureChange(event) {
+    const input = event.target.closest("[data-create-column-visible]");
+    if (!input) return;
+    const row = input.closest(".dict-create-structure-row");
+    const col = findCreateColumn(row?.dataset?.createColumn);
+    if (!col) return;
+    col.visible = input.checked;
+  }
+
+  function initCreateStructureDrag() {
+    const tbody = columnsList?.querySelector("#dictCreateStructureTable tbody");
+    if (!tbody) return;
+    let dragged = null;
+    tbody.querySelectorAll(".dict-create-structure-row[draggable='true']").forEach((row) => {
+      row.addEventListener("dragstart", (event) => {
+        dragged = row;
+        row.classList.add("is-dragging");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", row.dataset.createColumn || "");
+      });
+      row.addEventListener("dragend", () => {
+        row.classList.remove("is-dragging");
+        dragged = null;
+        const order = [...tbody.querySelectorAll(".dict-create-structure-row")].map((item) => item.dataset.createColumn);
+        createColumns.sort((a, b) => order.indexOf(a.column_name) - order.indexOf(b.column_name));
+        renderCreateStructureBuilder();
+      });
+    });
+    tbody.addEventListener("dragover", (event) => {
+      if (!dragged) return;
+      event.preventDefault();
+      const target = event.target.closest(".dict-create-structure-row[draggable='true']");
+      if (!target || target === dragged) return;
+      const rect = target.getBoundingClientRect();
+      const after = event.clientY > rect.top + rect.height / 2;
+      tbody.insertBefore(dragged, after ? target.nextSibling : target);
+    });
+  }
+
+  // old mini-row handlers are intentionally replaced by the structure builder
+  addColumnBtn?.addEventListener("click", addCreateColumn);
   document.querySelectorAll("[data-close-dict-modal]").forEach((item) => item.addEventListener("click", closeCreateModal));
 
   form?.addEventListener("submit", async (event) => {
@@ -362,16 +517,17 @@
     if (!sb) sb = createSupabaseClient();
     if (!sb) return setStatus("Supabase не підключений. Перевір scripts/config.js.", "error");
     const title = titleInput.value.trim();
-    const rows = [...columnsList.querySelectorAll(".dict-column-row")];
-    const columns = rows.map((row) => ({ name: sanitizeColumnName(row.querySelector("[data-column-name]").value), type: row.querySelector("[data-column-type]").value })).filter((col) => col.name);
-    const uniqueNames = new Set(columns.map((col) => col.name));
+    const payloadColumns = createColumns
+      .filter((col) => !col.virtual)
+      .map((col) => ({ name: col.column_name, type: col.data_type || "text", label: col.label || columnLabel(col.column_name), visible: col.visible !== false }));
+    const uniqueNames = new Set(payloadColumns.map((col) => col.name));
     if (!title) return setStatus("Введи назву довідника.", "error");
-    if (!columns.length) return setStatus("Додай хоча б одну колонку.", "error");
-    if (uniqueNames.size !== columns.length) return setStatus("Назви колонок не повинні дублюватись.", "error");
+    if (!payloadColumns.some((col) => col.name === "name")) return setStatus("Системна колонка Назва обовʼязкова.", "error");
+    if (uniqueNames.size !== payloadColumns.length) return setStatus("Назви колонок не повинні дублюватись.", "error");
     setStatus("Створюю довідник у Supabase...", "loading");
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
-    const { error } = await sb.rpc("create_bastion_dictionary", { p_title: title, p_columns: columns });
+    const { error } = await sb.rpc("create_bastion_dictionary", { p_title: title, p_columns: payloadColumns });
     submitBtn.disabled = false;
     if (error) return setStatus(`Помилка: ${error.message}`, "error");
     setStatus("Довідник створено. Оновлюю карусель...", "success");
@@ -553,9 +709,17 @@
         <header class="dict-structure-head">
           <div>
             <h3>СТРУКТУРА ДОВІДНИКА</h3>
-            <p>Керуйте назвами, видимістю, порядком та колонками поточного довідника.</p>
+            <p>Керуйте назвою довідника, видимістю, порядком та колонками поточного довідника.</p>
           </div>
         </header>
+
+        <div class="dict-structure-title-editor">
+          <label class="dict-field">
+            <span>Назва довідника</span>
+            <input id="dictStructureTitleInput" class="dict-cell-input" type="text" value="${escapeHtml(dictionaryTitle(currentDict))}" autocomplete="off" aria-label="Назва довідника">
+          </label>
+          <button id="dictStructureSaveTitleBtn" type="button" class="dict-structure-add-btn">ЗБЕРЕГТИ НАЗВУ</button>
+        </div>
 
         <div class="dict-structure-add">
           <input id="dictStructureNewColumnName" class="dict-cell-input dict-structure-add-input" type="text" placeholder="Нова колонка, наприклад: калібр" aria-label="Назва нової колонки">
@@ -587,7 +751,23 @@
       </section>`;
 
     editPanel.querySelector("#dictStructureAddColumnBtn")?.addEventListener("click", addColumnToCurrent);
+    editPanel.querySelector("#dictStructureSaveTitleBtn")?.addEventListener("click", saveDictionaryTitleFromStructure);
     initStructureDrag();
+  }
+
+  async function saveDictionaryTitleFromStructure() {
+    const input = document.getElementById("dictStructureTitleInput");
+    const title = String(input?.value || "").trim();
+    if (!title || !currentDict?.id) return setManageStatus("Введи назву довідника.", "error");
+    setManageStatus("Зберігаю назву довідника...", "loading");
+    const { error } = await sb.from("dict_registry").update({ title, title_ua: title, updated_at: new Date().toISOString() }).eq("id", currentDict.id);
+    if (error) return setManageStatus(`Помилка збереження назви: ${error.message}`, "error");
+    currentDict.title = title;
+    currentDict.title_ua = title;
+    if (manageTitle) manageTitle.textContent = title.toUpperCase();
+    if (manageTitleInput) manageTitleInput.value = title;
+    await loadRegistry();
+    setManageStatus("Назву довідника збережено.", "success");
   }
 
   function renderStructureRow(col, index) {

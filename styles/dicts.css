@@ -671,3 +671,112 @@ body.dicts-page.dicts-theme-light .dict-structure-add-btn {
 }
 
 /* cache-marker: BASTION-DICTS-STRUCTURE-ADD-DRAG-v207 */
+
+
+/* =========================================================
+   BASTION DICTS v208 — create dictionary structure builder
+   ========================================================= */
+#dictCreateModal.dict-create-structure-mode .dict-modal__panel {
+  width: min(1180px, 92vw) !important;
+  max-height: min(88vh, 860px) !important;
+  overflow-y: auto !important;
+}
+
+#dictCreateModal .dict-form {
+  display: grid;
+  gap: 18px;
+}
+
+#dictCreateModal .dict-columns-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 4px;
+}
+
+#dictCreateModal .dict-columns-head > span {
+  font: 900 20px/1 Orbitron, Rajdhani, sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255, 247, 245, .92);
+  text-shadow: 0 0 16px rgba(255, 70, 64, .24);
+}
+
+#dictCreateModal .dict-create-structure {
+  display: grid;
+  gap: 14px;
+}
+
+#dictCreateModal .dict-create-structure-table-wrap {
+  max-height: 360px;
+  overflow: auto;
+}
+
+#dictCreateModal .dict-create-structure-table .dict-structure-name-cell small {
+  display: block;
+  margin-top: 5px;
+  color: rgba(158, 211, 226, .68);
+  font: 800 12px/1.2 Rajdhani, sans-serif;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+#dictCreateModal .dict-create-structure-row.is-protected .dict-structure-name::after {
+  content: "  СИСТЕМНА";
+  margin-left: 10px;
+  color: rgba(255, 88, 78, .78);
+  font: 900 11px/1 Rajdhani, sans-serif;
+  letter-spacing: .12em;
+}
+
+#dictCreateModal .dict-create-structure-row [disabled] {
+  opacity: .48;
+  cursor: not-allowed;
+}
+
+#dictCreateModal .dict-modal__actions {
+  justify-content: flex-end;
+}
+
+.dict-structure-title-editor {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 14px;
+  align-items: end;
+  padding: 16px;
+  border: 1px solid rgba(255, 70, 64, .22);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 58, 54, .055), rgba(0, 12, 18, .18));
+}
+
+.dict-structure-title-editor .dict-field {
+  margin: 0 !important;
+}
+
+html[data-theme="light"] body.dicts-page #dictCreateModal .dict-columns-head > span,
+body[data-theme="light"].dicts-page #dictCreateModal .dict-columns-head > span,
+body.dicts-page.dicts-theme-light #dictCreateModal .dict-columns-head > span {
+  color: #d71920 !important;
+  text-shadow: 0 0 12px rgba(255, 64, 64, .18) !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-structure-title-editor,
+body[data-theme="light"].dicts-page .dict-structure-title-editor,
+body.dicts-page.dicts-theme-light .dict-structure-title-editor {
+  background: rgba(255,255,255,.62) !important;
+  border-color: rgba(255, 58, 58, .18) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.60), 0 12px 28px rgba(100, 112, 130, .055) !important;
+}
+
+@media (max-width: 900px) {
+  .dict-structure-title-editor {
+    grid-template-columns: 1fr;
+  }
+
+  #dictCreateModal.dict-create-structure-mode .dict-modal__panel {
+    width: min(94vw, 760px) !important;
+  }
+}
+
+/* cache-marker: BASTION-DICTS-CREATE-STRUCTURE-v208 */
