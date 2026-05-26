@@ -1,4 +1,4 @@
-/* BASTION DICTS v208 — create dictionary structure builder + rename */
+/* BASTION DICTS v209 — create modal polish + inline title editing */
 (() => {
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -713,14 +713,6 @@
           </div>
         </header>
 
-        <div class="dict-structure-title-editor">
-          <label class="dict-field">
-            <span>Назва довідника</span>
-            <input id="dictStructureTitleInput" class="dict-cell-input" type="text" value="${escapeHtml(dictionaryTitle(currentDict))}" autocomplete="off" aria-label="Назва довідника">
-          </label>
-          <button id="dictStructureSaveTitleBtn" type="button" class="dict-structure-add-btn">ЗБЕРЕГТИ НАЗВУ</button>
-        </div>
-
         <div class="dict-structure-add">
           <input id="dictStructureNewColumnName" class="dict-cell-input dict-structure-add-input" type="text" placeholder="Нова колонка, наприклад: калібр" aria-label="Назва нової колонки">
           <select id="dictStructureNewColumnType" class="dict-cell-input dict-structure-add-type" aria-label="Тип нової колонки">
@@ -751,23 +743,92 @@
       </section>`;
 
     editPanel.querySelector("#dictStructureAddColumnBtn")?.addEventListener("click", addColumnToCurrent);
-    editPanel.querySelector("#dictStructureSaveTitleBtn")?.addEventListener("click", saveDictionaryTitleFromStructure);
+    syncInlineTitleEditorState();
     initStructureDrag();
   }
 
-  async function saveDictionaryTitleFromStructure() {
-    const input = document.getElementById("dictStructureTitleInput");
-    const title = String(input?.value || "").trim();
-    if (!title || !currentDict?.id) return setManageStatus("Введи назву довідника.", "error");
+  async function saveDictionaryTitleValue(rawTitle) {
+    const title = String(rawTitle || "").trim();
+    if (!title || !currentDict?.id) {
+      setManageStatus("Назва довідника не може бути порожньою.", "error");
+      return false;
+    }
     setManageStatus("Зберігаю назву довідника...", "loading");
     const { error } = await sb.from("dict_registry").update({ title, title_ua: title, updated_at: new Date().toISOString() }).eq("id", currentDict.id);
-    if (error) return setManageStatus(`Помилка збереження назви: ${error.message}`, "error");
+    if (error) {
+      setManageStatus(`Помилка збереження назви: ${error.message}`, "error");
+      return false;
+    }
     currentDict.title = title;
     currentDict.title_ua = title;
     if (manageTitle) manageTitle.textContent = title.toUpperCase();
     if (manageTitleInput) manageTitleInput.value = title;
     await loadRegistry();
     setManageStatus("Назву довідника збережено.", "success");
+    return true;
+  }
+
+  async function saveDictionaryTitleFromStructure() {
+    const input = document.getElementById("dictStructureTitleInput");
+    await saveDictionaryTitleValue(input?.value);
+  }
+
+  function removeInlineTitleEditor() {
+    document.querySelector(".dict-title-inline-edit")?.remove();
+    manageTitle?.classList.remove("is-inline-editing");
+  }
+
+  function ensureInlineTitleEditButton() {
+    const titleBox = manageTitle?.closest(".dict-view-titlebox");
+    if (!titleBox || document.getElementById("dictTitleInlineEditBtn")) return;
+    const btn = document.createElement("button");
+    btn.id = "dictTitleInlineEditBtn";
+    btn.type = "button";
+    btn.className = "dict-title-inline-edit-btn dict-svg-button";
+    btn.title = "Перейменувати довідник";
+    btn.setAttribute("aria-label", "Перейменувати довідник");
+    btn.innerHTML = actionIcon("pencil");
+    manageTitle.insertAdjacentElement("afterend", btn);
+    btn.addEventListener("click", startInlineTitleEdit);
+  }
+
+  function syncInlineTitleEditorState() {
+    const isStructure = document.getElementById("dictManageModal")?.classList.contains("dict-structure-mode");
+    if (!isStructure) {
+      document.getElementById("dictTitleInlineEditBtn")?.remove();
+      removeInlineTitleEditor();
+      return;
+    }
+    ensureInlineTitleEditButton();
+  }
+
+  function startInlineTitleEdit() {
+    if (!manageTitle || document.querySelector(".dict-title-inline-edit")) return;
+    const titleBox = manageTitle.closest(".dict-view-titlebox");
+    if (!titleBox) return;
+    manageTitle.classList.add("is-inline-editing");
+    const editor = document.createElement("div");
+    editor.className = "dict-title-inline-edit";
+    editor.innerHTML = `
+      <input id="dictInlineTitleInput" class="dict-cell-input dict-title-inline-input" type="text" value="${escapeHtml(dictionaryTitle(currentDict))}" aria-label="Нова назва довідника">
+      <button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-inline-title-save title="Зберегти назву" aria-label="Зберегти назву">${actionIcon("check")}</button>
+      <button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-inline-title-cancel title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button>`;
+    manageTitle.insertAdjacentElement("afterend", editor);
+    const input = editor.querySelector("input");
+    input?.focus();
+    input?.select();
+    editor.querySelector("[data-inline-title-save]")?.addEventListener("click", async () => {
+      const ok = await saveDictionaryTitleValue(input?.value);
+      if (ok) removeInlineTitleEditor();
+    });
+    editor.querySelector("[data-inline-title-cancel]")?.addEventListener("click", removeInlineTitleEditor);
+    input?.addEventListener("keydown", async (event) => {
+      if (event.key === "Escape") removeInlineTitleEditor();
+      if (event.key === "Enter") {
+        const ok = await saveDictionaryTitleValue(input.value);
+        if (ok) removeInlineTitleEditor();
+      }
+    });
   }
 
   function renderStructureRow(col, index) {
@@ -1241,6 +1302,7 @@
     editToggleBtn?.classList.toggle("is-active", enabled);
     editToggleBtn?.setAttribute("aria-pressed", enabled ? "true" : "false");
     modal?.classList.toggle("dict-structure-mode", enabled);
+    syncInlineTitleEditorState();
     if (enabled) {
       setExportMode(false, true);
       if (sortPanel) sortPanel.hidden = true;
@@ -1296,15 +1358,7 @@
   }
 
   saveTitleBtn?.addEventListener("click", async () => {
-    const title = manageTitleInput.value.trim();
-    if (!title || !currentDict?.id) return setManageStatus("Введи назву довідника.", "error");
-    setManageStatus("Зберігаю назву...", "loading");
-    const { error } = await sb.from("dict_registry").update({ title, title_ua: title, updated_at: new Date().toISOString() }).eq("id", currentDict.id);
-    if (error) return setManageStatus(`Помилка: ${error.message}`, "error");
-    currentDict.title = title;
-    if (manageTitle) manageTitle.textContent = title.toUpperCase();
-    await loadRegistry();
-    setManageStatus("Назву збережено.", "success");
+    await saveDictionaryTitleValue(manageTitleInput?.value);
   });
 
   deleteDictBtn?.addEventListener("click", async () => {

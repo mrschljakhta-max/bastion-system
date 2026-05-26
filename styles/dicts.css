@@ -780,3 +780,162 @@ body.dicts-page.dicts-theme-light .dict-structure-title-editor {
 }
 
 /* cache-marker: BASTION-DICTS-CREATE-STRUCTURE-v208 */
+
+/* =========================================================
+   BASTION DICTS v209 — create modal polish + inline title editing
+   ========================================================= */
+
+/* 1) Модалка додавання довідника: такі ж зрізані кути, як у робочих модалок */
+#dictCreateModal.dict-create-structure-mode .dict-modal__panel,
+#dictCreateModal .dict-modal__panel {
+  clip-path: polygon(
+    32px 0,
+    calc(100% - 32px) 0,
+    100% 32px,
+    100% calc(100% - 32px),
+    calc(100% - 32px) 100%,
+    32px 100%,
+    0 calc(100% - 32px),
+    0 32px
+  ) !important;
+  border-radius: 0 !important;
+  position: relative !important;
+}
+
+#dictCreateModal .dict-modal__panel::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+  clip-path: polygon(
+    24px 0,
+    calc(100% - 24px) 0,
+    100% 24px,
+    100% calc(100% - 24px),
+    calc(100% - 24px) 100%,
+    24px 100%,
+    0 calc(100% - 24px),
+    0 24px
+  );
+  border: 1px solid rgba(255, 72, 72, .22);
+  box-shadow: inset 0 0 24px rgba(255, 64, 64, .08);
+  z-index: 0;
+}
+
+#dictCreateModal .dict-modal__panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 2) Чіткіше поле введення назви нового довідника */
+#dictCreateModal .dict-field span,
+html[data-theme="light"] body.dicts-page #dictCreateModal .dict-field span,
+body[data-theme="light"].dicts-page #dictCreateModal .dict-field span,
+body.dicts-page.dicts-theme-light #dictCreateModal .dict-field span {
+  color: #e52329 !important;
+  opacity: 1 !important;
+  text-shadow: 0 0 12px rgba(255, 52, 56, .18) !important;
+  font-weight: 900 !important;
+}
+
+#dictCreateModal #dictTitleInput,
+html[data-theme="light"] body.dicts-page #dictCreateModal #dictTitleInput,
+body[data-theme="light"].dicts-page #dictCreateModal #dictTitleInput,
+body.dicts-page.dicts-theme-light #dictCreateModal #dictTitleInput {
+  height: 58px !important;
+  border: 1px solid rgba(255, 62, 62, .42) !important;
+  background: rgba(255, 255, 255, .88) !important;
+  color: #1f2a38 !important;
+  border-radius: 16px !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.75),
+    0 0 0 4px rgba(255, 64, 64, .055),
+    0 12px 30px rgba(88, 104, 126, .08) !important;
+}
+
+#dictCreateModal #dictTitleInput::placeholder {
+  color: rgba(229, 35, 41, .48) !important;
+  opacity: 1 !important;
+}
+
+#dictCreateModal #dictTitleInput:focus {
+  outline: none !important;
+  border-color: rgba(255, 44, 50, .82) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.85),
+    0 0 0 4px rgba(255, 64, 64, .12),
+    0 0 24px rgba(255, 64, 64, .18) !important;
+}
+
+/* 3) При редагуванні існуючого довідника назва редагується прямо у заголовку */
+.dict-title-inline-edit-btn {
+  width: 38px !important;
+  height: 38px !important;
+  margin-left: 14px !important;
+  vertical-align: middle !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 70, 64, .38) !important;
+  background: rgba(255, 52, 56, .08) !important;
+  box-shadow: 0 0 18px rgba(255, 62, 62, .12), inset 0 0 14px rgba(255, 72, 72, .06) !important;
+  cursor: pointer !important;
+}
+
+.dict-title-inline-edit-btn img,
+.dict-title-inline-edit-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.dict-title-inline-edit-btn:hover {
+  background: rgba(255, 52, 56, .18) !important;
+  box-shadow: 0 0 24px rgba(255, 62, 62, .22), inset 0 0 16px rgba(255, 72, 72, .10) !important;
+}
+
+#dictManageTitle.is-inline-editing {
+  opacity: .24 !important;
+}
+
+.dict-title-inline-edit {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-left: 0 !important;
+  transform: translateY(-7px);
+  max-width: min(680px, 58vw) !important;
+}
+
+.dict-title-inline-input {
+  width: min(520px, 44vw) !important;
+  height: 58px !important;
+  font: 900 clamp(28px, 4vw, 58px)/1 Orbitron, Rajdhani, sans-serif !important;
+  letter-spacing: .16em !important;
+  text-transform: uppercase !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255, 72, 72, .46) !important;
+  background: rgba(8, 12, 17, .74) !important;
+  color: rgba(255,255,255,.96) !important;
+  box-shadow: 0 0 24px rgba(255,70,64,.20), inset 0 0 18px rgba(255,70,64,.08) !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-title-inline-input,
+body[data-theme="light"].dicts-page .dict-title-inline-input,
+body.dicts-page.dicts-theme-light .dict-title-inline-input {
+  background: rgba(255,255,255,.86) !important;
+  color: #1f2a38 !important;
+  border-color: rgba(255, 62, 62, .42) !important;
+  box-shadow: 0 0 20px rgba(255,70,64,.12), inset 0 0 0 1px rgba(255,255,255,.76) !important;
+}
+
+.dict-title-inline-edit .dict-icon-mini {
+  flex: 0 0 38px !important;
+}
+
+/* Старий окремий блок зміни назви більше не використовується */
+.dict-structure-title-editor {
+  display: none !important;
+}
+
+/* cache-marker: BASTION-DICTS-CREATE-AND-TITLE-POLISH-v209 */
