@@ -2,11 +2,36 @@
 (() => {
   function syncDictsThemeClass() {
     const theme = document.documentElement.getAttribute("data-theme") || document.body?.getAttribute("data-theme") || "dark";
-    document.body?.classList.toggle("dicts-theme-light", theme === "light");
-    document.body?.classList.toggle("dicts-theme-dark", theme !== "light");
+    const isLight = theme === "light";
+
+    document.body?.classList.toggle("dicts-theme-light", isLight);
+    document.body?.classList.toggle("dicts-theme-dark", !isLight);
+
+    // Надійно прибираємо червоний конус у світлій темі навіть якщо старий CSS ще у кеші.
+    document.querySelectorAll(".dicts-light-cone").forEach((el) => {
+      if (isLight) {
+        el.setAttribute("hidden", "");
+        el.setAttribute("aria-hidden", "true");
+        el.style.setProperty("display", "none", "important");
+        el.style.setProperty("visibility", "hidden", "important");
+        el.style.setProperty("opacity", "0", "important");
+      } else {
+        el.removeAttribute("hidden");
+        el.style.removeProperty("display");
+        el.style.removeProperty("visibility");
+        el.style.removeProperty("opacity");
+      }
+    });
+
+    // Окрема тема для модалок довідників: світла модалка як профільна картка.
+    document.querySelectorAll(".dict-modal").forEach((modal) => {
+      modal.classList.toggle("dict-modal--theme-light", isLight);
+      modal.classList.toggle("dict-modal--theme-dark", !isLight);
+    });
   }
   syncDictsThemeClass();
   new MutationObserver(syncDictsThemeClass).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  if (document.body) new MutationObserver(syncDictsThemeClass).observe(document.body, { attributes: true, attributeFilter: ["data-theme"] });
 
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -371,6 +396,7 @@
   async function openManageModal(item) {
     currentDict = item;
     ensureDictModalInBody(manageModal);
+    syncDictsThemeClass();
     manageModal?.classList.add("is-open");
     manageModal?.setAttribute("aria-hidden", "false");
     document.body.classList.add("dict-modal-open");
