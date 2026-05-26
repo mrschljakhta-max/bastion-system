@@ -226,6 +226,7 @@
     [profileLoginPanel, profileAccessPanel].forEach((panel) => {
       if (panel) panel.hidden = true;
     });
+    profileModal?.classList.remove("is-access-panel-open");
     profileAccessCard?.classList.remove("is-access-open");
     profileAccessToggle?.setAttribute("aria-expanded", "false");
     document.querySelectorAll("[data-profile-panel]").forEach((button) => button.classList.remove("is-active"));
@@ -242,6 +243,7 @@
       document.querySelector(`[data-profile-panel="${name}"]`)?.classList.add("is-active");
       if (name === "access") {
         profileAccessCard?.classList.add("is-access-open");
+        profileModal?.classList.add("is-access-panel-open");
         profileAccessToggle?.setAttribute("aria-expanded", "true");
       }
     }
@@ -498,6 +500,7 @@
       event.stopPropagation();
     }
 
+    hideInlinePanels();
     profileModal?.classList.remove("is-open");
     profileModal?.setAttribute("aria-hidden", "true");
     userMenuButton?.setAttribute("aria-expanded", "false");

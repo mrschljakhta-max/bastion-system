@@ -12432,3 +12432,95 @@ body.dict-modal-open .dict-modal.is-open {
     gap:8px !important;
   }
 }
+
+
+/* === BASTION Profile Modal v214: power button final polish === */
+#profileModal.bastion-profile-modal.is-access-panel-open .profile-action-zone,
+#profileModal.bastion-profile-modal.is-access-panel-open .profile-action-zone--power-only{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  transform:scale(.72) !important;
+  transition:opacity .16s ease, visibility .16s ease, transform .16s ease !important;
+}
+
+#profileModal.bastion-profile-modal .profile-action-zone,
+#profileModal.bastion-profile-modal .profile-action-zone--power-only{
+  width:72px !important;
+  height:72px !important;
+  right:92px !important;
+  bottom:66px !important;
+  overflow:visible !important;
+}
+
+#profileModal.bastion-profile-modal .profile-power-button{
+  width:72px !important;
+  height:72px !important;
+  min-width:72px !important;
+  min-height:72px !important;
+  max-width:72px !important;
+  max-height:72px !important;
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  border-radius:50% !important;
+  background:transparent !important;
+  background-color:transparent !important;
+  box-shadow:none !important;
+  filter:none !important;
+  overflow:visible !important;
+}
+
+#profileModal.bastion-profile-modal .profile-power-button::before,
+#profileModal.bastion-profile-modal .profile-power-button::after{
+  content:none !important;
+  display:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-power-img{
+  inset:0 !important;
+  width:72px !important;
+  height:72px !important;
+  max-width:none !important;
+  max-height:none !important;
+  object-fit:contain !important;
+  object-position:center !important;
+  filter:none !important;
+  box-shadow:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-power-button:hover{
+  transform:scale(1.045) !important;
+  filter:none !important;
+  box-shadow:none !important;
+}
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-power-button{
+  background:transparent !important;
+  box-shadow:none !important;
+  filter:none !important;
+}
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-power-img{
+  filter:none !important;
+  box-shadow:none !important;
+}
+
+@media (max-width:980px){
+  #profileModal.bastion-profile-modal .profile-action-zone,
+  #profileModal.bastion-profile-modal .profile-action-zone--power-only{
+    width:62px !important;
+    height:62px !important;
+    right:60px !important;
+    bottom:42px !important;
+  }
+  #profileModal.bastion-profile-modal .profile-power-button,
+  #profileModal.bastion-profile-modal .profile-power-img{
+    width:62px !important;
+    height:62px !important;
+    min-width:62px !important;
+    min-height:62px !important;
+    max-width:62px !important;
+    max-height:62px !important;
+  }
+}
