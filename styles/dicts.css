@@ -1681,15 +1681,15 @@ body[data-theme="light"].dicts-page .dict-folder:hover {
 
 :root[data-theme="light"] body.dicts-page .dicts-projector-wrap,
 body[data-theme="light"].dicts-page .dicts-projector-wrap {
-  bottom: 42px;
+  bottom: 26px;
   width: min(980px, 66vw);
-  height: 135px;
+  height: 150px;
 }
 
 :root[data-theme="light"] body.dicts-page .dicts-projector,
 body[data-theme="light"].dicts-page .dicts-projector {
-  content: url("../assets/ui/dicts-projector-light-v186.png");
-  width: min(700px, 50vw);
+  content: url("../assets/ui/dicts-projector-light-v185.png");
+  width: min(820px, 58vw);
   height: auto;
   max-height: none;
   object-fit: contain;
@@ -1703,4 +1703,123 @@ body[data-theme="light"].dicts-page .dicts-light-core {
   height: 28px;
   opacity: .62;
   filter: blur(10px);
+}
+
+/* =========================================================
+   BASTION DICTS v187 — light theme scale correction
+   Менший масштаб світлої каруселі на 100% zoom + проміжок над проектором.
+   ========================================================= */
+:root[data-theme="light"] body.dicts-page .dicts-carousel-wrap,
+body[data-theme="light"].dicts-page .dicts-carousel-wrap {
+  top: 24.2%;
+  width: min(1280px, 86vw);
+  height: 330px;
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-carousel,
+body[data-theme="light"].dicts-page .dicts-carousel {
+  width: min(1220px, 84vw);
+  height: 310px;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--active,
+body[data-theme="light"].dicts-page .dict-folder--active {
+  width: 350px;
+  height: 278px;
+  transform: translate(-50%, -60%) scale(1);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--mid,
+body[data-theme="light"].dicts-page .dict-folder--mid {
+  width: 255px;
+  height: 203px;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--side,
+body[data-theme="light"].dicts-page .dict-folder--side {
+  width: 190px;
+  height: 151px;
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="-2"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="-2"] {
+  transform: translate(calc(-50% - 500px), -48%) scale(.86);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="-1"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="-1"] {
+  transform: translate(calc(-50% - 275px), -54%) scale(.94);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="0"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="0"] {
+  transform: translate(-50%, -60%) scale(1);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="1"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="1"] {
+  transform: translate(calc(-50% + 275px), -54%) scale(.94);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder[data-slot="2"],
+body[data-theme="light"].dicts-page .dict-folder[data-slot="2"] {
+  transform: translate(calc(-50% + 500px), -48%) scale(.86);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--active .dict-folder__title,
+body[data-theme="light"].dicts-page .dict-folder--active .dict-folder__title {
+  font-size: clamp(16px, 1vw, 21px);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--active .dict-folder__count,
+body[data-theme="light"].dicts-page .dict-folder--active .dict-folder__count {
+  font-size: clamp(9px, .62vw, 12px);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--mid .dict-folder__title,
+body[data-theme="light"].dicts-page .dict-folder--mid .dict-folder__title {
+  font-size: clamp(9px, .58vw, 11.5px);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--mid .dict-folder__count,
+body[data-theme="light"].dicts-page .dict-folder--mid .dict-folder__count {
+  font-size: clamp(6.5px, .42vw, 8px);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--side .dict-folder__title,
+body[data-theme="light"].dicts-page .dict-folder--side .dict-folder__title {
+  font-size: clamp(7px, .45vw, 9px);
+}
+
+:root[data-theme="light"] body.dicts-page .dict-folder--side .dict-folder__count,
+body[data-theme="light"].dicts-page .dict-folder--side .dict-folder__count {
+  font-size: clamp(5.5px, .34vw, 7px);
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-projector-wrap,
+body[data-theme="light"].dicts-page .dicts-projector-wrap {
+  bottom: 64px;
+  width: min(720px, 44vw);
+  height: 120px;
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-projector,
+body[data-theme="light"].dicts-page .dicts-projector {
+  width: min(560px, 38vw);
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-light-core,
+body[data-theme="light"].dicts-page .dicts-light-core {
+  bottom: 27px;
+  width: 96px;
+  height: 22px;
+  opacity: .52;
+}
+
+:root[data-theme="light"] body.dicts-page .dicts-light-cone,
+body[data-theme="light"].dicts-page .dicts-light-cone {
+  bottom: 112px;
+  width: min(900px, 58vw);
+  height: 390px;
+  opacity: .56;
 }
