@@ -3,6 +3,7 @@
 /* =========================================================
    BASTION DICTS v196 — table modal UX refinement
    ========================================================= */
+
 html[data-theme="light"] body.dicts-page .dict-modal__panel,
 html[data-theme="light"] body.dicts-page .dict-modal__panel--wide,
 html[data-theme="light"] body.dicts-page .dict-view-panel,
@@ -21,38 +22,16 @@ body.dicts-page.dicts-theme-light .dict-view-panel {
     0 0 24px rgba(255,70,62,.10) !important;
 }
 
-html[data-theme="light"] body.dicts-page .dict-modal__panel::before,
-html[data-theme="light"] body.dicts-page .dict-view-panel::before,
-body[data-theme="light"].dicts-page .dict-modal__panel::before,
-body[data-theme="light"].dicts-page .dict-view-panel::before,
-body.dicts-page.dicts-theme-light .dict-modal__panel::before,
-body.dicts-page.dicts-theme-light .dict-view-panel::before {
-  background: none !important;
-  box-shadow: none !important;
-}
-
-html[data-theme="light"] body.dicts-page .dict-modal__panel::after,
-html[data-theme="light"] body.dicts-page .dict-view-panel::after,
-body[data-theme="light"].dicts-page .dict-modal__panel::after,
-body[data-theme="light"].dicts-page .dict-view-panel::after,
-body.dicts-page.dicts-theme-light .dict-modal__panel::after,
-body.dicts-page.dicts-theme-light .dict-view-panel::after {
-  opacity: .045 !important;
-}
-
 .dict-modal__panel--wide.dict-view-panel {
   overflow-y: auto !important;
   overflow-x: hidden !important;
 }
 
 .dict-table-wrap,
-.dict-table-wrap--clean {
-  max-height: none !important;
-  overflow: visible !important;
-}
-
+.dict-table-wrap--clean,
 .dict-records-card,
 .dict-records-card--clean {
+  max-height: none !important;
   overflow: visible !important;
 }
 
@@ -67,81 +46,26 @@ body.dicts-page.dicts-theme-light .dict-view-panel::after {
   width: auto !important;
   height: 58px !important;
   padding: 0 22px !important;
-  gap: 12px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
   border-radius: 18px !important;
-  color: #ff2a2f !important;
-  font-size: 0 !important;
 }
 
 .dict-floating-plus::after {
   content: "ДОДАТИ ЗАПИС" !important;
-  position: static !important;
-  width: auto !important;
-  height: auto !important;
-  background: none !important;
-  border: 0 !important;
-  transform: none !important;
   font: 900 20px/1.05 Orbitron, Rajdhani, sans-serif !important;
   letter-spacing: .08em !important;
   color: #ff3438 !important;
-  text-shadow: 0 0 12px rgba(255,52,56,.34) !important;
-}
-
-.dict-floating-plus > img {
-  width: 25px !important;
-  height: 25px !important;
-  flex: 0 0 auto !important;
 }
 
 .dict-row-editor--inline td {
   background: rgba(255, 246, 245, .72) !important;
-  vertical-align: middle !important;
-}
-
-.dict-row-editor--inline .dict-cell-input {
-  min-width: 100px !important;
-  height: 38px !important;
-  border-radius: 10px !important;
-}
-
-.dict-row-actions--editor {
-  white-space: nowrap !important;
-}
-
-.dict-icon-mini--accept,
-.dict-icon-mini--cancel {
-  width: 38px !important;
-  height: 38px !important;
 }
 
 .dict-icon-mini--accept {
   border-color: rgba(0, 214, 156, .42) !important;
-  box-shadow: 0 0 16px rgba(0, 214, 156, .16), inset 0 0 12px rgba(0, 214, 156, .08) !important;
-}
-
-.dict-icon-mini--accept > img {
-  filter: brightness(0) saturate(100%) invert(65%) sepia(82%) saturate(1267%) hue-rotate(112deg) brightness(96%) contrast(101%) drop-shadow(0 0 7px rgba(0,214,156,.32)) !important;
 }
 
 .dict-icon-mini--cancel > img {
-  filter: brightness(0) saturate(100%) invert(27%) sepia(97%) saturate(2394%) hue-rotate(343deg) brightness(105%) contrast(105%) drop-shadow(0 0 7px rgba(255,64,64,.26)) !important;
-}
-
-html[data-theme="light"] body.dicts-page .dict-row-editor--inline td,
-body[data-theme="light"].dicts-page .dict-row-editor--inline td,
-body.dicts-page.dicts-theme-light .dict-row-editor--inline td {
-  background: rgba(255,255,255,.76) !important;
-}
-
-html[data-theme="light"] body.dicts-page .dict-row-editor--inline .dict-cell-input,
-body[data-theme="light"].dicts-page .dict-row-editor--inline .dict-cell-input,
-body.dicts-page.dicts-theme-light .dict-row-editor--inline .dict-cell-input {
-  color: #263544 !important;
-  background: rgba(255,255,255,.88) !important;
-  border-color: rgba(225,64,60,.25) !important;
+  filter: brightness(0) saturate(100%) invert(27%) sepia(97%) saturate(2394%) hue-rotate(343deg) brightness(105%) contrast(105%) !important;
 }
 
 /* cache-marker: BASTION-DICTS-TABLE-UX-v196 */
