@@ -1,4 +1,4 @@
-/* BASTION Profile Panel v209
+/* BASTION Profile Panel v212
    Opens profile command modal from the right HUD plate and performs logout.
    Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
@@ -21,10 +21,9 @@
   const profileLoginValue = byId("profileLoginValue");
   const profileEmail = byId("profileEmail");
   const profileRole = byId("profileRole");
-  const profileStatus = byId("profileStatus");
-  const profileSession = byId("profileSession");
   const profileAvatarEditButton = byId("profileAvatarEditButton");
   const profileAvatarInput = byId("profileAvatarInput");
+  const profileLoginQuickEditButton = byId("profileLoginQuickEditButton");
   const profileLoginInput = byId("profileLoginInput");
   const profileSaveLoginButton = byId("profileSaveLoginButton");
   const profileAccessComment = byId("profileAccessComment");
@@ -164,10 +163,9 @@
       fitTextToBox(profileLoginValue, { min: 13, max: 21, step: 1 });
       fitTextToBox(profileEmail, { min: 12, max: 21, step: 1 });
       fitTextToBox(profileRole, { min: 13, max: 21, step: 1 });
-      fitTextToBox(profileSession, { min: 13, max: 21, step: 1 });
 
       document.querySelectorAll("[data-profile-fit]").forEach((element) => {
-        if (![profileLogin, profileLoginValue, profileEmail, profileRole, profileSession].includes(element)) {
+        if (![profileLogin, profileLoginValue, profileEmail, profileRole].includes(element)) {
           fitTextToBox(element, { min: 11, max: 20, step: 1 });
         }
       });
@@ -176,8 +174,33 @@
 
   function setText(el, value) {
     if (!el) return;
-    el.textContent = value;
+    if ("value" in el) el.value = value;
+    else el.textContent = value;
     el.setAttribute("title", value);
+  }
+
+  function readText(el) {
+    if (!el) return "";
+    return safeText(("value" in el ? el.value : el.textContent) || "");
+  }
+
+  function setLoginQuickEditMode(isEditing) {
+    if (!profileLoginValue || !profileLoginQuickEditButton) return;
+    profileLoginValue.toggleAttribute("readonly", !isEditing);
+    profileLoginValue.classList.toggle("is-editing", isEditing);
+    profileLoginQuickEditButton.classList.toggle("is-saving", isEditing);
+    profileLoginQuickEditButton.setAttribute("aria-label", isEditing ? "Підтвердити логін" : "Редагувати логін");
+    profileLoginQuickEditButton.dataset.tooltip = isEditing ? "Підтвердити логін" : "Редагувати логін";
+    if (isEditing) {
+      setTimeout(() => {
+        profileLoginValue.focus();
+        profileLoginValue.select?.();
+      }, 20);
+    }
+  }
+
+  function isLoginQuickEditing() {
+    return !!profileLoginValue && !profileLoginValue.hasAttribute("readonly");
   }
 
   function applyProfile(profile = {}) {
@@ -196,8 +219,6 @@
     setText(profileLoginValue, login);
     setText(profileEmail, emailLabel);
     setText(profileRole, role);
-    setText(profileStatus, "ACTIVE");
-    setText(profileSession, email ? "Захищена" : "Локальна");
 
     if (avatar) {
       if (userAvatarTop) userAvatarTop.src = avatar;
@@ -234,7 +255,7 @@
     }
 
     if (name === "login" && profileLoginInput) {
-      profileLoginInput.value = profileLoginValue?.textContent?.trim() || "";
+      profileLoginInput.value = readText(profileLoginValue) || "";
       setTimeout(() => profileLoginInput.focus(), 30);
     }
 
@@ -301,7 +322,7 @@
   }
 
   async function saveLogin() {
-    const nextLogin = safeText(profileLoginInput?.value || "");
+    const nextLogin = safeText((isLoginQuickEditing() ? profileLoginValue?.value : profileLoginInput?.value) || "");
     if (nextLogin.length < 3) {
       setInlineStatus("Логін має містити щонайменше 3 символи.", "error");
       return;
@@ -320,7 +341,7 @@
     }
 
     const currentEmail = safeText(profileEmail?.textContent || localStorage.getItem("bastion_email") || "");
-    const currentRole = normalizeRole(profileRole?.textContent || localStorage.getItem("bastion_role") || "DEMO");
+    const currentRole = normalizeRole(readText(profileRole) || localStorage.getItem("bastion_role") || "DEMO");
     applyProfile({
       login: nextLogin,
       email: currentEmail === "email не визначено" ? "" : currentEmail,
@@ -343,13 +364,14 @@
     }
 
     setInlineStatus("Логін оновлено.", "success");
+    setLoginQuickEditMode(false);
     setTimeout(hideInlinePanels, 700);
   }
 
   async function submitAccessRequest() {
     const selected = document.querySelector('input[name="profileAccessLevel"]:checked');
     const requestedLevel = normalizeRole(selected?.value || "");
-    const currentLevel = normalizeRole(profileRole?.textContent || "DEMO");
+    const currentLevel = normalizeRole(readText(profileRole) || "DEMO");
     const comment = safeText(profileAccessComment?.value || "");
 
     if (!requestedLevel) {
@@ -362,8 +384,8 @@
       return;
     }
 
-    const email = safeText(profileEmail?.textContent || localStorage.getItem("bastion_email") || "");
-    const login = safeText(profileLoginValue?.textContent || localStorage.getItem("bastion_login") || "");
+    const email = readText(profileEmail) || safeText(localStorage.getItem("bastion_email") || "");
+    const login = readText(profileLoginValue) || safeText(localStorage.getItem("bastion_login") || "");
 
     try {
       const pending = JSON.parse(localStorage.getItem("bastion_access_requests") || "[]");
@@ -480,6 +502,7 @@
       event.stopPropagation();
     }
 
+    setLoginQuickEditMode(false);
     profileModal?.classList.remove("is-open");
     profileModal?.setAttribute("aria-hidden", "true");
     userMenuButton?.setAttribute("aria-expanded", "false");
@@ -535,6 +558,26 @@
       const file = event.target?.files?.[0];
       handleAvatarFile(file);
       if (profileAvatarInput) profileAvatarInput.value = "";
+    });
+
+    profileLoginQuickEditButton?.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (isLoginQuickEditing()) saveLogin();
+      else setLoginQuickEditMode(true);
+    });
+
+    profileLoginValue?.addEventListener("keydown", (event) => {
+      if (!isLoginQuickEditing()) return;
+      if (event.key === "Enter") {
+        event.preventDefault();
+        saveLogin();
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setText(profileLoginValue, profileLogin?.textContent || getLocalProfile().login);
+        setLoginQuickEditMode(false);
+      }
     });
 
     document.querySelectorAll("[data-profile-panel]").forEach((button) => {

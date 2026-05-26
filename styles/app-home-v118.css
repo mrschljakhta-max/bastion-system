@@ -12030,3 +12030,275 @@ body.dict-modal-open .dict-modal.is-open {
     transform:translate3d(76px,-50%,0) !important;
   }
 }
+
+/* =========================================================
+   BASTION PROFILE MODAL v212 — clean info layout + inline login edit
+   ========================================================= */
+#profileModal.bastion-profile-modal .profile-card__left{
+  position:relative !important;
+}
+
+#profileModal.bastion-profile-modal .profile-core-caption{
+  display:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor{
+  position:absolute !important;
+  left:38px !important;
+  right:38px !important;
+  bottom:42px !important;
+  z-index:5 !important;
+  min-height:66px !important;
+  padding:10px 12px 10px 18px !important;
+  border:1px solid rgba(255,60,70,.28) !important;
+  background:linear-gradient(90deg, rgba(11,13,18,.68), rgba(18,8,11,.54)) !important;
+  box-shadow:inset 0 0 20px rgba(255,30,42,.055), 0 0 18px rgba(255,30,42,.08) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor label{
+  display:block !important;
+  margin:0 0 3px !important;
+  color:#ff6570 !important;
+  font:900 12px/1 Rajdhani, Orbitron, sans-serif !important;
+  letter-spacing:.18em !important;
+  text-transform:uppercase !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor__box{
+  display:grid !important;
+  grid-template-columns:1fr 42px !important;
+  align-items:center !important;
+  gap:10px !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor__input{
+  width:100% !important;
+  min-width:0 !important;
+  height:34px !important;
+  padding:0 !important;
+  color:#fff !important;
+  font:900 24px/1 Rajdhani, Orbitron, sans-serif !important;
+  letter-spacing:.04em !important;
+  background:transparent !important;
+  border:0 !important;
+  outline:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+  text-shadow:0 0 10px rgba(255,255,255,.18) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor__input.is-editing{
+  padding:0 8px !important;
+  border-radius:7px !important;
+  background:rgba(255,255,255,.06) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,60,70,.36), 0 0 14px rgba(255,35,45,.18) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor__button{
+  position:relative !important;
+  width:38px !important;
+  height:38px !important;
+  display:grid !important;
+  place-items:center !important;
+  border-radius:9px !important;
+  border:1px solid rgba(255,80,90,.42) !important;
+  color:#fff !important;
+  background:linear-gradient(145deg, rgba(255,65,75,.80), rgba(88,8,14,.88)) !important;
+  box-shadow:inset 0 0 12px rgba(255,255,255,.12), 0 0 20px rgba(255,40,50,.22) !important;
+  cursor:pointer !important;
+  transition:transform .18s ease, filter .18s ease, box-shadow .18s ease !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor__button:hover{
+  transform:translateY(-1px) scale(1.04) !important;
+  filter:brightness(1.15) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor__icon{
+  position:absolute !important;
+  inset:0 !important;
+  display:grid !important;
+  place-items:center !important;
+  font:900 21px/1 Rajdhani, Orbitron, sans-serif !important;
+  transition:opacity .18s ease, transform .18s ease !important;
+}
+
+#profileModal.bastion-profile-modal .profile-login-editor__icon--save{
+  opacity:0 !important;
+  transform:scale(.75) rotate(-12deg) !important;
+}
+#profileModal.bastion-profile-modal .profile-login-editor__button.is-saving .profile-login-editor__icon--edit{
+  opacity:0 !important;
+  transform:scale(.75) rotate(12deg) !important;
+}
+#profileModal.bastion-profile-modal .profile-login-editor__button.is-saving .profile-login-editor__icon--save{
+  opacity:1 !important;
+  transform:scale(1) rotate(0deg) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-data.profile-data--compact{
+  display:grid !important;
+  grid-template-columns:1fr !important;
+  gap:12px !important;
+  margin-top:22px !important;
+  width:min(650px, 100%) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-data.profile-data--compact .profile-data__item{
+  min-height:64px !important;
+  display:grid !important;
+  grid-template-columns:175px minmax(0,1fr) 34px !important;
+  align-items:center !important;
+  gap:14px !important;
+  padding:0 16px 0 18px !important;
+}
+
+#profileModal.bastion-profile-modal .profile-data.profile-data--compact .profile-data__item--email{
+  grid-template-columns:175px minmax(0,1fr) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-data.profile-data--compact dt{
+  margin:0 !important;
+}
+
+#profileModal.bastion-profile-modal .profile-data.profile-data--compact dd{
+  justify-self:start !important;
+  text-align:left !important;
+  max-width:100% !important;
+}
+
+#profileModal.bastion-profile-modal .profile-data__item--role{
+  cursor:pointer !important;
+  transition:filter .18s ease, transform .18s ease, box-shadow .18s ease !important;
+}
+#profileModal.bastion-profile-modal .profile-data__item--role:hover{
+  filter:brightness(1.12) !important;
+  transform:translateY(-1px) !important;
+  box-shadow:inset 0 0 18px rgba(255,30,42,.10), 0 0 18px rgba(255,35,45,.12) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-role-chevron{
+  width:24px !important;
+  height:24px !important;
+  object-fit:contain !important;
+  justify-self:end !important;
+  filter:drop-shadow(0 0 8px rgba(255,35,45,.65)) !important;
+  opacity:.92 !important;
+}
+
+#profileModal.bastion-profile-modal .profile-action-zone--power-only{
+  position:absolute !important;
+  right:118px !important;
+  bottom:76px !important;
+  width:84px !important;
+  height:84px !important;
+  min-height:0 !important;
+  display:block !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  pointer-events:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-action-zone--power-only::before,
+#profileModal.bastion-profile-modal .profile-action-zone--power-only::after{
+  display:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-power-button{
+  position:absolute !important;
+  inset:0 !important;
+  width:84px !important;
+  height:84px !important;
+  display:block !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:50% !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  overflow:visible !important;
+  pointer-events:auto !important;
+}
+
+#profileModal.bastion-profile-modal .profile-power-button__img{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  transition:opacity .22s ease, transform .18s ease, filter .18s ease !important;
+  user-select:none !important;
+  pointer-events:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-power-button__img--dark{ opacity:1 !important; }
+#profileModal.bastion-profile-modal .profile-power-button__img--light{ opacity:0 !important; }
+#profileModal.bastion-profile-modal .profile-power-button:hover .profile-power-button__img{
+  transform:scale(1.06) !important;
+  filter:brightness(1.12) drop-shadow(0 0 14px rgba(255,35,45,.35)) !important;
+}
+
+#profileModal.bastion-profile-modal .profile-power-button > span{
+  display:none !important;
+}
+
+#profileModal.bastion-profile-modal .profile-inline-panel{
+  width:min(650px,100%) !important;
+  min-height:132px !important;
+  margin:16px 0 0 !important;
+}
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-backdrop,
+:root[data-theme="light"] .profile-backdrop{
+  background:
+    radial-gradient(circle at 42% 45%, rgba(255,255,255,.72), rgba(255,255,255,.38) 28%, rgba(244,249,252,.62) 58%, rgba(224,233,240,.70) 100%) !important;
+  backdrop-filter:blur(15px) saturate(1.12) brightness(1.06) !important;
+}
+
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-editor{
+  background:linear-gradient(90deg, rgba(255,255,255,.70), rgba(255,245,246,.52)) !important;
+  border-color:rgba(255,56,66,.22) !important;
+  box-shadow:inset 0 0 20px rgba(255,30,42,.045), 0 10px 28px rgba(31,43,55,.10) !important;
+}
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-editor__input{
+  color:#202936 !important;
+  text-shadow:none !important;
+}
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-login-editor__button{
+  color:#ff202b !important;
+  background:linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,226,230,.82)) !important;
+  border-color:rgba(255,45,56,.32) !important;
+  box-shadow:0 0 18px rgba(255,45,56,.18), inset 0 0 12px rgba(255,40,50,.08) !important;
+}
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-role-chevron{
+  filter:drop-shadow(0 0 7px rgba(255,35,45,.36)) !important;
+}
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-power-button__img--dark{ opacity:0 !important; }
+:root[data-theme="light"] #profileModal.bastion-profile-modal .profile-power-button__img--light{ opacity:1 !important; }
+
+@media (max-width:980px){
+  #profileModal.bastion-profile-modal .profile-login-editor{
+    left:24px !important;
+    right:24px !important;
+    bottom:30px !important;
+  }
+  #profileModal.bastion-profile-modal .profile-data.profile-data--compact .profile-data__item{
+    grid-template-columns:135px minmax(0,1fr) 28px !important;
+  }
+  #profileModal.bastion-profile-modal .profile-data.profile-data--compact .profile-data__item--email{
+    grid-template-columns:135px minmax(0,1fr) !important;
+  }
+  #profileModal.bastion-profile-modal .profile-action-zone--power-only{
+    right:72px !important;
+    bottom:54px !important;
+    width:68px !important;
+    height:68px !important;
+  }
+  #profileModal.bastion-profile-modal .profile-power-button{
+    width:68px !important;
+    height:68px !important;
+  }
+}
