@@ -1,4 +1,4 @@
-/* BASTION DICTS v205 — active toolbar mode toggles */
+/* BASTION DICTS v206 — dictionary column structure edit mode */
 (() => {
   const carousel = document.getElementById("dictsCarousel");
   const left = document.querySelector(".dicts-arrow--left");
@@ -69,13 +69,19 @@
     lng: "Довгота"
   };
 
-  function columnLabel(key) {
+  function baseColumnLabel(key) {
     const raw = String(key || "").trim();
     const normalized = raw.toLowerCase();
     if (columnLabels[normalized]) return columnLabels[normalized];
     return raw
       .replace(/_/g, " ")
       .replace(/\b\w/g, (m) => m.toUpperCase());
+  }
+
+  function columnLabel(key) {
+    const raw = String(key || "").trim();
+    const custom = columnPrefs?.labels?.[raw];
+    return custom || baseColumnLabel(raw);
   }
 
   function actionIcon(name) {
@@ -89,6 +95,7 @@
   let currentDict = null;
   let currentColumns = [];
   let currentRows = [];
+  let columnPrefs = { hidden: {}, labels: {} };
 
   function createSupabaseClient() {
     const cfg = window.BASTION_CONFIG || {};
@@ -117,6 +124,51 @@
       .replace(/[ч]/g, "ch").replace(/[ш]/g, "sh").replace(/[щ]/g, "shch").replace(/[ю]/g, "yu")
       .replace(/[я]/g, "ya").replace(/[ь'’`]/g, "")
       .replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").replace(/^([0-9])/, "col_$1");
+  }
+
+
+  function prefsStorageKey() {
+    return `bastion:dict-column-prefs:${currentDict?.table_name || "unknown"}`;
+  }
+
+  function loadColumnPrefs() {
+    columnPrefs = { hidden: {}, labels: {} };
+    try {
+      const raw = localStorage.getItem(prefsStorageKey());
+      if (raw) columnPrefs = { hidden: {}, labels: {}, ...JSON.parse(raw) };
+    } catch (error) {
+      columnPrefs = { hidden: {}, labels: {} };
+    }
+  }
+
+  function saveColumnPrefs() {
+    try {
+      localStorage.setItem(prefsStorageKey(), JSON.stringify(columnPrefs));
+    } catch (error) {
+      console.warn("Не вдалося зберегти налаштування колонок", error);
+    }
+  }
+
+  function isColumnVisible(columnName) {
+    return columnPrefs?.hidden?.[columnName] !== true;
+  }
+
+  function setColumnVisible(columnName, visible) {
+    if (!columnPrefs.hidden) columnPrefs.hidden = {};
+    columnPrefs.hidden[columnName] = !visible;
+    saveColumnPrefs();
+  }
+
+  function setColumnCustomLabel(columnName, label) {
+    if (!columnPrefs.labels) columnPrefs.labels = {};
+    const clean = String(label || "").trim();
+    if (!clean || clean === baseColumnLabel(columnName)) delete columnPrefs.labels[columnName];
+    else columnPrefs.labels[columnName] = clean;
+    saveColumnPrefs();
+  }
+
+  function isProtectedStructureColumn(columnName) {
+    return columnName === "__rownum" || columnName === "name" || columnName === "is_active" || protectedColumns.has(columnName);
   }
 
   function normalizeType(type) {
@@ -353,6 +405,7 @@
     currentDict = null;
     currentColumns = [];
     currentRows = [];
+    columnPrefs = { hidden: {}, labels: {} };
     setEditMode(false);
     if (sortPanel) sortPanel.hidden = true;
     setExportMode(false);
@@ -364,6 +417,7 @@
 
   async function openManageModal(item) {
     currentDict = item;
+    loadColumnPrefs();
     ensureDictModalInBody(manageModal);
     manageModal?.classList.add("is-open");
     manageModal?.setAttribute("aria-hidden", "false");
@@ -392,6 +446,7 @@
       currentColumns = data || [];
     }
     renderColumnsManager();
+    renderStructureEditPanel();
     refreshSortOptions();
   }
 
@@ -402,7 +457,7 @@
   // Columns visible in the dictionary table.
   // We hide only service fields. Every user-created column is shown equally, Excel-style.
   function displayColumns() {
-    return currentColumns.filter((c) => !protectedColumns.has(c.column_name));
+    return currentColumns.filter((c) => !protectedColumns.has(c.column_name) && isColumnVisible(c.column_name));
   }
 
   // Columns writable in add/edit rows. is_active remains writable as a checkbox.
@@ -461,6 +516,113 @@
       }
       columnsManager.appendChild(row);
     });
+  }
+
+  function structureColumns() {
+    return [
+      { column_name: "__rownum", data_type: "integer", virtual: true },
+      ...currentColumns.filter((c) => !protectedColumns.has(c.column_name))
+    ];
+  }
+
+  function renderStructureEditPanel() {
+    if (!editPanel) return;
+    const rows = structureColumns();
+    editPanel.innerHTML = `
+      <section class="dict-structure-card">
+        <header class="dict-structure-head">
+          <div>
+            <h3>СТРУКТУРА ДОВІДНИКА</h3>
+            <p>Керуйте назвами, видимістю та колонками поточного довідника.</p>
+          </div>
+        </header>
+        <div class="dict-structure-table-wrap">
+          <table id="dictStructureTable" class="dict-records-table dict-structure-table">
+            <thead>
+              <tr>
+                <th class="dict-col-num">№</th>
+                <th>Назва колонки</th>
+                <th>Активна</th>
+                <th class="dict-col-actions">Дії</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map((col, index) => renderStructureRow(col, index)).join("")}
+            </tbody>
+          </table>
+        </div>
+      </section>`;
+  }
+
+  function renderStructureRow(col, index) {
+    const name = col.column_name;
+    const protectedCol = isProtectedStructureColumn(name);
+    const deleteDisabled = protectedCol || col.virtual;
+    const visible = isColumnVisible(name);
+    return `<tr class="dict-structure-row${protectedCol ? " is-protected" : ""}" data-column="${escapeHtml(name)}">
+      <td class="dict-col-num">${index + 1}</td>
+      <td class="dict-structure-name-cell">
+        <span class="dict-structure-name" data-column-label>${escapeHtml(columnLabel(name))}</span>
+        <small>${escapeHtml(name === "__rownum" ? "system:number" : name)}</small>
+      </td>
+      <td>
+        <input class="dict-cell-check" type="checkbox" data-column-visible ${visible ? "checked" : ""} aria-label="Показувати колонку ${escapeHtml(columnLabel(name))}">
+      </td>
+      <td class="dict-row-actions dict-structure-actions">
+        <button type="button" class="dict-icon-mini dict-svg-button" data-structure-edit title="Перейменувати колонку" aria-label="Перейменувати колонку">${actionIcon("pencil")}</button>
+        <button type="button" class="dict-icon-mini dict-icon-mini--danger dict-svg-button" data-structure-delete ${deleteDisabled ? "disabled" : ""} title="${deleteDisabled ? "Системну колонку неможливо видалити" : "Видалити колонку"}" aria-label="Видалити колонку">${actionIcon("trash")}</button>
+      </td>
+    </tr>`;
+  }
+
+  function startStructureNameEdit(row) {
+    const colName = row?.dataset?.column;
+    if (!colName) return;
+    const cell = row.querySelector(".dict-structure-name-cell");
+    const actions = row.querySelector(".dict-structure-actions");
+    if (!cell || !actions || cell.querySelector("input")) return;
+    const current = columnLabel(colName);
+    cell.innerHTML = `<input class="dict-cell-input dict-structure-name-input" type="text" data-structure-name-input value="${escapeHtml(current)}" aria-label="Нова назва колонки">
+      <small>${escapeHtml(colName === "__rownum" ? "system:number" : colName)}</small>`;
+    actions.innerHTML = `
+      <button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-structure-save title="Зберегти назву" aria-label="Зберегти назву">${actionIcon("check")}</button>
+      <button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-structure-cancel title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button>`;
+    cell.querySelector("input")?.focus();
+  }
+
+  function saveStructureName(row) {
+    const colName = row?.dataset?.column;
+    const input = row?.querySelector("[data-structure-name-input]");
+    if (!colName || !input) return;
+    setColumnCustomLabel(colName, input.value);
+    renderStructureEditPanel();
+    renderRecordsTable();
+    refreshSortOptions();
+    setManageStatus("Назву колонки збережено.", "success");
+  }
+
+  function handleStructureClick(event) {
+    const row = event.target.closest(".dict-structure-row");
+    if (!row) return;
+    if (event.target.closest("[data-structure-edit]")) startStructureNameEdit(row);
+    if (event.target.closest("[data-structure-save]")) saveStructureName(row);
+    if (event.target.closest("[data-structure-cancel]")) renderStructureEditPanel();
+    if (event.target.closest("[data-structure-delete]")) {
+      const btn = event.target.closest("[data-structure-delete]");
+      if (!btn.disabled) dropColumn(row.dataset.column);
+    }
+  }
+
+  function handleStructureChange(event) {
+    const input = event.target.closest("[data-column-visible]");
+    if (!input) return;
+    const row = input.closest(".dict-structure-row");
+    const colName = row?.dataset?.column;
+    if (!colName) return;
+    setColumnVisible(colName, input.checked);
+    renderRecordsTable();
+    refreshSortOptions();
+    setManageStatus(input.checked ? "Колонку відображено." : "Колонку приховано.", "success");
   }
 
   async function addColumnToCurrent() {
@@ -537,7 +699,8 @@
       ? (currentRows.findIndex((item) => String(item.id) === String(id)) + 1 || "")
       : (currentRows.length + 1);
     const cells = cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${inputForCell(row, c)}</td>`).join("");
-    return `<tr class="dict-row-editor dict-row-editor--inline${id ? " dict-row-editor--edit" : " dict-row-editor--new"}" data-editor-for="${escapeHtml(id || "new")}"><td class="dict-col-num">${rowNumber}</td>${cells}<td class="dict-row-actions dict-row-actions--editor"><button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-save-editor title="Зберегти запис" aria-label="Зберегти запис">${actionIcon("check")}</button><button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-cancel-editor title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button></td></tr>`;
+    const numberCell = isColumnVisible("__rownum") ? `<td class="dict-col-num">${rowNumber}</td>` : "";
+    return `<tr class="dict-row-editor dict-row-editor--inline${id ? " dict-row-editor--edit" : " dict-row-editor--new"}" data-editor-for="${escapeHtml(id || "new")}">${numberCell}${cells}<td class="dict-row-actions dict-row-actions--editor"><button type="button" class="dict-icon-mini dict-icon-mini--accept dict-svg-button" data-save-editor title="Зберегти запис" aria-label="Зберегти запис">${actionIcon("check")}</button><button type="button" class="dict-icon-mini dict-icon-mini--cancel dict-svg-button" data-cancel-editor title="Скасувати" aria-label="Скасувати">${actionIcon("x")}</button></td></tr>`;
   }
 
   function displayCellValue(row, col) {
@@ -556,15 +719,16 @@
     const cols = displayColumns();
     recordsTable.innerHTML = "";
     const thead = document.createElement("thead");
-    thead.innerHTML = `<tr><th class="dict-col-num">№</th>${cols.map((c) => `<th>${escapeHtml(columnLabel(c.column_name))}</th>`).join("")}<th class="dict-col-actions">Дії</th></tr>`;
+    const showNumber = isColumnVisible("__rownum");
+    thead.innerHTML = `<tr>${showNumber ? `<th class="dict-col-num">№</th>` : ""}${cols.map((c) => `<th>${escapeHtml(columnLabel(c.column_name))}</th>`).join("")}<th class="dict-col-actions">Дії</th></tr>`;
     const tbody = document.createElement("tbody");
     if (!currentRows.length) {
-      tbody.innerHTML = `<tr><td colspan="${cols.length + 2}" class="dict-empty-cell">Записів немає</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${cols.length + (showNumber ? 2 : 1)}" class="dict-empty-cell">Записів немає</td></tr>`;
     } else {
       currentRows.forEach((row, idx) => {
         const tr = document.createElement("tr");
         tr.dataset.id = row.id;
-        tr.innerHTML = `<td class="dict-col-num">${idx + 1}</td>${cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${displayCellValue(row, c)}</td>`).join("")}<td class="dict-row-actions"><button type="button" class="dict-icon-mini dict-svg-button" data-edit-row title="Редагувати запис" aria-label="Редагувати запис">${actionIcon("pencil")}</button><button type="button" class="dict-icon-mini dict-icon-mini--danger dict-svg-button" data-delete-row title="Видалити запис" aria-label="Видалити запис">${actionIcon("trash")}</button></td>`;
+        tr.innerHTML = `${showNumber ? `<td class="dict-col-num">${idx + 1}</td>` : ""}${cols.map((c) => `<td data-col="${escapeHtml(c.column_name)}">${displayCellValue(row, c)}</td>`).join("")}<td class="dict-row-actions"><button type="button" class="dict-icon-mini dict-svg-button" data-edit-row title="Редагувати запис" aria-label="Редагувати запис">${actionIcon("pencil")}</button><button type="button" class="dict-icon-mini dict-icon-mini--danger dict-svg-button" data-delete-row title="Видалити запис" aria-label="Видалити запис">${actionIcon("trash")}</button></td>`;
         tr.querySelectorAll("[data-toggle-field]").forEach((input) => {
           input.addEventListener("change", (event) => updateRowField(row.id, event.target.dataset.toggleField, event.target.checked));
         });
@@ -667,7 +831,7 @@
 
   function exportRows() {
     const cols = displayColumns();
-    return currentRows.map((row, index) => [index + 1, ...cols.map((c) => exportCell(row, c))]);
+    return currentRows.map((row, index) => [...(isColumnVisible("__rownum") ? [index + 1] : []), ...cols.map((c) => exportCell(row, c))]);
   }
 
   function downloadBlob(content, mime, filename) {
@@ -807,13 +971,23 @@
 
   function setEditMode(enabled) {
     if (!editPanel) return;
+    const modal = document.getElementById("dictManageModal");
+    const card = modal?.querySelector(".dict-records-card");
+    renderStructureEditPanel();
     editPanel.hidden = !enabled;
+    if (card) card.hidden = enabled;
     editToggleBtn?.classList.toggle("is-active", enabled);
     editToggleBtn?.setAttribute("aria-pressed", enabled ? "true" : "false");
-    if (enabled && sortPanel) sortPanel.hidden = true;
+    modal?.classList.toggle("dict-structure-mode", enabled);
+    if (enabled) {
+      setExportMode(false, true);
+      if (sortPanel) sortPanel.hidden = true;
+      editPanel.addEventListener("click", handleStructureClick);
+      editPanel.addEventListener("change", handleStructureChange);
+    }
   }
 
-  function setExportMode(enabled) {
+  function setExportMode(enabled, skipEditReset = false) {
     const modal = document.getElementById("dictManageModal");
     const panelShell = modal?.querySelector(".dict-view-panel");
     const card = modal?.querySelector(".dict-records-card");
@@ -831,7 +1005,7 @@
     });
 
     if (enabled) {
-      setEditMode(false);
+      if (!skipEditReset) setEditMode(false);
       if (sortPanel) sortPanel.hidden = true;
     }
 

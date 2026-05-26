@@ -426,3 +426,147 @@ body.dicts-page.dicts-theme-dark .dict-view-tools .dict-icon-button.is-active im
 }
 
 /* cache-marker: BASTION-DICTS-ACTIVE-TOOLBAR-v205 */
+
+/* =========================================================
+   BASTION DICTS v206 — structure edit mode
+   ========================================================= */
+.dict-modal.dict-structure-mode .dict-records-card {
+  display: none !important;
+}
+
+.dict-modal.dict-structure-mode #dictEditPanel {
+  display: block !important;
+}
+
+.dict-structure-card {
+  width: 100%;
+  border: 1px solid rgba(255, 70, 64, .28);
+  border-radius: 24px;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(10, 14, 20, .72), rgba(45, 13, 17, .34));
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.025),
+    inset 0 0 28px rgba(255, 54, 48, .035),
+    0 0 24px rgba(255, 42, 42, .06);
+}
+
+.dict-structure-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.dict-structure-head h3 {
+  margin: 0;
+  font-family: Orbitron, Rajdhani, sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  color: rgba(255, 245, 245, .95);
+  text-transform: uppercase;
+  text-shadow: 0 0 14px rgba(255, 72, 62, .22);
+}
+
+.dict-structure-head p {
+  margin: 6px 0 0;
+  font-family: Rajdhani, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: rgba(255, 230, 230, .58);
+}
+
+.dict-structure-table-wrap {
+  border: 1px solid rgba(255, 70, 64, .24);
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(4, 8, 12, .48);
+}
+
+.dict-structure-table th,
+.dict-structure-table td {
+  height: 62px;
+  vertical-align: middle;
+}
+
+.dict-structure-name-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.dict-structure-name {
+  font-family: Rajdhani, Orbitron, sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+
+.dict-structure-name-cell small {
+  font-family: Rajdhani, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: rgba(170, 235, 246, .56);
+  text-transform: uppercase;
+}
+
+.dict-structure-name-input {
+  width: min(360px, 92%) !important;
+}
+
+.dict-structure-actions .dict-icon-mini[disabled] {
+  opacity: .34 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(.45) !important;
+}
+
+.dict-structure-row.is-protected .dict-structure-name::after {
+  content: "  SYSTEM";
+  margin-left: 10px;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: rgba(255, 95, 80, .68);
+}
+
+html[data-theme="light"] body.dicts-page .dict-structure-card,
+body[data-theme="light"].dicts-page .dict-structure-card,
+body.dicts-page.dicts-theme-light .dict-structure-card {
+  background: rgba(255,255,255,.62) !important;
+  border-color: rgba(255, 58, 58, .20) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.72),
+    0 16px 42px rgba(92, 108, 124, .09) !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-structure-head h3,
+body[data-theme="light"].dicts-page .dict-structure-head h3,
+body.dicts-page.dicts-theme-light .dict-structure-head h3 {
+  color: #ff3138 !important;
+  text-shadow: 0 0 12px rgba(255, 49, 56, .18) !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-structure-head p,
+body[data-theme="light"].dicts-page .dict-structure-head p,
+body.dicts-page.dicts-theme-light .dict-structure-head p {
+  color: rgba(45, 57, 72, .62) !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-structure-table-wrap,
+body[data-theme="light"].dicts-page .dict-structure-table-wrap,
+body.dicts-page.dicts-theme-light .dict-structure-table-wrap {
+  background: rgba(255,255,255,.70) !important;
+  border-color: rgba(255, 58, 58, .16) !important;
+}
+
+html[data-theme="light"] body.dicts-page .dict-structure-name-cell small,
+body[data-theme="light"].dicts-page .dict-structure-name-cell small,
+body.dicts-page.dicts-theme-light .dict-structure-name-cell small {
+  color: rgba(88, 103, 120, .58) !important;
+}
+
+/* cache-marker: BASTION-DICTS-STRUCTURE-EDIT-v206 */
