@@ -1,6 +1,6 @@
 /* ==========================================================
-   BASTION NODES PAGE v006
-   Relation carousel: safe-fit typography for hex cards.
+   BASTION NODES PAGE v008
+   Relation carousel: clean flip faces + compact back content.
    ========================================================== */
 
 body.bastion-core-page[data-active-module="nodes"],
@@ -150,10 +150,37 @@ body.bastion-core-page:has(.nodes-screen) {
   display: grid;
   place-items: center;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.relation-card__face--front {
+  transform: rotateY(0deg) translateZ(1px);
 }
 
 .relation-card__face--back {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(1px);
+}
+
+.relation-card__face--front .relation-card__content,
+.relation-card__face--back .relation-card__content {
+  transition: opacity .18s ease, transform .28s ease;
+}
+
+.relation-card__face--back .relation-card__content {
+  opacity: 0;
+  transform: translateY(1%) scale(.96);
+}
+
+.relation-card.is-flipped .relation-card__face--front .relation-card__content {
+  opacity: 0;
+  transform: translateY(1%) scale(.96);
+}
+
+.relation-card.is-flipped .relation-card__face--back .relation-card__content {
+  opacity: 1;
+  transform: translateY(1%) scale(1);
+  transition-delay: .16s;
 }
 
 .relation-card__frame {
@@ -169,8 +196,8 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-card__content {
   position: relative;
   z-index: 2;
-  width: 50%;
-  min-height: 44%;
+  width: 48%;
+  min-height: 42%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -221,7 +248,7 @@ body.bastion-core-page:has(.nodes-screen) {
 
 
 .relation-card.is-active .relation-card__content {
-  width: 52%;
+  width: 50%;
 }
 
 .relation-card.is-active .relation-title {
@@ -257,10 +284,10 @@ body.bastion-core-page:has(.nodes-screen) {
 
 .relation-back-heading {
   color: #ff3b3b;
-  font: 900 clamp(13px, 1.15vw, 18px)/1 Rajdhani, Arial, sans-serif;
-  letter-spacing: .13em;
+  font: 900 clamp(10px, .86vw, 15px)/1 Rajdhani, Arial, sans-serif;
+  letter-spacing: .11em;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   text-shadow: 0 0 14px rgba(255, 30, 30, .55);
 }
 
@@ -270,16 +297,16 @@ body.bastion-core-page:has(.nodes-screen) {
   padding: 0;
   width: 100%;
   display: grid;
-  gap: 7px;
+  gap: 4px;
   text-align: left;
 }
 
 .relation-dict-list li {
   position: relative;
-  padding-left: 16px;
+  padding-left: 11px;
   color: rgba(255, 248, 245, .88);
-  font: 800 clamp(11px, .92vw, 14px)/1.08 Rajdhani, Arial, sans-serif;
-  letter-spacing: .06em;
+  font: 800 clamp(8px, .68vw, 12px)/1.04 Rajdhani, Arial, sans-serif;
+  letter-spacing: .035em;
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
@@ -291,11 +318,51 @@ body.bastion-core-page:has(.nodes-screen) {
   position: absolute;
   left: 0;
   top: .43em;
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 999px;
   background: #ff3535;
   box-shadow: 0 0 10px rgba(255, 40, 40, .8);
+}
+
+.relation-card.is-active .relation-card__face--back .relation-card__content {
+  width: 42%;
+  min-height: 40%;
+  justify-content: center;
+}
+
+.relation-card.is-active .relation-back-heading {
+  font-size: clamp(15px, 1.05vw, 19px);
+  line-height: .95;
+  margin-bottom: 10px;
+}
+
+.relation-card.is-active .relation-dict-list {
+  gap: 6px;
+}
+
+.relation-card.is-active .relation-dict-list li {
+  font-size: clamp(10px, .82vw, 14px);
+  line-height: 1.02;
+  letter-spacing: .04em;
+}
+
+.relation-card:not(.is-active) .relation-card__face--back .relation-card__content {
+  width: 40%;
+}
+
+.relation-card:not(.is-active) .relation-back-heading {
+  font-size: clamp(8px, .58vw, 11px);
+  margin-bottom: 5px;
+}
+
+.relation-card:not(.is-active) .relation-dict-list {
+  gap: 3px;
+}
+
+.relation-card:not(.is-active) .relation-dict-list li {
+  padding-left: 8px;
+  font-size: clamp(6px, .45vw, 8px);
 }
 
 .relation-create-plus {
