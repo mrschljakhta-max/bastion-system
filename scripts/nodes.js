@@ -1,76 +1,9 @@
 (() => {
   "use strict";
 
-  let relations = [
-    {
-      id: "ew-matrix",
-      name: "EW MATRIX",
-      description: "Комбінований зв’язок для зіставлення станцій, БПЛА, режимів та погодних умов.",
-      dictionaries: ["STATIONS", "UAV", "MODE", "WEATHER"],
-      columns: [
-        { dictionary: "STATIONS", column: "station_name", label: "Станція", values: ["НОТА", "БУКОВЕЛЬ", "ANTIDRONE", "KVERTUS"] },
-        { dictionary: "UAV", column: "uav_type", label: "Тип БПЛА", values: ["FPV", "Mavic", "Shahed", "Lancet"] },
-        { dictionary: "MODE", column: "mode", label: "Режим", values: ["Виявлення", "Придушення", "Супровід"] },
-        { dictionary: "WEATHER", column: "weather", label: "Погода", values: ["Ясно", "Хмарно", "Дощ", "Туман"] }
-      ],
-      result: { label: "Результат", type: "text" },
-      rows: [
-        ["НОТА", "FPV", "Придушення", "Ясно", "Ефективно"],
-        ["БУКОВЕЛЬ", "Mavic", "Виявлення", "Хмарно", "Стабільно"]
-      ]
-    },
-    {
-      id: "supply-chain",
-      name: "SUPPLY CHAIN",
-      description: "Зв’язок забезпечення між підрозділами, бригадами та типом постачання.",
-      dictionaries: ["UNITS", "BRIGADES", "SUPPLY"],
-      columns: [
-        { dictionary: "UNITS", column: "unit_name", label: "Підрозділ", values: ["Взвод 1", "Взвод 2", "Група РЕБ"] },
-        { dictionary: "BRIGADES", column: "brigade", label: "Бригада", values: ["45 ОАБр", "92 ОШБр", "3 АК"] },
-        { dictionary: "SUPPLY", column: "supply_type", label: "Постачання", values: ["АКБ", "Кабелі", "Пальне", "Антени"] }
-      ],
-      result: { label: "Результат", type: "text" },
-      rows: [["Група РЕБ", "45 ОАБр", "АКБ", "Потребує поповнення"]]
-    },
-    {
-      id: "radar-network",
-      name: "RADAR NETWORK",
-      description: "Зв’язок між станціями, частотами, районами та підрозділами.",
-      dictionaries: ["STATIONS", "RADAR", "FREQUENCY", "SETTLEMENTS", "UNITS"],
-      columns: [
-        { dictionary: "STATIONS", column: "station_name", label: "Станція", values: ["НОТА", "KVERTUS", "ПЛАСТУН"] },
-        { dictionary: "RADAR", column: "radar_type", label: "Радар", values: ["RADA", "MHR", "AESA"] },
-        { dictionary: "FREQUENCY", column: "band", label: "Діапазон", values: ["433", "900", "1200", "5800"] },
-        { dictionary: "SETTLEMENTS", column: "settlement", label: "НП", values: ["Харків", "Полтава", "Вінниця"] },
-        { dictionary: "UNITS", column: "unit_name", label: "Підрозділ", values: ["ВП РЕБ", "СП", "РЕР"] }
-      ],
-      result: { label: "Результат", type: "number" },
-      rows: [["НОТА", "RADA", "900", "Харків", "ВП РЕБ", "7"]]
-    },
-    {
-      id: "air-picture",
-      name: "AIR PICTURE",
-      description: "Повітряна картина на основі БПЛА, маршрутів, азимутів і погоди.",
-      dictionaries: ["UAV", "ROUTES", "AZIMUTH", "WEATHER"],
-      columns: [
-        { dictionary: "UAV", column: "uav_type", label: "Тип БПЛА", values: ["FPV", "Mavic", "Shahed"] },
-        { dictionary: "ROUTES", column: "route", label: "Маршрут", values: ["Північ", "Схід", "Південь"] },
-        { dictionary: "AZIMUTH", column: "azimuth", label: "Азимут", values: ["45", "120", "270"] },
-        { dictionary: "WEATHER", column: "weather", label: "Погода", values: ["Ясно", "Дощ", "Туман"] }
-      ],
-      result: { label: "Результат", type: "text" },
-      rows: [["Shahed", "Схід", "120", "Ясно", "Підвищений ризик"]]
-    }
-  ];
-
-  let dictionaryCatalog = [
-    { table: "dict_stations", title: "STATIONS", columns: ["station_name", "station_code", "frequency", "settlement", "operator"] },
-    { table: "dict_uav", title: "UAV", columns: ["uav_type", "class", "range", "band", "notes"] },
-    { table: "dict_modes", title: "MODE", columns: ["mode", "priority", "detect", "suppress"] },
-    { table: "dict_weather", title: "WEATHER", columns: ["weather", "visibility", "wind", "precipitation"] },
-    { table: "dict_frequency", title: "FREQUENCY", columns: ["band", "frequency", "channel", "range"] },
-    { table: "dict_settlements", title: "SETTLEMENTS", columns: ["settlement", "region", "lat", "lng"] }
-  ];
+  let relations = [];
+  let dictionaryCatalog = [];
+  let lastSupabaseError = "";
 
 
   let sb = null;
@@ -159,33 +92,81 @@
         .eq("is_active", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      if (!Array.isArray(data) || !data.length) return;
+      if (!Array.isArray(data) || !data.length) {
+        relations = [];
+        state.active = 0;
+        state.flippedId = null;
+        return;
+      }
 
       const liveRelations = [];
       for (const item of data) {
         const relation = normalizeRelationRecord(item);
-        const rowsRes = await sb
-          .from("rel_rows")
-          .select("id, row_data, is_active, created_at")
-          .eq("relation_id", item.id)
-          .eq("is_active", true)
-          .order("created_at", { ascending: true });
-        relation.rows = (rowsRes?.data || []).map((row) => {
+        relation.rows = await loadRelationRows(relation);
+        liveRelations.push(relation);
+      }
+      relations = liveRelations;
+      state.active = Math.min(state.active || 0, Math.max(0, allCards().length - 1));
+      state.flippedId = null;
+      lastSupabaseError = "";
+    } catch (error) {
+      lastSupabaseError = error?.message || String(error);
+      console.warn("BASTION nodes rel_registry unavailable:", lastSupabaseError);
+      relations = [];
+      state.active = 0;
+      state.flippedId = null;
+    }
+  }
+
+  async function loadRelationRows(relation) {
+    if (!sb || !relation?.tableName) return [];
+
+    // 1) Нормальний режим: кожен зв’язок має свою фізичну rel_* таблицю.
+    try {
+      const { data, error } = await sb
+        .from(relation.tableName)
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1000);
+      if (!error && Array.isArray(data)) {
+        return data.map((row) => relationRowFromRecord(relation, row));
+      }
+    } catch (tableError) {
+      console.warn(`BASTION relation table fallback (${relation.tableName}):`, tableError?.message || tableError);
+    }
+
+    // 2) Сумісність із ранньою схемою rel_rows, якщо вона вже була створена.
+    try {
+      const { data, error } = await sb
+        .from("rel_rows")
+        .select("id, row_data, is_active, created_at")
+        .eq("relation_id", relation.dbId)
+        .eq("is_active", true)
+        .order("created_at", { ascending: true })
+        .limit(1000);
+      if (!error && Array.isArray(data)) {
+        return data.map((row) => {
           const payload = row.row_data || {};
           if (Array.isArray(payload.values)) return payload.values;
           if (Array.isArray(payload.row)) return payload.row;
-          return relation.columns.map((col) => payload[col.key || `${col.sourceTable}.${col.column}`] ?? payload[col.column] ?? "").concat([payload.__result ?? payload.result ?? ""]);
+          return relationRowFromRecord(relation, payload);
         });
-        liveRelations.push(relation);
       }
-      if (liveRelations.length) {
-        relations = liveRelations;
-        state.active = 0;
-        state.flippedId = null;
-      }
-    } catch (error) {
-      console.warn("BASTION nodes rel_registry fallback:", error?.message || error);
+    } catch (rowError) {
+      console.warn("BASTION rel_rows fallback unavailable:", rowError?.message || rowError);
     }
+
+    return [];
+  }
+
+  function relationRowFromRecord(relation, record) {
+    const cols = relation.columns || [];
+    const values = cols.map((col, index) => {
+      const key = col.storage_key || `c_${String(index + 1).padStart(3, "0")}_${slugify(col.column).replace(/-/g, "_")}`;
+      return record?.[key] ?? record?.[col.key] ?? record?.[col.column] ?? record?.[col.label] ?? "";
+    });
+    values.push(record?.result_value ?? record?.result ?? record?.__result ?? "");
+    return values;
   }
 
   function normalizeRelationRecord(item) {
@@ -198,7 +179,8 @@
           label: col.label || baseColumnLabel(col.column || col.name || col.dict_column),
           type: col.type || col.data_type || "text",
           values: col.values || getCatalogColumnValues(col.sourceTable || col.table || col.dict_table, col.column || col.name || col.dict_column),
-          key: col.key || `${col.sourceTable || col.table || col.dict_table}.${col.column || col.name || col.dict_column}`
+          key: col.key || `${col.sourceTable || col.table || col.dict_table}.${col.column || col.name || col.dict_column}`,
+          storage_key: col.storage_key || `c_${String((col.order_index ?? 0) + 1).padStart(3, "0")}_${slugify(col.column || col.name || col.dict_column).replace(/-/g, "_")}`
         }))
       : [];
     const dictionaries = Array.isArray(schema.dictionaries)
@@ -221,16 +203,42 @@
   async function saveRelationToSupabase(relation) {
     sb = sb || createSupabaseClient();
     if (!sb) throw new Error("Supabase не підключений.");
+
     const relationSlug = relation.id;
     const tableName = relation.tableName || `rel_${relationSlug.replace(/-/g, "_")}`;
+    const normalizedColumns = relation.columns.map((col, index) => ({
+      ...col,
+      order_index: index,
+      key: col.key || `${col.sourceTable}.${col.column}`,
+      storage_key: col.storage_key || `c_${String(index + 1).padStart(3, "0")}_${slugify(col.column).replace(/-/g, "_")}`
+    }));
     const schema = {
-      version: 1,
+      version: 2,
       relation_name: relation.name,
       description: relation.description || "",
       dictionaries: state.builderDraft.map((d) => ({ table: d.table, title: d.title, columns: d.columns })),
-      columns: relation.columns.map((col, index) => ({ ...col, order_index: index, key: col.key || `${col.sourceTable}.${col.column}` })),
-      result: relation.result
+      columns: normalizedColumns,
+      result: relation.result,
+      table_name: tableName
     };
+
+    // Основний шлях: RPC створює запис у rel_registry та фізичну rel_* таблицю.
+    try {
+      const rpc = await sb.rpc("create_bastion_relation", {
+        p_relation_name: relation.name,
+        p_relation_slug: relationSlug,
+        p_table_name: tableName,
+        p_description: relation.description || "",
+        p_schema: schema
+      });
+      if (!rpc.error && rpc.data) return normalizeRelationRecord(Array.isArray(rpc.data) ? rpc.data[0] : rpc.data);
+      if (rpc.error) throw rpc.error;
+    } catch (rpcError) {
+      console.warn("BASTION create_bastion_relation RPC fallback:", rpcError?.message || rpcError);
+    }
+
+    // Fallback: якщо SQL-функція ще не встановлена, зберігаємо metadata.
+    // Важливо: фізична таблиця rel_* у цьому режимі не створюється.
     const payload = {
       relation_name: relation.name,
       relation_slug: relationSlug,
@@ -556,7 +564,7 @@
     document.getElementById("nodesRelationTitle").textContent = relation.name.toUpperCase();
     document.getElementById("nodesRelationLead").textContent = countLabel(relation.rows?.length || 0);
     document.getElementById("nodesMetaRows").textContent = String(relation.rows?.length || 0);
-    document.getElementById("nodesMetaTable").textContent = `rel_${relation.id.replace(/-/g, "_")}`;
+    document.getElementById("nodesMetaTable").textContent = relation.tableName || `rel_${relation.id.replace(/-/g, "_")}`;
     modal.querySelector("#nodesSearchInput").value = "";
     syncModes();
     renderRelationTable();
@@ -646,10 +654,32 @@
       </div>`;
   }
 
-  function deleteRelation() {
+  async function deleteRelation() {
     const relation = state.activeRelation;
     if (!relation) return;
-    setStatus(`Видалення зв’язку «${relation.name}» буде підключено після інтеграції Supabase.`, "warn");
+    const ok = window.confirm(`Видалити зв’язок «${relation.name}»?`);
+    if (!ok) return;
+
+    sb = sb || createSupabaseClient();
+    if (!sb || !relation.dbId) {
+      relations = relations.filter((item) => item.id !== relation.id);
+      closeModals();
+      initialRender();
+      return;
+    }
+
+    try {
+      const { error } = await sb
+        .from("rel_registry")
+        .update({ is_active: false, deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .eq("id", relation.dbId);
+      if (error) throw error;
+      relations = relations.filter((item) => item.id !== relation.id);
+      closeModals();
+      initialRender();
+    } catch (error) {
+      setStatus(`Не вдалося видалити зв’язок: ${error.message}`, "error");
+    }
   }
 
   function openBuilderModal() {
@@ -750,7 +780,7 @@
         type: catalogCol?.type || "text",
         values: catalogCol?.values || getCatalogColumnValues(d.table, col),
         key: `${d.table}.${col}`,
-        order_index: columns.length + index
+        order_index: columns.length
       });
     }));
 
@@ -1013,6 +1043,9 @@ async function exportPdfReport(relation, headers, rows, filename) {
     await loadLiveDictionaryCatalog();
     await loadLiveRelations();
     initialRender();
+    if (!relations.length && lastSupabaseError) {
+      console.warn("BASTION relations not loaded:", lastSupabaseError);
+    }
   }
 
   bootNodesPage();
