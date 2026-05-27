@@ -1334,64 +1334,90 @@
     const esc = (s) => String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
     const colName = (n) => { let s = ""; while (n >= 0) { s = String.fromCharCode((n % 26) + 65) + s; n = Math.floor(n / 26) - 1; } return s; };
     const data = [headers, ...rows];
-    const colWidths = headers.map((_, cidx) => {
-      const maxLen = Math.max(...data.map((r) => String(r[cidx] ?? "").length), 6);
-      return Math.min(Math.max(maxLen + 3, cidx === 0 ? 8 : 14), 42);
-    });
-    const cols = `<cols>${colWidths.map((w, idx) => `<col min="${idx + 1}" max="${idx + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>`;
-    const sheetRows = data.map((r, ridx) => `<row r="${ridx + 1}">${r.map((v, cidx) => `<c r="${colName(cidx)}${ridx + 1}" t="s" s="${ridx === 0 ? 1 : 2}"><v>${getSi(v)}</v></c>`).join("")}</row>`).join("");
+    const sheetRows = data.map((r, ridx) => `<row r="${ridx + 1}">${r.map((v, cidx) => `<c r="${colName(cidx)}${ridx + 1}" t="s"><v>${getSi(v)}</v></c>`).join("")}</row>`).join("");
     const files = {
       "[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
       "_rels/.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
       "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${esc(title).slice(0,31) || "Relation"}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
       "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
-      "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="2"><border/><border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/></cellXfs></styleSheet>`,
+      "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Arial"/></font></fonts><fills count="1"><fill><patternFill patternType="none"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="1"><xf xfId="0"/></cellXfs></styleSheet>`,
       "xl/sharedStrings.xml": `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${shared.length}" uniqueCount="${shared.length}">${shared.map((s) => `<si><t>${esc(s)}</t></si>`).join("")}</sst>`,
-      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${cols}<sheetData>${sheetRows}</sheetData></worksheet>`
+      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${sheetRows}</sheetData></worksheet>`
     };
     return new Blob([zipStore(files)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
   }
 
-  async function exportPdfReport(relation, headers, rows, filename) {
+  
+async function exportPdfReport(relation, headers, rows, filename) {
+  const user = profileInfo();
+  const payload = {
+    relationName: relation?.name || "ЗВ'ЯЗОК",
+    fileName: filename,
+    generatedAt: new Date().toISOString(),
+    user,
+    headers,
+    rows
+  };
+
+  try {
+    sb = sb || createSupabaseClient();
+    const cfg = window.BASTION_CONFIG || {};
+    const baseUrl = cfg.SUPABASE_URL || window.SUPABASE_URL;
+    if (!baseUrl) throw new Error("SUPABASE_URL не знайдено у config.js");
+
+    let token = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || "";
+    try {
+      const sessionResult = sb?.auth ? await sb.auth.getSession() : null;
+      token = sessionResult?.data?.session?.access_token || token;
+    } catch (_) {}
+
+    setStatus("Формую PDF на Supabase Edge Function...", "loading");
+    const res = await fetch(`${baseUrl.replace(/\/$/, "")}/functions/v1/generate-relation-pdf`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(text || `Edge Function HTTP ${res.status}`);
+    }
+
+    const blob = await res.blob();
+    downloadBlob(blob, "application/pdf", filename);
+    setStatus("PDF сформовано та завантажено.", "success");
+  } catch (edgeError) {
+    console.warn("BASTION Edge PDF fallback:", edgeError);
     try {
       await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
       await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
       if (!window.pdfMake) throw new Error("pdfMake unavailable");
       const body = [
-        headers.map((h) => ({ text: String(h || "").toUpperCase(), bold: true, margin: [6, 7] })),
-        ...rows.map((r) => r.map((v) => ({ text: String(v ?? ""), margin: [6, 7] })))
+        headers.map((h) => ({ text: String(h).toUpperCase(), bold: true, fillColor: "#f2f2f2", margin: [4, 5] })),
+        ...rows.map((r) => r.map((v) => ({ text: String(v ?? ""), margin: [4, 5] })))
       ];
       const doc = {
-        pageOrientation: headers.length > 5 ? "landscape" : "portrait",
-        pageMargins: [24, 24, 24, 24],
+        pageOrientation: "landscape",
+        pageMargins: [18, 22, 18, 22],
         content: [
-          {
-            table: {
-              headerRows: 1,
-              widths: headers.map((_, i) => i === 0 ? 32 : "*"),
-              body
-            },
-            layout: {
-              hLineWidth: () => 0.6,
-              vLineWidth: () => 0.6,
-              hLineColor: () => "#888888",
-              vLineColor: () => "#888888",
-              paddingLeft: () => 3,
-              paddingRight: () => 3,
-              paddingTop: () => 3,
-              paddingBottom: () => 3
-            }
-          }
+          { text: String(relation?.name || "ЗВ'ЯЗОК").toUpperCase(), fontSize: 18, bold: true, margin: [0, 0, 0, 12] },
+          { table: { headerRows: 1, widths: headers.map((_, i) => i === 0 ? 28 : "*"), body }, layout: "lightHorizontalLines" }
         ],
-        defaultStyle: { font: "Roboto", fontSize: 10 }
+        footer: () => ({ text: `BASTION SYSTEM • ${new Date().toLocaleString("uk-UA")} • Записів: ${rows.length}`, alignment: "center", fontSize: 8, color: "#777" }),
+        defaultStyle: { font: "Roboto", fontSize: 8 }
       };
       window.pdfMake.createPdf(doc).download(filename);
-    } catch (err) {
-      const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title><style>table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif}th,td{border:1px solid #777;padding:8px;text-align:left}th{font-weight:700}</style></head><body><table><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
+      setStatus("Edge Function недоступна. PDF сформовано локально.", "warn");
+    } catch (fallbackError) {
+      const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title></head><body><h1>${escapeHtml(relation.name)}</h1><table border="1"><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
       downloadBlob(html, "text/html;charset=utf-8", filename.replace(/\.pdf$/i, ".html"));
-      setStatus("PDF-бібліотеку не завантажено. Збережено HTML-таблицю як fallback.", "warn");
+      setStatus("PDF не сформовано. Збережено HTML fallback.", "error");
     }
   }
+}
 
   function loadScript(src) {
     return new Promise((resolve, reject) => {
