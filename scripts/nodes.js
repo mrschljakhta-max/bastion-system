@@ -1455,13 +1455,19 @@ async function exportPdfReport(relation, headers, rows, filename) {
 
     const brand = {
       columns: [
-        { text: "BASTION", alignment: "right", fontSize: 18, bold: true, color: "#111827", margin: [0, 1, 8, 0] },
+        {
+          width: "*",
+          stack: [
+            { text: "BASTION", alignment: "right", fontSize: 18, bold: true, color: "#111827", characterSpacing: 1, margin: [0, 0, 8, 0] },
+            { text: "SYSTEM", alignment: "right", fontSize: 8.5, bold: true, color: red, characterSpacing: 4, margin: [0, 1, 10, 0] }
+          ]
+        },
         logo
           ? { image: logo, width: 28, height: 28, alignment: "right", margin: [0, 0, 0, 0] }
           : { text: "◆", width: 28, alignment: "right", fontSize: 22, color: red }
       ],
       columnGap: 2,
-      width: 180
+      width: 210
     };
 
     const doc = {
