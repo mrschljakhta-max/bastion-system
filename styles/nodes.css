@@ -1246,3 +1246,85 @@ body.nodes-modal-open .bottom-map {
   color: #fff;
   border-color: #ff3434;
 }
+
+/* ==========================================================
+   NODES v016: relation values + quantity pairing
+   ========================================================== */
+.nodes-value-qty-cell {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(72px, 92px);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.nodes-value-qty-cell .nodes-cell-select {
+  min-width: 0;
+}
+.nodes-qty-input {
+  padding: 0 9px !important;
+  text-align: center;
+  color: #ffdbdb !important;
+  border-color: rgba(255, 72, 72, .62) !important;
+  background: linear-gradient(180deg, rgba(70, 12, 14, .82), rgba(7, 10, 14, .88)) !important;
+  box-shadow: inset 0 0 14px rgba(255, 45, 45, .08);
+}
+.nodes-qty-input::placeholder {
+  color: rgba(255, 185, 185, .52);
+  text-transform: uppercase;
+}
+.nodes-structure-row--quantity {
+  grid-template-columns: 42px minmax(120px, 1fr) minmax(120px, 1fr) minmax(120px, auto) minmax(118px, auto) 42px 42px;
+}
+.nodes-quantity-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,.8);
+  font: 800 13px/1 Rajdhani, Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.nodes-structure-row select {
+  min-height: 36px;
+  border: 1px solid rgba(255, 64, 64, .45);
+  border-radius: 10px;
+  background: rgba(3, 8, 12, .82);
+  color: #fff;
+  padding: 0 10px;
+  font: 800 13px/1 Rajdhani, Arial, sans-serif;
+  outline: none;
+}
+.nodes-structure-row select:disabled {
+  opacity: .4;
+}
+.relation-card.is-active .relation-title {
+  font-size: clamp(13px, 1.04vw, 19px);
+  line-height: .86;
+  letter-spacing: 0;
+}
+.relation-card:not(.is-active) .relation-title {
+  font-size: clamp(6px, .44vw, 9px);
+  line-height: .86;
+  letter-spacing: 0;
+}
+.relation-title__line {
+  max-width: 92%;
+}
+.relation-card.is-active .relation-count {
+  font-size: clamp(22px, 1.75vw, 34px);
+}
+:root[data-theme="light"] .nodes-qty-input {
+  background: rgba(255,255,255,.94) !important;
+  color: #253041 !important;
+}
+:root[data-theme="light"] .nodes-quantity-toggle {
+  color: #334052;
+}
+:root[data-theme="light"] .nodes-structure-row select {
+  background: rgba(255,255,255,.94);
+  color: #243040;
+}
+@media (max-width: 980px) {
+  .nodes-value-qty-cell { grid-template-columns: 1fr; }
+  .nodes-structure-row--quantity { grid-template-columns: 34px 1fr; }
+}

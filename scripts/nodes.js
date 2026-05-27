@@ -162,8 +162,10 @@
   function relationRowFromRecord(relation, record) {
     const cols = relation.columns || [];
     const values = cols.map((col, index) => {
-      const key = col.storage_key || `c_${String(index + 1).padStart(3, "0")}_${slugify(col.column).replace(/-/g, "_")}`;
-      return record?.[key] ?? record?.[col.key] ?? record?.[col.column] ?? record?.[col.label] ?? "";
+      const meta = withQuantityMeta(col, index);
+      const key = meta.storage_key;
+      const qtyKey = meta.quantity_key || `${key}_qty`;
+      return makeCell(record?.[key] ?? record?.[col.key] ?? record?.[col.column] ?? record?.[col.label] ?? "", record?.[qtyKey] ?? "");
     });
     values.push(record?.result_value ?? record?.result ?? record?.__result ?? "");
     return values;
@@ -172,7 +174,7 @@
   function normalizeRelationRecord(item) {
     const schema = item.schema || {};
     const columns = Array.isArray(schema.columns)
-      ? schema.columns.map((col) => ({
+      ? schema.columns.map((col, index) => withQuantityMeta({
           dictionary: col.dictionary || col.dictTitle || col.sourceTable || col.table || "DICT",
           sourceTable: col.sourceTable || col.table || col.dict_table || "",
           column: col.column || col.name || col.dict_column || "",
@@ -180,8 +182,11 @@
           type: col.type || col.data_type || "text",
           values: col.values || getCatalogColumnValues(col.sourceTable || col.table || col.dict_table, col.column || col.name || col.dict_column),
           key: col.key || `${col.sourceTable || col.table || col.dict_table}.${col.column || col.name || col.dict_column}`,
-          storage_key: col.storage_key || `c_${String((col.order_index ?? 0) + 1).padStart(3, "0")}_${slugify(col.column || col.name || col.dict_column).replace(/-/g, "_")}`
-        }))
+          storage_key: col.storage_key || `c_${String((col.order_index ?? index) + 1).padStart(3, "0")}_${slugify(col.column || col.name || col.dict_column).replace(/-/g, "_")}`,
+          hasQuantity: col.hasQuantity ?? col.has_quantity ?? true,
+          quantityType: col.quantityType || col.quantity_type || "integer",
+          quantity_key: col.quantity_key
+        }, index))
       : [];
     const dictionaries = Array.isArray(schema.dictionaries)
       ? schema.dictionaries.map((d) => d.title || d.name || d.table || d).filter(Boolean)
@@ -206,12 +211,12 @@
 
     const relationSlug = relation.id;
     const tableName = relation.tableName || `rel_${relationSlug.replace(/-/g, "_")}`;
-    const normalizedColumns = relation.columns.map((col, index) => ({
+    const normalizedColumns = relation.columns.map((col, index) => withQuantityMeta({
       ...col,
       order_index: index,
       key: col.key || `${col.sourceTable}.${col.column}`,
       storage_key: col.storage_key || `c_${String(index + 1).padStart(3, "0")}_${slugify(col.column).replace(/-/g, "_")}`
-    }));
+    }, index));
     const schema = {
       version: 2,
       relation_name: relation.name,
@@ -262,6 +267,49 @@
   function normalizeColumnObject(col) {
     if (typeof col === "object" && col) return { name: col.name || col.column || col.column_name, label: col.label || baseColumnLabel(col.name || col.column || col.column_name), type: col.type || col.data_type || "text", values: col.values || [] };
     return { name: String(col), label: baseColumnLabel(col), type: "text", values: [] };
+  }
+
+  function withQuantityMeta(col, index = 0) {
+    const storage = col.storage_key || `c_${String(index + 1).padStart(3, "0")}_${slugify(col.column || col.name || col.dict_column || "value").replace(/-/g, "_")}`;
+    return {
+      ...col,
+      storage_key: storage,
+      hasQuantity: col.hasQuantity ?? col.has_quantity ?? col.with_quantity ?? true,
+      quantityType: col.quantityType || col.quantity_type || "integer",
+      quantity_key: col.quantity_key || `${storage}_qty`
+    };
+  }
+
+  function hasQuantity(col) {
+    return col && col.hasQuantity !== false && col.has_quantity !== false;
+  }
+
+  function getCellValue(cell) {
+    return cell && typeof cell === "object" && !Array.isArray(cell) ? (cell.value ?? "") : (cell ?? "");
+  }
+
+  function getCellQty(cell) {
+    return cell && typeof cell === "object" && !Array.isArray(cell) ? (cell.qty ?? "") : "";
+  }
+
+  function makeCell(value = "", qty = "") {
+    return { value: value ?? "", qty: qty ?? "" };
+  }
+
+  function formatRelationCell(cell, col) {
+    const value = String(getCellValue(cell) ?? "").trim();
+    const qty = String(getCellQty(cell) ?? "").trim();
+    if (hasQuantity(col) && qty) return value ? `${value} × ${qty}` : qty;
+    return value;
+  }
+
+  function normalizeQuantityValue(raw, type = "integer") {
+    const value = String(raw ?? "").replace(",", ".").trim();
+    if (!value) return null;
+    const num = Number(value);
+    if (!Number.isFinite(num)) throw new Error("Кількість повинна бути числом.");
+    if (type === "integer" && !Number.isInteger(num)) throw new Error("Для цілої кількості введіть ціле число.");
+    return type === "integer" ? parseInt(value, 10) : num;
   }
 
   function inferColumnType(values) {
@@ -524,6 +572,7 @@
       </section>`;
     document.body.appendChild(modal);
     modal.addEventListener("click", handleModalClick);
+    modal.addEventListener("change", handleModalChange);
     modal.querySelector("#nodesSearchInput")?.addEventListener("input", () => renderRelationTable());
   }
 
@@ -596,6 +645,56 @@
     if (formatBtn) exportRelation(formatBtn.dataset.nodesFormat);
   }
 
+  function handleModalChange(event) {
+    const enabled = event.target.closest("[data-qty-enabled]");
+    if (enabled) {
+      const index = Number(enabled.dataset.qtyEnabled);
+      updateQuantityMeta(index, { hasQuantity: enabled.checked });
+      const select = document.querySelector(`[data-qty-type="${index}"]`);
+      if (select) select.disabled = !enabled.checked;
+      return;
+    }
+    const type = event.target.closest("[data-qty-type]");
+    if (type) {
+      updateQuantityMeta(Number(type.dataset.qtyType), { quantityType: type.value });
+    }
+  }
+
+  async function updateQuantityMeta(index, patch) {
+    const relation = state.activeRelation;
+    if (!relation?.columns?.[index]) return;
+    relation.columns[index] = withQuantityMeta({ ...relation.columns[index], ...patch }, index);
+    renderRelationTable();
+    try {
+      await persistRelationSchema(relation);
+      setStatus("Налаштування кількості оновлено.", "success");
+    } catch (error) {
+      setStatus(`Метадані оновлено локально, але Supabase не зберіг: ${error.message}`, "warn");
+    }
+  }
+
+  async function persistRelationSchema(relation) {
+    sb = sb || createSupabaseClient();
+    if (!sb || !relation?.dbId) return;
+    const schema = {
+      version: 2,
+      relation_name: relation.name,
+      description: relation.description || "",
+      dictionaries: relation.dictionaries || [],
+      columns: (relation.columns || []).map((c, i) => withQuantityMeta(c, i)),
+      result: relation.result || { label: "Результат", type: "text" },
+      table_name: relation.tableName
+    };
+    const { error } = await sb.from("rel_registry").update({ schema, updated_at: new Date().toISOString() }).eq("id", relation.dbId);
+    if (error) throw error;
+    const changed = (relation.columns || []).find((c) => hasQuantity(c));
+    if (changed) {
+      try {
+        await sb.rpc("ensure_bastion_relation_quantity_columns", { p_relation_id: relation.dbId });
+      } catch (_) {}
+    }
+  }
+
   function syncModes() {
     const modal = document.getElementById("nodesRelationModal");
     if (!modal) return;
@@ -623,7 +722,7 @@
     const query = document.getElementById("nodesSearchInput")?.value?.trim()?.toLowerCase() || "";
     const headers = relationHeaders(relation);
     const sourceRows = relation.rows || [];
-    const rows = sourceRows.filter((row) => !query || row.join(" ").toLowerCase().includes(query));
+    const rows = sourceRows.filter((row) => !query || row.map((cell, idx) => idx < (relation.columns || []).length ? formatRelationCell(cell, relation.columns[idx]) : cell).join(" ").toLowerCase().includes(query));
     const bodyRows = rows.length
       ? rows.map((row, i) => renderRelationRow(relation, row, i)).join("")
       : (state.addRowActive ? "" : `<tr><td colspan="${headers.length}" class="nodes-empty-cell">Записів немає</td></tr>`);
@@ -645,18 +744,20 @@
   function renderRelationRow(relation, row, i) {
     const cols = relation.columns || [];
     const resultIndex = cols.length;
-    return `<tr><td class="nodes-num-cell">${i + 1}</td>${cols.map((col, idx) => `<td>${renderSelect(col, row[idx])}</td>`).join("")}<td>${renderResultInput(relation.result, row[resultIndex])}</td></tr>`;
+    return `<tr><td class="nodes-num-cell">${i + 1}</td>${cols.map((col, idx) => `<td>${renderValueQtyCell(col, row[idx])}</td>`).join("")}<td>${renderResultInput(relation.result, row[resultIndex])}</td></tr>`;
   }
 
 
   function renderAddRelationRow(relation, index) {
     const cols = relation.columns || [];
-    return `<tr class="nodes-add-row"><td class="nodes-num-cell">${index + 1}</td>${cols.map((col, idx) => `<td>${renderAddSelect(col, idx)}</td>`).join("")}<td><div class="nodes-add-result-cell">${renderAddResultInput(relation.result)}<span class="nodes-inline-actions"><button type="button" class="nodes-inline-ok" data-nodes-save-row aria-label="Зберегти">✓</button><button type="button" class="nodes-inline-cancel" data-nodes-cancel-row aria-label="Скасувати">×</button></span></div></td></tr>`;
+    return `<tr class="nodes-add-row"><td class="nodes-num-cell">${index + 1}</td>${cols.map((col, idx) => `<td>${renderAddValueQtyCell(col, idx)}</td>`).join("")}<td><div class="nodes-add-result-cell">${renderAddResultInput(relation.result)}<span class="nodes-inline-actions"><button type="button" class="nodes-inline-ok" data-nodes-save-row aria-label="Зберегти">✓</button><button type="button" class="nodes-inline-cancel" data-nodes-cancel-row aria-label="Скасувати">×</button></span></div></td></tr>`;
   }
 
-  function renderAddSelect(col, idx) {
+  function renderAddValueQtyCell(col, idx) {
     const opts = (col.values || []).map((v) => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join("");
-    return `<select class="nodes-cell-select" data-add-col="${idx}"><option value="">— обрати —</option>${opts}</select>`;
+    const meta = withQuantityMeta(col, idx);
+    const qty = hasQuantity(meta) ? `<input class="nodes-cell-input nodes-qty-input" data-add-qty="${idx}" type="number" ${meta.quantityType === "integer" ? 'step="1"' : 'step="0.01"'} min="0" placeholder="к-сть">` : "";
+    return `<div class="nodes-value-qty-cell"><select class="nodes-cell-select" data-add-col="${idx}"><option value="">— обрати —</option>${opts}</select>${qty}</div>`;
   }
 
   function renderAddResultInput(result) {
@@ -685,9 +786,20 @@
   async function saveNewRelationRow() {
     const relation = state.activeRelation;
     if (!relation) return;
-    const values = (relation.columns || []).map((_, idx) => document.querySelector(`[data-add-col="${idx}"]`)?.value || "");
+    let values;
+    try {
+      values = (relation.columns || []).map((col, idx) => {
+        const value = document.querySelector(`[data-add-col="${idx}"]`)?.value || "";
+        const qtyRaw = document.querySelector(`[data-add-qty="${idx}"]`)?.value || "";
+        const meta = withQuantityMeta(col, idx);
+        const qty = hasQuantity(meta) ? normalizeQuantityValue(qtyRaw, meta.quantityType) : null;
+        return makeCell(value, qty ?? "");
+      });
+    } catch (validationError) {
+      return setStatus(validationError.message, "warn");
+    }
     const resultValue = document.querySelector("[data-add-result]")?.value || "";
-    if (!values.some((v) => String(v).trim()) && !String(resultValue).trim()) {
+    if (!values.some((v) => String(getCellValue(v)).trim() || String(getCellQty(v)).trim()) && !String(resultValue).trim()) {
       return setStatus("Заповніть хоча б одне поле нового запису.", "warn");
     }
     try {
@@ -713,10 +825,22 @@
       updated_at: new Date().toISOString()
     };
     (relation.columns || []).forEach((col, index) => {
-      const key = col.storage_key || `c_${String(index + 1).padStart(3, "0")}_${slugify(col.column).replace(/-/g, "_")}`;
-      payload[key] = values[index] || null;
+      const meta = withQuantityMeta(col, index);
+      const key = meta.storage_key;
+      payload[key] = getCellValue(values[index]) || null;
+      if (hasQuantity(meta)) payload[meta.quantity_key || `${key}_qty`] = getCellQty(values[index]) || null;
     });
-    const { error } = await sb.from(relation.tableName).insert(payload);
+    let { error } = await sb.from(relation.tableName).insert(payload);
+    if (error && /column .*(_qty|row_order)|Could not find .*(_qty|row_order)|schema cache/i.test(error.message || "")) {
+      const fallback = { ...payload };
+      delete fallback.row_order;
+      (relation.columns || []).forEach((col, index) => {
+        const meta = withQuantityMeta(col, index);
+        delete fallback[meta.quantity_key || `${meta.storage_key}_qty`];
+      });
+      const retry = await sb.from(relation.tableName).insert(fallback);
+      error = retry.error;
+    }
     if (error) throw error;
     try {
       await sb.from("rel_registry").update({ records_count: (relation.rows || []).length + 1, updated_at: new Date().toISOString() }).eq("id", relation.dbId);
@@ -731,9 +855,13 @@
     if (metaRows) metaRows.textContent = String(count);
   }
 
-  function renderSelect(col, value) {
-    const opts = (col.values || []).map((v) => `<option value="${escapeAttr(v)}"${String(v) === String(value) ? " selected" : ""}>${escapeHtml(v)}</option>`).join("");
-    return `<select class="nodes-cell-select"><option value="">—</option>${opts}</select>`;
+  function renderValueQtyCell(col, cell) {
+    const value = getCellValue(cell);
+    const qty = getCellQty(cell);
+    const meta = withQuantityMeta(col, 0);
+    const opts = (meta.values || []).map((v) => `<option value="${escapeAttr(v)}"${String(v) === String(value) ? " selected" : ""}>${escapeHtml(v)}</option>`).join("");
+    const qtyInput = hasQuantity(meta) ? `<input class="nodes-cell-input nodes-qty-input" type="number" ${meta.quantityType === "integer" ? 'step="1"' : 'step="0.01"'} min="0" value="${escapeAttr(qty)}" placeholder="к-сть">` : "";
+    return `<div class="nodes-value-qty-cell"><select class="nodes-cell-select"><option value="">—</option>${opts}</select>${qtyInput}</div>`;
   }
 
   function renderResultInput(result, value) {
@@ -750,7 +878,10 @@
     panel.innerHTML = `
       <h3>СТРУКТУРА ЗВ’ЯЗКУ</h3>
       <div class="nodes-structure-list">
-        ${(relation.columns || []).map((c, i) => `<div class="nodes-structure-row"><b>${i + 1}</b><span>${escapeHtml(c.dictionary)}</span><small>${escapeHtml(c.label || c.column)}</small><button type="button">✎</button><button type="button">×</button></div>`).join("")}
+        ${(relation.columns || []).map((c, i) => {
+          const meta = withQuantityMeta(c, i);
+          return `<div class="nodes-structure-row nodes-structure-row--quantity"><b>${i + 1}</b><span>${escapeHtml(meta.dictionary)}</span><small>${escapeHtml(meta.label || meta.column)}</small><label class="nodes-quantity-toggle"><input type="checkbox" data-qty-enabled="${i}" ${hasQuantity(meta) ? "checked" : ""}> <span>Кількість</span></label><select data-qty-type="${i}" ${hasQuantity(meta) ? "" : "disabled"}><option value="integer"${meta.quantityType === "integer" ? " selected" : ""}>Ціле</option><option value="decimal"${meta.quantityType === "decimal" ? " selected" : ""}>Десяткове</option></select><button type="button">✎</button><button type="button">×</button></div>`;
+        }).join("")}
         <div class="nodes-structure-row is-result"><b>R</b><span>${escapeHtml(relation.result?.label || "Результат")}</span><small>${escapeHtml(relation.result?.type || "text")}</small><button type="button">✎</button></div>
       </div>`;
   }
@@ -873,7 +1004,7 @@
     const columns = [];
     state.builderDraft.forEach((d) => d.columns.forEach((col, index) => {
       const catalogCol = getCatalogColumn(d.table, col);
-      columns.push({
+      columns.push(withQuantityMeta({
         dictionary: d.title,
         sourceTable: d.table,
         column: col,
@@ -881,8 +1012,10 @@
         type: catalogCol?.type || "text",
         values: catalogCol?.values || getCatalogColumnValues(d.table, col),
         key: `${d.table}.${col}`,
-        order_index: columns.length
-      });
+        order_index: columns.length,
+        hasQuantity: true,
+        quantityType: "integer"
+      }, columns.length));
     }));
 
     const relation = {
@@ -917,7 +1050,7 @@
     const relation = state.activeRelation;
     if (!relation) return;
     const headers = relationHeaders(relation).map((h, idx) => idx === 0 ? "№" : h.kind === "result" ? h.label : `${h.dictionary} / ${h.label || h.column}`);
-    const rows = (relation.rows || []).map((row, idx) => [idx + 1, ...row]);
+    const rows = (relation.rows || []).map((row, idx) => [idx + 1, ...(relation.columns || []).map((col, colIdx) => formatRelationCell(row[colIdx], col)), row[(relation.columns || []).length] ?? ""]);
     const filename = exportFileName(relation.name, format === "excel" ? "xlsx" : format);
     if (format === "json") {
       const payload = { relation_name: relation.name, description: relation.description || "", generated_at: new Date().toISOString(), columns: headers, rows };
