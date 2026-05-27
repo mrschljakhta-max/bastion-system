@@ -25,11 +25,11 @@
   ];
 
   const positions = [
-    { x: -540, scale: .68, opacity: .40, z: 1 },
-    { x: -292, scale: .84, opacity: .74, z: 5 },
-    { x: 0, scale: 1.18, opacity: 1, z: 12 },
-    { x: 292, scale: .84, opacity: .74, z: 5 },
-    { x: 540, scale: .68, opacity: .40, z: 1 },
+    { x: -540, scale: .66, opacity: .38, z: 1 },
+    { x: -292, scale: .82, opacity: .72, z: 5 },
+    { x: 0, scale: 1.24, opacity: 1, z: 12 },
+    { x: 292, scale: .82, opacity: .72, z: 5 },
+    { x: 540, scale: .66, opacity: .38, z: 1 },
   ];
 
   const state = {
@@ -146,8 +146,8 @@
     const rect = card.getBoundingClientRect();
     const px = (event.clientX - rect.left) / rect.width - 0.5;
     const py = (event.clientY - rect.top) / rect.height - 0.5;
-    card.style.setProperty("--ry", `${px * 9}deg`);
-    card.style.setProperty("--rx", `${py * -9}deg`);
+    card.style.setProperty("--ry", `${px * 10.5}deg`);
+    card.style.setProperty("--rx", `${py * -10.5}deg`);
   });
 
   carousel.addEventListener("mouseleave", () => {

@@ -1,6 +1,6 @@
 /* ==========================================================
-   BASTION NODES PAGE v002
-   Relation carousel: clean stage, compact card text, smooth 3D flip/tilt.
+   BASTION NODES PAGE v003
+   Relation carousel: lower dark alignment, tighter card typography, smoother 3D motion.
    ========================================================== */
 
 body.bastion-core-page[data-active-module="nodes"],
@@ -37,6 +37,10 @@ body.bastion-core-page:has(.nodes-screen) {
   pointer-events: auto;
 }
 
+:root:not([data-theme="light"]) .relations-carousel-shell {
+  transform: translateY(clamp(28px, 4.8vh, 54px));
+}
+
 .relations-carousel {
   position: relative;
   width: 100%;
@@ -59,7 +63,7 @@ body.bastion-core-page:has(.nodes-screen) {
   transform: translateX(var(--x)) scale(var(--scale));
   opacity: var(--opacity);
   z-index: var(--z);
-  transition: transform .86s cubic-bezier(.16, .86, .18, 1), opacity .62s ease, filter .62s ease;
+  transition: transform .98s cubic-bezier(.13, .92, .16, 1), opacity .72s ease, filter .72s ease;
   filter: saturate(.95) brightness(.86);
   cursor: pointer;
   border: 0;
@@ -80,12 +84,12 @@ body.bastion-core-page:has(.nodes-screen) {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transition: transform .42s cubic-bezier(.2, .82, .22, 1), filter .42s ease;
+  transition: transform .48s cubic-bezier(.16, .9, .18, 1), filter .48s ease;
   will-change: transform;
 }
 
 .relation-card.is-active:hover .relation-card__tilt {
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(16px);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(22px) scale(1.012);
   filter: drop-shadow(0 0 18px rgba(255, 60, 60, .26));
 }
 
@@ -93,7 +97,7 @@ body.bastion-core-page:has(.nodes-screen) {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transition: transform .88s cubic-bezier(.16, .86, .18, 1);
+  transition: transform .96s cubic-bezier(.13, .92, .16, 1);
 }
 
 .relation-card.is-flipped .relation-card__inner {
@@ -125,8 +129,8 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-card__content {
   position: relative;
   z-index: 2;
-  width: 56%;
-  min-height: 48%;
+  width: 50%;
+  min-height: 42%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -138,35 +142,35 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-title {
   max-width: 100%;
   color: #f7f8fb;
-  font: 900 clamp(14px, 1.35vw, 22px)/1.02 Rajdhani, Arial, sans-serif;
-  letter-spacing: .065em;
+  font: 900 clamp(11px, 1.02vw, 17px)/1.02 Rajdhani, Arial, sans-serif;
+  letter-spacing: .055em;
   text-transform: uppercase;
   text-shadow: 0 0 18px rgba(255, 70, 65, .34);
   word-break: break-word;
 }
 
 .relation-count {
-  margin-top: clamp(10px, 1.7vh, 24px);
+  margin-top: clamp(8px, 1.25vh, 16px);
   color: #ff3737;
-  font: 900 clamp(36px, 4.1vw, 66px)/.82 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(34px, 3.35vw, 56px)/.82 Rajdhani, Arial, sans-serif;
   letter-spacing: .02em;
   text-shadow: 0 0 18px rgba(255, 28, 28, .6);
 }
 
 .relation-count-label {
-  margin-top: 8px;
-  color: rgba(255, 246, 242, .74);
-  font: 800 clamp(11px, 1.05vw, 16px)/1 Rajdhani, Arial, sans-serif;
+  margin-top: 6px;
+  color: rgba(255, 246, 242, .76);
+  font: 800 clamp(9px, .78vw, 13px)/1 Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
 
 .relation-back-heading {
   color: #ff3b3b;
-  font: 900 clamp(13px, 1.15vw, 18px)/1 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(11px, .92vw, 15px)/1 Rajdhani, Arial, sans-serif;
   letter-spacing: .13em;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 9px;
   text-shadow: 0 0 14px rgba(255, 30, 30, .55);
 }
 
@@ -176,7 +180,7 @@ body.bastion-core-page:has(.nodes-screen) {
   padding: 0;
   width: 100%;
   display: grid;
-  gap: 7px;
+  gap: 5px;
   text-align: left;
 }
 
@@ -184,7 +188,7 @@ body.bastion-core-page:has(.nodes-screen) {
   position: relative;
   padding-left: 16px;
   color: rgba(255, 248, 245, .88);
-  font: 800 clamp(11px, .92vw, 14px)/1.08 Rajdhani, Arial, sans-serif;
+  font: 800 clamp(9px, .72vw, 12px)/1.08 Rajdhani, Arial, sans-serif;
   letter-spacing: .06em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -206,14 +210,14 @@ body.bastion-core-page:has(.nodes-screen) {
 
 .relation-create-plus {
   color: #ff3030;
-  font: 900 clamp(58px, 6.5vw, 112px)/.75 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(48px, 5.4vw, 92px)/.75 Rajdhani, Arial, sans-serif;
   text-shadow: 0 0 24px rgba(255, 40, 40, .82);
 }
 
 .relation-create-text {
-  margin-top: 22px;
+  margin-top: 14px;
   color: #ff3b3b;
-  font: 900 clamp(14px, 1.35vw, 22px)/1.08 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(11px, .96vw, 16px)/1.08 Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
   text-shadow: 0 0 16px rgba(255, 30, 30, .45);
