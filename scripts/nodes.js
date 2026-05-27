@@ -1331,149 +1331,119 @@
       if (!si.has(s)) { si.set(s, shared.length); shared.push(s); }
       return si.get(s);
     };
-    const esc = (s) => String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-    const colName = (n) => { let s = ""; while (n >= 0) { s = String.fromCharCode((n % 26) + 65) + s; n = Math.floor(n / 26) - 1; } return s; };
+    const esc = (s) => String(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+    const colName = (n) => {
+      let s = "";
+      while (n >= 0) {
+        s = String.fromCharCode((n % 26) + 65) + s;
+        n = Math.floor(n / 26) - 1;
+      }
+      return s;
+    };
+
+    // Excel export is intentionally simple: only the table, no logo/header/footer.
+    // File name already contains the relation name.
     const data = [headers, ...rows];
-    const sheetRows = data.map((r, ridx) => `<row r="${ridx + 1}">${r.map((v, cidx) => `<c r="${colName(cidx)}${ridx + 1}" t="s"><v>${getSi(v)}</v></c>`).join("")}</row>`).join("");
+    const columnWidths = headers.map((_, cidx) => {
+      const maxLen = data.reduce((max, row) => {
+        const value = String(row?.[cidx] ?? "");
+        return Math.max(max, ...value.split(/\r?\n/).map((part) => part.length));
+      }, 0);
+      // Width is auto-calculated by content, with sane bounds for readability.
+      return Math.max(8, Math.min(36, maxLen + 3));
+    });
+
+    const cols = columnWidths.map((width, idx) =>
+      `<col min="${idx + 1}" max="${idx + 1}" width="${width}" customWidth="1"/>`
+    ).join("");
+
+    const sheetRows = data.map((r, ridx) => {
+      const styleId = ridx === 0 ? 1 : 2;
+      const height = ridx === 0 ? 22 : 19;
+      const cells = r.map((v, cidx) =>
+        `<c r="${colName(cidx)}${ridx + 1}" t="s" s="${styleId}"><v>${getSi(v)}</v></c>`
+      ).join("");
+      return `<row r="${ridx + 1}" ht="${height}" customHeight="1">${cells}</row>`;
+    }).join("");
+
+    const lastCell = `${colName(Math.max(headers.length - 1, 0))}${Math.max(data.length, 1)}`;
+    const safeSheetName = esc((title || "Relation").replace(/[\\/?*\[\]:]/g, " ").trim().slice(0, 31) || "Relation");
+
     const files = {
       "[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
       "_rels/.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
-      "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${esc(title).slice(0,31) || "Relation"}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+      "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${safeSheetName}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
       "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
-      "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Arial"/></font></fonts><fills count="1"><fill><patternFill patternType="none"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="1"><xf xfId="0"/></cellXfs></styleSheet>`,
-      "xl/sharedStrings.xml": `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${shared.length}" uniqueCount="${shared.length}">${shared.map((s) => `<si><t>${esc(s)}</t></si>`).join("")}</sst>`,
-      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${sheetRows}</sheetData></worksheet>`
+      "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="2"><border/><border><left style="thin"><color indexed="64"/></left><right style="thin"><color indexed="64"/></right><top style="thin"><color indexed="64"/></top><bottom style="thin"><color indexed="64"/></bottom></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf xfId="0" numFmtId="0" fontId="0" fillId="0" borderId="0"/><xf xfId="0" numFmtId="0" fontId="1" fillId="0" borderId="1" applyFont="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf xfId="0" numFmtId="0" fontId="0" fillId="0" borderId="1" applyBorder="1"><alignment vertical="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`,
+      "xl/sharedStrings.xml": `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${data.flat().length}" uniqueCount="${shared.length}">${shared.map((s) => `<si><t>${esc(s)}</t></si>`).join("")}</sst>`,
+      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:${lastCell}"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${cols}</cols><sheetData>${sheetRows}</sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>`
     };
     return new Blob([zipStore(files)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
   }
 
   
-
 async function exportPdfReport(relation, headers, rows, filename) {
   try {
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
     if (!window.pdfMake) throw new Error("pdfMake unavailable");
-
     const user = profileInfo();
-    const now = new Date();
-    const logo = await loadImageDataUrl("../assets/logo/bastion-mark-red-v1.png");
-    const title = String(relation?.name || "BASTION").toUpperCase();
-
-    const tableBody = [
-      headers.map((h, idx) => ({
-        text: String(h || "").toUpperCase(),
-        bold: true,
-        color: "#ffffff",
-        fillColor: "#090d14",
-        fontSize: idx === 0 ? 10 : 9.6,
-        characterSpacing: .25,
-        margin: idx === 0 ? [7, 12, 7, 12] : [10, 12, 8, 12]
-      })),
-      ...rows.map((r, rowIndex) => r.map((v, colIndex) => ({
-        text: String(v ?? ""),
-        color: colIndex === 0 ? "#d71920" : "#111827",
-        bold: colIndex === 0 || colIndex === r.length - 1,
-        fontSize: colIndex === 0 ? 10.5 : 10,
-        margin: colIndex === 0 ? [7, 13, 7, 13] : [10, 13, 8, 13],
-        fillColor: rowIndex % 2 ? "#fbfbfc" : "#ffffff"
-      })))
-    ];
-
-    const brandStack = [
-      {
-        columns: [
-          { text: "BASTION", alignment: "right", fontSize: 18, bold: true, color: "#111827", characterSpacing: 1.2, margin: [0, 3, 8, 0] },
-          logo ? { image: logo, width: 24, alignment: "right", margin: [0, 0, 0, 0] } : { text: "", width: 24 }
-        ],
-        columnGap: 2
-      },
-      { text: "SYSTEM", alignment: "right", fontSize: 9, bold: true, color: "#d71920", characterSpacing: 3.2, margin: [0, 2, 0, 0] }
+    const tableName = `rel_${relation.id.replace(/-/g, "_")}`;
+    const body = [
+      headers.map((h) => ({ text: h.toUpperCase(), bold: true, color:"#ffffff", fillColor:"#0c0f16", margin:[8,10] })),
+      ...rows.map((r)=>r.map((v)=>({text:String(v ?? ""), margin:[8,12]})))
     ];
 
     const doc = {
-      pageOrientation: "landscape",
-      pageSize: "A4",
-      pageMargins: [26, 28, 26, 42],
-      content: [
+      pageMargins:[22,24,22,26],
+      content:[
         {
-          columns: [
+          columns:[
+            [
+              { text: relation.name.toUpperCase(), fontSize:28, bold:true, color:"#e91c24", characterSpacing:1.5 },
+              { text: `Таблиця: ${tableName}`, margin:[0,8,0,0], color:"#222", fontSize:12 }
+            ],
             {
-              width: "*",
-              stack: [
-                { text: title, fontSize: 26, bold: true, color: "#d71920", characterSpacing: 2.1, margin: [0, 0, 0, 0] }
+              stack:[
+                { text:"BASTION SYSTEM", alignment:"right", fontSize:22, bold:true, color:"#111" },
+                { text:"◢", alignment:"right", color:"#e91c24", fontSize:30 }
               ]
-            },
-            { width: 210, stack: brandStack }
+            }
           ]
         },
+        { canvas:[{type:"line", x1:0,y1:12,x2:760,y2:12,lineWidth:1,lineColor:"#e91c24"}], margin:[0,10,0,18] },
         {
-          canvas: [
-            { type: "line", x1: 0, y1: 0, x2: 786, y2: 0, lineWidth: 1.4, lineColor: "#d71920" }
-          ],
-          margin: [0, 20, 0, 16]
-        },
-        {
-          table: {
-            headerRows: 1,
-            widths: headers.map((_, i) => i === 0 ? 42 : "*"),
-            body: tableBody
-          },
-          layout: {
-            paddingLeft: () => 0,
-            paddingRight: () => 0,
-            paddingTop: () => 0,
-            paddingBottom: () => 0,
-            hLineWidth: (i, node) => i === 0 || i === node.table.body.length ? .7 : .55,
-            vLineWidth: () => .55,
-            hLineColor: (i) => i === 1 ? "#d71920" : "#d9dde3",
-            vLineColor: () => "#d9dde3"
+          table:{ headerRows:1, widths: headers.map((_,i)=> i===0?36:"*"), body },
+          layout:{
+            fillColor:(row)=> row===0 ? "#0c0f16" : null,
+            hLineColor:()=>"#d8d8d8",
+            vLineColor:()=>"#d8d8d8"
           }
         }
       ],
-      footer: () => ({
-        margin: [26, 6, 26, 0],
-        stack: [
-          { canvas: [{ type: "line", x1: 0, y1: 0, x2: 786, y2: 0, lineWidth: 1, lineColor: "#d71920" }], margin: [0, 0, 0, 9] },
-          {
-            columns: [
-              { text: "●  bastion-system.com", color: "#111827", fontSize: 8.8, width: "*" },
-              { text: `Дата: ${now.toLocaleDateString("uk-UA")}`, color: "#111827", fontSize: 8.8, width: 105 },
-              { text: `Час: ${now.toLocaleTimeString("uk-UA")}`, color: "#111827", fontSize: 8.8, width: 105 },
-              { text: `Виконавець: ${user.login || "—"}`, color: "#111827", fontSize: 8.8, width: 135 },
-              { text: `Email: ${user.email || "—"}`, color: "#111827", fontSize: 8.8, width: 155 },
-              { text: `Записів: ${rows.length}`, color: "#111827", fontSize: 8.8, alignment: "right", width: 72 }
-            ],
-            columnGap: 12
-          }
+      footer:(current,pageCount)=>({
+        margin:[26,8],
+        columns:[
+          { text:"bastion-system.com", color:"#444", fontSize:9 },
+          { text:`Дата: ${new Date().toLocaleDateString("uk-UA")}`, alignment:"center", fontSize:9 },
+          { text:`Час: ${new Date().toLocaleTimeString("uk-UA")}`, alignment:"center", fontSize:9 },
+          { text:`Виконавець: ${user.login}`, alignment:"center", fontSize:9 },
+          { text:`Email: ${user.email}`, alignment:"center", fontSize:9 },
+          { text:`Записів: ${rows.length}`, alignment:"right", fontSize:9 }
         ]
       }),
-      defaultStyle: { font: "Roboto", fontSize: 10, lineHeight: 1.08 }
+      defaultStyle:{ font:"Roboto", fontSize:10 }
     };
-
     window.pdfMake.createPdf(doc).download(filename);
   } catch(err) {
 
       const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title></head><body><h1>${escapeHtml(relation.name)}</h1><table border="1"><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
       downloadBlob(html, "text/html;charset=utf-8", filename.replace(/\.pdf$/i, ".html"));
       setStatus("PDF-бібліотеку не завантажено. Збережено HTML-звіт як fallback.", "warn");
-    }
-  }
-
-  async function loadImageDataUrl(src) {
-    try {
-      const response = await fetch(src, { cache: "force-cache" });
-      if (!response.ok) throw new Error(`Image load failed: ${response.status}`);
-      const blob = await response.blob();
-      return await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      console.warn("BASTION PDF logo unavailable:", error?.message || error);
-      return null;
     }
   }
 
