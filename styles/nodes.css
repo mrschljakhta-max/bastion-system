@@ -536,3 +536,82 @@ body.bastion-core-page:has(.nodes-screen) {
   45% { transform: scale(1.035) translateZ(18px); }
   100% { transform: scale(1); }
 }
+
+/* ==========================================================
+   NODES RELATION CAROUSEL v009
+   Compact create-card typography: keep plus/text inside hex safe area.
+   ========================================================== */
+.relation-card.is-create .relation-card__content {
+  width: 38% !important;
+  min-height: 36% !important;
+  transform: translateY(0) !important;
+  justify-content: center;
+  gap: clamp(5px, .6vh, 10px);
+  overflow: hidden;
+}
+
+.relation-card.is-create .relation-create-plus {
+  display: block;
+  color: #ff3030;
+  font-family: Rajdhani, Arial, sans-serif;
+  font-weight: 900;
+  font-size: clamp(28px, 3.25vw, 62px);
+  line-height: .72;
+  letter-spacing: 0;
+  text-shadow: 0 0 18px rgba(255, 40, 40, .78);
+  transform: translateY(-2px);
+}
+
+.relation-card.is-create .relation-create-text {
+  display: block;
+  width: 100%;
+  margin-top: 0 !important;
+  color: #ff3737;
+  font-family: Rajdhani, Arial, sans-serif;
+  font-weight: 900;
+  font-size: clamp(8px, .82vw, 15px);
+  line-height: .92;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+  text-align: center;
+  text-wrap: balance;
+  text-shadow: 0 0 14px rgba(255, 30, 30, .48);
+}
+
+.relation-card.is-active.is-create .relation-card__content {
+  width: 39% !important;
+  min-height: 38% !important;
+  transform: translateY(-1%) !important;
+}
+
+.relation-card.is-active.is-create .relation-create-plus {
+  font-size: clamp(44px, 4.15vw, 78px);
+  line-height: .68;
+}
+
+.relation-card.is-active.is-create .relation-create-text {
+  font-size: clamp(13px, 1.08vw, 19px);
+  line-height: .9;
+  letter-spacing: .032em;
+}
+
+.relation-card:not(.is-active).is-create .relation-card__content {
+  width: 36% !important;
+  min-height: 34% !important;
+}
+
+.relation-card:not(.is-active).is-create .relation-create-plus {
+  font-size: clamp(22px, 2.1vw, 42px);
+}
+
+.relation-card:not(.is-active).is-create .relation-create-text {
+  font-size: clamp(6px, .56vw, 10px);
+  line-height: .9;
+  letter-spacing: .025em;
+}
+
+:root[data-theme="light"] .relation-card.is-create .relation-create-plus,
+:root[data-theme="light"] .relation-card.is-create .relation-create-text {
+  color: #ff3030;
+  text-shadow: 0 0 14px rgba(255, 60, 60, .42);
+}
