@@ -654,6 +654,8 @@
     if (cancelRowBtn) return cancelEditRelationRow();
     const deleteRowBtn = event.target.closest("[data-nodes-row-delete]");
     if (deleteRowBtn) return deleteRelationRow(Number(deleteRowBtn.dataset.nodesRowDelete));
+    const qtyStepBtn = event.target.closest("[data-qty-step]");
+    if (qtyStepBtn) return stepQuantityInput(qtyStepBtn);
     const formatBtn = event.target.closest("[data-nodes-format]");
     if (formatBtn) exportRelation(formatBtn.dataset.nodesFormat);
   }
@@ -774,7 +776,7 @@
   function renderAddValueQtyCell(col, idx) {
     const opts = (col.values || []).map((v) => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join("");
     const meta = withQuantityMeta(col, idx);
-    const qty = hasQuantity(meta) ? `<input class="nodes-cell-input nodes-qty-input" data-add-qty="${idx}" type="number" ${meta.quantityType === "integer" ? 'step="1"' : 'step="0.01"'} min="0" placeholder="к-сть">` : "";
+    const qty = hasQuantity(meta) ? renderQtyControl({ attr: `data-add-qty="${idx}"`, value: "", type: meta.quantityType, disabled: false }) : "";
     return `<div class="nodes-value-qty-cell"><select class="nodes-cell-select" data-add-col="${idx}"><option value="">— обрати —</option>${opts}</select>${qty}</div>`;
   }
 
@@ -1002,8 +1004,33 @@
     const meta = withQuantityMeta(col, idx);
     const disabled = editable ? "" : " disabled";
     const opts = (meta.values || []).map((v) => `<option value="${escapeAttr(v)}"${String(v) === String(value) ? " selected" : ""}>${escapeHtml(v)}</option>`).join("");
-    const qtyInput = hasQuantity(meta) ? `<input class="nodes-cell-input nodes-qty-input" data-edit-qty="${idx}" type="number" ${meta.quantityType === "integer" ? 'step="1"' : 'step="0.01"'} min="0" value="${escapeAttr(qty)}" placeholder="к-сть"${disabled}>` : "";
+    const qtyInput = hasQuantity(meta) ? renderQtyControl({ attr: `data-edit-qty="${idx}"`, value: qty, type: meta.quantityType, disabled: !editable }) : "";
     return `<div class="nodes-value-qty-cell"><select class="nodes-cell-select" data-edit-col="${idx}"${disabled}><option value="">—</option>${opts}</select>${qtyInput}</div>`;
+  }
+
+  function renderQtyControl({ attr, value = "", type = "integer", disabled = false }) {
+    const step = type === "decimal" ? "0.01" : "1";
+    const disabledAttr = disabled ? " disabled" : "";
+    const lockClass = disabled ? " is-locked" : "";
+    return `<span class="nodes-qty-control${lockClass}" data-qty-control>
+      <button type="button" class="nodes-qty-step nodes-qty-step--minus" data-qty-step="-1" aria-label="Зменшити кількість"${disabledAttr}>−</button>
+      <input class="nodes-cell-input nodes-qty-input" ${attr} type="number" step="${step}" min="0" value="${escapeAttr(value)}" placeholder="к-сть"${disabledAttr}>
+      <button type="button" class="nodes-qty-step nodes-qty-step--plus" data-qty-step="1" aria-label="Збільшити кількість"${disabledAttr}>+</button>
+    </span>`;
+  }
+
+  function stepQuantityInput(button) {
+    if (!button || button.disabled) return;
+    const control = button.closest("[data-qty-control]");
+    const input = control?.querySelector(".nodes-qty-input");
+    if (!input || input.disabled) return;
+    const direction = Number(button.dataset.qtyStep || 0);
+    const step = Number(input.step || 1) || 1;
+    const current = Number(String(input.value || "0").replace(",", ".")) || 0;
+    const next = Math.max(0, current + direction * step);
+    input.value = step < 1 ? String(Math.round(next * 100) / 100) : String(Math.round(next));
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.focus();
   }
 
   function renderResultInput(result, value, editable = false) {
