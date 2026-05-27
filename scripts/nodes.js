@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const relations = [
+  let relations = [
     {
       id: "ew-matrix",
       name: "EW MATRIX",
@@ -96,26 +96,49 @@
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (error || !Array.isArray(data) || !data.length) throw error || new Error("dict_registry empty");
+
       const live = [];
       for (const item of data) {
         const table = item.table_name;
         if (!table) continue;
         const title = item.title_ua || item.title || item.code || table.replace(/^dict_/, "").toUpperCase();
-        const rowsRes = await sb.from(table).select("*").limit(80);
-        const rows = rowsRes?.data || [];
         let columns = [];
-        if (rows.length) {
-          columns = Object.keys(rows[0]).filter((name) => !hiddenBuilderColumns.has(String(name).toLowerCase())).map((name) => ({
-            name,
-            label: baseColumnLabel(name),
-            type: inferColumnType(rows.map((row) => row?.[name])),
-            values: uniqueValues(rows.map((row) => row?.[name]))
-          }));
-        } else {
+
+        // 1) Основний спосіб — той самий RPC, який уже працює на сторінці “Довідники”.
+        try {
+          const meta = await sb.rpc("get_bastion_dictionary_columns", { p_table_name: table });
+          if (!meta.error && Array.isArray(meta.data)) {
+            columns = meta.data
+              .map((col) => ({
+                name: col.column_name || col.name,
+                label: baseColumnLabel(col.column_name || col.name),
+                type: normalizeType(col.data_type || col.udt_name || "text"),
+                values: []
+              }))
+              .filter((col) => col.name && !hiddenBuilderColumns.has(String(col.name).toLowerCase()));
+          }
+        } catch (metaError) {
+          console.warn("BASTION nodes column RPC fallback:", metaError?.message || metaError);
+        }
+
+        // 2) Значення для dropdown беремо із самих dict_* таблиць.
+        const rowsRes = await sb.from(table).select("*").limit(500);
+        const rows = rowsRes?.data || [];
+        if (!columns.length && rows.length) {
+          columns = Object.keys(rows[0])
+            .filter((name) => !hiddenBuilderColumns.has(String(name).toLowerCase()))
+            .map((name) => ({ name, label: baseColumnLabel(name), type: inferColumnType(rows.map((row) => row?.[name])), values: [] }));
+        }
+        columns = columns.map((col) => ({
+          ...col,
+          values: uniqueValues(rows.map((row) => row?.[col.name]))
+        }));
+
+        if (!columns.length) {
           const fallback = dictionaryCatalog.find((d) => d.table === table || d.title === title);
           columns = (fallback?.columns || []).map((col) => normalizeColumnObject(col));
         }
-        live.push({ table, title: String(title).toUpperCase(), columns });
+        live.push({ table, title: String(title).toUpperCase(), columns, registryId: item.id });
       }
       if (live.length) {
         dictionaryCatalog.splice(0, dictionaryCatalog.length, ...live);
@@ -125,6 +148,108 @@
       console.warn("BASTION nodes Supabase dictionary fallback:", error?.message || error);
     }
   }
+
+  async function loadLiveRelations() {
+    sb = sb || createSupabaseClient();
+    if (!sb) return;
+    try {
+      const { data, error } = await sb
+        .from("rel_registry")
+        .select("id, relation_name, relation_slug, table_name, description, schema, records_count, is_active, created_at")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      if (!Array.isArray(data) || !data.length) return;
+
+      const liveRelations = [];
+      for (const item of data) {
+        const relation = normalizeRelationRecord(item);
+        const rowsRes = await sb
+          .from("rel_rows")
+          .select("id, row_data, is_active, created_at")
+          .eq("relation_id", item.id)
+          .eq("is_active", true)
+          .order("created_at", { ascending: true });
+        relation.rows = (rowsRes?.data || []).map((row) => {
+          const payload = row.row_data || {};
+          if (Array.isArray(payload.values)) return payload.values;
+          if (Array.isArray(payload.row)) return payload.row;
+          return relation.columns.map((col) => payload[col.key || `${col.sourceTable}.${col.column}`] ?? payload[col.column] ?? "").concat([payload.__result ?? payload.result ?? ""]);
+        });
+        liveRelations.push(relation);
+      }
+      if (liveRelations.length) {
+        relations = liveRelations;
+        state.active = 0;
+        state.flippedId = null;
+      }
+    } catch (error) {
+      console.warn("BASTION nodes rel_registry fallback:", error?.message || error);
+    }
+  }
+
+  function normalizeRelationRecord(item) {
+    const schema = item.schema || {};
+    const columns = Array.isArray(schema.columns)
+      ? schema.columns.map((col) => ({
+          dictionary: col.dictionary || col.dictTitle || col.sourceTable || col.table || "DICT",
+          sourceTable: col.sourceTable || col.table || col.dict_table || "",
+          column: col.column || col.name || col.dict_column || "",
+          label: col.label || baseColumnLabel(col.column || col.name || col.dict_column),
+          type: col.type || col.data_type || "text",
+          values: col.values || getCatalogColumnValues(col.sourceTable || col.table || col.dict_table, col.column || col.name || col.dict_column),
+          key: col.key || `${col.sourceTable || col.table || col.dict_table}.${col.column || col.name || col.dict_column}`
+        }))
+      : [];
+    const dictionaries = Array.isArray(schema.dictionaries)
+      ? schema.dictionaries.map((d) => d.title || d.name || d.table || d).filter(Boolean)
+      : [...new Set(columns.map((c) => c.dictionary))];
+    return {
+      dbId: item.id,
+      id: item.relation_slug || slugify(item.relation_name),
+      tableName: item.table_name || `rel_${slugify(item.relation_name).replace(/-/g, "_")}`,
+      name: item.relation_name || schema.relation_name || "RELATION",
+      description: item.description || schema.description || "",
+      dictionaries,
+      columns,
+      result: schema.result || { label: "Результат", type: "text" },
+      rows: [],
+      isLive: true
+    };
+  }
+
+  async function saveRelationToSupabase(relation) {
+    sb = sb || createSupabaseClient();
+    if (!sb) throw new Error("Supabase не підключений.");
+    const relationSlug = relation.id;
+    const tableName = relation.tableName || `rel_${relationSlug.replace(/-/g, "_")}`;
+    const schema = {
+      version: 1,
+      relation_name: relation.name,
+      description: relation.description || "",
+      dictionaries: state.builderDraft.map((d) => ({ table: d.table, title: d.title, columns: d.columns })),
+      columns: relation.columns.map((col, index) => ({ ...col, order_index: index, key: col.key || `${col.sourceTable}.${col.column}` })),
+      result: relation.result
+    };
+    const payload = {
+      relation_name: relation.name,
+      relation_slug: relationSlug,
+      table_name: tableName,
+      description: relation.description || "",
+      schema,
+      records_count: 0,
+      is_active: true,
+      updated_at: new Date().toISOString()
+    };
+    const { data, error } = await sb
+      .from("rel_registry")
+      .insert(payload)
+      .select("id, relation_name, relation_slug, table_name, description, schema, records_count, is_active, created_at")
+      .single();
+    if (error) throw error;
+    return normalizeRelationRecord(data);
+  }
+
 
   function normalizeColumnObject(col) {
     if (typeof col === "object" && col) return { name: col.name || col.column || col.column_name, label: col.label || baseColumnLabel(col.name || col.column || col.column_name), type: col.type || col.data_type || "text", values: col.values || [] };
@@ -607,17 +732,50 @@
     renderBuilder();
   }
 
-  function createBuilderRelation() {
+  async function createBuilderRelation() {
     const name = document.getElementById("nodesRelationNameInput")?.value?.trim();
     const resultName = document.getElementById("nodesResultName")?.value?.trim() || "Результат";
     const resultType = document.getElementById("nodesResultType")?.value || "text";
     if (!name) return setBuilderStatus("Введіть назву зв’язку.", "error");
+    if (!state.builderDraft.length) return setBuilderStatus("Додайте хоча б один довідник і одну колонку.", "error");
+
     const columns = [];
-    state.builderDraft.forEach((d) => d.columns.forEach((col) => columns.push({ dictionary: d.title, sourceTable: d.table, column: col, label: baseColumnLabel(col), values: getCatalogColumnValues(d.table, col) })));
-    relations.push({ id: slugify(name), name, description: "", dictionaries: state.builderDraft.map((d) => d.title), columns, result: { label: resultName, type: resultType }, rows: [] });
-    closeModals();
-    initialRender();
-    setActive(relations.length - 1);
+    state.builderDraft.forEach((d) => d.columns.forEach((col, index) => {
+      const catalogCol = getCatalogColumn(d.table, col);
+      columns.push({
+        dictionary: d.title,
+        sourceTable: d.table,
+        column: col,
+        label: catalogCol?.label || baseColumnLabel(col),
+        type: catalogCol?.type || "text",
+        values: catalogCol?.values || getCatalogColumnValues(d.table, col),
+        key: `${d.table}.${col}`,
+        order_index: columns.length + index
+      });
+    }));
+
+    const relation = {
+      id: slugify(name),
+      tableName: `rel_${slugify(name).replace(/-/g, "_")}`,
+      name,
+      description: "",
+      dictionaries: state.builderDraft.map((d) => d.title),
+      columns,
+      result: { label: resultName, type: resultType },
+      rows: []
+    };
+
+    try {
+      setBuilderStatus("Зберігаю зв’язок у Supabase...", "loading");
+      const saved = await saveRelationToSupabase(relation);
+      relations.unshift(saved);
+      closeModals();
+      initialRender();
+      setActive(0);
+      openRelationModal(saved);
+    } catch (error) {
+      setBuilderStatus(`Не вдалося зберегти у Supabase: ${error.message}. Перевір таблиці rel_registry / rel_rows та RLS.`, "error");
+    }
   }
 
   function relationHeaders(relation) {
@@ -814,9 +972,13 @@ async function exportPdfReport(relation, headers, rows, filename) {
     if (el) { el.textContent = message || ""; el.dataset.type = type; }
   }
 
-  function getCatalogColumnValues(table, column) {
+  function getCatalogColumn(table, column) {
     const dict = dictionaryCatalog.find((d) => d.table === table);
-    const col = (dict?.columns || []).map(normalizeColumnObject).find((item) => item.name === column);
+    return (dict?.columns || []).map(normalizeColumnObject).find((item) => item.name === column);
+  }
+
+  function getCatalogColumnValues(table, column) {
+    const col = getCatalogColumn(table, column);
     return col?.values?.length ? col.values : sampleValues(column);
   }
 
@@ -846,6 +1008,12 @@ async function exportPdfReport(relation, headers, rows, filename) {
 
   function escapeAttr(value) { return escapeHtml(value).replaceAll("\n", " "); }
 
-  initialRender();
-  loadLiveDictionaryCatalog();
+  async function bootNodesPage() {
+    initialRender();
+    await loadLiveDictionaryCatalog();
+    await loadLiveRelations();
+    initialRender();
+  }
+
+  bootNodesPage();
 })();
