@@ -1348,64 +1348,132 @@
   }
 
   
+
 async function exportPdfReport(relation, headers, rows, filename) {
   try {
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
     if (!window.pdfMake) throw new Error("pdfMake unavailable");
+
     const user = profileInfo();
-    const tableName = `rel_${relation.id.replace(/-/g, "_")}`;
-    const body = [
-      headers.map((h) => ({ text: h.toUpperCase(), bold: true, color:"#ffffff", fillColor:"#0c0f16", margin:[8,10] })),
-      ...rows.map((r)=>r.map((v)=>({text:String(v ?? ""), margin:[8,12]})))
+    const now = new Date();
+    const logo = await loadImageDataUrl("../assets/logo/bastion-mark-red-v1.png");
+    const title = String(relation?.name || "BASTION").toUpperCase();
+
+    const tableBody = [
+      headers.map((h, idx) => ({
+        text: String(h || "").toUpperCase(),
+        bold: true,
+        color: "#ffffff",
+        fillColor: "#090d14",
+        fontSize: idx === 0 ? 10 : 9.6,
+        characterSpacing: .25,
+        margin: idx === 0 ? [7, 12, 7, 12] : [10, 12, 8, 12]
+      })),
+      ...rows.map((r, rowIndex) => r.map((v, colIndex) => ({
+        text: String(v ?? ""),
+        color: colIndex === 0 ? "#d71920" : "#111827",
+        bold: colIndex === 0 || colIndex === r.length - 1,
+        fontSize: colIndex === 0 ? 10.5 : 10,
+        margin: colIndex === 0 ? [7, 13, 7, 13] : [10, 13, 8, 13],
+        fillColor: rowIndex % 2 ? "#fbfbfc" : "#ffffff"
+      })))
+    ];
+
+    const brandStack = [
+      {
+        columns: [
+          { text: "BASTION", alignment: "right", fontSize: 18, bold: true, color: "#111827", characterSpacing: 1.2, margin: [0, 3, 8, 0] },
+          logo ? { image: logo, width: 24, alignment: "right", margin: [0, 0, 0, 0] } : { text: "", width: 24 }
+        ],
+        columnGap: 2
+      },
+      { text: "SYSTEM", alignment: "right", fontSize: 9, bold: true, color: "#d71920", characterSpacing: 3.2, margin: [0, 2, 0, 0] }
     ];
 
     const doc = {
-      pageMargins:[22,24,22,26],
-      content:[
+      pageOrientation: "landscape",
+      pageSize: "A4",
+      pageMargins: [26, 28, 26, 42],
+      content: [
         {
-          columns:[
-            [
-              { text: relation.name.toUpperCase(), fontSize:28, bold:true, color:"#e91c24", characterSpacing:1.5 },
-              { text: `Таблиця: ${tableName}`, margin:[0,8,0,0], color:"#222", fontSize:12 }
-            ],
+          columns: [
             {
-              stack:[
-                { text:"BASTION SYSTEM", alignment:"right", fontSize:22, bold:true, color:"#111" },
-                { text:"◢", alignment:"right", color:"#e91c24", fontSize:30 }
+              width: "*",
+              stack: [
+                { text: title, fontSize: 26, bold: true, color: "#d71920", characterSpacing: 2.1, margin: [0, 0, 0, 0] }
               ]
-            }
+            },
+            { width: 210, stack: brandStack }
           ]
         },
-        { canvas:[{type:"line", x1:0,y1:12,x2:760,y2:12,lineWidth:1,lineColor:"#e91c24"}], margin:[0,10,0,18] },
         {
-          table:{ headerRows:1, widths: headers.map((_,i)=> i===0?36:"*"), body },
-          layout:{
-            fillColor:(row)=> row===0 ? "#0c0f16" : null,
-            hLineColor:()=>"#d8d8d8",
-            vLineColor:()=>"#d8d8d8"
+          canvas: [
+            { type: "line", x1: 0, y1: 0, x2: 786, y2: 0, lineWidth: 1.4, lineColor: "#d71920" }
+          ],
+          margin: [0, 20, 0, 16]
+        },
+        {
+          table: {
+            headerRows: 1,
+            widths: headers.map((_, i) => i === 0 ? 42 : "*"),
+            body: tableBody
+          },
+          layout: {
+            paddingLeft: () => 0,
+            paddingRight: () => 0,
+            paddingTop: () => 0,
+            paddingBottom: () => 0,
+            hLineWidth: (i, node) => i === 0 || i === node.table.body.length ? .7 : .55,
+            vLineWidth: () => .55,
+            hLineColor: (i) => i === 1 ? "#d71920" : "#d9dde3",
+            vLineColor: () => "#d9dde3"
           }
         }
       ],
-      footer:(current,pageCount)=>({
-        margin:[26,8],
-        columns:[
-          { text:"bastion-system.com", color:"#444", fontSize:9 },
-          { text:`Дата: ${new Date().toLocaleDateString("uk-UA")}`, alignment:"center", fontSize:9 },
-          { text:`Час: ${new Date().toLocaleTimeString("uk-UA")}`, alignment:"center", fontSize:9 },
-          { text:`Виконавець: ${user.login}`, alignment:"center", fontSize:9 },
-          { text:`Email: ${user.email}`, alignment:"center", fontSize:9 },
-          { text:`Записів: ${rows.length}`, alignment:"right", fontSize:9 }
+      footer: () => ({
+        margin: [26, 6, 26, 0],
+        stack: [
+          { canvas: [{ type: "line", x1: 0, y1: 0, x2: 786, y2: 0, lineWidth: 1, lineColor: "#d71920" }], margin: [0, 0, 0, 9] },
+          {
+            columns: [
+              { text: "●  bastion-system.com", color: "#111827", fontSize: 8.8, width: "*" },
+              { text: `Дата: ${now.toLocaleDateString("uk-UA")}`, color: "#111827", fontSize: 8.8, width: 105 },
+              { text: `Час: ${now.toLocaleTimeString("uk-UA")}`, color: "#111827", fontSize: 8.8, width: 105 },
+              { text: `Виконавець: ${user.login || "—"}`, color: "#111827", fontSize: 8.8, width: 135 },
+              { text: `Email: ${user.email || "—"}`, color: "#111827", fontSize: 8.8, width: 155 },
+              { text: `Записів: ${rows.length}`, color: "#111827", fontSize: 8.8, alignment: "right", width: 72 }
+            ],
+            columnGap: 12
+          }
         ]
       }),
-      defaultStyle:{ font:"Roboto", fontSize:10 }
+      defaultStyle: { font: "Roboto", fontSize: 10, lineHeight: 1.08 }
     };
+
     window.pdfMake.createPdf(doc).download(filename);
   } catch(err) {
 
       const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title></head><body><h1>${escapeHtml(relation.name)}</h1><table border="1"><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
       downloadBlob(html, "text/html;charset=utf-8", filename.replace(/\.pdf$/i, ".html"));
       setStatus("PDF-бібліотеку не завантажено. Збережено HTML-звіт як fallback.", "warn");
+    }
+  }
+
+  async function loadImageDataUrl(src) {
+    try {
+      const response = await fetch(src, { cache: "force-cache" });
+      if (!response.ok) throw new Error(`Image load failed: ${response.status}`);
+      const blob = await response.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.warn("BASTION PDF logo unavailable:", error?.message || error);
+      return null;
     }
   }
 
