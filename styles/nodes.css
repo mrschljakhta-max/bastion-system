@@ -1,6 +1,6 @@
 /* ==========================================================
    BASTION NODES PAGE v003
-   Relation carousel: lower dark alignment, tighter card typography, smoother 3D motion.
+   Relation carousel: clean stage, compact card text, smooth 3D flip/tilt.
    ========================================================== */
 
 body.bastion-core-page[data-active-module="nodes"],
@@ -37,10 +37,6 @@ body.bastion-core-page:has(.nodes-screen) {
   pointer-events: auto;
 }
 
-:root:not([data-theme="light"]) .relations-carousel-shell {
-  transform: translateY(clamp(28px, 4.8vh, 54px));
-}
-
 .relations-carousel {
   position: relative;
   width: 100%;
@@ -52,6 +48,21 @@ body.bastion-core-page:has(.nodes-screen) {
   outline: none;
 }
 
+.relations-carousel.is-carousel-moving .relation-card {
+  filter: saturate(1.05) brightness(.96) drop-shadow(0 0 18px rgba(255, 42, 42, .20));
+}
+
+.relations-carousel.is-carousel-moving .relation-card__tilt {
+  animation: relation-orbit-sway .78s cubic-bezier(.12,.86,.16,1) both;
+}
+
+@keyframes relation-orbit-sway {
+  0% { transform: rotateY(0deg) translateZ(0); }
+  42% { transform: rotateY(calc(var(--delta, 0) * -4deg)) translateZ(10px); }
+  100% { transform: rotateY(0deg) translateZ(0); }
+}
+
+
 .relation-card {
   --x: 0px;
   --scale: 1;
@@ -60,16 +71,22 @@ body.bastion-core-page:has(.nodes-screen) {
   position: absolute;
   width: clamp(250px, 20vw, 392px);
   aspect-ratio: 1 / 1;
-  transform: translateX(var(--x)) scale(var(--scale));
+  transform: translate3d(var(--x), var(--y, 0px), 0) scale(var(--scale)) rotateZ(var(--orbit-rot, 0deg));
   opacity: var(--opacity);
   z-index: var(--z);
-  transition: transform .98s cubic-bezier(.13, .92, .16, 1), opacity .72s ease, filter .72s ease;
+  transition: transform .96s cubic-bezier(.12, .86, .16, 1), opacity .72s ease, filter .72s ease;
+  will-change: transform, opacity, filter;
   filter: saturate(.95) brightness(.86);
   cursor: pointer;
   border: 0;
   background: transparent;
   padding: 0;
   transform-style: preserve-3d;
+}
+
+.relation-card.is-hidden {
+  pointer-events: none;
+  opacity: 0 !important;
 }
 
 .relation-card.is-active {
@@ -84,12 +101,12 @@ body.bastion-core-page:has(.nodes-screen) {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transition: transform .48s cubic-bezier(.16, .9, .18, 1), filter .48s ease;
+  transition: transform .52s cubic-bezier(.2, .82, .22, 1), filter .52s ease;
   will-change: transform;
 }
 
 .relation-card.is-active:hover .relation-card__tilt {
-  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(22px) scale(1.012);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(16px);
   filter: drop-shadow(0 0 18px rgba(255, 60, 60, .26));
 }
 
@@ -97,11 +114,34 @@ body.bastion-core-page:has(.nodes-screen) {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transition: transform .96s cubic-bezier(.13, .92, .16, 1);
+  transition: transform .78s cubic-bezier(.14, .82, .17, 1.02), filter .42s ease;
+  will-change: transform;
 }
 
 .relation-card.is-flipped .relation-card__inner {
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(8px);
+}
+
+.relation-card.is-flip-boost .relation-card__inner {
+  filter: drop-shadow(0 0 30px rgba(255, 45, 45, .55));
+}
+
+.relation-card.is-flip-boost .relation-card__tilt::after {
+  opacity: .55;
+  transform: translateX(135%) skewX(-18deg);
+}
+
+.relation-card__tilt::after {
+  content: "";
+  position: absolute;
+  inset: 12% 20%;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-135%) skewX(-18deg);
+  transition: transform .72s cubic-bezier(.16,.8,.18,1), opacity .38s ease;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  mix-blend-mode: screen;
 }
 
 .relation-card__face {
@@ -129,8 +169,8 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-card__content {
   position: relative;
   z-index: 2;
-  width: 50%;
-  min-height: 42%;
+  width: 56%;
+  min-height: 48%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -142,35 +182,35 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-title {
   max-width: 100%;
   color: #f7f8fb;
-  font: 900 clamp(11px, 1.02vw, 17px)/1.02 Rajdhani, Arial, sans-serif;
-  letter-spacing: .055em;
+  font: 900 clamp(14px, 1.35vw, 22px)/1.02 Rajdhani, Arial, sans-serif;
+  letter-spacing: .065em;
   text-transform: uppercase;
   text-shadow: 0 0 18px rgba(255, 70, 65, .34);
   word-break: break-word;
 }
 
 .relation-count {
-  margin-top: clamp(8px, 1.25vh, 16px);
+  margin-top: clamp(10px, 1.7vh, 24px);
   color: #ff3737;
-  font: 900 clamp(34px, 3.35vw, 56px)/.82 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(36px, 4.1vw, 66px)/.82 Rajdhani, Arial, sans-serif;
   letter-spacing: .02em;
   text-shadow: 0 0 18px rgba(255, 28, 28, .6);
 }
 
 .relation-count-label {
-  margin-top: 6px;
-  color: rgba(255, 246, 242, .76);
-  font: 800 clamp(9px, .78vw, 13px)/1 Rajdhani, Arial, sans-serif;
+  margin-top: 8px;
+  color: rgba(255, 246, 242, .74);
+  font: 800 clamp(11px, 1.05vw, 16px)/1 Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
 
 .relation-back-heading {
   color: #ff3b3b;
-  font: 900 clamp(11px, .92vw, 15px)/1 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(13px, 1.15vw, 18px)/1 Rajdhani, Arial, sans-serif;
   letter-spacing: .13em;
   text-transform: uppercase;
-  margin-bottom: 9px;
+  margin-bottom: 12px;
   text-shadow: 0 0 14px rgba(255, 30, 30, .55);
 }
 
@@ -180,7 +220,7 @@ body.bastion-core-page:has(.nodes-screen) {
   padding: 0;
   width: 100%;
   display: grid;
-  gap: 5px;
+  gap: 7px;
   text-align: left;
 }
 
@@ -188,7 +228,7 @@ body.bastion-core-page:has(.nodes-screen) {
   position: relative;
   padding-left: 16px;
   color: rgba(255, 248, 245, .88);
-  font: 800 clamp(9px, .72vw, 12px)/1.08 Rajdhani, Arial, sans-serif;
+  font: 800 clamp(11px, .92vw, 14px)/1.08 Rajdhani, Arial, sans-serif;
   letter-spacing: .06em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -210,14 +250,14 @@ body.bastion-core-page:has(.nodes-screen) {
 
 .relation-create-plus {
   color: #ff3030;
-  font: 900 clamp(48px, 5.4vw, 92px)/.75 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(58px, 6.5vw, 112px)/.75 Rajdhani, Arial, sans-serif;
   text-shadow: 0 0 24px rgba(255, 40, 40, .82);
 }
 
 .relation-create-text {
-  margin-top: 14px;
+  margin-top: 22px;
   color: #ff3b3b;
-  font: 900 clamp(11px, .96vw, 16px)/1.08 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(14px, 1.35vw, 22px)/1.08 Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
   text-shadow: 0 0 16px rgba(255, 30, 30, .45);
@@ -318,6 +358,11 @@ body.bastion-core-page:has(.nodes-screen) {
   filter: saturate(1) brightness(1.02) drop-shadow(0 20px 30px rgba(90, 100, 115, .18));
 }
 
+:root[data-theme="light"] .relation-card.is-hidden {
+  pointer-events: none;
+  opacity: 0 !important;
+}
+
 :root[data-theme="light"] .relation-card.is-active {
   filter: saturate(1.05) brightness(1.06) drop-shadow(0 22px 38px rgba(255, 60, 60, .20));
 }
@@ -362,4 +407,15 @@ body.bastion-core-page:has(.nodes-screen) {
   .nodes-mode-switch { justify-content: center; }
   .relation-card { width: clamp(210px, 46vw, 300px); }
   .relations-help { flex-wrap: wrap; gap: 12px 18px; }
+}
+
+
+.relation-card.is-pulse .relation-card__tilt {
+  animation: relation-card-pulse .32s ease both;
+}
+
+@keyframes relation-card-pulse {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.035) translateZ(18px); }
+  100% { transform: scale(1); }
 }
