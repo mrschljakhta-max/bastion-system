@@ -1,6 +1,6 @@
 /* ==========================================================
-   BASTION NODES PAGE v005
-   Relation carousel: enlarged center, straight side cards, refined compact typography.
+   BASTION NODES PAGE v006
+   Relation carousel: safe-fit typography for hex cards.
    ========================================================== */
 
 body.bastion-core-page[data-active-module="nodes"],
@@ -169,30 +169,44 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-card__content {
   position: relative;
   z-index: 2;
-  width: 56%;
-  min-height: 48%;
+  width: 50%;
+  min-height: 44%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  transform: translateY(4%);
+  transform: translateY(1%);
 }
 
 .relation-title {
+  width: 100%;
   max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
   color: #f7f8fb;
-  font: 900 clamp(14px, 1.12vw, 20px)/1.02 Rajdhani, Arial, sans-serif;
-  letter-spacing: .052em;
+  font: 900 clamp(12px, .95vw, 18px)/.92 Rajdhani, Arial, sans-serif;
+  letter-spacing: .035em;
   text-transform: uppercase;
   text-shadow: 0 0 18px rgba(255, 70, 65, .34);
-  word-break: break-word;
+  overflow: hidden;
+}
+
+.relation-title__line {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .relation-count {
   margin-top: clamp(8px, 1.25vh, 16px);
   color: #ff3737;
-  font: 900 clamp(26px, 2.8vw, 46px)/.86 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(22px, 2.25vw, 38px)/.86 Rajdhani, Arial, sans-serif;
   letter-spacing: .02em;
   text-shadow: 0 0 18px rgba(255, 28, 28, .6);
 }
@@ -200,45 +214,45 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-count-label {
   margin-top: 6px;
   color: rgba(255, 246, 242, .74);
-  font: 800 clamp(8px, .72vw, 12px)/1 Rajdhani, Arial, sans-serif;
+  font: 800 clamp(7px, .58vw, 10px)/1 Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
 
 
 .relation-card.is-active .relation-card__content {
-  width: 60%;
+  width: 52%;
 }
 
 .relation-card.is-active .relation-title {
-  font-size: clamp(20px, 1.85vw, 32px);
-  line-height: 1.03;
-  letter-spacing: .055em;
+  font-size: clamp(18px, 1.55vw, 28px);
+  line-height: .94;
+  letter-spacing: .038em;
 }
 
 .relation-card.is-active .relation-count {
-  margin-top: clamp(12px, 1.7vh, 20px);
-  font-size: clamp(36px, 3.25vw, 58px);
+  margin-top: clamp(9px, 1.2vh, 15px);
+  font-size: clamp(30px, 2.55vw, 48px);
   line-height: .86;
 }
 
 .relation-card.is-active .relation-count-label {
-  margin-top: 7px;
-  font-size: clamp(10px, .9vw, 15px);
-  letter-spacing: .075em;
+  margin-top: 5px;
+  font-size: clamp(8px, .68vw, 12px);
+  letter-spacing: .055em;
 }
 
 .relation-card:not(.is-active) .relation-title {
-  font-size: clamp(12px, .95vw, 18px);
-  line-height: 1.02;
+  font-size: clamp(10px, .74vw, 14px);
+  line-height: .94;
 }
 
 .relation-card:not(.is-active) .relation-count {
-  font-size: clamp(24px, 2.4vw, 40px);
+  font-size: clamp(18px, 1.65vw, 30px);
 }
 
 .relation-card:not(.is-active) .relation-count-label {
-  font-size: clamp(8px, .68vw, 11px);
+  font-size: clamp(6px, .5vw, 9px);
 }
 
 .relation-back-heading {

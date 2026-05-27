@@ -54,7 +54,7 @@
     const list = card.dictionaries.map((name) => `<li>${escapeHtml(name)}</li>`).join("");
     const frontContent = isCreate
       ? `<div class="relation-create-plus">+</div><div class="relation-create-text">СТВОРИТИ<br>ЗВ’ЯЗОК</div>`
-      : `<div class="relation-title">${escapeHtml(card.name)}</div><div class="relation-count">${dictionaryCount}</div><div class="relation-count-label">довідники</div>`;
+      : `<div class="relation-title">${renderTitle(card.name)}</div><div class="relation-count">${dictionaryCount}</div><div class="relation-count-label">довідники</div>`;
     const backContent = isCreate
       ? `<div class="relation-create-plus">+</div><div class="relation-create-text">RELATION<br>BUILDER</div>`
       : `<div class="relation-back-heading">ДОВІДНИКИ</div><ul class="relation-dict-list">${list}</ul>`;
@@ -190,6 +190,13 @@
     if (event.key === "ArrowLeft") setActive(state.active - 1);
     if (event.key === "ArrowRight") setActive(state.active + 1);
   });
+
+
+  function renderTitle(value) {
+    const words = String(value).trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return "";
+    return words.map((word) => `<span class="relation-title__line">${escapeHtml(word)}</span>`).join("");
+  }
 
   function escapeHtml(value) {
     return String(value)
