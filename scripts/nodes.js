@@ -2,10 +2,74 @@
   "use strict";
 
   const relations = [
-    { id: "ew-matrix", name: "EW MATRIX", dictionaries: ["STATIONS", "UAV", "MODE", "WEATHER"] },
-    { id: "supply-chain", name: "SUPPLY CHAIN", dictionaries: ["UNITS", "BRIGADES", "SUPPLY"] },
-    { id: "radar-network", name: "RADAR NETWORK", dictionaries: ["STATIONS", "RADAR", "FREQUENCY", "SETTLEMENTS", "UNITS"] },
-    { id: "air-picture", name: "AIR PICTURE", dictionaries: ["UAV", "ROUTES", "AZIMUTH", "WEATHER"] },
+    {
+      id: "ew-matrix",
+      name: "EW MATRIX",
+      description: "Комбінований зв’язок для зіставлення станцій, БПЛА, режимів та погодних умов.",
+      dictionaries: ["STATIONS", "UAV", "MODE", "WEATHER"],
+      columns: [
+        { dictionary: "STATIONS", column: "station_name", label: "Станція", values: ["НОТА", "БУКОВЕЛЬ", "ANTIDRONE", "KVERTUS"] },
+        { dictionary: "UAV", column: "uav_type", label: "Тип БПЛА", values: ["FPV", "Mavic", "Shahed", "Lancet"] },
+        { dictionary: "MODE", column: "mode", label: "Режим", values: ["Виявлення", "Придушення", "Супровід"] },
+        { dictionary: "WEATHER", column: "weather", label: "Погода", values: ["Ясно", "Хмарно", "Дощ", "Туман"] }
+      ],
+      result: { label: "Результат", type: "text" },
+      rows: [
+        ["НОТА", "FPV", "Придушення", "Ясно", "Ефективно"],
+        ["БУКОВЕЛЬ", "Mavic", "Виявлення", "Хмарно", "Стабільно"]
+      ]
+    },
+    {
+      id: "supply-chain",
+      name: "SUPPLY CHAIN",
+      description: "Зв’язок забезпечення між підрозділами, бригадами та типом постачання.",
+      dictionaries: ["UNITS", "BRIGADES", "SUPPLY"],
+      columns: [
+        { dictionary: "UNITS", column: "unit_name", label: "Підрозділ", values: ["Взвод 1", "Взвод 2", "Група РЕБ"] },
+        { dictionary: "BRIGADES", column: "brigade", label: "Бригада", values: ["45 ОАБр", "92 ОШБр", "3 АК"] },
+        { dictionary: "SUPPLY", column: "supply_type", label: "Постачання", values: ["АКБ", "Кабелі", "Пальне", "Антени"] }
+      ],
+      result: { label: "Результат", type: "text" },
+      rows: [["Група РЕБ", "45 ОАБр", "АКБ", "Потребує поповнення"]]
+    },
+    {
+      id: "radar-network",
+      name: "RADAR NETWORK",
+      description: "Зв’язок між станціями, частотами, районами та підрозділами.",
+      dictionaries: ["STATIONS", "RADAR", "FREQUENCY", "SETTLEMENTS", "UNITS"],
+      columns: [
+        { dictionary: "STATIONS", column: "station_name", label: "Станція", values: ["НОТА", "KVERTUS", "ПЛАСТУН"] },
+        { dictionary: "RADAR", column: "radar_type", label: "Радар", values: ["RADA", "MHR", "AESA"] },
+        { dictionary: "FREQUENCY", column: "band", label: "Діапазон", values: ["433", "900", "1200", "5800"] },
+        { dictionary: "SETTLEMENTS", column: "settlement", label: "НП", values: ["Харків", "Полтава", "Вінниця"] },
+        { dictionary: "UNITS", column: "unit_name", label: "Підрозділ", values: ["ВП РЕБ", "СП", "РЕР"] }
+      ],
+      result: { label: "Результат", type: "number" },
+      rows: [["НОТА", "RADA", "900", "Харків", "ВП РЕБ", "7"]]
+    },
+    {
+      id: "air-picture",
+      name: "AIR PICTURE",
+      description: "Повітряна картина на основі БПЛА, маршрутів, азимутів і погоди.",
+      dictionaries: ["UAV", "ROUTES", "AZIMUTH", "WEATHER"],
+      columns: [
+        { dictionary: "UAV", column: "uav_type", label: "Тип БПЛА", values: ["FPV", "Mavic", "Shahed"] },
+        { dictionary: "ROUTES", column: "route", label: "Маршрут", values: ["Північ", "Схід", "Південь"] },
+        { dictionary: "AZIMUTH", column: "azimuth", label: "Азимут", values: ["45", "120", "270"] },
+        { dictionary: "WEATHER", column: "weather", label: "Погода", values: ["Ясно", "Дощ", "Туман"] }
+      ],
+      result: { label: "Результат", type: "text" },
+      rows: [["Shahed", "Схід", "120", "Ясно", "Підвищений ризик"]]
+    }
+  ];
+
+  const dictionaryCatalog = [
+    { table: "dict_stations", title: "STATIONS", columns: ["station_name", "station_code", "frequency", "settlement", "operator"] },
+    { table: "dict_uav", title: "UAV", columns: ["uav_type", "class", "range", "band", "notes"] },
+    { table: "dict_modes", title: "MODE", columns: ["mode", "priority", "detect", "suppress"] },
+    { table: "dict_weather", title: "WEATHER", columns: ["weather", "visibility", "wind", "precipitation"] },
+    { table: "dict_frequency", title: "FREQUENCY", columns: ["band", "frequency", "channel", "range"] },
+    { table: "dict_settlements", title: "SETTLEMENTS", columns: ["settlement", "region", "lat", "lng"] }
   ];
 
   const positions = [
@@ -20,6 +84,13 @@
     active: 0,
     flippedId: null,
     isAnimating: false,
+    activeRelation: null,
+    exportMode: false,
+    editMode: false,
+    filterMode: false,
+    builderStep: 1,
+    builderDraft: [],
+    builderActiveDict: dictionaryCatalog[0]?.table || "",
   };
 
   const carousel = document.getElementById("relationsCarousel");
@@ -64,22 +135,17 @@
       <button class="relation-card${isCreate ? " is-create" : ""}" type="button" data-card-index="${index}" data-card-id="${card.id}" aria-label="${escapeAttr(card.name)}">
         <span class="relation-card__tilt">
           <span class="relation-card__inner">
-            <span class="relation-card__face relation-card__face--front">
-              <span class="relation-card__frame"></span>
-              <span class="relation-card__content">${frontContent}</span>
-            </span>
-            <span class="relation-card__face relation-card__face--back">
-              <span class="relation-card__frame"></span>
-              <span class="relation-card__content">${backContent}</span>
-            </span>
+            <span class="relation-card__face relation-card__face--front"><span class="relation-card__frame"></span><span class="relation-card__content">${frontContent}</span></span>
+            <span class="relation-card__face relation-card__face--back"><span class="relation-card__frame"></span><span class="relation-card__content">${backContent}</span></span>
           </span>
         </span>
-      </button>
-    `;
+      </button>`;
   }
 
   function initialRender() {
     carousel.innerHTML = allCards().map((card, index) => buildCard(card, index)).join("");
+    ensureRelationModal();
+    ensureBuilderModal();
     updateCards(false);
   }
 
@@ -155,11 +221,11 @@
       return;
     }
     if (card.classList.contains("is-create")) {
-      window.dispatchEvent(new CustomEvent("bastion:nodes-create-relation"));
+      openBuilderModal();
       return;
     }
-    card.classList.add("is-pulse");
-    setTimeout(() => card.classList.remove("is-pulse"), 320);
+    const relation = relations.find((item) => item.id === card.dataset.cardId);
+    if (relation) openRelationModal(relation);
   });
 
   carousel.addEventListener("mousemove", (event) => {
@@ -180,24 +246,468 @@
   document.addEventListener("keydown", (event) => {
     const tag = (event.target && event.target.tagName || "").toLowerCase();
     if (["input", "textarea", "select"].includes(tag)) return;
-    if (event.code === "Space") {
-      event.preventDefault();
-      flipActive();
-    }
+    if (event.code === "Space") { event.preventDefault(); flipActive(); }
     if (event.key === "Escape") {
-      state.flippedId = null;
-      updateCards(false);
+      const openModal = document.querySelector(".nodes-relation-modal.is-open, .nodes-builder-modal.is-open");
+      if (openModal) closeModals();
+      else { state.flippedId = null; updateCards(false); }
     }
     if (event.key === "ArrowLeft") setActive(state.active - 1);
     if (event.key === "ArrowRight") setActive(state.active + 1);
   });
 
+  function ensureRelationModal() {
+    if (document.getElementById("nodesRelationModal")) return;
+    const modal = document.createElement("div");
+    modal.id = "nodesRelationModal";
+    modal.className = "nodes-relation-modal";
+    modal.setAttribute("aria-hidden", "true");
+    modal.innerHTML = `
+      <div class="nodes-modal-backdrop" data-nodes-close></div>
+      <section class="nodes-modal-card" role="dialog" aria-modal="true" aria-label="Таблиця зв’язку">
+        <button class="nodes-modal-close" type="button" data-nodes-close aria-label="Закрити">×</button>
+        <header class="nodes-modal-head">
+          <div class="nodes-modal-titlebox">
+            <h2 id="nodesRelationTitle">ЗВ’ЯЗОК</h2>
+            <p id="nodesRelationLead">0 записів</p>
+          </div>
+          <div class="nodes-toolbar" aria-label="Інструменти зв’язку">
+            <button type="button" class="nodes-tool-btn" data-nodes-export aria-label="Експорт"><img src="../assets/icons/actions/download.svg" alt=""></button>
+            <button type="button" class="nodes-tool-btn" data-nodes-edit aria-label="Редагування"><img src="../assets/icons/actions/pencil.svg" alt=""></button>
+            <button type="button" class="nodes-tool-btn" data-nodes-filter aria-label="Фільтр"><img src="../assets/icons/actions/filter.svg" alt=""></button>
+            <button type="button" class="nodes-tool-btn nodes-tool-btn--danger" data-nodes-delete aria-label="Видалити"><img src="../assets/icons/actions/trash.svg" alt=""></button>
+          </div>
+        </header>
+        <div class="nodes-meta-strip">
+          <span>СТАТУС: <b><i></i> АКТИВНИЙ</b></span>
+          <span>ЗАПИСІВ: <b id="nodesMetaRows">0</b></span>
+          <span>ТАБЛИЦЯ: <b id="nodesMetaTable">relation_table</b></span>
+        </div>
+        <section id="nodesFilterPanel" class="nodes-filter-panel" hidden>
+          <input id="nodesSearchInput" type="text" placeholder="Пошук по таблиці зв’язку...">
+        </section>
+        <section id="nodesEditPanel" class="nodes-edit-panel" hidden></section>
+        <section id="nodesExportPanel" class="nodes-export-panel" hidden>
+          <div class="nodes-export-grid">
+            ${["json", "excel", "pdf", "csv"].map((format) => `
+              <button type="button" class="nodes-export-format" data-nodes-format="${format}" aria-label="${format.toUpperCase()}">
+                <img class="nodes-export-img nodes-export-img--light" src="../assets/icons/export/export-${format}-light.png" alt="${format.toUpperCase()}">
+                <img class="nodes-export-img nodes-export-img--dark" src="../assets/icons/export/export-${format}-dark.png" alt="${format.toUpperCase()}">
+              </button>`).join("")}
+          </div>
+        </section>
+        <section class="nodes-table-card">
+          <div id="nodesTableWrap" class="nodes-table-wrap"></div>
+        </section>
+        <p id="nodesModalStatus" class="nodes-modal-status"></p>
+      </section>`;
+    document.body.appendChild(modal);
+    modal.addEventListener("click", handleModalClick);
+    modal.querySelector("#nodesSearchInput")?.addEventListener("input", () => renderRelationTable());
+  }
+
+  function ensureBuilderModal() {
+    if (document.getElementById("nodesBuilderModal")) return;
+    const modal = document.createElement("div");
+    modal.id = "nodesBuilderModal";
+    modal.className = "nodes-builder-modal";
+    modal.setAttribute("aria-hidden", "true");
+    modal.innerHTML = `
+      <div class="nodes-modal-backdrop" data-builder-close></div>
+      <section class="nodes-builder-card" role="dialog" aria-modal="true" aria-label="Створити зв’язок">
+        <button class="nodes-modal-close" type="button" data-builder-close aria-label="Закрити">×</button>
+        <header class="nodes-builder-head">
+          <h2>СТВОРИТИ ЗВ’ЯЗОК</h2>
+          <p>Оберіть довідники та колонки для супердовідника.</p>
+        </header>
+        <label class="nodes-builder-name"><span>НАЗВА ЗВ’ЯЗКУ</span><input id="nodesRelationNameInput" type="text" placeholder="Наприклад: EW MATRIX"></label>
+        <section id="nodesBuilderBody" class="nodes-builder-body"></section>
+        <footer class="nodes-builder-actions">
+          <button type="button" class="nodes-ghost-btn" data-builder-cancel>СКАСУВАТИ</button>
+          <button type="button" class="nodes-primary-btn" data-builder-next>ДАЛІ</button>
+          <button type="button" class="nodes-primary-btn" data-builder-create hidden>СТВОРИТИ ЗВ’ЯЗОК</button>
+        </footer>
+        <p id="nodesBuilderStatus" class="nodes-modal-status"></p>
+      </section>`;
+    document.body.appendChild(modal);
+    modal.addEventListener("click", handleBuilderClick);
+    modal.addEventListener("change", handleBuilderChange);
+  }
+
+  function openRelationModal(relation) {
+    ensureRelationModal();
+    state.activeRelation = relation;
+    state.exportMode = false;
+    state.editMode = false;
+    state.filterMode = false;
+    const modal = document.getElementById("nodesRelationModal");
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("nodes-modal-open");
+    document.getElementById("nodesRelationTitle").textContent = relation.name.toUpperCase();
+    document.getElementById("nodesRelationLead").textContent = countLabel(relation.rows?.length || 0);
+    document.getElementById("nodesMetaRows").textContent = String(relation.rows?.length || 0);
+    document.getElementById("nodesMetaTable").textContent = `rel_${relation.id.replace(/-/g, "_")}`;
+    modal.querySelector("#nodesSearchInput").value = "";
+    syncModes();
+    renderRelationTable();
+  }
+
+  function closeModals() {
+    document.querySelectorAll(".nodes-relation-modal, .nodes-builder-modal").forEach((modal) => {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+    });
+    document.body.classList.remove("nodes-modal-open");
+  }
+
+  function handleModalClick(event) {
+    if (event.target.closest("[data-nodes-close]")) return closeModals();
+    if (event.target.closest("[data-nodes-export]")) { state.exportMode = !state.exportMode; state.editMode = false; state.filterMode = false; syncModes(); }
+    if (event.target.closest("[data-nodes-edit]")) { state.editMode = !state.editMode; state.exportMode = false; state.filterMode = false; syncModes(); }
+    if (event.target.closest("[data-nodes-filter]")) { state.filterMode = !state.filterMode; state.exportMode = false; state.editMode = false; syncModes(); }
+    if (event.target.closest("[data-nodes-delete]")) return deleteRelation();
+    const formatBtn = event.target.closest("[data-nodes-format]");
+    if (formatBtn) exportRelation(formatBtn.dataset.nodesFormat);
+  }
+
+  function syncModes() {
+    const modal = document.getElementById("nodesRelationModal");
+    if (!modal) return;
+    modal.querySelector("[data-nodes-export]")?.classList.toggle("is-active", state.exportMode);
+    modal.querySelector("[data-nodes-edit]")?.classList.toggle("is-active", state.editMode);
+    modal.querySelector("[data-nodes-filter]")?.classList.toggle("is-active", state.filterMode);
+    modal.querySelector("#nodesExportPanel").hidden = !state.exportMode;
+    modal.querySelector("#nodesEditPanel").hidden = !state.editMode;
+    modal.querySelector("#nodesFilterPanel").hidden = !state.filterMode;
+    modal.querySelector("#nodesTableWrap").hidden = state.exportMode;
+    modal.classList.toggle("nodes-export-mode", state.exportMode);
+    modal.classList.toggle("nodes-edit-mode", state.editMode);
+    if (state.editMode) renderEditPanel();
+  }
+
+  function renderRelationTable() {
+    const relation = state.activeRelation;
+    const wrap = document.getElementById("nodesTableWrap");
+    if (!relation || !wrap) return;
+    const query = document.getElementById("nodesSearchInput")?.value?.trim()?.toLowerCase() || "";
+    const headers = relationHeaders(relation);
+    const sourceRows = relation.rows || [];
+    const rows = sourceRows.filter((row) => !query || row.join(" ").toLowerCase().includes(query));
+    wrap.innerHTML = `
+      <table class="nodes-relation-table">
+        <thead><tr>${headers.map((h, i) => `<th>${renderHeader(h, i)}</th>`).join("")}</tr></thead>
+        <tbody>${rows.length ? rows.map((row, i) => renderRelationRow(relation, row, i)).join("") : `<tr><td colspan="${headers.length}" class="nodes-empty-cell">Записів немає</td></tr>`}</tbody>
+      </table>`;
+  }
+
+  function renderHeader(h, index) {
+    if (index === 0) return `<span class="nodes-th-main">№</span>`;
+    if (h.kind === "result") return `<span class="nodes-th-main">${escapeHtml(h.label)}</span><span class="nodes-th-sub">RESULT</span>`;
+    return `<span class="nodes-th-main">${escapeHtml(h.dictionary)}</span><span class="nodes-th-sub">${escapeHtml(h.label || h.column)}</span>`;
+  }
+
+  function renderRelationRow(relation, row, i) {
+    const cols = relation.columns || [];
+    const resultIndex = cols.length;
+    return `<tr><td class="nodes-num-cell">${i + 1}</td>${cols.map((col, idx) => `<td>${renderSelect(col, row[idx])}</td>`).join("")}<td>${renderResultInput(relation.result, row[resultIndex])}</td></tr>`;
+  }
+
+  function renderSelect(col, value) {
+    const opts = (col.values || []).map((v) => `<option value="${escapeAttr(v)}"${String(v) === String(value) ? " selected" : ""}>${escapeHtml(v)}</option>`).join("");
+    return `<select class="nodes-cell-select"><option value="">—</option>${opts}</select>`;
+  }
+
+  function renderResultInput(result, value) {
+    const type = result?.type || "text";
+    if (type === "boolean") return `<select class="nodes-cell-select"><option${value === "Так" ? " selected" : ""}>Так</option><option${value === "Ні" ? " selected" : ""}>Ні</option></select>`;
+    if (type === "number" || type === "decimal") return `<input class="nodes-cell-input" type="number" value="${escapeAttr(value || "")}">`;
+    return `<input class="nodes-cell-input" type="text" value="${escapeAttr(value || "")}">`;
+  }
+
+  function renderEditPanel() {
+    const relation = state.activeRelation;
+    const panel = document.getElementById("nodesEditPanel");
+    if (!relation || !panel) return;
+    panel.innerHTML = `
+      <h3>СТРУКТУРА ЗВ’ЯЗКУ</h3>
+      <p>Редагування складу колонок, результату та видимості таблиці буде підключено до Supabase на наступному етапі.</p>
+      <div class="nodes-structure-list">
+        ${(relation.columns || []).map((c, i) => `<div class="nodes-structure-row"><b>${i + 1}</b><span>${escapeHtml(c.dictionary)}</span><small>${escapeHtml(c.label || c.column)}</small><button type="button">✎</button><button type="button">×</button></div>`).join("")}
+        <div class="nodes-structure-row is-result"><b>R</b><span>${escapeHtml(relation.result?.label || "Результат")}</span><small>${escapeHtml(relation.result?.type || "text")}</small><button type="button">✎</button></div>
+      </div>`;
+  }
+
+  function deleteRelation() {
+    const relation = state.activeRelation;
+    if (!relation) return;
+    setStatus(`Видалення зв’язку «${relation.name}» буде підключено після інтеграції Supabase.`, "warn");
+  }
+
+  function openBuilderModal() {
+    ensureBuilderModal();
+    state.builderStep = 1;
+    state.builderDraft = [];
+    state.builderActiveDict = dictionaryCatalog[0]?.table || "";
+    const modal = document.getElementById("nodesBuilderModal");
+    modal.querySelector("#nodesRelationNameInput").value = "";
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("nodes-modal-open");
+    renderBuilder();
+  }
+
+  function renderBuilder() {
+    const body = document.getElementById("nodesBuilderBody");
+    if (!body) return;
+    const next = document.querySelector("[data-builder-next]");
+    const create = document.querySelector("[data-builder-create]");
+    next.hidden = state.builderStep !== 1;
+    create.hidden = state.builderStep !== 2;
+    if (state.builderStep === 1) renderBuilderStepOne(body);
+    else renderBuilderStepTwo(body);
+  }
+
+  function renderBuilderStepOne(body) {
+    const active = dictionaryCatalog.find((d) => d.table === state.builderActiveDict) || dictionaryCatalog[0];
+    const selected = state.builderDraft.find((d) => d.table === active.table)?.columns || [];
+    body.innerHTML = `
+      <div class="nodes-builder-split">
+        <aside class="nodes-builder-dicts"><h3>ДОВІДНИКИ</h3>${dictionaryCatalog.map((dict) => `<button type="button" class="${dict.table === active.table ? "is-active" : ""}" data-builder-dict="${dict.table}">${escapeHtml(dict.title)}<small>${escapeHtml(dict.table)}</small></button>`).join("")}</aside>
+        <section class="nodes-builder-cols"><h3>КОЛОНКИ: ${escapeHtml(active.title)}</h3><div class="nodes-column-checks">
+          ${active.columns.map((col) => `<label><input type="checkbox" value="${escapeAttr(col)}" ${selected.includes(col) ? "checked" : ""}> <span>${escapeHtml(col)}</span><small>TEXT</small></label>`).join("")}
+        </div><button type="button" class="nodes-primary-btn" data-builder-add-cols>ДОДАТИ ДО ЗВ’ЯЗКУ</button></section>
+      </div>
+      <div class="nodes-draft-preview"><b>CURRENT RELATION</b>${state.builderDraft.length ? state.builderDraft.map((d) => `<span>${escapeHtml(d.title)}: ${d.columns.map(escapeHtml).join(", ")}</span>`).join("") : `<em>Колонки ще не додані.</em>`}</div>`;
+  }
+
+  function renderBuilderStepTwo(body) {
+    const rows = [];
+    state.builderDraft.forEach((dict) => dict.columns.forEach((col) => rows.push({ dict: dict.title, col })));
+    body.innerHTML = `
+      <section class="nodes-builder-structure">
+        <h3>ФІНАЛЬНА СТРУКТУРА</h3>
+        <p>Рядки можна буде перетягувати місцями після підключення збереження структури.</p>
+        <div class="nodes-builder-rows">${rows.map((r, i) => `<div class="nodes-builder-row" draggable="true"><b>${i + 1}</b><span>${escapeHtml(r.dict)}</span><small>${escapeHtml(r.col)}</small></div>`).join("")}</div>
+        <div class="nodes-result-row"><input id="nodesResultName" type="text" value="Результат"><select id="nodesResultType"><option value="text">Текст</option><option value="integer">Ціле число</option><option value="decimal">Десяткове</option><option value="boolean">Так/Ні</option></select></div>
+      </section>`;
+  }
+
+  function handleBuilderClick(event) {
+    if (event.target.closest("[data-builder-close], [data-builder-cancel]")) return closeModals();
+    const dictBtn = event.target.closest("[data-builder-dict]");
+    if (dictBtn) { state.builderActiveDict = dictBtn.dataset.builderDict; renderBuilder(); return; }
+    if (event.target.closest("[data-builder-add-cols]")) return addBuilderColumns();
+    if (event.target.closest("[data-builder-next]")) return nextBuilderStep();
+    if (event.target.closest("[data-builder-create]")) return createBuilderRelation();
+  }
+
+  function handleBuilderChange() {}
+
+  function addBuilderColumns() {
+    const active = dictionaryCatalog.find((d) => d.table === state.builderActiveDict);
+    const checks = [...document.querySelectorAll(".nodes-builder-cols input[type='checkbox']:checked")].map((c) => c.value);
+    if (!active || !checks.length) return setBuilderStatus("Оберіть хоча б одну колонку.", "error");
+    const existing = state.builderDraft.find((d) => d.table === active.table);
+    if (existing) existing.columns = [...new Set([...existing.columns, ...checks])];
+    else state.builderDraft.push({ table: active.table, title: active.title, columns: checks });
+    setBuilderStatus("Колонки додано до зв’язку.", "success");
+    renderBuilder();
+  }
+
+  function nextBuilderStep() {
+    const name = document.getElementById("nodesRelationNameInput")?.value?.trim();
+    if (!name) return setBuilderStatus("Введіть назву зв’язку.", "error");
+    if (!state.builderDraft.length) return setBuilderStatus("Додайте хоча б один довідник і одну колонку.", "error");
+    state.builderStep = 2;
+    renderBuilder();
+  }
+
+  function createBuilderRelation() {
+    const name = document.getElementById("nodesRelationNameInput")?.value?.trim();
+    const resultName = document.getElementById("nodesResultName")?.value?.trim() || "Результат";
+    const resultType = document.getElementById("nodesResultType")?.value || "text";
+    if (!name) return setBuilderStatus("Введіть назву зв’язку.", "error");
+    const columns = [];
+    state.builderDraft.forEach((d) => d.columns.forEach((col) => columns.push({ dictionary: d.title, column: col, label: col, values: sampleValues(col) })));
+    relations.push({ id: slugify(name), name, description: "", dictionaries: state.builderDraft.map((d) => d.title), columns, result: { label: resultName, type: resultType }, rows: [] });
+    closeModals();
+    initialRender();
+    setActive(relations.length - 1);
+  }
+
+  function relationHeaders(relation) {
+    return [{ label: "№" }, ...(relation.columns || []), { kind: "result", label: relation.result?.label || "Результат" }];
+  }
+
+  function exportRelation(format) {
+    const relation = state.activeRelation;
+    if (!relation) return;
+    const headers = relationHeaders(relation).map((h, idx) => idx === 0 ? "№" : h.kind === "result" ? h.label : `${h.dictionary} / ${h.label || h.column}`);
+    const rows = (relation.rows || []).map((row, idx) => [idx + 1, ...row]);
+    const filename = exportFileName(relation.name, format === "excel" ? "xlsx" : format);
+    if (format === "json") {
+      const payload = { relation_name: relation.name, description: relation.description || "", generated_at: new Date().toISOString(), columns: headers, rows };
+      return downloadBlob(JSON.stringify(payload, null, 2), "application/json;charset=utf-8", filename);
+    }
+    if (format === "csv") return downloadBlob("\ufeff" + [headers, ...rows].map((r) => r.map(csvEscape).join(";")).join("\r\n"), "text/csv;charset=utf-8", filename);
+    if (format === "excel") return downloadBlob(makeXlsxBlob(headers, rows, relation.name), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+    if (format === "pdf") return exportPdfReport(relation, headers, rows, filename);
+  }
+
+  function exportFileName(title, ext) {
+    const clean = String(title || "relation").toLowerCase().replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+    return `${clean || "relation"}-${new Date().toISOString().slice(0, 10)}.${ext}`;
+  }
+
+  function csvEscape(value) {
+    const s = String(value ?? "");
+    if (/[";\n\r]/.test(s)) return `"${s.replaceAll('"', '""')}"`;
+    return s;
+  }
+
+  function downloadBlob(content, mime, filename) {
+    const blob = content instanceof Blob ? content : new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 700);
+  }
+
+  function makeXlsxBlob(headers, rows, title = "BASTION") {
+    const shared = [];
+    const si = new Map();
+    const getSi = (v) => {
+      const s = String(v ?? "");
+      if (!si.has(s)) { si.set(s, shared.length); shared.push(s); }
+      return si.get(s);
+    };
+    const esc = (s) => String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    const colName = (n) => { let s = ""; while (n >= 0) { s = String.fromCharCode((n % 26) + 65) + s; n = Math.floor(n / 26) - 1; } return s; };
+    const data = [headers, ...rows];
+    const sheetRows = data.map((r, ridx) => `<row r="${ridx + 1}">${r.map((v, cidx) => `<c r="${colName(cidx)}${ridx + 1}" t="s"><v>${getSi(v)}</v></c>`).join("")}</row>`).join("");
+    const files = {
+      "[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
+      "_rels/.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
+      "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${esc(title).slice(0,31) || "Relation"}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+      "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+      "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Arial"/></font></fonts><fills count="1"><fill><patternFill patternType="none"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="1"><xf xfId="0"/></cellXfs></styleSheet>`,
+      "xl/sharedStrings.xml": `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${shared.length}" uniqueCount="${shared.length}">${shared.map((s) => `<si><t>${esc(s)}</t></si>`).join("")}</sst>`,
+      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${sheetRows}</sheetData></worksheet>`
+    };
+    return new Blob([zipStore(files)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+
+  async function exportPdfReport(relation, headers, rows, filename) {
+    try {
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
+      if (!window.pdfMake) throw new Error("pdfMake unavailable");
+      const user = profileInfo();
+      const body = [headers.map((h) => ({ text: h, bold: true, color: "#ff3038" })), ...rows.map((r) => r.map((v) => String(v ?? "")))];
+      const doc = {
+        pageOrientation: "landscape",
+        pageMargins: [28, 34, 28, 28],
+        content: [
+          { text: relation.name.toUpperCase(), style: "title" },
+          { columns: [
+            { text: `Дата: ${new Date().toLocaleDateString("uk-UA")}` },
+            { text: `Час: ${new Date().toLocaleTimeString("uk-UA")}` },
+            { text: `Виконавець: ${user.login}` },
+            { text: `Email: ${user.email}` }
+          ], style: "meta" },
+          { table: { headerRows: 1, widths: headers.map((_, i) => i === 0 ? 26 : "*"), body }, layout: "lightHorizontalLines" },
+          { text: "BASTION Relation Export", alignment: "right", margin: [0, 16, 0, 0], color: "#777", fontSize: 8 }
+        ],
+        styles: { title: { fontSize: 22, bold: true, color: "#ff3038", margin: [0,0,0,12], characterSpacing: 2 }, meta: { fontSize: 8, color: "#555", margin: [0,0,0,14] } },
+        defaultStyle: { font: "Roboto", fontSize: 9 }
+      };
+      window.pdfMake.createPdf(doc).download(filename);
+    } catch (err) {
+      const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title></head><body><h1>${escapeHtml(relation.name)}</h1><table border="1"><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
+      downloadBlob(html, "text/html;charset=utf-8", filename.replace(/\.pdf$/i, ".html"));
+      setStatus("PDF-бібліотеку не завантажено. Збережено HTML-звіт як fallback.", "warn");
+    }
+  }
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if ([...document.scripts].some((s) => s.src === src)) return resolve();
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  function profileInfo() {
+    return {
+      login: document.getElementById("profileLogin")?.textContent?.trim() || document.getElementById("operatorName")?.textContent?.trim() || "невідомо",
+      email: document.getElementById("profileEmail")?.textContent?.trim() || "email не визначено"
+    };
+  }
+
+  function zipStore(files) {
+    const enc = new TextEncoder();
+    const parts = [];
+    const central = [];
+    let offset = 0;
+    for (const [name, content] of Object.entries(files)) {
+      const nameBytes = enc.encode(name);
+      const data = enc.encode(content);
+      const crc = crc32(data);
+      const local = new Uint8Array(30 + nameBytes.length);
+      const dv = new DataView(local.buffer);
+      dv.setUint32(0, 0x04034b50, true); dv.setUint16(4, 20, true); dv.setUint16(6, 0, true); dv.setUint16(8, 0, true);
+      dv.setUint16(10, 0, true); dv.setUint16(12, 0, true); dv.setUint32(14, crc, true); dv.setUint32(18, data.length, true); dv.setUint32(22, data.length, true); dv.setUint16(26, nameBytes.length, true);
+      local.set(nameBytes, 30); parts.push(local, data);
+      const cent = new Uint8Array(46 + nameBytes.length);
+      const cdv = new DataView(cent.buffer);
+      cdv.setUint32(0, 0x02014b50, true); cdv.setUint16(4, 20, true); cdv.setUint16(6, 20, true); cdv.setUint16(8, 0, true); cdv.setUint16(10, 0, true); cdv.setUint16(12, 0, true); cdv.setUint16(14, 0, true); cdv.setUint32(16, crc, true); cdv.setUint32(20, data.length, true); cdv.setUint32(24, data.length, true); cdv.setUint16(28, nameBytes.length, true); cdv.setUint32(42, offset, true);
+      cent.set(nameBytes, 46); central.push(cent); offset += local.length + data.length;
+    }
+    const centralSize = central.reduce((a, b) => a + b.length, 0);
+    const end = new Uint8Array(22);
+    const edv = new DataView(end.buffer);
+    edv.setUint32(0, 0x06054b50, true); edv.setUint16(8, central.length, true); edv.setUint16(10, central.length, true); edv.setUint32(12, centralSize, true); edv.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, end], { type: "application/zip" });
+  }
+
+  const CRC_TABLE = (() => {
+    const table = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) { let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; table[i] = c >>> 0; }
+    return table;
+  })();
+
+  function crc32(bytes) {
+    let c = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+
+  function setStatus(message, type = "") {
+    const el = document.getElementById("nodesModalStatus");
+    if (el) { el.textContent = message || ""; el.dataset.type = type; }
+  }
+
+  function setBuilderStatus(message, type = "") {
+    const el = document.getElementById("nodesBuilderStatus");
+    if (el) { el.textContent = message || ""; el.dataset.type = type; }
+  }
+
+  function sampleValues(col) { return ["Варіант 1", "Варіант 2", "Варіант 3"].map((v) => `${v} (${col})`); }
+  function slugify(s) { return String(s || "relation").toLowerCase().replace(/[^a-z0-9а-яіїєґ]+/gi, "-").replace(/^-|-$/g, "") || `relation-${Date.now()}`; }
+  function countLabel(n) { return `${n} ${n === 1 ? "запис" : (n >= 2 && n <= 4 ? "записи" : "записів")}`; }
 
   function formatDictionaryWord(count) {
     const n = Math.abs(Number(count) || 0);
     const lastTwo = n % 100;
     const lastOne = n % 10;
-
     if (lastTwo >= 11 && lastTwo <= 14) return "довідників";
     if (lastOne === 1) return "довідник";
     if (lastOne >= 2 && lastOne <= 4) return "довідники";
@@ -211,17 +721,10 @@
   }
 
   function escapeHtml(value) {
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+    return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
   }
 
-  function escapeAttr(value) {
-    return escapeHtml(value).replaceAll("\n", " ");
-  }
+  function escapeAttr(value) { return escapeHtml(value).replaceAll("\n", " "); }
 
   initialRender();
 })();

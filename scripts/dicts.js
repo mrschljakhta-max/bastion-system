@@ -1421,4 +1421,121 @@
   right?.addEventListener("click", () => rotate(1));
   initSitemapDots();
   loadRegistry();
+
+
+  /* EXPORT PATCH v214 — real .xlsx and direct PDF download via pdfMake */
+  function exportExcel() {
+    const headers = exportHeaders();
+    const rows = exportRows();
+    downloadBlob(makeBastionXlsxBlob(headers, rows, dictionaryTitle(currentDict)), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", exportFileName("xlsx"));
+  }
+
+  async function exportPdf() {
+    const headers = exportHeaders();
+    const rows = exportRows();
+    const user = profileInfo();
+    const filename = exportFileName("pdf");
+    try {
+      await loadDictExportScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
+      await loadDictExportScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
+      if (!window.pdfMake) throw new Error("pdfMake unavailable");
+      const body = [headers.map((h) => ({ text: h, bold: true, color: "#ff3038" })), ...rows.map((r) => r.map((v) => String(v ?? "")))];
+      const doc = {
+        pageOrientation: "landscape",
+        pageMargins: [28, 34, 28, 28],
+        content: [
+          { text: dictionaryTitle(currentDict).toUpperCase(), style: "title" },
+          { columns: [
+            { text: `Дата: ${new Date().toLocaleDateString("uk-UA")}` },
+            { text: `Час: ${new Date().toLocaleTimeString("uk-UA")}` },
+            { text: `Виконавець: ${user.login}` },
+            { text: `Email: ${user.email}` }
+          ], style: "meta" },
+          { text: `Таблиця: ${currentDict?.table_name || "—"}     Записів: ${rows.length}`, style: "metaLine" },
+          { table: { headerRows: 1, widths: headers.map((_, i) => i === 0 ? 26 : "*"), body }, layout: "lightHorizontalLines" },
+          { text: "BASTION Dictionary Export", alignment: "right", margin: [0, 16, 0, 0], color: "#777", fontSize: 8 }
+        ],
+        styles: {
+          title: { fontSize: 22, bold: true, color: "#ff3038", margin: [0, 0, 0, 12], characterSpacing: 2 },
+          meta: { fontSize: 8, color: "#555", margin: [0, 0, 0, 10] },
+          metaLine: { fontSize: 9, color: "#ff3038", margin: [0, 0, 0, 12], bold: true }
+        },
+        defaultStyle: { font: "Roboto", fontSize: 9 }
+      };
+      window.pdfMake.createPdf(doc).download(filename);
+    } catch (error) {
+      const html = `<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><title>${escapeHtml(dictionaryTitle(currentDict))}</title></head><body><h1>${escapeHtml(dictionaryTitle(currentDict))}</h1><table border="1"><thead><tr>${headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((v) => `<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
+      downloadBlob(html, "text/html;charset=utf-8", exportFileName("html"));
+      setManageStatus("PDF-бібліотеку не завантажено. Збережено HTML-звіт як fallback.", "error");
+    }
+  }
+
+  function loadDictExportScript(src) {
+    return new Promise((resolve, reject) => {
+      if ([...document.scripts].some((s) => s.src === src)) return resolve();
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  function makeBastionXlsxBlob(headers, rows, title = "BASTION") {
+    const shared = [];
+    const map = new Map();
+    const enc = new TextEncoder();
+    const escXml = (v) => String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    const getShared = (value) => { const s = String(value ?? ""); if (!map.has(s)) { map.set(s, shared.length); shared.push(s); } return map.get(s); };
+    const colName = (n) => { let out = ""; while (n >= 0) { out = String.fromCharCode(65 + (n % 26)) + out; n = Math.floor(n / 26) - 1; } return out; };
+    const data = [headers, ...rows];
+    const sheetRows = data.map((row, r) => `<row r="${r + 1}">${row.map((cell, c) => `<c r="${colName(c)}${r + 1}" t="s"><v>${getShared(cell)}</v></c>`).join("")}</row>`).join("");
+    const files = {
+      "[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
+      "_rels/.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
+      "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${escXml(title).slice(0,31) || "Export"}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+      "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+      "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Arial"/></font></fonts><fills count="1"><fill><patternFill patternType="none"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="1"><xf xfId="0"/></cellXfs></styleSheet>`,
+      "xl/sharedStrings.xml": `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${shared.length}" uniqueCount="${shared.length}">${shared.map((s) => `<si><t>${escXml(s)}</t></si>`).join("")}</sst>`,
+      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${sheetRows}</sheetData></worksheet>`
+    };
+    return new Blob([makeBastionZip(files, enc)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+
+  function makeBastionZip(files, enc = new TextEncoder()) {
+    const parts = [];
+    const central = [];
+    let offset = 0;
+    for (const [name, content] of Object.entries(files)) {
+      const nameBytes = enc.encode(name);
+      const data = enc.encode(content);
+      const crc = bastionCrc32(data);
+      const local = new Uint8Array(30 + nameBytes.length);
+      const dv = new DataView(local.buffer);
+      dv.setUint32(0, 0x04034b50, true); dv.setUint16(4, 20, true); dv.setUint16(6, 0, true); dv.setUint16(8, 0, true); dv.setUint16(10, 0, true); dv.setUint16(12, 0, true); dv.setUint32(14, crc, true); dv.setUint32(18, data.length, true); dv.setUint32(22, data.length, true); dv.setUint16(26, nameBytes.length, true);
+      local.set(nameBytes, 30); parts.push(local, data);
+      const c = new Uint8Array(46 + nameBytes.length);
+      const cdv = new DataView(c.buffer);
+      cdv.setUint32(0, 0x02014b50, true); cdv.setUint16(4, 20, true); cdv.setUint16(6, 20, true); cdv.setUint32(16, crc, true); cdv.setUint32(20, data.length, true); cdv.setUint32(24, data.length, true); cdv.setUint16(28, nameBytes.length, true); cdv.setUint32(42, offset, true);
+      c.set(nameBytes, 46); central.push(c); offset += local.length + data.length;
+    }
+    const centralSize = central.reduce((sum, item) => sum + item.length, 0);
+    const end = new Uint8Array(22);
+    const edv = new DataView(end.buffer);
+    edv.setUint32(0, 0x06054b50, true); edv.setUint16(8, central.length, true); edv.setUint16(10, central.length, true); edv.setUint32(12, centralSize, true); edv.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, end], { type: "application/zip" });
+  }
+
+  const BASTION_CRC_TABLE = (() => {
+    const table = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) { let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; table[i] = c >>> 0; }
+    return table;
+  })();
+
+  function bastionCrc32(bytes) {
+    let c = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++) c = BASTION_CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+
 })();
