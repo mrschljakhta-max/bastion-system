@@ -63,7 +63,7 @@
     }
   ];
 
-  const dictionaryCatalog = [
+  let dictionaryCatalog = [
     { table: "dict_stations", title: "STATIONS", columns: ["station_name", "station_code", "frequency", "settlement", "operator"] },
     { table: "dict_uav", title: "UAV", columns: ["uav_type", "class", "range", "band", "notes"] },
     { table: "dict_modes", title: "MODE", columns: ["mode", "priority", "detect", "suppress"] },
@@ -71,6 +71,90 @@
     { table: "dict_frequency", title: "FREQUENCY", columns: ["band", "frequency", "channel", "range"] },
     { table: "dict_settlements", title: "SETTLEMENTS", columns: ["settlement", "region", "lat", "lng"] }
   ];
+
+
+  let sb = null;
+  const hiddenBuilderColumns = new Set(["id", "№", "row_number", "order_number", "active", "is_active", "enabled", "created_at", "updated_at", "created_by", "modified_by", "uuid", "deleted_at"]);
+
+  function createSupabaseClient() {
+    if (window.BastionSupabase) return window.BastionSupabase;
+    if (window.supabaseClient) return window.supabaseClient;
+    const cfg = window.BASTION_CONFIG || {};
+    const url = cfg.SUPABASE_URL || window.SUPABASE_URL;
+    const key = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
+    if (!window.supabase || !url || !key) return null;
+    return window.supabase.createClient(url, key);
+  }
+
+  async function loadLiveDictionaryCatalog() {
+    sb = createSupabaseClient();
+    if (!sb) return;
+    try {
+      const { data, error } = await sb
+        .from("dict_registry")
+        .select("id, code, table_name, title, title_ua, is_active, sort_order")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error || !Array.isArray(data) || !data.length) throw error || new Error("dict_registry empty");
+      const live = [];
+      for (const item of data) {
+        const table = item.table_name;
+        if (!table) continue;
+        const title = item.title_ua || item.title || item.code || table.replace(/^dict_/, "").toUpperCase();
+        const rowsRes = await sb.from(table).select("*").limit(80);
+        const rows = rowsRes?.data || [];
+        let columns = [];
+        if (rows.length) {
+          columns = Object.keys(rows[0]).filter((name) => !hiddenBuilderColumns.has(String(name).toLowerCase())).map((name) => ({
+            name,
+            label: baseColumnLabel(name),
+            type: inferColumnType(rows.map((row) => row?.[name])),
+            values: uniqueValues(rows.map((row) => row?.[name]))
+          }));
+        } else {
+          const fallback = dictionaryCatalog.find((d) => d.table === table || d.title === title);
+          columns = (fallback?.columns || []).map((col) => normalizeColumnObject(col));
+        }
+        live.push({ table, title: String(title).toUpperCase(), columns });
+      }
+      if (live.length) {
+        dictionaryCatalog.splice(0, dictionaryCatalog.length, ...live);
+        state.builderActiveDict = dictionaryCatalog[0]?.table || "";
+      }
+    } catch (error) {
+      console.warn("BASTION nodes Supabase dictionary fallback:", error?.message || error);
+    }
+  }
+
+  function normalizeColumnObject(col) {
+    if (typeof col === "object" && col) return { name: col.name || col.column || col.column_name, label: col.label || baseColumnLabel(col.name || col.column || col.column_name), type: col.type || col.data_type || "text", values: col.values || [] };
+    return { name: String(col), label: baseColumnLabel(col), type: "text", values: [] };
+  }
+
+  function inferColumnType(values) {
+    const sample = values.find((v) => v !== null && v !== undefined && v !== "");
+    if (typeof sample === "boolean") return "boolean";
+    if (typeof sample === "number") return Number.isInteger(sample) ? "integer" : "decimal";
+    return "text";
+  }
+
+  function uniqueValues(values) {
+    return [...new Set(values.filter((v) => v !== null && v !== undefined && String(v).trim() !== "").map((v) => String(v)))]
+      .sort((a, b) => a.localeCompare(b, "uk"));
+  }
+
+  const columnLabels = {
+    name: "Назва", title: "Назва", alias: "Альтернативна назва", aliases: "Альтернативні назви",
+    station_name: "Станція", station: "Станція", settlement: "Населений пункт", settlement_name: "Населений пункт",
+    uav_type: "Тип БПЛА", mode: "Режим", weather: "Погода", frequency: "Частота", region: "Область",
+    oblast: "Область", notes: "Примітки", description: "Опис", code: "Код", type: "Тип", class: "Клас"
+  };
+  function baseColumnLabel(key) {
+    const raw = String(key || "").trim();
+    const lower = raw.toLowerCase();
+    if (columnLabels[lower]) return columnLabels[lower];
+    return raw.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+  }
 
   const positions = [
     { x: -560, y: 4, scale: .72, opacity: .44, z: 1, rot: 0 },
@@ -274,7 +358,7 @@
           <div class="nodes-toolbar" aria-label="Інструменти зв’язку">
             <button type="button" class="nodes-tool-btn" data-nodes-export aria-label="Експорт"><img src="../assets/icons/actions/download.svg" alt=""></button>
             <button type="button" class="nodes-tool-btn" data-nodes-edit aria-label="Редагування"><img src="../assets/icons/actions/pencil.svg" alt=""></button>
-            <button type="button" class="nodes-tool-btn" data-nodes-filter aria-label="Фільтр"><img src="../assets/icons/actions/filter.svg" alt=""></button>
+            <button type="button" class="nodes-tool-btn" data-nodes-filter aria-label="Пошук"><img src="../assets/icons/actions/search.svg" alt=""></button>
             <button type="button" class="nodes-tool-btn nodes-tool-btn--danger" data-nodes-delete aria-label="Видалити"><img src="../assets/icons/actions/trash.svg" alt=""></button>
           </div>
         </header>
@@ -380,7 +464,7 @@
     modal.querySelector("#nodesExportPanel").hidden = !state.exportMode;
     modal.querySelector("#nodesEditPanel").hidden = !state.editMode;
     modal.querySelector("#nodesFilterPanel").hidden = !state.filterMode;
-    modal.querySelector("#nodesTableWrap").hidden = state.exportMode;
+    modal.querySelector("#nodesTableWrap").hidden = state.exportMode || state.editMode;
     modal.classList.toggle("nodes-export-mode", state.exportMode);
     modal.classList.toggle("nodes-edit-mode", state.editMode);
     if (state.editMode) renderEditPanel();
@@ -431,7 +515,6 @@
     if (!relation || !panel) return;
     panel.innerHTML = `
       <h3>СТРУКТУРА ЗВ’ЯЗКУ</h3>
-      <p>Редагування складу колонок, результату та видимості таблиці буде підключено до Supabase на наступному етапі.</p>
       <div class="nodes-structure-list">
         ${(relation.columns || []).map((c, i) => `<div class="nodes-structure-row"><b>${i + 1}</b><span>${escapeHtml(c.dictionary)}</span><small>${escapeHtml(c.label || c.column)}</small><button type="button">✎</button><button type="button">×</button></div>`).join("")}
         <div class="nodes-structure-row is-result"><b>R</b><span>${escapeHtml(relation.result?.label || "Результат")}</span><small>${escapeHtml(relation.result?.type || "text")}</small><button type="button">✎</button></div>
@@ -471,14 +554,15 @@
   function renderBuilderStepOne(body) {
     const active = dictionaryCatalog.find((d) => d.table === state.builderActiveDict) || dictionaryCatalog[0];
     const selected = state.builderDraft.find((d) => d.table === active.table)?.columns || [];
+    const activeColumns = (active?.columns || []).map(normalizeColumnObject).filter((col) => col.name);
     body.innerHTML = `
       <div class="nodes-builder-split">
         <aside class="nodes-builder-dicts"><h3>ДОВІДНИКИ</h3>${dictionaryCatalog.map((dict) => `<button type="button" class="${dict.table === active.table ? "is-active" : ""}" data-builder-dict="${dict.table}">${escapeHtml(dict.title)}<small>${escapeHtml(dict.table)}</small></button>`).join("")}</aside>
         <section class="nodes-builder-cols"><h3>КОЛОНКИ: ${escapeHtml(active.title)}</h3><div class="nodes-column-checks">
-          ${active.columns.map((col) => `<label><input type="checkbox" value="${escapeAttr(col)}" ${selected.includes(col) ? "checked" : ""}> <span>${escapeHtml(col)}</span><small>TEXT</small></label>`).join("")}
+          ${activeColumns.length ? activeColumns.map((col) => `<label><input type="checkbox" value="${escapeAttr(col.name)}" ${selected.includes(col.name) ? "checked" : ""}> <span>${escapeHtml(col.label || col.name)}</span><small>${escapeHtml(String(col.type || "text").toUpperCase())}</small></label>`).join("") : `<p class="nodes-builder-empty">Колонки не знайдені. Перевір таблицю в Supabase або записи довідника.</p>`}
         </div><button type="button" class="nodes-primary-btn" data-builder-add-cols>ДОДАТИ ДО ЗВ’ЯЗКУ</button></section>
       </div>
-      <div class="nodes-draft-preview"><b>CURRENT RELATION</b>${state.builderDraft.length ? state.builderDraft.map((d) => `<span>${escapeHtml(d.title)}: ${d.columns.map(escapeHtml).join(", ")}</span>`).join("") : `<em>Колонки ще не додані.</em>`}</div>`;
+      <div class="nodes-draft-preview"><b>CURRENT RELATION</b>${state.builderDraft.length ? state.builderDraft.map((d) => `<span>${escapeHtml(d.title)}: ${d.columns.map((c) => escapeHtml(baseColumnLabel(c))).join(", ")}</span>`).join("") : `<em>Колонки ще не додані.</em>`}</div>`;
   }
 
   function renderBuilderStepTwo(body) {
@@ -529,7 +613,7 @@
     const resultType = document.getElementById("nodesResultType")?.value || "text";
     if (!name) return setBuilderStatus("Введіть назву зв’язку.", "error");
     const columns = [];
-    state.builderDraft.forEach((d) => d.columns.forEach((col) => columns.push({ dictionary: d.title, column: col, label: col, values: sampleValues(col) })));
+    state.builderDraft.forEach((d) => d.columns.forEach((col) => columns.push({ dictionary: d.title, sourceTable: d.table, column: col, label: baseColumnLabel(col), values: getCatalogColumnValues(d.table, col) })));
     relations.push({ id: slugify(name), name, description: "", dictionaries: state.builderDraft.map((d) => d.title), columns, result: { label: resultName, type: resultType }, rows: [] });
     closeModals();
     initialRender();
@@ -620,10 +704,11 @@
             { text: `Виконавець: ${user.login}` },
             { text: `Email: ${user.email}` }
           ], style: "meta" },
+          { text: `Таблиця: rel_${relation.id.replace(/-/g, "_")}     Записів: ${rows.length}`, style: "metaLine" },
           { table: { headerRows: 1, widths: headers.map((_, i) => i === 0 ? 26 : "*"), body }, layout: "lightHorizontalLines" },
           { text: "BASTION Relation Export", alignment: "right", margin: [0, 16, 0, 0], color: "#777", fontSize: 8 }
         ],
-        styles: { title: { fontSize: 22, bold: true, color: "#ff3038", margin: [0,0,0,12], characterSpacing: 2 }, meta: { fontSize: 8, color: "#555", margin: [0,0,0,14] } },
+        styles: { title: { fontSize: 22, bold: true, color: "#ff3038", margin: [0,0,0,12], characterSpacing: 2 }, meta: { fontSize: 8, color: "#555", margin: [0,0,0,10] }, metaLine: { fontSize: 9, color: "#ff3038", margin: [0, 0, 0, 12], bold: true } },
         defaultStyle: { font: "Roboto", fontSize: 9 }
       };
       window.pdfMake.createPdf(doc).download(filename);
@@ -700,6 +785,12 @@
     if (el) { el.textContent = message || ""; el.dataset.type = type; }
   }
 
+  function getCatalogColumnValues(table, column) {
+    const dict = dictionaryCatalog.find((d) => d.table === table);
+    const col = (dict?.columns || []).map(normalizeColumnObject).find((item) => item.name === column);
+    return col?.values?.length ? col.values : sampleValues(column);
+  }
+
   function sampleValues(col) { return ["Варіант 1", "Варіант 2", "Варіант 3"].map((v) => `${v} (${col})`); }
   function slugify(s) { return String(s || "relation").toLowerCase().replace(/[^a-z0-9а-яіїєґ]+/gi, "-").replace(/^-|-$/g, "") || `relation-${Date.now()}`; }
   function countLabel(n) { return `${n} ${n === 1 ? "запис" : (n >= 2 && n <= 4 ? "записи" : "записів")}`; }
@@ -727,4 +818,5 @@
   function escapeAttr(value) { return escapeHtml(value).replaceAll("\n", " "); }
 
   initialRender();
+  loadLiveDictionaryCatalog();
 })();
