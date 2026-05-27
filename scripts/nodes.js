@@ -25,11 +25,11 @@
   ];
 
   const positions = [
-    { x: -510, scale: .72, opacity: .42, z: 1 },
-    { x: -265, scale: .86, opacity: .76, z: 5 },
-    { x: 0, scale: 1.03, opacity: 1, z: 12 },
-    { x: 265, scale: .86, opacity: .76, z: 5 },
-    { x: 510, scale: .72, opacity: .42, z: 1 },
+    { x: -540, scale: .68, opacity: .40, z: 1 },
+    { x: -292, scale: .84, opacity: .74, z: 5 },
+    { x: 0, scale: 1.18, opacity: 1, z: 12 },
+    { x: 292, scale: .84, opacity: .74, z: 5 },
+    { x: 540, scale: .68, opacity: .40, z: 1 },
   ];
 
   const state = {
@@ -79,14 +79,16 @@
 
       return `
         <button class="relation-card${isCreate ? " is-create" : ""}" type="button" data-card-index="${index}" data-card-id="${card.id}" aria-label="${escapeAttr(card.name)}">
-          <span class="relation-card__inner">
-            <span class="relation-card__face relation-card__face--front">
-              <span class="relation-card__frame"></span>
-              <span class="relation-card__content">${frontContent}</span>
-            </span>
-            <span class="relation-card__face relation-card__face--back">
-              <span class="relation-card__frame"></span>
-              <span class="relation-card__content">${backContent}</span>
+          <span class="relation-card__tilt">
+            <span class="relation-card__inner">
+              <span class="relation-card__face relation-card__face--front">
+                <span class="relation-card__frame"></span>
+                <span class="relation-card__content">${frontContent}</span>
+              </span>
+              <span class="relation-card__face relation-card__face--back">
+                <span class="relation-card__frame"></span>
+                <span class="relation-card__content">${backContent}</span>
+              </span>
             </span>
           </span>
         </button>
@@ -136,6 +138,23 @@
     // Таблиця зв'язку буде підключена наступним етапом.
     card.classList.add("is-pulse");
     setTimeout(() => card.classList.remove("is-pulse"), 260);
+  });
+
+  carousel.addEventListener("mousemove", (event) => {
+    const card = event.target.closest(".relation-card.is-active");
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const px = (event.clientX - rect.left) / rect.width - 0.5;
+    const py = (event.clientY - rect.top) / rect.height - 0.5;
+    card.style.setProperty("--ry", `${px * 9}deg`);
+    card.style.setProperty("--rx", `${py * -9}deg`);
+  });
+
+  carousel.addEventListener("mouseleave", () => {
+    carousel.querySelectorAll(".relation-card").forEach((card) => {
+      card.style.setProperty("--rx", "0deg");
+      card.style.setProperty("--ry", "0deg");
+    });
   });
 
   prevBtn?.addEventListener("click", () => setActive(state.active - 1));

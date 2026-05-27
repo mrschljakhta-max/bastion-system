@@ -1,6 +1,6 @@
 /* ==========================================================
-   BASTION NODES PAGE v001
-   Relation carousel: dark/light hex cards, front/back flip.
+   BASTION NODES PAGE v002
+   Relation carousel: clean stage, compact card text, smooth 3D flip/tilt.
    ========================================================== */
 
 body.bastion-core-page[data-active-module="nodes"],
@@ -16,85 +16,21 @@ body.bastion-core-page:has(.nodes-screen) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(18px, 2.4vh, 28px);
+  gap: clamp(14px, 2vh, 24px);
   padding: 0 clamp(28px, 4vw, 76px);
   pointer-events: none;
 }
 
-.nodes-header {
-  width: min(1500px, 92vw);
-  min-height: 96px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 18px 28px;
-  border: 1px solid rgba(255, 56, 56, .35);
-  background:
-    linear-gradient(90deg, rgba(8, 10, 14, .88), rgba(14, 4, 6, .62), rgba(8, 10, 14, .84));
-  box-shadow: 0 0 36px rgba(255, 35, 35, .12), inset 0 0 28px rgba(255, 50, 50, .07);
-  clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px), 0 18px);
-  pointer-events: auto;
-}
-
-.nodes-kicker {
-  display: block;
-  margin-bottom: 4px;
-  color: #ff3b3b;
-  font: 800 13px/1.1 Rajdhani, Arial, sans-serif;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-}
-
-.nodes-header h1 {
-  margin: 0;
-  color: #fff7f2;
-  font: 900 clamp(30px, 4vw, 64px)/.9 Rajdhani, Arial, sans-serif;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  text-shadow: 0 0 18px rgba(255, 80, 70, .42);
-}
-
-.nodes-header p {
-  margin: 8px 0 0;
-  color: rgba(255, 240, 235, .72);
-  font: 600 15px/1.35 Rajdhani, Arial, sans-serif;
-  letter-spacing: .04em;
-}
-
-.nodes-mode-switch {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex: 0 0 auto;
-}
-
+.nodes-header,
+.nodes-mode-switch,
 .nodes-mode-btn {
-  height: 52px;
-  padding: 0 22px;
-  border: 1px solid rgba(255, 75, 75, .42);
-  border-radius: 6px;
-  background: rgba(10, 8, 10, .52);
-  color: rgba(255, 238, 232, .74);
-  font: 900 14px/1 Rajdhani, Arial, sans-serif;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease, color .22s ease;
-}
-
-.nodes-mode-btn:hover,
-.nodes-mode-btn.is-active {
-  color: #fff;
-  border-color: rgba(255, 90, 80, .9);
-  background: linear-gradient(180deg, rgba(255, 55, 55, .30), rgba(80, 7, 7, .72));
-  box-shadow: 0 0 22px rgba(255, 40, 40, .28), inset 0 0 18px rgba(255, 85, 70, .14);
+  display: none !important;
 }
 
 .relations-carousel-shell {
   position: relative;
   width: min(1530px, 94vw);
-  min-height: clamp(360px, 55vh, 600px);
+  min-height: clamp(390px, 62vh, 650px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,11 +40,11 @@ body.bastion-core-page:has(.nodes-screen) {
 .relations-carousel {
   position: relative;
   width: 100%;
-  height: clamp(340px, 52vh, 560px);
+  height: clamp(380px, 60vh, 640px);
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 1600px;
+  perspective: 1900px;
   outline: none;
 }
 
@@ -118,12 +54,12 @@ body.bastion-core-page:has(.nodes-screen) {
   --opacity: 1;
   --z: 10;
   position: absolute;
-  width: clamp(255px, 21vw, 386px);
+  width: clamp(250px, 20vw, 392px);
   aspect-ratio: 1 / 1;
   transform: translateX(var(--x)) scale(var(--scale));
   opacity: var(--opacity);
   z-index: var(--z);
-  transition: transform .56s cubic-bezier(.2, .78, .18, 1), opacity .42s ease, filter .42s ease;
+  transition: transform .86s cubic-bezier(.16, .86, .18, 1), opacity .62s ease, filter .62s ease;
   filter: saturate(.95) brightness(.86);
   cursor: pointer;
   border: 0;
@@ -140,11 +76,24 @@ body.bastion-core-page:has(.nodes-screen) {
   filter: saturate(1.1) brightness(.98) drop-shadow(0 0 22px rgba(255, 35, 35, .22));
 }
 
+.relation-card__tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform .42s cubic-bezier(.2, .82, .22, 1), filter .42s ease;
+  will-change: transform;
+}
+
+.relation-card.is-active:hover .relation-card__tilt {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(16px);
+  filter: drop-shadow(0 0 18px rgba(255, 60, 60, .26));
+}
+
 .relation-card__inner {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transition: transform .62s cubic-bezier(.2, .78, .18, 1);
+  transition: transform .88s cubic-bezier(.16, .86, .18, 1);
 }
 
 .relation-card.is-flipped .relation-card__inner {
@@ -189,17 +138,17 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-title {
   max-width: 100%;
   color: #f7f8fb;
-  font: 900 clamp(18px, 1.9vw, 28px)/1.05 Rajdhani, Arial, sans-serif;
-  letter-spacing: .07em;
+  font: 900 clamp(14px, 1.35vw, 22px)/1.02 Rajdhani, Arial, sans-serif;
+  letter-spacing: .065em;
   text-transform: uppercase;
   text-shadow: 0 0 18px rgba(255, 70, 65, .34);
   word-break: break-word;
 }
 
 .relation-count {
-  margin-top: clamp(16px, 2.4vh, 34px);
+  margin-top: clamp(10px, 1.7vh, 24px);
   color: #ff3737;
-  font: 900 clamp(42px, 5vw, 76px)/.85 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(36px, 4.1vw, 66px)/.82 Rajdhani, Arial, sans-serif;
   letter-spacing: .02em;
   text-shadow: 0 0 18px rgba(255, 28, 28, .6);
 }
@@ -207,17 +156,17 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-count-label {
   margin-top: 8px;
   color: rgba(255, 246, 242, .74);
-  font: 800 clamp(14px, 1.4vw, 20px)/1 Rajdhani, Arial, sans-serif;
+  font: 800 clamp(11px, 1.05vw, 16px)/1 Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
 }
 
 .relation-back-heading {
   color: #ff3b3b;
-  font: 900 clamp(16px, 1.5vw, 22px)/1 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(13px, 1.15vw, 18px)/1 Rajdhani, Arial, sans-serif;
   letter-spacing: .13em;
   text-transform: uppercase;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   text-shadow: 0 0 14px rgba(255, 30, 30, .55);
 }
 
@@ -227,7 +176,7 @@ body.bastion-core-page:has(.nodes-screen) {
   padding: 0;
   width: 100%;
   display: grid;
-  gap: 9px;
+  gap: 7px;
   text-align: left;
 }
 
@@ -235,7 +184,7 @@ body.bastion-core-page:has(.nodes-screen) {
   position: relative;
   padding-left: 16px;
   color: rgba(255, 248, 245, .88);
-  font: 800 clamp(13px, 1.15vw, 17px)/1.1 Rajdhani, Arial, sans-serif;
+  font: 800 clamp(11px, .92vw, 14px)/1.08 Rajdhani, Arial, sans-serif;
   letter-spacing: .06em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -257,14 +206,14 @@ body.bastion-core-page:has(.nodes-screen) {
 
 .relation-create-plus {
   color: #ff3030;
-  font: 900 clamp(72px, 8vw, 132px)/.75 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(58px, 6.5vw, 112px)/.75 Rajdhani, Arial, sans-serif;
   text-shadow: 0 0 24px rgba(255, 40, 40, .82);
 }
 
 .relation-create-text {
   margin-top: 22px;
   color: #ff3b3b;
-  font: 900 clamp(18px, 1.8vw, 28px)/1.1 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(14px, 1.35vw, 22px)/1.08 Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
   text-shadow: 0 0 16px rgba(255, 30, 30, .45);
