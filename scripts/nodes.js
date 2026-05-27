@@ -1348,75 +1348,160 @@
   }
 
   
+
 async function exportPdfReport(relation, headers, rows, filename) {
-  const user = profileInfo();
-  const payload = {
-    relationName: relation?.name || "ЗВ'ЯЗОК",
-    fileName: filename,
-    generatedAt: new Date().toISOString(),
-    user,
-    headers,
-    rows
-  };
-
   try {
-    sb = sb || createSupabaseClient();
-    const cfg = window.BASTION_CONFIG || {};
-    const baseUrl = cfg.SUPABASE_URL || window.SUPABASE_URL;
-    if (!baseUrl) throw new Error("SUPABASE_URL не знайдено у config.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
+    if (!window.pdfMake) throw new Error("pdfMake unavailable");
 
-    let token = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY || "";
-    try {
-      const sessionResult = sb?.auth ? await sb.auth.getSession() : null;
-      token = sessionResult?.data?.session?.access_token || token;
-    } catch (_) {}
+    const user = profileInfo();
+    const now = new Date();
+    const logo = await loadImageDataUrl("../assets/logo/bastion-report-mark.png").catch(() => null);
+    const icons = await loadReportIcons();
+    const red = "#e51b23";
+    const dark = "#0b0f17";
+    const grid = "#d9dde3";
 
-    setStatus("Формую PDF на Supabase Edge Function...", "loading");
-    const res = await fetch(`${baseUrl.replace(/\/$/, "")}/functions/v1/generate-relation-pdf`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
+    const pdfHeaders = headers.map((h) => String(h || "").toUpperCase());
+    const body = [
+      pdfHeaders.map((h) => ({
+        text: h,
+        bold: true,
+        color: "#ffffff",
+        fillColor: dark,
+        fontSize: 10,
+        margin: [7, 10, 7, 10]
+      })),
+      ...rows.map((r, rowIndex) => r.map((v, colIndex) => ({
+        text: String(v ?? ""),
+        color: colIndex === 0 ? red : "#111827",
+        bold: colIndex === 0,
+        fontSize: 10,
+        margin: [7, 9, 7, 9],
+        fillColor: rowIndex % 2 ? "#fbfbfc" : "#ffffff"
+      })))
+    ];
 
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(text || `Edge Function HTTP ${res.status}`);
-    }
+    const footerItems = [
+      footerItem(icons.world, "bastion-system.com", 120),
+      footerItem(icons.calendar, `Дата: ${now.toLocaleDateString("uk-UA")}`, 96),
+      footerItem(icons.clock, `Час: ${now.toLocaleTimeString("uk-UA")}`, 90),
+      footerItem(icons.pen, `Виконавець: ${user.login || "—"}`, 118),
+      footerItem(icons.mail, `Email: ${user.email || "—"}`, 136),
+      footerItem(icons.clipboard, `Записів: ${rows.length}`, 82),
+      footerItem(icons.floppy, "BASTION SYSTEM", 110)
+    ];
 
-    const blob = await res.blob();
-    downloadBlob(blob, "application/pdf", filename);
-    setStatus("PDF сформовано та завантажено.", "success");
-  } catch (edgeError) {
-    console.warn("BASTION Edge PDF fallback:", edgeError);
-    try {
-      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
-      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
-      if (!window.pdfMake) throw new Error("pdfMake unavailable");
-      const body = [
-        headers.map((h) => ({ text: String(h).toUpperCase(), bold: true, fillColor: "#f2f2f2", margin: [4, 5] })),
-        ...rows.map((r) => r.map((v) => ({ text: String(v ?? ""), margin: [4, 5] })))
-      ];
-      const doc = {
-        pageOrientation: "landscape",
-        pageMargins: [18, 22, 18, 22],
-        content: [
-          { text: String(relation?.name || "ЗВ'ЯЗОК").toUpperCase(), fontSize: 18, bold: true, margin: [0, 0, 0, 12] },
-          { table: { headerRows: 1, widths: headers.map((_, i) => i === 0 ? 28 : "*"), body }, layout: "lightHorizontalLines" }
-        ],
-        footer: () => ({ text: `BASTION SYSTEM • ${new Date().toLocaleString("uk-UA")} • Записів: ${rows.length}`, alignment: "center", fontSize: 8, color: "#777" }),
-        defaultStyle: { font: "Roboto", fontSize: 8 }
-      };
-      window.pdfMake.createPdf(doc).download(filename);
-      setStatus("Edge Function недоступна. PDF сформовано локально.", "warn");
-    } catch (fallbackError) {
-      const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title></head><body><h1>${escapeHtml(relation.name)}</h1><table border="1"><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
-      downloadBlob(html, "text/html;charset=utf-8", filename.replace(/\.pdf$/i, ".html"));
-      setStatus("PDF не сформовано. Збережено HTML fallback.", "error");
-    }
+    const brand = {
+      columns: [
+        { text: "BASTION", alignment: "right", fontSize: 18, bold: true, color: "#111827", margin: [0, 1, 8, 0] },
+        logo
+          ? { image: logo, width: 28, height: 28, alignment: "right", margin: [0, 0, 0, 0] }
+          : { text: "◆", width: 28, alignment: "right", fontSize: 22, color: red }
+      ],
+      columnGap: 2,
+      width: 180
+    };
+
+    const doc = {
+      pageSize: "A4",
+      pageOrientation: "landscape",
+      pageMargins: [26, 24, 26, 46],
+      content: [
+        {
+          columns: [
+            { text: String(relation.name || "ЗВ’ЯЗОК").toUpperCase(), fontSize: 27, bold: true, color: red, characterSpacing: 2, margin: [0, 2, 0, 0] },
+            brand
+          ],
+          columnGap: 16
+        },
+        { canvas: [{ type: "line", x1: 0, y1: 0, x2: 790, y2: 0, lineWidth: 1.15, lineColor: red }], margin: [0, 15, 0, 18] },
+        {
+          table: {
+            headerRows: 1,
+            widths: headers.map((_, i) => i === 0 ? 34 : "*"),
+            body
+          },
+          layout: {
+            hLineColor: () => grid,
+            vLineColor: () => grid,
+            hLineWidth: (i) => i === 0 || i === body.length ? 0.8 : 0.55,
+            vLineWidth: () => 0.55,
+            paddingLeft: () => 0,
+            paddingRight: () => 0,
+            paddingTop: () => 0,
+            paddingBottom: () => 0
+          }
+        }
+      ],
+      footer: () => ({
+        margin: [26, 0, 26, 12],
+        stack: [
+          { canvas: [{ type: "line", x1: 0, y1: 0, x2: 790, y2: 0, lineWidth: 1, lineColor: red }], margin: [0, 0, 0, 7] },
+          { columns: footerItems, columnGap: 5 }
+        ]
+      }),
+      defaultStyle: { font: "Roboto", fontSize: 10 },
+      styles: {
+        footerText: { fontSize: 8.5, color: "#111827" }
+      }
+    };
+
+    window.pdfMake.createPdf(doc).download(filename);
+  } catch (err) {
+    const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title></head><body><h1>${escapeHtml(relation.name)}</h1><table border="1"><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
+    downloadBlob(html, "text/html;charset=utf-8", filename.replace(/\.pdf$/i, ".html"));
+    setStatus("PDF-бібліотеку не завантажено. Збережено HTML-звіт як fallback.", "warn");
   }
+}
+
+function footerItem(svg, text, width) {
+  return {
+    width,
+    columns: [
+      svg ? { svg, width: 12, height: 12, margin: [0, 0, 4, 0] } : { text: "•", width: 10, color: "#e51b23" },
+      { text, style: "footerText", margin: [0, 1, 0, 0] }
+    ],
+    columnGap: 2
+  };
+}
+
+async function loadReportIcons() {
+  const icon = async (name) => {
+    const raw = await loadTextAsset(`../assets/icons/report/${name}.svg`).catch(() => "");
+    return raw
+      .replaceAll("currentColor", "#e51b23")
+      .replace(/<svg\s+/i, '<svg ')
+      .replace(/class="[^"]*"/g, "");
+  };
+  return {
+    world: await icon("world-www"),
+    calendar: await icon("calendar-event"),
+    clock: await icon("clock-hour-2"),
+    pen: await icon("ballpen"),
+    mail: await icon("mail-opened"),
+    clipboard: await icon("clipboard-text"),
+    floppy: await icon("device-floppy")
+  };
+}
+
+async function loadTextAsset(src) {
+  const res = await fetch(src, { cache: "force-cache" });
+  if (!res.ok) throw new Error(`Asset not found: ${src}`);
+  return res.text();
+}
+
+async function loadImageDataUrl(src) {
+  const res = await fetch(src, { cache: "force-cache" });
+  if (!res.ok) throw new Error(`Image not found: ${src}`);
+  const blob = await res.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
   function loadScript(src) {
