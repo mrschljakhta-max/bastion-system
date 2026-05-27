@@ -1331,119 +1331,65 @@
       if (!si.has(s)) { si.set(s, shared.length); shared.push(s); }
       return si.get(s);
     };
-    const esc = (s) => String(s)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;");
-    const colName = (n) => {
-      let s = "";
-      while (n >= 0) {
-        s = String.fromCharCode((n % 26) + 65) + s;
-        n = Math.floor(n / 26) - 1;
-      }
-      return s;
-    };
-
-    // Excel export is intentionally simple: only the table, no logo/header/footer.
-    // File name already contains the relation name.
+    const esc = (s) => String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    const colName = (n) => { let s = ""; while (n >= 0) { s = String.fromCharCode((n % 26) + 65) + s; n = Math.floor(n / 26) - 1; } return s; };
     const data = [headers, ...rows];
-    const columnWidths = headers.map((_, cidx) => {
-      const maxLen = data.reduce((max, row) => {
-        const value = String(row?.[cidx] ?? "");
-        return Math.max(max, ...value.split(/\r?\n/).map((part) => part.length));
-      }, 0);
-      // Width is auto-calculated by content, with sane bounds for readability.
-      return Math.max(8, Math.min(36, maxLen + 3));
+    const colWidths = headers.map((_, cidx) => {
+      const maxLen = Math.max(...data.map((r) => String(r[cidx] ?? "").length), 6);
+      return Math.min(Math.max(maxLen + 3, cidx === 0 ? 8 : 14), 42);
     });
-
-    const cols = columnWidths.map((width, idx) =>
-      `<col min="${idx + 1}" max="${idx + 1}" width="${width}" customWidth="1"/>`
-    ).join("");
-
-    const sheetRows = data.map((r, ridx) => {
-      const styleId = ridx === 0 ? 1 : 2;
-      const height = ridx === 0 ? 22 : 19;
-      const cells = r.map((v, cidx) =>
-        `<c r="${colName(cidx)}${ridx + 1}" t="s" s="${styleId}"><v>${getSi(v)}</v></c>`
-      ).join("");
-      return `<row r="${ridx + 1}" ht="${height}" customHeight="1">${cells}</row>`;
-    }).join("");
-
-    const lastCell = `${colName(Math.max(headers.length - 1, 0))}${Math.max(data.length, 1)}`;
-    const safeSheetName = esc((title || "Relation").replace(/[\\/?*\[\]:]/g, " ").trim().slice(0, 31) || "Relation");
-
+    const cols = `<cols>${colWidths.map((w, idx) => `<col min="${idx + 1}" max="${idx + 1}" width="${w}" customWidth="1"/>`).join("")}</cols>`;
+    const sheetRows = data.map((r, ridx) => `<row r="${ridx + 1}">${r.map((v, cidx) => `<c r="${colName(cidx)}${ridx + 1}" t="s" s="${ridx === 0 ? 1 : 2}"><v>${getSi(v)}</v></c>`).join("")}</row>`).join("");
     const files = {
       "[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
       "_rels/.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
-      "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${safeSheetName}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+      "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${esc(title).slice(0,31) || "Relation"}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
       "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
-      "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="2"><border/><border><left style="thin"><color indexed="64"/></left><right style="thin"><color indexed="64"/></right><top style="thin"><color indexed="64"/></top><bottom style="thin"><color indexed="64"/></bottom></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf xfId="0" numFmtId="0" fontId="0" fillId="0" borderId="0"/><xf xfId="0" numFmtId="0" fontId="1" fillId="0" borderId="1" applyFont="1" applyBorder="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf xfId="0" numFmtId="0" fontId="0" fillId="0" borderId="1" applyBorder="1"><alignment vertical="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`,
-      "xl/sharedStrings.xml": `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${data.flat().length}" uniqueCount="${shared.length}">${shared.map((s) => `<si><t>${esc(s)}</t></si>`).join("")}</sst>`,
-      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:${lastCell}"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${cols}</cols><sheetData>${sheetRows}</sheetData><pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>`
+      "xl/styles.xml": `<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="2"><border/><border><left style="thin"><color auto="1"/></left><right style="thin"><color auto="1"/></right><top style="thin"><color auto="1"/></top><bottom style="thin"><color auto="1"/></bottom></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1"/></cellXfs></styleSheet>`,
+      "xl/sharedStrings.xml": `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${shared.length}" uniqueCount="${shared.length}">${shared.map((s) => `<si><t>${esc(s)}</t></si>`).join("")}</sst>`,
+      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${cols}<sheetData>${sheetRows}</sheetData></worksheet>`
     };
     return new Blob([zipStore(files)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
   }
 
-  
-async function exportPdfReport(relation, headers, rows, filename) {
-  try {
-    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
-    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
-    if (!window.pdfMake) throw new Error("pdfMake unavailable");
-    const user = profileInfo();
-    const tableName = `rel_${relation.id.replace(/-/g, "_")}`;
-    const body = [
-      headers.map((h) => ({ text: h.toUpperCase(), bold: true, color:"#ffffff", fillColor:"#0c0f16", margin:[8,10] })),
-      ...rows.map((r)=>r.map((v)=>({text:String(v ?? ""), margin:[8,12]})))
-    ];
-
-    const doc = {
-      pageMargins:[22,24,22,26],
-      content:[
-        {
-          columns:[
-            [
-              { text: relation.name.toUpperCase(), fontSize:28, bold:true, color:"#e91c24", characterSpacing:1.5 },
-              { text: `Таблиця: ${tableName}`, margin:[0,8,0,0], color:"#222", fontSize:12 }
-            ],
-            {
-              stack:[
-                { text:"BASTION SYSTEM", alignment:"right", fontSize:22, bold:true, color:"#111" },
-                { text:"◢", alignment:"right", color:"#e91c24", fontSize:30 }
-              ]
+  async function exportPdfReport(relation, headers, rows, filename) {
+    try {
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
+      await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
+      if (!window.pdfMake) throw new Error("pdfMake unavailable");
+      const body = [
+        headers.map((h) => ({ text: String(h || "").toUpperCase(), bold: true, margin: [6, 7] })),
+        ...rows.map((r) => r.map((v) => ({ text: String(v ?? ""), margin: [6, 7] })))
+      ];
+      const doc = {
+        pageOrientation: headers.length > 5 ? "landscape" : "portrait",
+        pageMargins: [24, 24, 24, 24],
+        content: [
+          {
+            table: {
+              headerRows: 1,
+              widths: headers.map((_, i) => i === 0 ? 32 : "*"),
+              body
+            },
+            layout: {
+              hLineWidth: () => 0.6,
+              vLineWidth: () => 0.6,
+              hLineColor: () => "#888888",
+              vLineColor: () => "#888888",
+              paddingLeft: () => 3,
+              paddingRight: () => 3,
+              paddingTop: () => 3,
+              paddingBottom: () => 3
             }
-          ]
-        },
-        { canvas:[{type:"line", x1:0,y1:12,x2:760,y2:12,lineWidth:1,lineColor:"#e91c24"}], margin:[0,10,0,18] },
-        {
-          table:{ headerRows:1, widths: headers.map((_,i)=> i===0?36:"*"), body },
-          layout:{
-            fillColor:(row)=> row===0 ? "#0c0f16" : null,
-            hLineColor:()=>"#d8d8d8",
-            vLineColor:()=>"#d8d8d8"
           }
-        }
-      ],
-      footer:(current,pageCount)=>({
-        margin:[26,8],
-        columns:[
-          { text:"bastion-system.com", color:"#444", fontSize:9 },
-          { text:`Дата: ${new Date().toLocaleDateString("uk-UA")}`, alignment:"center", fontSize:9 },
-          { text:`Час: ${new Date().toLocaleTimeString("uk-UA")}`, alignment:"center", fontSize:9 },
-          { text:`Виконавець: ${user.login}`, alignment:"center", fontSize:9 },
-          { text:`Email: ${user.email}`, alignment:"center", fontSize:9 },
-          { text:`Записів: ${rows.length}`, alignment:"right", fontSize:9 }
-        ]
-      }),
-      defaultStyle:{ font:"Roboto", fontSize:10 }
-    };
-    window.pdfMake.createPdf(doc).download(filename);
-  } catch(err) {
-
-      const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title></head><body><h1>${escapeHtml(relation.name)}</h1><table border="1"><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
+        ],
+        defaultStyle: { font: "Roboto", fontSize: 10 }
+      };
+      window.pdfMake.createPdf(doc).download(filename);
+    } catch (err) {
+      const html = `<html><head><meta charset="UTF-8"><title>${escapeHtml(relation.name)}</title><style>table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif}th,td{border:1px solid #777;padding:8px;text-align:left}th{font-weight:700}</style></head><body><table><thead><tr>${headers.map((h)=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r)=>`<tr>${r.map((v)=>`<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
       downloadBlob(html, "text/html;charset=utf-8", filename.replace(/\.pdf$/i, ".html"));
-      setStatus("PDF-бібліотеку не завантажено. Збережено HTML-звіт як fallback.", "warn");
+      setStatus("PDF-бібліотеку не завантажено. Збережено HTML-таблицю як fallback.", "warn");
     }
   }
 
