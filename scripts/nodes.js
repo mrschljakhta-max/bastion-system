@@ -537,7 +537,7 @@
         <button class="nodes-modal-close" type="button" data-nodes-close aria-label="Закрити">×</button>
         <header class="nodes-modal-head">
           <div class="nodes-modal-titlebox">
-            <h2 id="nodesRelationTitle">ЗВ’ЯЗОК</h2>
+            <h2 id="nodesRelationTitle">ЗВ’ЯЗОК</h2><button type="button" class="nodes-title-edit-btn" data-nodes-title-edit aria-label="Редагувати назву зв’язку">✎</button>
             <p id="nodesRelationLead">0 записів</p>
           </div>
           <div class="nodes-toolbar" aria-label="Інструменти зв’язку">
@@ -654,6 +654,10 @@
     if (cancelRowBtn) return cancelEditRelationRow();
     const deleteRowBtn = event.target.closest("[data-nodes-row-delete]");
     if (deleteRowBtn) return deleteRelationRow(Number(deleteRowBtn.dataset.nodesRowDelete));
+    if (event.target.closest("[data-nodes-title-edit]")) return editRelationTitle();
+    const structureDeleteBtn = event.target.closest("[data-structure-delete]");
+    if (structureDeleteBtn) return deleteRelationStructureColumn(Number(structureDeleteBtn.dataset.structureDelete));
+    if (event.target.closest("[data-result-edit]")) return editRelationResultLabel();
     const qtyStepBtn = event.target.closest("[data-qty-step]");
     if (qtyStepBtn) return stepQuantityInput(qtyStepBtn);
     const formatBtn = event.target.closest("[data-nodes-format]");
@@ -1050,10 +1054,74 @@
       <div class="nodes-structure-list">
         ${(relation.columns || []).map((c, i) => {
           const meta = withQuantityMeta(c, i);
-          return `<div class="nodes-structure-row nodes-structure-row--quantity"><b>${i + 1}</b><span>${escapeHtml(meta.dictionary)}</span><small>${escapeHtml(meta.label || meta.column)}</small><label class="nodes-quantity-toggle"><input type="checkbox" data-qty-enabled="${i}" ${hasQuantity(meta) ? "checked" : ""}> <span>Кількість</span></label><select data-qty-type="${i}" ${hasQuantity(meta) ? "" : "disabled"}><option value="integer"${meta.quantityType === "integer" ? " selected" : ""}>Ціле</option><option value="decimal"${meta.quantityType === "decimal" ? " selected" : ""}>Десяткове</option></select><button type="button">✎</button><button type="button">×</button></div>`;
+          return `<div class="nodes-structure-row nodes-structure-row--quantity"><b>${i + 1}</b><span>${escapeHtml(meta.dictionary)}</span><small>${escapeHtml(meta.label || meta.column)}</small><label class="nodes-quantity-toggle"><input type="checkbox" data-qty-enabled="${i}" ${hasQuantity(meta) ? "checked" : ""}> <span>Кількість</span></label><select data-qty-type="${i}" ${hasQuantity(meta) ? "" : "disabled"}><option value="integer"${meta.quantityType === "integer" ? " selected" : ""}>Ціле</option><option value="decimal"${meta.quantityType === "decimal" ? " selected" : ""}>Десяткове</option></select><button type="button" class="nodes-structure-action nodes-structure-action--danger" data-structure-delete="${i}" aria-label="Видалити колонку">×</button></div>`;
         }).join("")}
-        <div class="nodes-structure-row is-result"><b>R</b><span>${escapeHtml(relation.result?.label || "Результат")}</span><small>${escapeHtml(relation.result?.type || "text")}</small><button type="button">✎</button></div>
+        <div class="nodes-structure-row is-result"><b>R</b><span>${escapeHtml(relation.result?.label || "Результат")}</span><small>${escapeHtml(relation.result?.type || "text")}</small><button type="button" class="nodes-structure-action" data-result-edit aria-label="Редагувати результат">✎</button></div>
       </div>`;
+  }
+
+  async function editRelationTitle() {
+    const relation = state.activeRelation;
+    if (!relation) return;
+    const current = relation.name || "";
+    const next = window.prompt("Нова назва зв’язку", current);
+    if (next === null) return;
+    const clean = next.trim();
+    if (clean.length < 1) return setStatus("Назва зв’язку не може бути порожньою.", "error");
+    relation.name = clean;
+    document.getElementById("nodesRelationTitle").textContent = clean.toUpperCase();
+    try {
+      await persistRelationSchema(relation);
+      if (relation.dbId) {
+        sb = sb || createSupabaseClient();
+        if (sb) await sb.from("rel_registry").update({ name: clean, updated_at: new Date().toISOString() }).eq("id", relation.dbId);
+      }
+      setStatus("Назву зв’язку оновлено.", "success");
+      updateCards(false);
+    } catch (error) {
+      setStatus(`Назву оновлено локально, але Supabase не зберіг: ${error.message}`, "warn");
+    }
+  }
+
+  async function editRelationResultLabel() {
+    const relation = state.activeRelation;
+    if (!relation) return;
+    const current = relation.result?.label || "Результат";
+    const next = window.prompt("Нова назва колонки результату", current);
+    if (next === null) return;
+    const clean = next.trim();
+    if (clean.length < 1) return setStatus("Назва результату не може бути порожньою.", "error");
+    relation.result = { ...(relation.result || {}), label: clean };
+    renderEditPanel();
+    renderRelationTable();
+    try {
+      await persistRelationSchema(relation);
+      setStatus("Назву результату оновлено.", "success");
+    } catch (error) {
+      setStatus(`Назву результату оновлено локально, але Supabase не зберіг: ${error.message}`, "warn");
+    }
+  }
+
+  async function deleteRelationStructureColumn(index) {
+    const relation = state.activeRelation;
+    if (!relation?.columns?.[index]) return;
+    const column = relation.columns[index];
+    const ok = window.confirm(`Видалити колонку «${column.dictionary || column.label || column.column}» зі структури зв’язку?`);
+    if (!ok) return;
+    relation.columns.splice(index, 1);
+    relation.rows = (relation.rows || []).map((row) => {
+      const copy = Array.isArray(row) ? [...row] : [];
+      copy.splice(index, 1);
+      return copy;
+    });
+    renderEditPanel();
+    renderRelationTable();
+    try {
+      await persistRelationSchema(relation);
+      setStatus("Колонку видалено зі структури.", "success");
+    } catch (error) {
+      setStatus(`Колонку видалено локально, але Supabase не зберіг: ${error.message}`, "warn");
+    }
   }
 
   async function deleteRelation() {
