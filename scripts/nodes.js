@@ -168,6 +168,7 @@
       return makeCell(record?.[key] ?? record?.[col.key] ?? record?.[col.column] ?? record?.[col.label] ?? "", record?.[qtyKey] ?? "");
     });
     values.push(record?.result_value ?? record?.result ?? record?.__result ?? "");
+    if (record?.id) values._recordId = record.id;
     return values;
   }
 
@@ -354,6 +355,8 @@
     editMode: false,
     filterMode: false,
     addRowActive: false,
+    editingRowIndex: null,
+    editingOriginalRow: null,
     builderStep: 1,
     builderDraft: [],
     builderActiveDict: dictionaryCatalog[0]?.table || "",
@@ -611,6 +614,8 @@
     state.editMode = false;
     state.filterMode = false;
     state.addRowActive = false;
+    state.editingRowIndex = null;
+    state.editingOriginalRow = null;
     const modal = document.getElementById("nodesRelationModal");
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
@@ -634,13 +639,21 @@
 
   function handleModalClick(event) {
     if (event.target.closest("[data-nodes-close]")) return closeModals();
-    if (event.target.closest("[data-nodes-export]")) { state.exportMode = !state.exportMode; state.editMode = false; state.filterMode = false; syncModes(); }
-    if (event.target.closest("[data-nodes-edit]")) { state.editMode = !state.editMode; state.exportMode = false; state.filterMode = false; syncModes(); }
-    if (event.target.closest("[data-nodes-filter]")) { state.filterMode = !state.filterMode; state.exportMode = false; state.editMode = false; syncModes(); }
+    if (event.target.closest("[data-nodes-export]")) { state.exportMode = !state.exportMode; state.editMode = false; state.filterMode = false; state.editingRowIndex = null; syncModes(); }
+    if (event.target.closest("[data-nodes-edit]")) { state.editMode = !state.editMode; state.exportMode = false; state.filterMode = false; state.editingRowIndex = null; syncModes(); }
+    if (event.target.closest("[data-nodes-filter]")) { state.filterMode = !state.filterMode; state.exportMode = false; state.editMode = false; state.editingRowIndex = null; syncModes(); }
     if (event.target.closest("[data-nodes-delete]")) return deleteRelation();
     if (event.target.closest("[data-nodes-add-row]")) return startAddRelationRow();
     if (event.target.closest("[data-nodes-save-row]")) return saveNewRelationRow();
     if (event.target.closest("[data-nodes-cancel-row]")) return cancelNewRelationRow();
+    const editRowBtn = event.target.closest("[data-nodes-row-edit]");
+    if (editRowBtn) return startEditRelationRow(Number(editRowBtn.dataset.nodesRowEdit));
+    const saveRowBtn = event.target.closest("[data-nodes-row-save]");
+    if (saveRowBtn) return saveEditedRelationRow(Number(saveRowBtn.dataset.nodesRowSave));
+    const cancelRowBtn = event.target.closest("[data-nodes-row-cancel]");
+    if (cancelRowBtn) return cancelEditRelationRow();
+    const deleteRowBtn = event.target.closest("[data-nodes-row-delete]");
+    if (deleteRowBtn) return deleteRelationRow(Number(deleteRowBtn.dataset.nodesRowDelete));
     const formatBtn = event.target.closest("[data-nodes-format]");
     if (formatBtn) exportRelation(formatBtn.dataset.nodesFormat);
   }
@@ -737,6 +750,7 @@
 
   function renderHeader(h, index) {
     if (index === 0) return `<span class="nodes-th-main">№</span>`;
+    if (h.kind === "actions") return `<span class="nodes-th-main nodes-th-actions">ДІЇ</span>`;
     if (h.kind === "result") return `<span class="nodes-th-main">${escapeHtml(h.label)}</span><span class="nodes-th-sub">RESULT</span>`;
     return `<span class="nodes-th-main">${escapeHtml(h.dictionary)}</span><span class="nodes-th-sub">${escapeHtml(h.label || h.column)}</span>`;
   }
@@ -744,13 +758,17 @@
   function renderRelationRow(relation, row, i) {
     const cols = relation.columns || [];
     const resultIndex = cols.length;
-    return `<tr><td class="nodes-num-cell">${i + 1}</td>${cols.map((col, idx) => `<td>${renderValueQtyCell(col, row[idx])}</td>`).join("")}<td>${renderResultInput(relation.result, row[resultIndex])}</td></tr>`;
+    const isEditing = state.editingRowIndex === i;
+    const actions = isEditing
+      ? `<span class="nodes-row-actions"><button type="button" class="nodes-inline-ok" data-nodes-row-save="${i}" aria-label="Зберегти">✓</button><button type="button" class="nodes-inline-cancel" data-nodes-row-cancel aria-label="Скасувати">×</button></span>`
+      : `<span class="nodes-row-actions"><button type="button" class="nodes-row-action" data-nodes-row-edit="${i}" aria-label="Редагувати">✎</button><button type="button" class="nodes-row-action nodes-row-action--danger" data-nodes-row-delete="${i}" aria-label="Видалити">×</button></span>`;
+    return `<tr data-row-index="${i}" class="${isEditing ? "is-editing" : ""}"><td class="nodes-num-cell">${i + 1}</td>${cols.map((col, idx) => `<td>${renderValueQtyCell(col, row[idx], isEditing, idx)}</td>`).join("")}<td>${renderResultInput(relation.result, row[resultIndex], isEditing)}</td><td class="nodes-actions-cell">${actions}</td></tr>`;
   }
 
 
   function renderAddRelationRow(relation, index) {
     const cols = relation.columns || [];
-    return `<tr class="nodes-add-row"><td class="nodes-num-cell">${index + 1}</td>${cols.map((col, idx) => `<td>${renderAddValueQtyCell(col, idx)}</td>`).join("")}<td><div class="nodes-add-result-cell">${renderAddResultInput(relation.result)}<span class="nodes-inline-actions"><button type="button" class="nodes-inline-ok" data-nodes-save-row aria-label="Зберегти">✓</button><button type="button" class="nodes-inline-cancel" data-nodes-cancel-row aria-label="Скасувати">×</button></span></div></td></tr>`;
+    return `<tr class="nodes-add-row"><td class="nodes-num-cell">${index + 1}</td>${cols.map((col, idx) => `<td>${renderAddValueQtyCell(col, idx)}</td>`).join("")}<td>${renderAddResultInput(relation.result)}</td><td class="nodes-actions-cell"><span class="nodes-inline-actions"><button type="button" class="nodes-inline-ok" data-nodes-save-row aria-label="Зберегти">✓</button><button type="button" class="nodes-inline-cancel" data-nodes-cancel-row aria-label="Скасувати">×</button></span></td></tr>`;
   }
 
   function renderAddValueQtyCell(col, idx) {
@@ -773,6 +791,8 @@
     state.editMode = false;
     state.filterMode = false;
     state.addRowActive = true;
+    state.editingRowIndex = null;
+    state.editingOriginalRow = null;
     syncModes();
     renderRelationTable();
     document.querySelector(".nodes-add-row select, .nodes-add-row input")?.focus();
@@ -804,8 +824,10 @@
     }
     try {
       setStatus("Зберігаю новий запис...", "loading");
-      await saveRelationRowToSupabase(relation, values, resultValue);
-      relation.rows = [...(relation.rows || []), [...values, resultValue]];
+      const recordId = await saveRelationRowToSupabase(relation, values, resultValue);
+      const newRow = [...values, resultValue];
+      if (recordId) newRow._recordId = recordId;
+      relation.rows = [...(relation.rows || []), newRow];
       state.addRowActive = false;
       updateRelationCounters(relation);
       renderRelationTable();
@@ -815,36 +837,155 @@
     }
   }
 
-  async function saveRelationRowToSupabase(relation, values, resultValue) {
-    sb = sb || createSupabaseClient();
-    if (!sb || !relation?.isLive || !relation?.tableName) return;
+
+  function cloneRelationRow(row) {
+    const copy = [...row.map((cell) => cell && typeof cell === "object" && !Array.isArray(cell) ? makeCell(cell.value, cell.qty) : cell)];
+    if (row && row._recordId) copy._recordId = row._recordId;
+    return copy;
+  }
+
+  function startEditRelationRow(index) {
+    const relation = state.activeRelation;
+    if (!relation?.rows?.[index]) return;
+    state.addRowActive = false;
+    state.editingRowIndex = index;
+    state.editingOriginalRow = cloneRelationRow(relation.rows[index]);
+    renderRelationTable();
+    document.querySelector(`tr[data-row-index="${index}"] select, tr[data-row-index="${index}"] input`)?.focus();
+  }
+
+  function cancelEditRelationRow() {
+    if (state.activeRelation && state.editingRowIndex !== null && state.editingOriginalRow) {
+      state.activeRelation.rows[state.editingRowIndex] = cloneRelationRow(state.editingOriginalRow);
+    }
+    state.editingRowIndex = null;
+    state.editingOriginalRow = null;
+    renderRelationTable();
+  }
+
+  async function saveEditedRelationRow(index) {
+    const relation = state.activeRelation;
+    if (!relation?.rows?.[index]) return;
+    let values;
+    try {
+      values = (relation.columns || []).map((col, idx) => {
+        const rowEl = document.querySelector(`tr[data-row-index="${index}"]`);
+        const value = rowEl?.querySelector(`[data-edit-col="${idx}"]`)?.value || "";
+        const qtyRaw = rowEl?.querySelector(`[data-edit-qty="${idx}"]`)?.value || "";
+        const meta = withQuantityMeta(col, idx);
+        const qty = hasQuantity(meta) ? normalizeQuantityValue(qtyRaw, meta.quantityType) : null;
+        return makeCell(value, qty ?? "");
+      });
+    } catch (validationError) {
+      return setStatus(validationError.message, "warn");
+    }
+    const rowEl = document.querySelector(`tr[data-row-index="${index}"]`);
+    const resultValue = rowEl?.querySelector("[data-edit-result]")?.value || "";
+    try {
+      setStatus("Зберігаю зміни...", "loading");
+      await updateRelationRowInSupabase(relation, index, values, resultValue);
+      const updated = [...values, resultValue];
+      if (relation.rows[index]._recordId) updated._recordId = relation.rows[index]._recordId;
+      relation.rows[index] = updated;
+      state.editingRowIndex = null;
+      state.editingOriginalRow = null;
+      renderRelationTable();
+      setStatus("Зміни збережено.", "success");
+    } catch (error) {
+      setStatus(`Не вдалося зберегти зміни: ${error.message}`, "error");
+    }
+  }
+
+  async function deleteRelationRow(index) {
+    const relation = state.activeRelation;
+    if (!relation?.rows?.[index]) return;
+    const ok = window.confirm("Видалити цей запис?");
+    if (!ok) return;
+    try {
+      setStatus("Видаляю запис...", "loading");
+      await deleteRelationRowFromSupabase(relation, index);
+      relation.rows.splice(index, 1);
+      state.editingRowIndex = null;
+      state.editingOriginalRow = null;
+      updateRelationCounters(relation);
+      renderRelationTable();
+      setStatus("Запис видалено.", "success");
+    } catch (error) {
+      setStatus(`Не вдалося видалити запис: ${error.message}`, "error");
+    }
+  }
+
+  function relationRowPayload(relation, values, resultValue, index = 0) {
     const payload = {
-      row_order: (relation.rows || []).length + 1,
+      row_order: index + 1,
       result_value: resultValue,
       is_active: true,
       updated_at: new Date().toISOString()
     };
-    (relation.columns || []).forEach((col, index) => {
-      const meta = withQuantityMeta(col, index);
+    (relation.columns || []).forEach((col, colIndex) => {
+      const meta = withQuantityMeta(col, colIndex);
       const key = meta.storage_key;
-      payload[key] = getCellValue(values[index]) || null;
-      if (hasQuantity(meta)) payload[meta.quantity_key || `${key}_qty`] = getCellQty(values[index]) || null;
+      payload[key] = getCellValue(values[colIndex]) || null;
+      if (hasQuantity(meta)) payload[meta.quantity_key || `${key}_qty`] = getCellQty(values[colIndex]) === "" ? null : getCellQty(values[colIndex]);
     });
-    let { error } = await sb.from(relation.tableName).insert(payload);
-    if (error && /column .*(_qty|row_order)|Could not find .*(_qty|row_order)|schema cache/i.test(error.message || "")) {
-      const fallback = { ...payload };
-      delete fallback.row_order;
-      (relation.columns || []).forEach((col, index) => {
-        const meta = withQuantityMeta(col, index);
-        delete fallback[meta.quantity_key || `${meta.storage_key}_qty`];
-      });
-      const retry = await sb.from(relation.tableName).insert(fallback);
+    return payload;
+  }
+
+  async function ensureQuantityColumnsForRelation(relation) {
+    sb = sb || createSupabaseClient();
+    if (!sb || !relation?.dbId) return;
+    if (!(relation.columns || []).some((c) => hasQuantity(c))) return;
+    try {
+      await sb.rpc("ensure_bastion_relation_quantity_columns", { p_relation_id: relation.dbId });
+    } catch (error) {
+      console.warn("BASTION quantity columns RPC unavailable:", error?.message || error);
+    }
+  }
+
+  async function updateRelationRowInSupabase(relation, index, values, resultValue) {
+    sb = sb || createSupabaseClient();
+    if (!sb || !relation?.isLive || !relation?.tableName) return;
+    await ensureQuantityColumnsForRelation(relation);
+    const payload = relationRowPayload(relation, values, resultValue, index);
+    const recordId = relation.rows[index]?._recordId;
+    if (!recordId) throw new Error("Не знайдено ID запису для оновлення. Перезавантаж сторінку та спробуй ще раз.");
+    const { error } = await sb.from(relation.tableName).update(payload).eq("id", recordId);
+    if (error) throw error;
+  }
+
+  async function deleteRelationRowFromSupabase(relation, index) {
+    sb = sb || createSupabaseClient();
+    if (!sb || !relation?.isLive || !relation?.tableName) return;
+    const recordId = relation.rows[index]?._recordId;
+    if (!recordId) throw new Error("Не знайдено ID запису для видалення. Перезавантаж сторінку та спробуй ще раз.");
+    let { error } = await sb.from(relation.tableName).delete().eq("id", recordId);
+    if (error) {
+      const soft = await sb.from(relation.tableName).update({ is_active: false, updated_at: new Date().toISOString() }).eq("id", recordId);
+      error = soft.error;
+    }
+    if (error) throw error;
+    try {
+      await sb.from("rel_registry").update({ records_count: Math.max(0, (relation.rows || []).length - 1), updated_at: new Date().toISOString() }).eq("id", relation.dbId);
+    } catch (_) {}
+  }
+
+  async function saveRelationRowToSupabase(relation, values, resultValue) {
+    sb = sb || createSupabaseClient();
+    if (!sb || !relation?.isLive || !relation?.tableName) return null;
+    await ensureQuantityColumnsForRelation(relation);
+    const payload = relationRowPayload(relation, values, resultValue, (relation.rows || []).length);
+    let { data, error } = await sb.from(relation.tableName).insert(payload).select("id").single();
+    if (error && /schema cache|column .*(_qty|row_order)|Could not find .*(_qty|row_order)/i.test(error.message || "")) {
+      await ensureQuantityColumnsForRelation(relation);
+      const retry = await sb.from(relation.tableName).insert(payload).select("id").single();
+      data = retry.data;
       error = retry.error;
     }
     if (error) throw error;
     try {
       await sb.from("rel_registry").update({ records_count: (relation.rows || []).length + 1, updated_at: new Date().toISOString() }).eq("id", relation.dbId);
     } catch (_) {}
+    return data?.id || null;
   }
 
   function updateRelationCounters(relation) {
@@ -855,20 +996,22 @@
     if (metaRows) metaRows.textContent = String(count);
   }
 
-  function renderValueQtyCell(col, cell) {
+  function renderValueQtyCell(col, cell, editable = false, idx = 0) {
     const value = getCellValue(cell);
     const qty = getCellQty(cell);
-    const meta = withQuantityMeta(col, 0);
+    const meta = withQuantityMeta(col, idx);
+    const disabled = editable ? "" : " disabled";
     const opts = (meta.values || []).map((v) => `<option value="${escapeAttr(v)}"${String(v) === String(value) ? " selected" : ""}>${escapeHtml(v)}</option>`).join("");
-    const qtyInput = hasQuantity(meta) ? `<input class="nodes-cell-input nodes-qty-input" type="number" ${meta.quantityType === "integer" ? 'step="1"' : 'step="0.01"'} min="0" value="${escapeAttr(qty)}" placeholder="к-сть">` : "";
-    return `<div class="nodes-value-qty-cell"><select class="nodes-cell-select"><option value="">—</option>${opts}</select>${qtyInput}</div>`;
+    const qtyInput = hasQuantity(meta) ? `<input class="nodes-cell-input nodes-qty-input" data-edit-qty="${idx}" type="number" ${meta.quantityType === "integer" ? 'step="1"' : 'step="0.01"'} min="0" value="${escapeAttr(qty)}" placeholder="к-сть"${disabled}>` : "";
+    return `<div class="nodes-value-qty-cell"><select class="nodes-cell-select" data-edit-col="${idx}"${disabled}><option value="">—</option>${opts}</select>${qtyInput}</div>`;
   }
 
-  function renderResultInput(result, value) {
+  function renderResultInput(result, value, editable = false) {
     const type = result?.type || "text";
-    if (type === "boolean") return `<select class="nodes-cell-select"><option${value === "Так" ? " selected" : ""}>Так</option><option${value === "Ні" ? " selected" : ""}>Ні</option></select>`;
-    if (type === "number" || type === "decimal") return `<input class="nodes-cell-input" type="number" value="${escapeAttr(value || "")}">`;
-    return `<input class="nodes-cell-input" type="text" value="${escapeAttr(value || "")}">`;
+    const disabled = editable ? "" : " disabled";
+    if (type === "boolean") return `<select class="nodes-cell-select nodes-result-input" data-edit-result${disabled}><option value=""${!value ? " selected" : ""}>—</option><option${value === "Так" ? " selected" : ""}>Так</option><option${value === "Ні" ? " selected" : ""}>Ні</option></select>`;
+    if (type === "number" || type === "integer" || type === "decimal") return `<input class="nodes-cell-input nodes-result-input" data-edit-result type="number" value="${escapeAttr(value || "")}"${disabled}>`;
+    return `<input class="nodes-cell-input nodes-result-input" data-edit-result type="text" value="${escapeAttr(value || "")}"${disabled}>`;
   }
 
   function renderEditPanel() {
@@ -1043,13 +1186,14 @@
   }
 
   function relationHeaders(relation) {
-    return [{ label: "№" }, ...(relation.columns || []), { kind: "result", label: relation.result?.label || "Результат" }];
+    return [{ label: "№" }, ...(relation.columns || []), { kind: "result", label: relation.result?.label || "Результат" }, { kind: "actions", label: "Дії" }];
   }
 
   function exportRelation(format) {
     const relation = state.activeRelation;
     if (!relation) return;
-    const headers = relationHeaders(relation).map((h, idx) => idx === 0 ? "№" : h.kind === "result" ? h.label : `${h.dictionary} / ${h.label || h.column}`);
+    const exportHeaders = relationHeaders(relation).filter((h) => h.kind !== "actions");
+    const headers = exportHeaders.map((h, idx) => idx === 0 ? "№" : h.kind === "result" ? h.label : `${h.dictionary} / ${h.label || h.column}`);
     const rows = (relation.rows || []).map((row, idx) => [idx + 1, ...(relation.columns || []).map((col, colIdx) => formatRelationCell(row[colIdx], col)), row[(relation.columns || []).length] ?? ""]);
     const filename = exportFileName(relation.name, format === "excel" ? "xlsx" : format);
     if (format === "json") {

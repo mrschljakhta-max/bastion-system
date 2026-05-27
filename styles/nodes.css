@@ -1328,3 +1328,73 @@ body.nodes-modal-open .bottom-map {
   .nodes-value-qty-cell { grid-template-columns: 1fr; }
   .nodes-structure-row--quantity { grid-template-columns: 34px 1fr; }
 }
+
+/* ==========================================================
+   NODES v017: row edit/delete actions + quantity persistence UI
+   ========================================================== */
+.nodes-th-actions { text-align: center; }
+.nodes-actions-cell {
+  width: 118px;
+  text-align: right;
+  white-space: nowrap;
+}
+.nodes-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.nodes-row-action {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 72, 72, .58);
+  background: rgba(255, 45, 45, .12);
+  color: #ff7a70;
+  font: 900 20px/1 Rajdhani, Arial, sans-serif;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+.nodes-row-action:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 45, 45, .26);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(255, 55, 55, .28);
+}
+.nodes-row-action--danger:hover {
+  background: #ff3434;
+  border-color: #ff3434;
+}
+.nodes-relation-table tr.is-editing td {
+  background: rgba(255, 64, 64, .055);
+}
+.nodes-cell-select:disabled,
+.nodes-cell-input:disabled {
+  opacity: .95;
+  cursor: default;
+  color: rgba(255,255,255,.92);
+  -webkit-text-fill-color: rgba(255,255,255,.92);
+}
+.nodes-qty-input:disabled {
+  opacity: 1;
+  color: #ffb9b9 !important;
+  -webkit-text-fill-color: #ffb9b9;
+}
+:root[data-theme="light"] .nodes-row-action {
+  background: rgba(255,255,255,.82);
+  color: #ff3030;
+  border-color: rgba(255, 72, 72, .46);
+}
+:root[data-theme="light"] .nodes-row-action:hover {
+  background: #ff3434;
+  color: #fff;
+}
+:root[data-theme="light"] .nodes-cell-select:disabled,
+:root[data-theme="light"] .nodes-cell-input:disabled {
+  color: #263141;
+  -webkit-text-fill-color: #263141;
+}
+:root[data-theme="light"] .nodes-qty-input:disabled {
+  color: #cc3030 !important;
+  -webkit-text-fill-color: #cc3030;
+}
