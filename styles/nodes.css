@@ -1,6 +1,6 @@
 /* ==========================================================
-   BASTION NODES PAGE v003
-   Relation carousel: clean stage, compact card text, smooth 3D flip/tilt.
+   BASTION NODES PAGE v005
+   Relation carousel: enlarged center, straight side cards, refined compact typography.
    ========================================================== */
 
 body.bastion-core-page[data-active-module="nodes"],
@@ -69,14 +69,14 @@ body.bastion-core-page:has(.nodes-screen) {
   --opacity: 1;
   --z: 10;
   position: absolute;
-  width: clamp(250px, 20vw, 392px);
+  width: clamp(265px, 20.5vw, 420px);
   aspect-ratio: 1 / 1;
   transform: translate3d(var(--x), var(--y, 0px), 0) scale(var(--scale)) rotateZ(var(--orbit-rot, 0deg));
   opacity: var(--opacity);
   z-index: var(--z);
   transition: transform .96s cubic-bezier(.12, .86, .16, 1), opacity .72s ease, filter .72s ease;
   will-change: transform, opacity, filter;
-  filter: saturate(.95) brightness(.86);
+  filter: saturate(.95) brightness(.88);
   cursor: pointer;
   border: 0;
   background: transparent;
@@ -182,27 +182,63 @@ body.bastion-core-page:has(.nodes-screen) {
 .relation-title {
   max-width: 100%;
   color: #f7f8fb;
-  font: 900 clamp(14px, 1.35vw, 22px)/1.02 Rajdhani, Arial, sans-serif;
-  letter-spacing: .065em;
+  font: 900 clamp(14px, 1.12vw, 20px)/1.02 Rajdhani, Arial, sans-serif;
+  letter-spacing: .052em;
   text-transform: uppercase;
   text-shadow: 0 0 18px rgba(255, 70, 65, .34);
   word-break: break-word;
 }
 
 .relation-count {
-  margin-top: clamp(10px, 1.7vh, 24px);
+  margin-top: clamp(8px, 1.25vh, 16px);
   color: #ff3737;
-  font: 900 clamp(36px, 4.1vw, 66px)/.82 Rajdhani, Arial, sans-serif;
+  font: 900 clamp(26px, 2.8vw, 46px)/.86 Rajdhani, Arial, sans-serif;
   letter-spacing: .02em;
   text-shadow: 0 0 18px rgba(255, 28, 28, .6);
 }
 
 .relation-count-label {
-  margin-top: 8px;
+  margin-top: 6px;
   color: rgba(255, 246, 242, .74);
-  font: 800 clamp(11px, 1.05vw, 16px)/1 Rajdhani, Arial, sans-serif;
+  font: 800 clamp(8px, .72vw, 12px)/1 Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
+}
+
+
+.relation-card.is-active .relation-card__content {
+  width: 60%;
+}
+
+.relation-card.is-active .relation-title {
+  font-size: clamp(20px, 1.85vw, 32px);
+  line-height: 1.03;
+  letter-spacing: .055em;
+}
+
+.relation-card.is-active .relation-count {
+  margin-top: clamp(12px, 1.7vh, 20px);
+  font-size: clamp(36px, 3.25vw, 58px);
+  line-height: .86;
+}
+
+.relation-card.is-active .relation-count-label {
+  margin-top: 7px;
+  font-size: clamp(10px, .9vw, 15px);
+  letter-spacing: .075em;
+}
+
+.relation-card:not(.is-active) .relation-title {
+  font-size: clamp(12px, .95vw, 18px);
+  line-height: 1.02;
+}
+
+.relation-card:not(.is-active) .relation-count {
+  font-size: clamp(24px, 2.4vw, 40px);
+}
+
+.relation-card:not(.is-active) .relation-count-label {
+  font-size: clamp(8px, .68vw, 11px);
 }
 
 .relation-back-heading {

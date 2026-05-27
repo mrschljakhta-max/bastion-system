@@ -9,11 +9,11 @@
   ];
 
   const positions = [
-    { x: -540, y: 2, scale: .68, opacity: .40, z: 1, rot: -7 },
-    { x: -292, y: -3, scale: .84, opacity: .74, z: 5, rot: -4 },
-    { x: 0, y: 0, scale: 1.18, opacity: 1, z: 12, rot: 0 },
-    { x: 292, y: -3, scale: .84, opacity: .74, z: 5, rot: 4 },
-    { x: 540, y: 2, scale: .68, opacity: .40, z: 1, rot: 7 },
+    { x: -560, y: 4, scale: .72, opacity: .44, z: 1, rot: 0 },
+    { x: -318, y: 0, scale: .88, opacity: .78, z: 5, rot: 0 },
+    { x: 0, y: 0, scale: 1.34, opacity: 1, z: 12, rot: 0 },
+    { x: 318, y: 0, scale: .88, opacity: .78, z: 5, rot: 0 },
+    { x: 560, y: 4, scale: .72, opacity: .44, z: 1, rot: 0 },
   ];
 
   const state = {
