@@ -1111,3 +1111,138 @@ body.nodes-modal-open .bottom-map {
 .nodes-export-mode .nodes-table-card {
   min-height: auto;
 }
+
+
+/* ==========================================================
+   NODES v014: compact relation card typography + add row UI
+   ========================================================== */
+.relation-card__content {
+  width: 58%;
+  max-width: 58%;
+}
+.relation-card.is-active .relation-card__content {
+  width: 62%;
+  max-width: 62%;
+}
+.relation-title {
+  letter-spacing: .012em;
+  line-height: .88;
+  font-size: clamp(10px, .78vw, 15px);
+}
+.relation-title__line {
+  max-width: 100%;
+  transform-origin: center;
+}
+.relation-card.is-active .relation-title {
+  font-size: clamp(15px, 1.18vw, 22px);
+  line-height: .9;
+  letter-spacing: .01em;
+}
+.relation-card:not(.is-active) .relation-title {
+  font-size: clamp(7px, .52vw, 10px);
+  line-height: .9;
+  letter-spacing: .01em;
+}
+.relation-card.is-active .relation-count {
+  margin-top: clamp(7px, .95vh, 12px);
+  font-size: clamp(24px, 2.05vw, 38px);
+}
+.relation-card.is-active .relation-count-label {
+  font-size: clamp(7px, .56vw, 10px);
+  letter-spacing: .035em;
+}
+.relation-card:not(.is-active) .relation-count {
+  font-size: clamp(13px, 1.2vw, 22px);
+}
+.relation-card:not(.is-active) .relation-count-label {
+  font-size: clamp(5px, .42vw, 7px);
+  letter-spacing: .035em;
+}
+.relation-card.is-create .relation-card__content,
+.relation-card.is-active.is-create .relation-card__content {
+  width: 58%;
+  max-width: 58%;
+}
+.relation-card.is-active.is-create .relation-create-plus {
+  font-size: clamp(38px, 3.7vw, 68px);
+}
+.relation-card.is-active.is-create .relation-create-text {
+  font-size: clamp(16px, 1.45vw, 25px);
+  line-height: .92;
+}
+
+.nodes-table-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 18px;
+}
+.nodes-add-record-btn {
+  min-height: 50px;
+  padding: 0 30px;
+  border: 1px solid rgba(255, 62, 62, .56);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 44, 48, .24), rgba(72, 8, 10, .62));
+  color: #fff4f4;
+  font: 900 20px/1 Rajdhani, Arial, sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  box-shadow: 0 0 22px rgba(255, 40, 40, .18), inset 0 0 18px rgba(255, 80, 80, .08);
+  cursor: pointer;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, opacity .22s ease;
+}
+.nodes-add-record-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(255, 92, 92, .9);
+  box-shadow: 0 0 30px rgba(255, 40, 40, .28), inset 0 0 20px rgba(255, 80, 80, .12);
+}
+.nodes-add-record-btn:disabled {
+  opacity: .44;
+  cursor: default;
+}
+.nodes-add-row td {
+  background: rgba(255, 40, 40, .035);
+}
+.nodes-add-result-cell {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+.nodes-inline-actions {
+  display: inline-flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.nodes-inline-ok,
+.nodes-inline-cancel {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 72, 72, .66);
+  background: rgba(255, 40, 40, .18);
+  color: #ff5a5a;
+  font: 900 22px/1 Rajdhani, Arial, sans-serif;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+.nodes-inline-ok:hover,
+.nodes-inline-cancel:hover {
+  transform: translateY(-1px);
+  background: #ff3434;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255, 52, 52, .35);
+}
+:root[data-theme="light"] .nodes-add-record-btn {
+  background: linear-gradient(135deg, rgba(255,255,255,.94), rgba(255,238,238,.86));
+  color: #ff3030;
+  text-shadow: 0 0 14px rgba(255, 68, 68, .22);
+}
+:root[data-theme="light"] .nodes-add-row td {
+  background: rgba(255, 250, 250, .76);
+}
+:root[data-theme="light"] .nodes-inline-ok,
+:root[data-theme="light"] .nodes-inline-cancel {
+  background: #ff3434;
+  color: #fff;
+  border-color: #ff3434;
+}

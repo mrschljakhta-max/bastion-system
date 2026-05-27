@@ -305,6 +305,7 @@
     exportMode: false,
     editMode: false,
     filterMode: false,
+    addRowActive: false,
     builderStep: 1,
     builderDraft: [],
     builderActiveDict: dictionaryCatalog[0]?.table || "",
@@ -515,6 +516,9 @@
         </section>
         <section class="nodes-table-card">
           <div id="nodesTableWrap" class="nodes-table-wrap"></div>
+          <div class="nodes-table-actions">
+            <button type="button" class="nodes-add-record-btn" data-nodes-add-row>+ ДОДАТИ ЗАПИС</button>
+          </div>
         </section>
         <p id="nodesModalStatus" class="nodes-modal-status"></p>
       </section>`;
@@ -557,6 +561,7 @@
     state.exportMode = false;
     state.editMode = false;
     state.filterMode = false;
+    state.addRowActive = false;
     const modal = document.getElementById("nodesRelationModal");
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
@@ -584,6 +589,9 @@
     if (event.target.closest("[data-nodes-edit]")) { state.editMode = !state.editMode; state.exportMode = false; state.filterMode = false; syncModes(); }
     if (event.target.closest("[data-nodes-filter]")) { state.filterMode = !state.filterMode; state.exportMode = false; state.editMode = false; syncModes(); }
     if (event.target.closest("[data-nodes-delete]")) return deleteRelation();
+    if (event.target.closest("[data-nodes-add-row]")) return startAddRelationRow();
+    if (event.target.closest("[data-nodes-save-row]")) return saveNewRelationRow();
+    if (event.target.closest("[data-nodes-cancel-row]")) return cancelNewRelationRow();
     const formatBtn = event.target.closest("[data-nodes-format]");
     if (formatBtn) exportRelation(formatBtn.dataset.nodesFormat);
   }
@@ -598,6 +606,11 @@
     modal.querySelector("#nodesEditPanel").hidden = !state.editMode;
     modal.querySelector("#nodesFilterPanel").hidden = !state.filterMode;
     modal.querySelector("#nodesTableWrap").hidden = state.exportMode || state.editMode;
+    const addBtn = modal.querySelector("[data-nodes-add-row]");
+    if (addBtn) {
+      addBtn.hidden = state.exportMode || state.editMode;
+      addBtn.disabled = state.addRowActive;
+    }
     modal.classList.toggle("nodes-export-mode", state.exportMode);
     modal.classList.toggle("nodes-edit-mode", state.editMode);
     if (state.editMode) renderEditPanel();
@@ -611,11 +624,16 @@
     const headers = relationHeaders(relation);
     const sourceRows = relation.rows || [];
     const rows = sourceRows.filter((row) => !query || row.join(" ").toLowerCase().includes(query));
+    const bodyRows = rows.length
+      ? rows.map((row, i) => renderRelationRow(relation, row, i)).join("")
+      : (state.addRowActive ? "" : `<tr><td colspan="${headers.length}" class="nodes-empty-cell">Записів немає</td></tr>`);
     wrap.innerHTML = `
       <table class="nodes-relation-table">
         <thead><tr>${headers.map((h, i) => `<th>${renderHeader(h, i)}</th>`).join("")}</tr></thead>
-        <tbody>${rows.length ? rows.map((row, i) => renderRelationRow(relation, row, i)).join("") : `<tr><td colspan="${headers.length}" class="nodes-empty-cell">Записів немає</td></tr>`}</tbody>
+        <tbody>${bodyRows}${state.addRowActive ? renderAddRelationRow(relation, rows.length) : ""}</tbody>
       </table>`;
+    const addBtn = document.querySelector("[data-nodes-add-row]");
+    if (addBtn) addBtn.disabled = state.addRowActive;
   }
 
   function renderHeader(h, index) {
@@ -628,6 +646,89 @@
     const cols = relation.columns || [];
     const resultIndex = cols.length;
     return `<tr><td class="nodes-num-cell">${i + 1}</td>${cols.map((col, idx) => `<td>${renderSelect(col, row[idx])}</td>`).join("")}<td>${renderResultInput(relation.result, row[resultIndex])}</td></tr>`;
+  }
+
+
+  function renderAddRelationRow(relation, index) {
+    const cols = relation.columns || [];
+    return `<tr class="nodes-add-row"><td class="nodes-num-cell">${index + 1}</td>${cols.map((col, idx) => `<td>${renderAddSelect(col, idx)}</td>`).join("")}<td><div class="nodes-add-result-cell">${renderAddResultInput(relation.result)}<span class="nodes-inline-actions"><button type="button" class="nodes-inline-ok" data-nodes-save-row aria-label="Зберегти">✓</button><button type="button" class="nodes-inline-cancel" data-nodes-cancel-row aria-label="Скасувати">×</button></span></div></td></tr>`;
+  }
+
+  function renderAddSelect(col, idx) {
+    const opts = (col.values || []).map((v) => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join("");
+    return `<select class="nodes-cell-select" data-add-col="${idx}"><option value="">— обрати —</option>${opts}</select>`;
+  }
+
+  function renderAddResultInput(result) {
+    const type = result?.type || "text";
+    if (type === "boolean") return `<select class="nodes-cell-select nodes-add-result" data-add-result><option value="">—</option><option>Так</option><option>Ні</option></select>`;
+    if (type === "number" || type === "integer" || type === "decimal") return `<input class="nodes-cell-input nodes-add-result" data-add-result type="number" value="">`;
+    return `<input class="nodes-cell-input nodes-add-result" data-add-result type="text" value="" placeholder="Результат">`;
+  }
+
+  function startAddRelationRow() {
+    if (!state.activeRelation) return;
+    state.exportMode = false;
+    state.editMode = false;
+    state.filterMode = false;
+    state.addRowActive = true;
+    syncModes();
+    renderRelationTable();
+    document.querySelector(".nodes-add-row select, .nodes-add-row input")?.focus();
+  }
+
+  function cancelNewRelationRow() {
+    state.addRowActive = false;
+    renderRelationTable();
+  }
+
+  async function saveNewRelationRow() {
+    const relation = state.activeRelation;
+    if (!relation) return;
+    const values = (relation.columns || []).map((_, idx) => document.querySelector(`[data-add-col="${idx}"]`)?.value || "");
+    const resultValue = document.querySelector("[data-add-result]")?.value || "";
+    if (!values.some((v) => String(v).trim()) && !String(resultValue).trim()) {
+      return setStatus("Заповніть хоча б одне поле нового запису.", "warn");
+    }
+    try {
+      setStatus("Зберігаю новий запис...", "loading");
+      await saveRelationRowToSupabase(relation, values, resultValue);
+      relation.rows = [...(relation.rows || []), [...values, resultValue]];
+      state.addRowActive = false;
+      updateRelationCounters(relation);
+      renderRelationTable();
+      setStatus("Запис додано.", "success");
+    } catch (error) {
+      setStatus(`Не вдалося додати запис: ${error.message}`, "error");
+    }
+  }
+
+  async function saveRelationRowToSupabase(relation, values, resultValue) {
+    sb = sb || createSupabaseClient();
+    if (!sb || !relation?.isLive || !relation?.tableName) return;
+    const payload = {
+      row_order: (relation.rows || []).length + 1,
+      result_value: resultValue,
+      is_active: true,
+      updated_at: new Date().toISOString()
+    };
+    (relation.columns || []).forEach((col, index) => {
+      const key = col.storage_key || `c_${String(index + 1).padStart(3, "0")}_${slugify(col.column).replace(/-/g, "_")}`;
+      payload[key] = values[index] || null;
+    });
+    const { error } = await sb.from(relation.tableName).insert(payload);
+    if (error) throw error;
+    try {
+      await sb.from("rel_registry").update({ records_count: (relation.rows || []).length + 1, updated_at: new Date().toISOString() }).eq("id", relation.dbId);
+    } catch (_) {}
+  }
+
+  function updateRelationCounters(relation) {
+    const count = relation.rows?.length || 0;
+    const lead = document.getElementById("nodesRelationLead");
+    const metaRows = document.getElementById("nodesMetaRows");
+    if (lead) lead.textContent = countLabel(count);
+    if (metaRows) metaRows.textContent = String(count);
   }
 
   function renderSelect(col, value) {
