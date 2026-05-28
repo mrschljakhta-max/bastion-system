@@ -1564,6 +1564,42 @@
       const icons = await dictExportReportIcons();
       const title = String(dictionaryTitle(currentDict) || "ДОВІДНИК").toUpperCase();
 
+      const pdfColumns = [
+        ...(isColumnVisible("__rownum") ? [{ column_name: "__rownum", data_type: "number", virtual: true }] : []),
+        ...displayColumns()
+      ];
+
+      const makePdfBodyCell = (row, col, rowIndex, colIndex) => {
+        const name = col?.column_name || "";
+        const type = normalizeType(col?.data_type || col?.udt_name);
+        const value = name === "__rownum" ? rowIndex + 1 : row?.[name];
+        const base = {
+          color: colIndex === 0 ? red : "#111827",
+          bold: colIndex === 0,
+          fontSize: 10,
+          margin: [7, 9, 7, 9],
+          fillColor: rowIndex % 2 ? "#fbfbfc" : "#ffffff"
+        };
+
+        if (type === "boolean" || name === "is_active" || name === "active") {
+          const active = value !== false && value !== 0 && value !== "false" && value !== "0" && value !== null && typeof value !== "undefined";
+          const svg = active ? icons.check : icons.square;
+          if (svg) {
+            return {
+              svg,
+              width: 13,
+              height: 13,
+              alignment: "left",
+              margin: [7, 8, 7, 8],
+              fillColor: base.fillColor
+            };
+          }
+          return { ...base, text: active ? "✓" : "□" };
+        }
+
+        return { ...base, text: String(value ?? "") };
+      };
+
       const body = [
         headers.map((h) => ({
           text: String(h || "").toUpperCase(),
@@ -1573,14 +1609,7 @@
           fontSize: 10,
           margin: [7, 10, 7, 10]
         })),
-        ...rows.map((r, rowIndex) => r.map((v, colIndex) => ({
-          text: String(v ?? ""),
-          color: colIndex === 0 ? red : "#111827",
-          bold: colIndex === 0,
-          fontSize: 10,
-          margin: [7, 9, 7, 9],
-          fillColor: rowIndex % 2 ? "#fbfbfc" : "#ffffff"
-        })))
+        ...currentRows.map((row, rowIndex) => pdfColumns.map((col, colIndex) => makePdfBodyCell(row, col, rowIndex, colIndex)))
       ];
 
       const footerItems = [
@@ -1681,7 +1710,9 @@
       pen: await icon("ballpen"),
       mail: await icon("mail-opened"),
       clipboard: await icon("clipboard-text"),
-      floppy: await icon("device-floppy")
+      floppy: await icon("device-floppy"),
+      check: await icon("check"),
+      square: await icon("square")
     };
   }
 
