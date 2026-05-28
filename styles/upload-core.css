@@ -1,5 +1,5 @@
 
-/* BASTION Upload Core v240 */
+/* BASTION Upload Core v241 */
 body.bastion-core-page:has(.upload-core-page) { overflow: hidden; }
 .upload-core-page {
   --upload-red: #ff3138;
@@ -75,67 +75,42 @@ body.bastion-light .upload-orb__ring--light, body.theme-light .upload-orb__ring-
 .upload-orb__copy {
   position:absolute;
   left:50%;
-  top: 57.5%;
+  top: 60.8%;
   transform: translateX(-50%);
-  width: min(360px, 40%);
+  width: min(420px, 52%);
   text-align:center;
   text-transform: uppercase;
-  letter-spacing: .07em;
+  letter-spacing: .06em;
   pointer-events:none;
+  z-index:4;
 }
 .upload-orb__copy strong {
   display:block;
-  font-size: clamp(16px, 1.55vw, 24px);
+  font-size: clamp(14px, 1.28vw, 21px);
   color: #ff4a4f;
   text-shadow: 0 0 14px rgba(255,40,40,.7);
   white-space: nowrap;
 }
 .upload-orb__copy span {
   display:block;
-  margin-top: 4px;
-  font-size: clamp(10px, .78vw, 14px);
-  color: rgba(255,255,255,.78);
-  letter-spacing: .03em;
+  margin-top: 5px;
+  font-size: clamp(10px, .72vw, 13px);
+  color: rgba(255,255,255,.82);
+  letter-spacing: .02em;
   text-transform:none;
   white-space: nowrap;
 }
-.upload-format-pill {
-  position:absolute;
-  left:50%;
-  top: 66%;
-  transform: translateX(-50%);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap: 10px;
-  z-index: 4;
-}
-.upload-format-pill span {
-  min-width: 58px;
-  padding: 8px 12px;
-  border: 1px solid rgba(255,70,70,.52);
-  background: rgba(10,8,10,.58);
-  color: #ff6a6a;
-  font-weight: 900;
-  font-size: clamp(10px, .8vw, 13px);
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  box-shadow: inset 0 0 18px rgba(255,35,35,.08), 0 0 16px rgba(255,0,0,.12);
-}
-.upload-format-pill span:nth-child(2){ color: var(--upload-blue); border-color: rgba(5,201,255,.55); }
-.upload-format-pill span:nth-child(3){ color: var(--upload-green); border-color: rgba(0,255,132,.55); }
+.upload-format-pill { display:none; }
 .upload-progress-plate {
   position:absolute;
   left:50%;
-  bottom: 11.5%;
+  bottom: 7.3%;
   transform: translateX(-50%);
-  width: clamp(152px, 18vw, 224px);
-  min-height: clamp(58px, 7vw, 82px);
+  width: clamp(178px, 20vw, 264px);
+  min-height: clamp(58px, 6.6vw, 82px);
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap: 4px;
   background: linear-gradient(180deg, rgba(55,12,12,.88), rgba(13,8,8,.96));
   border: 1px solid rgba(255,82,82,.86);
   clip-path: polygon(13% 0, 87% 0, 100% 24%, 100% 78%, 86% 100%, 14% 100%, 0 78%, 0 24%);
@@ -143,6 +118,34 @@ body.bastion-light .upload-orb__ring--light, body.theme-light .upload-orb__ring-
   pointer-events:none;
   z-index:5;
 }
+.upload-plate-formats {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: clamp(10px, 1.15vw, 18px);
+  width:100%;
+  text-transform:uppercase;
+}
+.upload-plate-formats span {
+  color:#ff6a6a;
+  font-weight:900;
+  font-size: clamp(12px, 1vw, 16px);
+  letter-spacing:.1em;
+  text-shadow:0 0 12px rgba(255,40,40,.55);
+}
+.upload-plate-formats span:nth-child(2) { color: var(--upload-blue); text-shadow:0 0 12px rgba(5,201,255,.55); }
+.upload-plate-formats span:nth-child(3) { color: var(--upload-green); text-shadow:0 0 12px rgba(0,255,132,.55); }
+.upload-plate-progress {
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap: 4px;
+}
+.upload-progress-plate.is-progress-mode .upload-plate-formats { display:none; }
+.upload-progress-plate.is-progress-mode .upload-plate-progress { display:flex; }
+.upload-progress-plate.is-format-mode .upload-plate-formats { display:flex; }
+.upload-progress-plate.is-format-mode .upload-plate-progress { display:none; }
 .upload-progress-plate strong {
   color:#ff565d;
   text-transform:uppercase;
@@ -150,7 +153,7 @@ body.bastion-light .upload-orb__ring--light, body.theme-light .upload-orb__ring-
   font-size: clamp(12px, 1.05vw, 18px);
   line-height:1;
 }
-.upload-progress-plate span { color:#fff; font-size: clamp(16px, 1.35vw, 22px); font-weight:900; line-height:1; }
+.upload-progress-plate .upload-plate-progress span { color:#fff; font-size: clamp(16px, 1.35vw, 22px); font-weight:900; line-height:1; }
 .upload-orb.is-dragging .upload-orb__ring { transform: scale(1.025) rotate(4deg); filter: brightness(1.2) saturate(1.2); }
 .upload-orb.is-dragging .upload-orb__copy strong { color:#fff; }
 
@@ -258,5 +261,5 @@ body.bastion-light .upload-orb__ring--light, body.theme-light .upload-orb__ring-
 @media (max-height: 820px) {
   .upload-core-stage { width:min(50vw, 640px); top:calc(50% + 22px); }
   .upload-orb__fingerprint { width:clamp(100px, 15vw, 210px); }
-  .upload-progress-plate { bottom:10%; transform:translateX(-50%) scale(.92); }
+  .upload-progress-plate { bottom:6.8%; transform:translateX(-50%) scale(.92); }
 }

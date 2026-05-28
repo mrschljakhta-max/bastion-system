@@ -9,6 +9,7 @@
   const fileCount = document.getElementById('uploadFileCount');
   const plateText = document.getElementById('uploadPlateText');
   const platePercent = document.getElementById('uploadPlatePercent');
+  const progressPlate = document.querySelector('.upload-progress-plate');
   const startButton = document.getElementById('uploadStartButton');
   const resultsButton = document.getElementById('uploadResultsButton');
   const resultsModal = document.getElementById('uploadResultsModal');
@@ -44,8 +45,17 @@
   document.querySelectorAll('[data-upload-panel-close]').forEach(btn => btn.addEventListener('click', () => closePanel(btn.dataset.uploadPanelClose)));
 
   function setPlate(text, percent) {
+    progressPlate?.classList.remove('is-format-mode');
+    progressPlate?.classList.add('is-progress-mode');
     plateText.textContent = text;
     platePercent.textContent = `${percent}%`;
+  }
+
+  function setPlateFormats() {
+    progressPlate?.classList.remove('is-progress-mode');
+    progressPlate?.classList.add('is-format-mode');
+    plateText.textContent = 'Готовий';
+    platePercent.textContent = '0%';
   }
 
   function renderFiles() {
@@ -74,7 +84,7 @@
     if (!incoming.length) return;
     incoming.forEach(file => files.push({ name: file.name, size: file.size, file, status: 'готовий' }));
     parsed = false;
-    setPlate('Готовий', 0);
+    setPlateFormats();
     renderFiles();
     openPanel('right');
   }
@@ -136,7 +146,7 @@
     files = [];
     parsed = false;
     fileInput.value = '';
-    setPlate('Готовий', 0);
+    setPlateFormats();
     closeResults();
     renderFiles();
   }
@@ -154,5 +164,6 @@
   resultsButton.addEventListener('click', openResults);
   resetButton.addEventListener('click', resetAll);
   document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', closeResults));
+  setPlateFormats();
   renderFiles();
 })();

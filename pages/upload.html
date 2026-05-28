@@ -6,7 +6,7 @@
   <title>BASTION — Завантаження</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/upload-core.css?v=240" />
+  <link rel="stylesheet" href="../styles/upload-core.css?v=241" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -131,12 +131,14 @@
           <strong>Перетягніть файл</strong>
           <span>або натисніть для вибору файлів</span>
         </div>
-        <div class="upload-format-pill" aria-label="Підтримувані формати">
-          <span>JSON</span><span>CSV</span><span>XLSX</span>
-        </div>
-        <div class="upload-progress-plate" aria-live="polite">
-          <strong id="uploadPlateText">Готовий</strong>
-          <span id="uploadPlatePercent">0%</span>
+        <div class="upload-progress-plate is-format-mode" aria-live="polite">
+          <div id="uploadPlateFormats" class="upload-plate-formats" aria-label="Підтримувані формати">
+            <span>JSON</span><span>CSV</span><span>XLSX</span>
+          </div>
+          <div id="uploadPlateProgress" class="upload-plate-progress" aria-hidden="true">
+            <strong id="uploadPlateText">Готовий</strong>
+            <span id="uploadPlatePercent">0%</span>
+          </div>
         </div>
       </button>
     </section>
@@ -323,6 +325,6 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
-  <script src="../scripts/upload-core.js?v=240"></script>
+  <script src="../scripts/upload-core.js?v=241"></script>
 </body>
 </html>
