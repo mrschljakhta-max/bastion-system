@@ -6,7 +6,7 @@
   <title>BASTION — Завантаження</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/upload-core.css?v=2" />
+  <link rel="stylesheet" href="../styles/upload-core.css?v=3" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -86,7 +86,7 @@
 
   <main class="upload-core-screen" data-module="upload">
     <aside class="upload-side upload-side--left is-collapsed" aria-label="Системний статус">
-      <button class="upload-side-tab" type="button" data-upload-toggle="left" aria-label="Показати системну панель">‹‹</button>
+      <button class="upload-side-tab" type="button" data-upload-toggle="left" aria-label="Показати системну панель"><span>РОЗГОРНУТИ</span><b>›</b></button>
       <div class="upload-panel-head"><span>СИСТЕМА</span><button type="button" data-upload-toggle="left">×</button></div>
       <div class="upload-status-grid">
         <section class="upload-status-card"><small>СТАТУС СИСТЕМИ</small><b id="uploadSystemState">ГОТОВИЙ</b></section>
@@ -105,7 +105,7 @@
       </div>
       <div class="upload-fingerprint-wrap" aria-hidden="true"><img class="upload-fingerprint" src="../assets/upload/upload-fingerprint-red.png?v=1" alt="" /></div>
       <div class="upload-drop-copy">
-        <b id="uploadCoreTitle">DRAG & DROP</b>
+        <b id="uploadCoreTitle">ПЕРЕТЯГНІТЬ ФАЙЛ</b>
         <span id="uploadCoreHint">або натисніть для вибору файлів</span>
         <div class="upload-mini-formats"><i>XLSX</i><i>CSV</i><i>JSON</i></div>
       </div>
@@ -113,7 +113,7 @@
     </section>
 
     <aside class="upload-side upload-side--right is-collapsed" aria-label="Завантажені файли">
-      <button class="upload-side-tab" type="button" data-upload-toggle="right" aria-label="Показати файли">››</button>
+      <button class="upload-side-tab" type="button" data-upload-toggle="right" aria-label="Показати файли"><span>РОЗГОРНУТИ</span><b>‹</b></button>
       <div class="upload-panel-head"><span>ЗАВАНТАЖЕНІ ФАЙЛИ</span><em id="uploadFileCount">0</em><button type="button" data-upload-toggle="right">×</button></div>
       <div id="uploadFileList" class="upload-file-list"><div class="upload-empty"><b>ФАЙЛИ НЕ ДОДАНО</b><span>Перетягніть файли у центр або натисніть для вибору</span></div></div>
       <div class="upload-right-actions">
@@ -274,6 +274,6 @@
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="../scripts/upload-core.js?v=2"></script>
+  <script src="../scripts/upload-core.js?v=3"></script>
 </body>
 </html>

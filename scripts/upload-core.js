@@ -115,7 +115,7 @@
 
   function resetAll(){
     if (!confirm('Скинути всі завантажені файли, результати парсингу та проміжні дані?')) return;
-    state.files = []; state.results = []; state.phase = 'idle'; renderFiles(); setPhase('ГОТОВИЙ',0); el.title.textContent='DRAG & DROP'; el.hint.textContent='або натисніть для вибору файлів'; el.start.disabled=true; el.result.disabled=true; el.modal.classList.remove('is-open'); el.modal.setAttribute('aria-hidden','true'); el.session.textContent='Очікує файлів'; el.sys.textContent='ГОТОВИЙ'; el.input.value='';
+    state.files = []; state.results = []; state.phase = 'idle'; renderFiles(); setPhase('ГОТОВИЙ',0); el.title.textContent='ПЕРЕТЯГНІТЬ ФАЙЛ'; el.hint.textContent='або натисніть для вибору файлів'; el.start.disabled=true; el.result.disabled=true; el.modal.classList.remove('is-open'); el.modal.setAttribute('aria-hidden','true'); el.session.textContent='Очікує файлів'; el.sys.textContent='ГОТОВИЙ'; el.input.value='';
   }
 
   el.drop.addEventListener('click', () => el.input.click());
