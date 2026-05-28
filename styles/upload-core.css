@@ -1,5 +1,5 @@
 
-/* BASTION Upload Core v241 */
+/* BASTION Upload Core v242 */
 body.bastion-core-page:has(.upload-core-page) { overflow: hidden; }
 .upload-core-page {
   --upload-red: #ff3138;
@@ -101,40 +101,67 @@ body.bastion-light .upload-orb__ring--light, body.theme-light .upload-orb__ring-
   white-space: nowrap;
 }
 .upload-format-pill { display:none; }
+.upload-progress-plate.is-format-mode { align-items:center; justify-content:center; }
 .upload-progress-plate {
   position:absolute;
   left:50%;
-  bottom: 7.3%;
+  bottom: 6.55%;
   transform: translateX(-50%);
-  width: clamp(178px, 20vw, 264px);
-  min-height: clamp(58px, 6.6vw, 82px);
+  width: clamp(220px, 23vw, 330px);
+  min-height: clamp(60px, 6.9vw, 86px);
   display:flex;
   align-items:center;
   justify-content:center;
-  background: linear-gradient(180deg, rgba(55,12,12,.88), rgba(13,8,8,.96));
-  border: 1px solid rgba(255,82,82,.86);
-  clip-path: polygon(13% 0, 87% 0, 100% 24%, 100% 78%, 86% 100%, 14% 100%, 0 78%, 0 24%);
-  box-shadow: 0 0 24px rgba(255,30,30,.45), inset 0 0 28px rgba(255,45,45,.16);
+  padding: 10px 18px 12px;
+  background:
+    linear-gradient(180deg, rgba(72,16,16,.92), rgba(23,10,10,.97) 58%, rgba(16,7,7,.98) 100%),
+    radial-gradient(circle at 50% -15%, rgba(255,120,120,.18), transparent 58%);
+  border: 1px solid rgba(255,88,88,.82);
+  border-radius: 20px 20px 62px 62px / 16px 16px 34px 34px;
+  box-shadow: 0 0 24px rgba(255,30,30,.42), inset 0 0 28px rgba(255,45,45,.14), inset 0 -10px 22px rgba(255,22,22,.10);
   pointer-events:none;
   z-index:5;
+  overflow:hidden;
+}
+.upload-progress-plate::before {
+  content:"";
+  position:absolute;
+  inset: 1px 1px auto 1px;
+  height: 52%;
+  border-radius: 18px 18px 40px 40px / 14px 14px 22px 22px;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+  pointer-events:none;
+}
+.upload-progress-plate::after {
+  content:"";
+  position:absolute;
+  left: 11%;
+  right: 11%;
+  bottom: 10px;
+  height: 16px;
+  border-bottom: 1px solid rgba(255,88,88,.48);
+  border-radius: 0 0 120px 120px;
+  pointer-events:none;
+  opacity:.92;
 }
 .upload-plate-formats {
   display:flex;
   align-items:center;
   justify-content:center;
-  gap: clamp(10px, 1.15vw, 18px);
+  gap: clamp(16px, 1.55vw, 28px);
   width:100%;
   text-transform:uppercase;
+  position:relative;
+  z-index:1;
 }
 .upload-plate-formats span {
-  color:#ff6a6a;
-  font-weight:900;
-  font-size: clamp(12px, 1vw, 16px);
-  letter-spacing:.1em;
-  text-shadow:0 0 12px rgba(255,40,40,.55);
+  color:#ff7b7b;
+  font-family: "Orbitron", "Rajdhani", system-ui, sans-serif;
+  font-weight:800;
+  font-size: clamp(13px, 1.08vw, 18px);
+  letter-spacing:.14em;
+  text-shadow:0 0 12px rgba(255,40,40,.55), 0 0 22px rgba(255,40,40,.20);
 }
-.upload-plate-formats span:nth-child(2) { color: var(--upload-blue); text-shadow:0 0 12px rgba(5,201,255,.55); }
-.upload-plate-formats span:nth-child(3) { color: var(--upload-green); text-shadow:0 0 12px rgba(0,255,132,.55); }
 .upload-plate-progress {
   display:none;
   flex-direction:column;
@@ -147,13 +174,14 @@ body.bastion-light .upload-orb__ring--light, body.theme-light .upload-orb__ring-
 .upload-progress-plate.is-format-mode .upload-plate-formats { display:flex; }
 .upload-progress-plate.is-format-mode .upload-plate-progress { display:none; }
 .upload-progress-plate strong {
-  color:#ff565d;
+  color:#ff7070;
   text-transform:uppercase;
   letter-spacing:.16em;
+  font-family: "Orbitron", "Rajdhani", system-ui, sans-serif;
   font-size: clamp(12px, 1.05vw, 18px);
   line-height:1;
 }
-.upload-progress-plate .upload-plate-progress span { color:#fff; font-size: clamp(16px, 1.35vw, 22px); font-weight:900; line-height:1; }
+.upload-progress-plate .upload-plate-progress span { color:#fff; font-size: clamp(16px, 1.35vw, 22px); font-family: "Orbitron", "Rajdhani", system-ui, sans-serif; font-weight:900; line-height:1; }
 .upload-orb.is-dragging .upload-orb__ring { transform: scale(1.025) rotate(4deg); filter: brightness(1.2) saturate(1.2); }
 .upload-orb.is-dragging .upload-orb__copy strong { color:#fff; }
 
@@ -261,5 +289,5 @@ body.bastion-light .upload-orb__ring--light, body.theme-light .upload-orb__ring-
 @media (max-height: 820px) {
   .upload-core-stage { width:min(50vw, 640px); top:calc(50% + 22px); }
   .upload-orb__fingerprint { width:clamp(100px, 15vw, 210px); }
-  .upload-progress-plate { bottom:6.8%; transform:translateX(-50%) scale(.92); }
+  .upload-progress-plate { bottom:6.2%; transform:translateX(-50%) scale(.92); }
 }
