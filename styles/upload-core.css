@@ -1769,3 +1769,133 @@ body[data-theme="light"] .upload-results-actions button:hover {
   background: #fff;
   color: #111318;
 }
+
+/* v255 — light review readability: red icons + bright action buttons */
+.upload-review-icon,
+.upload-results-actions img,
+.upload-results-close img {
+  filter:
+    invert(50%) sepia(94%) saturate(2636%) hue-rotate(329deg) brightness(105%) contrast(103%)
+    drop-shadow(0 0 8px rgba(255, 56, 64, .46));
+}
+
+.upload-review-toolbar button .upload-review-icon,
+.upload-unknown-actions button .upload-review-icon,
+.upload-results-actions button img {
+  opacity: .98;
+}
+
+body.bastion-light .upload-review-icon,
+body.theme-light .upload-review-icon,
+body[data-theme="light"] .upload-review-icon,
+body.bastion-light .upload-results-actions img,
+body.theme-light .upload-results-actions img,
+body[data-theme="light"] .upload-results-actions img,
+body.bastion-light .upload-results-close img,
+body.theme-light .upload-results-close img,
+body[data-theme="light"] .upload-results-close img {
+  filter:
+    invert(17%) sepia(95%) saturate(3860%) hue-rotate(341deg) brightness(92%) contrast(105%)
+    drop-shadow(0 0 6px rgba(202, 0, 20, .22));
+}
+
+body.bastion-light .upload-review-toolbar button,
+body.theme-light .upload-review-toolbar button,
+body[data-theme="light"] .upload-review-toolbar button,
+body.bastion-light .upload-unknown-actions button,
+body.theme-light .upload-unknown-actions button,
+body[data-theme="light"] .upload-unknown-actions button,
+body.bastion-light .upload-results-actions button,
+body.theme-light .upload-results-actions button,
+body[data-theme="light"] .upload-results-actions button {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(247,248,251,.90));
+  color:#a90014;
+  border-color:rgba(202,0,20,.42);
+  box-shadow:0 8px 22px rgba(120,0,14,.08), inset 0 0 0 1px rgba(255,255,255,.56);
+}
+
+body.bastion-light .upload-review-toolbar button:hover,
+body.theme-light .upload-review-toolbar button:hover,
+body[data-theme="light"] .upload-review-toolbar button:hover,
+body.bastion-light .upload-unknown-actions button:hover,
+body.theme-light .upload-unknown-actions button:hover,
+body[data-theme="light"] .upload-unknown-actions button:hover,
+body.bastion-light .upload-results-actions button:hover,
+body.theme-light .upload-results-actions button:hover,
+body[data-theme="light"] .upload-results-actions button:hover {
+  background:#fff;
+  color:#78000e;
+  border-color:rgba(255,49,56,.72);
+  box-shadow:0 0 18px rgba(255,49,56,.20), 0 10px 24px rgba(120,0,14,.10);
+}
+
+body.bastion-light .upload-review-toolbar button.is-active,
+body.theme-light .upload-review-toolbar button.is-active,
+body[data-theme="light"] .upload-review-toolbar button.is-active {
+  background:linear-gradient(180deg, #ff5660, #b30017);
+  color:#fff;
+  border-color:rgba(255,80,88,.78);
+  box-shadow:0 0 20px rgba(255,49,56,.24), 0 12px 26px rgba(150,0,18,.18);
+}
+
+body.bastion-light .upload-review-toolbar button.is-active .upload-review-icon,
+body.theme-light .upload-review-toolbar button.is-active .upload-review-icon,
+body[data-theme="light"] .upload-review-toolbar button.is-active .upload-review-icon {
+  filter:brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,.28));
+}
+
+body.bastion-light .upload-review-toolbar b,
+body.theme-light .upload-review-toolbar b,
+body[data-theme="light"] .upload-review-toolbar b,
+body.bastion-light .upload-unknown-block h4 b,
+body.theme-light .upload-unknown-block h4 b,
+body[data-theme="light"] .upload-unknown-block h4 b {
+  color:#a90014;
+  background:rgba(255,255,255,.86);
+  border-color:rgba(202,0,20,.42);
+}
+
+body.bastion-light .upload-review-toolbar button.is-active b,
+body.theme-light .upload-review-toolbar button.is-active b,
+body[data-theme="light"] .upload-review-toolbar button.is-active b {
+  color:#fff;
+  background:rgba(70,0,8,.22);
+  border-color:rgba(255,255,255,.32);
+}
+
+body.bastion-light .upload-unknown-actions button:first-child,
+body.theme-light .upload-unknown-actions button:first-child,
+body[data-theme="light"] .upload-unknown-actions button:first-child {
+  color:#7d2930;
+  border-color:rgba(125,41,48,.30);
+}
+
+body.bastion-light .upload-unknown-actions button:last-child,
+body.theme-light .upload-unknown-actions button:last-child,
+body[data-theme="light"] .upload-unknown-actions button:last-child {
+  color:#b00014;
+  border-color:rgba(202,0,20,.48);
+  background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,232,235,.82));
+}
+
+body.bastion-light .upload-result-stats span .upload-review-icon,
+body.theme-light .upload-result-stats span .upload-review-icon,
+body[data-theme="light"] .upload-result-stats span .upload-review-icon,
+body.bastion-light .upload-result-file-title small .upload-review-icon,
+body.theme-light .upload-result-file-title small .upload-review-icon,
+body[data-theme="light"] .upload-result-file-title small .upload-review-icon,
+body.bastion-light .upload-unit-select > span .upload-review-icon,
+body.theme-light .upload-unit-select > span .upload-review-icon,
+body[data-theme="light"] .upload-unit-select > span .upload-review-icon {
+  opacity:1;
+  filter:
+    invert(13%) sepia(96%) saturate(4112%) hue-rotate(343deg) brightness(92%) contrast(108%)
+    drop-shadow(0 0 7px rgba(202,0,20,.18));
+}
+
+body.bastion-light .upload-results-close,
+body.theme-light .upload-results-close,
+body[data-theme="light"] .upload-results-close {
+  color:#9f0012;
+}
