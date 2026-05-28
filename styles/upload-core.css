@@ -1649,3 +1649,123 @@ body[data-theme="light"] .upload-unknown-row {
     padding:24px 20px;
   }
 }
+
+/* v254 — review modal icon pass */
+.upload-review-icon,
+.upload-results-actions img,
+.upload-results-close img {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  flex: 0 0 auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(255, 56, 64, .45));
+}
+.upload-review-toolbar button,
+.upload-unknown-actions button,
+.upload-results-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.upload-review-toolbar .upload-review-icon {
+  width: 15px;
+  height: 15px;
+}
+.upload-result-file-title small,
+.upload-unit-select > span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+}
+.upload-result-file-title small .upload-review-icon,
+.upload-unit-select > span .upload-review-icon {
+  width: 18px;
+  height: 18px;
+  color: #ff646b;
+}
+.upload-result-stats span {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  align-items: center;
+}
+.upload-result-stats span .upload-review-icon {
+  grid-row: 1 / span 2;
+  width: 22px;
+  height: 22px;
+  color: #ff656b;
+  opacity: .95;
+}
+.upload-result-stats span em {
+  font-style: normal;
+  line-height: 1.1;
+}
+.upload-result-stats span b {
+  grid-column: 2;
+}
+.upload-unknown-actions .upload-review-icon {
+  width: 16px;
+  height: 16px;
+}
+.upload-results-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.upload-results-actions button {
+  min-height: 44px;
+  border: 1px solid rgba(255,70,70,.55);
+  background: rgba(42,8,12,.68);
+  color: #ff777b;
+  padding: 10px 14px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font: 900 13px/1 "Orbitron","Rajdhani",system-ui,sans-serif;
+  cursor: pointer;
+}
+.upload-results-actions button:hover {
+  color: #fff;
+  border-color: rgba(255,100,104,.9);
+  box-shadow: 0 0 16px rgba(255,49,56,.24), inset 0 0 14px rgba(255,49,56,.08);
+}
+.upload-results-actions button.danger {
+  background: linear-gradient(180deg, rgba(255,49,56,.20), rgba(72,8,14,.70));
+}
+.upload-results-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.upload-results-close img {
+  width: 20px;
+  height: 20px;
+}
+body.bastion-light .upload-review-icon,
+body.theme-light .upload-review-icon,
+body[data-theme="light"] .upload-review-icon,
+body.bastion-light .upload-results-actions img,
+body.theme-light .upload-results-actions img,
+body[data-theme="light"] .upload-results-actions img,
+body.bastion-light .upload-results-close img,
+body.theme-light .upload-results-close img,
+body[data-theme="light"] .upload-results-close img {
+  filter: drop-shadow(0 0 7px rgba(202,0,20,.22));
+}
+body.bastion-light .upload-results-actions button,
+body.theme-light .upload-results-actions button,
+body[data-theme="light"] .upload-results-actions button {
+  background: rgba(255,255,255,.74);
+  color: #b00014;
+  border-color: rgba(202,0,20,.32);
+}
+body.bastion-light .upload-results-actions button:hover,
+body.theme-light .upload-results-actions button:hover,
+body[data-theme="light"] .upload-results-actions button:hover {
+  background: #fff;
+  color: #111318;
+}

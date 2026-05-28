@@ -6,7 +6,7 @@
   <title>BASTION — Завантаження</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/upload-core.css?v=253" />
+  <link rel="stylesheet" href="../styles/upload-core.css?v=254" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -200,16 +200,16 @@
     <div id="uploadResultsModal" class="upload-results-modal" aria-hidden="true">
       <div class="upload-results-backdrop" data-upload-results-close></div>
       <section class="upload-results-card" role="dialog" aria-modal="true" aria-label="Результати імпорту">
-        <button class="upload-results-close" type="button" data-upload-results-close aria-label="Закрити">×</button>
+        <button class="upload-results-close" type="button" data-upload-results-close aria-label="Закрити"><img src="../assets/icons/upload-review/x.svg" alt="" aria-hidden="true"></button>
         <header>
           <small>BASTION IMPORT REVIEW</small>
           <h2>Результати парсингу</h2>
         </header>
         <div id="uploadResultsBody" class="upload-results-body"></div>
         <footer class="upload-results-actions">
-          <button id="uploadConfirmButton" type="button">Підтвердити імпорт</button>
-          <button id="uploadResetButton" type="button" class="danger">Скинути дані</button>
-          <button type="button" data-upload-results-close>Закрити</button>
+          <button id="uploadConfirmButton" type="button"><img src="../assets/icons/upload-review/package-import.svg" alt="" aria-hidden="true"><span>Підтвердити імпорт</span></button>
+          <button id="uploadResetButton" type="button" class="danger"><img src="../assets/icons/upload-review/rotate-2.svg" alt="" aria-hidden="true"><span>Скинути дані</span></button>
+          <button type="button" data-upload-results-close><img src="../assets/icons/upload-review/x.svg" alt="" aria-hidden="true"><span>Закрити</span></button>
         </footer>
       </section>
     </div>
@@ -356,6 +356,6 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
-  <script src="../scripts/upload-core.js?v=253"></script>
+  <script src="../scripts/upload-core.js?v=254"></script>
 </body>
 </html>

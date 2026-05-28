@@ -400,6 +400,30 @@
     }).join('')}`;
   }
 
+
+  const REVIEW_ICONS = {
+    file: '../assets/icons/upload-review/brand-bing.svg',
+    review: '../assets/icons/upload-review/analyze.svg',
+    parse: '../assets/icons/upload-review/spacing-horizontal.svg',
+    rows: '../assets/icons/upload-review/table-column.svg',
+    known: '../assets/icons/upload-review/file-check.svg',
+    unknown: '../assets/icons/upload-review/file-unknown.svg',
+    errors: '../assets/icons/upload-review/file-alert.svg',
+    unit: '../assets/icons/upload-review/brand-unity.svg',
+    resolve: '../assets/icons/upload-review/replace.svg',
+    ignore: '../assets/icons/upload-review/file-scissors.svg',
+    import: '../assets/icons/upload-review/package-import.svg',
+    reset: '../assets/icons/upload-review/rotate-2.svg',
+    close: '../assets/icons/upload-review/x.svg'
+  };
+
+  function reviewIcon(name, label = '') {
+    const src = REVIEW_ICONS[name];
+    if (!src) return '';
+    const alt = label ? ` alt="${escapeHtml(label)}"` : ' alt="" aria-hidden="true"';
+    return `<img class="upload-review-icon upload-review-icon--${name}" src="${src}"${alt}>`;
+  }
+
   function knownRowsHtml(rows) {
     if (!rows.length) return `<div class="upload-result-empty">Відомі значення поки не визначені.</div>`;
     return `<table class="upload-result-table"><thead><tr><th>Назва</th><th>Категорія</th><th>Кількість</th></tr></thead><tbody>${rows.map(r => `<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.match?.label || '—')}</td><td>${escapeHtml(r.count)}</td></tr>`).join('')}</tbody></table>`;
@@ -409,7 +433,7 @@
     if (!rows.length) return `<div class="upload-result-empty is-ok">Невідомих значень немає.</div>`;
     return rows.map(r => `<article class="upload-unknown-row" data-unknown-index="${r.index}">
       <div><strong>${escapeHtml(r.name)}</strong><span>Рядок ${r.index} · к-сть: ${escapeHtml(r.count)}</span></div>
-      <div class="upload-unknown-actions"><button type="button" data-upload-ignore-unknown="${r.index}">Ігнорувати</button><button type="button" data-upload-edit-unknown="${r.index}">Розпарсити</button></div>
+      <div class="upload-unknown-actions"><button type="button" data-upload-ignore-unknown="${r.index}">${reviewIcon('ignore')}<span>Ігнорувати</span></button><button type="button" data-upload-edit-unknown="${r.index}">${reviewIcon('resolve')}<span>Розпарсити</span></button></div>
     </article>`).join('');
   }
 
@@ -417,21 +441,21 @@
     const totalUnknown = files.reduce((sum, f) => sum + (f.review?.unknown?.length || 0), 0);
     resultsBody.innerHTML = `
       <div class="upload-review-toolbar">
-        <button type="button" class="${mode === 'review' ? 'is-active' : ''}" data-review-mode="review">Огляд</button>
-        <button type="button" class="${mode === 'parse' ? 'is-active' : ''}" data-review-mode="parse">Режим парсингу <b>${totalUnknown}</b></button>
+        <button type="button" class="${mode === 'review' ? 'is-active' : ''}" data-review-mode="review">${reviewIcon('review')}<span>Огляд</span></button>
+        <button type="button" class="${mode === 'parse' ? 'is-active' : ''}" data-review-mode="parse">${reviewIcon('parse')}<span>Режим парсингу</span><b>${totalUnknown}</b></button>
       </div>
       ${files.map((f, index) => {
         const review = f.review || { rows: [], known: [], unknown: [], quantityErrors: [] };
         return `<article class="upload-result-file" data-result-file-id="${f.id}">
           <div class="upload-result-file-head">
-            <div><small>Файл ${String(index + 1).padStart(2, '0')}</small><h3>${escapeHtml(f.name)}</h3></div>
-            <label class="upload-unit-select"><span>Підрозділ</span><select data-upload-unit-select="${f.id}">${unitOptions(review.unitId)}</select></label>
+            <div class="upload-result-file-title"><small>${reviewIcon('file')}<span>Файл ${String(index + 1).padStart(2, '0')}</span></small><h3>${escapeHtml(f.name)}</h3></div>
+            <label class="upload-unit-select"><span>${reviewIcon('unit')}<span>Підрозділ</span></span><select data-upload-unit-select="${f.id}">${unitOptions(review.unitId)}</select></label>
           </div>
           <div class="upload-result-stats">
-            <span>Рядків <b>${review.rows.length}</b></span>
-            <span>Відомих <b>${review.known.length}</b></span>
-            <span>Невідомих <b>${review.unknown.length}</b></span>
-            <span>Помилок кількості <b>${review.quantityErrors.length}</b></span>
+            <span>${reviewIcon('rows')}<em>Рядків</em> <b>${review.rows.length}</b></span>
+            <span>${reviewIcon('known')}<em>Відомих</em> <b>${review.known.length}</b></span>
+            <span>${reviewIcon('unknown')}<em>Невідомих</em> <b>${review.unknown.length}</b></span>
+            <span>${reviewIcon('errors')}<em>Помилок кількості</em> <b>${review.quantityErrors.length}</b></span>
           </div>
           ${review.parseError ? `<div class="upload-result-warning">${escapeHtml(review.parseError)}</div>` : ''}
           ${mode === 'review' ? `<section class="upload-known-block"><h4>Дані, що йдуть у розрахунок</h4>${knownRowsHtml(review.known)}</section>` : ''}
