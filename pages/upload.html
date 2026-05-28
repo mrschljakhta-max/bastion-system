@@ -6,7 +6,7 @@
   <title>BASTION — Завантаження</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/upload-core.css?v=245" />
+  <link rel="stylesheet" href="../styles/upload-core.css?v=246" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -95,26 +95,42 @@
           <button type="button" data-upload-panel-close="left" aria-label="Згорнути">×</button>
         </header>
         <div class="upload-status-grid">
-          <article class="upload-status-card">
-            <small>Статус системи</small>
-            <strong>Готовий</strong>
+          <article class="upload-status-card upload-status-card--iconic">
+            <img class="upload-status-icon" src="../assets/upload/icons/database-import.svg?v=246" alt="" aria-hidden="true" />
+            <div>
+              <small>Статус системи</small>
+              <strong>Готовий</strong>
+            </div>
           </article>
-          <article class="upload-status-card">
-            <small>Supabase</small>
-            <strong class="is-ok">Підключено</strong>
+          <article class="upload-status-card upload-status-card--iconic">
+            <img class="upload-status-icon" src="../assets/upload/icons/brand-redux.svg?v=246" alt="" aria-hidden="true" />
+            <div>
+              <small>Supabase</small>
+              <strong class="is-ok">Підключено</strong>
+            </div>
           </article>
-          <article class="upload-status-card upload-format-list">
-            <small>Підтримувані формати</small>
-            <div><span>XLSX</span><span>CSV</span><span>JSON</span></div>
+          <article class="upload-status-card upload-format-list upload-status-card--formats">
+            <div class="upload-format-icons" aria-hidden="true">
+              <img src="../assets/upload/icons/json.svg?v=246" alt="" />
+              <img src="../assets/upload/icons/file-type-csv.svg?v=246" alt="" />
+              <img src="../assets/upload/icons/file-zip.svg?v=246" alt="" />
+            </div>
+            <div>
+              <small>Підтримувані формати</small>
+              <div><span>JSON</span><span>CSV</span><span>XLSX</span></div>
+            </div>
           </article>
-          <article class="upload-status-card">
-            <small>Правила парсингу</small>
-            <ul>
-              <li>Порівняння з довідниками</li>
-              <li>Літери, цифри, дефіс, _</li>
-              <li>Кількість тільки ціле число</li>
-              <li>Невідомі дані фіксуються</li>
-            </ul>
+          <article class="upload-status-card upload-status-card--iconic upload-status-card--rules">
+            <img class="upload-status-icon" src="../assets/upload/icons/text-grammar.svg?v=246" alt="" aria-hidden="true" />
+            <div>
+              <small>Правила парсингу</small>
+              <ul>
+                <li>Порівняння з довідниками</li>
+                <li>Літери, цифри, дефіс, _</li>
+                <li>Кількість тільки ціле число</li>
+                <li>Невідомі дані фіксуються</li>
+              </ul>
+            </div>
           </article>
         </div>
       </div>
@@ -154,7 +170,7 @@
         </header>
         <div id="uploadFilesList" class="upload-files-list">
           <div class="upload-empty-state">
-            <i></i>
+            <img class="upload-empty-icon" src="../assets/upload/icons/files.svg?v=246" alt="" aria-hidden="true" />
             <strong>Файли не додано</strong>
             <span>Перетягніть файли у центр або натисніть для вибору</span>
           </div>

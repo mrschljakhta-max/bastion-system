@@ -63,7 +63,7 @@
     startButton.disabled = files.length === 0 || parsed;
     resultsButton.disabled = !parsed;
     if (!files.length) {
-      filesList.innerHTML = `<div class="upload-empty-state"><i></i><strong>Файли не додано</strong><span>Перетягніть файли у центр або натисніть для вибору</span></div>`;
+      filesList.innerHTML = `<div class="upload-empty-state"><img class="upload-empty-icon" src="../assets/upload/icons/files.svg?v=246" alt="" aria-hidden="true" /><strong>Файли не додано</strong><span>Перетягніть файли у центр або натисніть для вибору</span></div>`;
       return;
     }
     filesList.innerHTML = files.map((item) => {

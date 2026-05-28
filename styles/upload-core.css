@@ -1,5 +1,5 @@
 
-/* BASTION Upload Core v245 */
+/* BASTION Upload Core v246 */
 body.bastion-core-page:has(.upload-core-page) { overflow: hidden; }
 .upload-core-page {
   --upload-red: #ff3138;
@@ -566,3 +566,68 @@ body.theme-light .upload-progress-plate .upload-plate-progress span,
 body[data-theme="light"] .upload-progress-plate .upload-plate-progress span {
   color:#111318;
 }
+
+
+/* v246 — Upload panel SVG icons */
+.upload-status-card--iconic,
+.upload-status-card--formats {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.upload-status-card--rules { align-items: start; }
+.upload-status-icon,
+.upload-format-icons img,
+.upload-empty-icon {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(40%) sepia(90%) saturate(2871%) hue-rotate(337deg) brightness(112%) contrast(103%) drop-shadow(0 0 10px rgba(255,49,56,.45));
+}
+.upload-status-card--rules .upload-status-icon { margin-top: 2px; }
+.upload-format-icons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  align-items: center;
+  justify-items: center;
+}
+.upload-format-icons img {
+  width: 26px;
+  height: 26px;
+}
+.upload-empty-state i { display:none; }
+.upload-empty-icon {
+  width: 78px;
+  height: 78px;
+  margin: 0 auto 2px;
+  opacity: .95;
+}
+body.bastion-light .upload-status-icon,
+body.theme-light .upload-status-icon,
+body[data-theme="light"] .upload-status-icon,
+body.bastion-light .upload-format-icons img,
+body.theme-light .upload-format-icons img,
+body[data-theme="light"] .upload-format-icons img,
+body.bastion-light .upload-empty-icon,
+body.theme-light .upload-empty-icon,
+body[data-theme="light"] .upload-empty-icon {
+  filter: brightness(0) saturate(100%) invert(22%) sepia(95%) saturate(3030%) hue-rotate(344deg) brightness(106%) contrast(101%) drop-shadow(0 0 7px rgba(255,49,56,.26));
+}
+body.bastion-light .upload-status-card small,
+body.theme-light .upload-status-card small,
+body[data-theme="light"] .upload-status-card small { color: rgba(20, 21, 26, .64); }
+body.bastion-light .upload-status-card strong,
+body.theme-light .upload-status-card strong,
+body[data-theme="light"] .upload-status-card strong { color: #16161a; }
+body.bastion-light .upload-status-card strong.is-ok,
+body.theme-light .upload-status-card strong.is-ok,
+body[data-theme="light"] .upload-status-card strong.is-ok { color: #c81720; }
+body.bastion-light .upload-empty-state strong,
+body.theme-light .upload-empty-state strong,
+body[data-theme="light"] .upload-empty-state strong { color: #17171b; }
+body.bastion-light .upload-empty-state span,
+body.theme-light .upload-empty-state span,
+body[data-theme="light"] .upload-empty-state span { color: rgba(20,21,26,.68); }
