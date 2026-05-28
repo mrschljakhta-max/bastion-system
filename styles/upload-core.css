@@ -1294,3 +1294,251 @@ body[data-theme="light"] .upload-core-word {
   color:rgba(135,0,16,.82);
   text-shadow:0 0 8px rgba(255,49,56,.22);
 }
+
+/* v252 — import review workstation */
+body.upload-results-open .b116-top-panels,
+body.upload-results-open .hud-bottom-panel,
+body.upload-results-open .upload-side-panel,
+body.upload-results-open .upload-core-stage {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity .24s ease;
+}
+.upload-results-backdrop {
+  background: rgba(0,0,0,.68);
+  backdrop-filter: blur(12px) saturate(.92);
+}
+.upload-results-card {
+  width: min(1180px, 88vw);
+  max-height: 84vh;
+  padding: 28px 30px 24px;
+  border-radius: 0 28px 0 28px;
+  clip-path: polygon(0 0, calc(100% - 34px) 0, 100% 34px, 100% 100%, 34px 100%, 0 calc(100% - 34px));
+}
+.upload-results-card header {
+  border-bottom: 1px solid rgba(255,70,70,.24);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+}
+.upload-results-body { display: grid; gap: 18px; }
+.upload-result-file {
+  border-color: rgba(255,70,70,.38);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)),
+    radial-gradient(circle at 12% 0%, rgba(255,60,65,.10), transparent 42%);
+  box-shadow: inset 0 0 26px rgba(255,50,55,.05);
+}
+.upload-result-file-head {
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:flex-start;
+  margin-bottom:14px;
+}
+.upload-result-file-head small {
+  display:block;
+  color:rgba(255,255,255,.48);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-weight:900;
+  margin-bottom:4px;
+}
+.upload-result-file-head h3 { margin:0; color:#ff5d62; }
+.upload-result-file-head label {
+  display:grid;
+  gap:7px;
+  min-width:min(320px, 40vw);
+  color:rgba(255,255,255,.66);
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-size:12px;
+}
+.upload-unit-select,
+.upload-editor-grid input,
+.upload-editor-grid select {
+  min-height:38px;
+  border:1px solid rgba(255,70,70,.42);
+  background:rgba(6,7,10,.78);
+  color:#fff;
+  padding:0 12px;
+  font-weight:800;
+  outline:none;
+}
+.upload-result-stats { margin:12px 0 16px; }
+.upload-known-block,
+.upload-unknown-block {
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.16);
+  padding:14px;
+  margin-top:12px;
+}
+.upload-known-block h4,
+.upload-unknown-block h4 {
+  margin:0 0 10px;
+  color:#fff;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:13px;
+}
+.upload-unknown-block h4 { color:#ff686d; }
+.upload-unknown-block h4 em { font-style:normal; color:#fff; border:1px solid rgba(255,80,85,.45); padding:1px 8px; margin-left:8px; }
+.upload-result-table { display:grid; gap:1px; }
+.upload-result-table__head,
+.upload-result-row {
+  display:grid;
+  grid-template-columns: 170px 1fr 120px;
+  gap:10px;
+  align-items:center;
+}
+.upload-result-table__head {
+  color:rgba(255,255,255,.45);
+  text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:.12em;
+  padding:0 10px 6px;
+}
+.upload-result-row {
+  padding:10px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.06);
+}
+.upload-result-row strong { color:#fff; }
+.upload-result-row b { color:var(--upload-green); }
+.upload-unknown-list { display:grid; gap:8px; }
+.upload-unknown-row {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  border:1px solid rgba(255,70,70,.25);
+  background:rgba(80,10,12,.20);
+  padding:10px 12px;
+}
+.upload-unknown-row strong { display:block; color:#fff; }
+.upload-unknown-row span { display:block; color:rgba(255,255,255,.56); font-size:12px; margin-top:3px; }
+.upload-unknown-actions,
+.upload-editor-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.upload-unknown-actions button,
+.upload-editor-actions button {
+  min-height:34px;
+  border:1px solid rgba(255,75,80,.52);
+  background:rgba(45,9,12,.62);
+  color:#ff686d;
+  text-transform:uppercase;
+  font-weight:900;
+  letter-spacing:.06em;
+  cursor:pointer;
+}
+.upload-editor-grid {
+  display:grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap:12px;
+}
+.upload-editor-grid label {
+  display:grid;
+  gap:7px;
+  color:rgba(255,255,255,.70);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-size:12px;
+  font-weight:900;
+}
+.upload-editor-grid .wide { grid-column:1 / -1; }
+.upload-editor-note {
+  margin:14px 0;
+  color:rgba(255,255,255,.64);
+  line-height:1.5;
+}
+.upload-result-empty-line {
+  border:1px dashed rgba(255,255,255,.16);
+  color:rgba(255,255,255,.64);
+  padding:14px;
+}
+.upload-result-empty-line.is-ok { color:var(--upload-green); border-color:rgba(0,255,132,.26); }
+.upload-result-primary { background:linear-gradient(180deg, rgba(255,64,70,.92), rgba(115,0,10,.92)) !important; color:#fff !important; }
+.upload-results-actions button:disabled { opacity:.42; cursor:not-allowed; }
+
+body.bastion-light .upload-results-backdrop,
+body.theme-light .upload-results-backdrop,
+body[data-theme="light"] .upload-results-backdrop {
+  background: rgba(238,242,248,.56);
+  backdrop-filter: blur(14px) saturate(.92);
+}
+body.bastion-light .upload-results-card,
+body.theme-light .upload-results-card,
+body[data-theme="light"] .upload-results-card {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(238,242,248,.94)),
+    radial-gradient(circle at 18% 0%, rgba(255,55,60,.10), transparent 42%);
+  color:#111722;
+  box-shadow:0 24px 70px rgba(35,45,60,.18), 0 0 45px rgba(255,0,20,.12);
+}
+body.bastion-light .upload-results-card header h2,
+body.theme-light .upload-results-card header h2,
+body[data-theme="light"] .upload-results-card header h2,
+body.bastion-light .upload-known-block h4,
+body.theme-light .upload-known-block h4,
+body[data-theme="light"] .upload-known-block h4,
+body.bastion-light .upload-result-row strong,
+body.theme-light .upload-result-row strong,
+body[data-theme="light"] .upload-result-row strong,
+body.bastion-light .upload-unknown-row strong,
+body.theme-light .upload-unknown-row strong,
+body[data-theme="light"] .upload-unknown-row strong { color:#111722; }
+body.bastion-light .upload-result-file,
+body.theme-light .upload-result-file,
+body[data-theme="light"] .upload-result-file,
+body.bastion-light .upload-known-block,
+body.theme-light .upload-known-block,
+body[data-theme="light"] .upload-known-block,
+body.bastion-light .upload-unknown-block,
+body.theme-light .upload-unknown-block,
+body[data-theme="light"] .upload-unknown-block {
+  background:rgba(255,255,255,.62);
+  border-color:rgba(190,0,22,.22);
+}
+body.bastion-light .upload-result-stats span,
+body.theme-light .upload-result-stats span,
+body[data-theme="light"] .upload-result-stats span,
+body.bastion-light .upload-result-row,
+body.theme-light .upload-result-row,
+body[data-theme="light"] .upload-result-row,
+body.bastion-light .upload-unknown-row,
+body.theme-light .upload-unknown-row,
+body[data-theme="light"] .upload-unknown-row {
+  background:rgba(255,255,255,.72);
+  border-color:rgba(190,0,22,.18);
+  color:#4a5362;
+}
+body.bastion-light .upload-result-stats b,
+body.theme-light .upload-result-stats b,
+body[data-theme="light"] .upload-result-stats b { color:#111722; }
+body.bastion-light .upload-unit-select,
+body.bastion-light .upload-editor-grid input,
+body.bastion-light .upload-editor-grid select,
+body.theme-light .upload-unit-select,
+body.theme-light .upload-editor-grid input,
+body.theme-light .upload-editor-grid select,
+body[data-theme="light"] .upload-unit-select,
+body[data-theme="light"] .upload-editor-grid input,
+body[data-theme="light"] .upload-editor-grid select {
+  background:rgba(255,255,255,.86);
+  color:#121722;
+  border-color:rgba(190,0,22,.30);
+}
+body.bastion-light .upload-result-file-head small,
+body.theme-light .upload-result-file-head small,
+body[data-theme="light"] .upload-result-file-head small,
+body.bastion-light .upload-result-file-head label,
+body.theme-light .upload-result-file-head label,
+body[data-theme="light"] .upload-result-file-head label,
+body.bastion-light .upload-result-table__head,
+body.theme-light .upload-result-table__head,
+body[data-theme="light"] .upload-result-table__head,
+body.bastion-light .upload-unknown-row span,
+body.theme-light .upload-unknown-row span,
+body[data-theme="light"] .upload-unknown-row span,
+body.bastion-light .upload-editor-note,
+body.theme-light .upload-editor-note,
+body[data-theme="light"] .upload-editor-note { color:#596273; }

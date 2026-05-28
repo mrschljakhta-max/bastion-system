@@ -19,6 +19,8 @@
   const resultsModal = document.getElementById('uploadResultsModal');
   const resultsBody = document.getElementById('uploadResultsBody');
   const resetButton = document.getElementById('uploadResetButton');
+  const calculateButton = document.getElementById('uploadCalculateButton');
+  const resolveModeButton = document.getElementById('uploadResolveModeButton');
   const allowed = new Set(['xlsx', 'csv', 'json']);
   const MIN_PARSE_TIME = 10000;
   const RIGHT_PANEL = document.getElementById('uploadRightPanel');
@@ -26,6 +28,9 @@
   let parsed = false;
   let timer = null;
   let fileSeq = 0;
+  let resultsMode = 'review';
+  const demoUnits = ['45 ОАБр', '1 дивізіон', '2 батарея', 'Взвод забезпечення', 'Резерв БК'];
+  const dictCategories = ['Заряди', 'Снаряди', 'Підривники', 'Праймери'];
 
   const fmtSize = (bytes) => {
     if (!bytes) return '0 KB';
@@ -114,7 +119,7 @@
   function addFiles(list) {
     const incoming = Array.from(list || []).filter(file => allowed.has(extOf(file.name)));
     if (!incoming.length) return;
-    incoming.forEach(file => files.push({ id: ++fileSeq, name: file.name, size: file.size, file, status: 'готовий' }));
+    incoming.forEach(file => files.push({ id: ++fileSeq, name: file.name, size: file.size, file, status: 'готовий', analysis: null }));
     parsed = false;
     page.classList.remove('is-parsing', 'is-complete');
     setPlateFormats();
@@ -246,7 +251,12 @@
         page.classList.remove('is-parsing');
         page.classList.add('is-complete');
         window.setTimeout(() => page.classList.remove('is-complete'), 1800);
-        files.forEach(f => f.status = 'оброблено');
+        files.forEach(f => {
+          f.status = 'оброблено';
+          prepareFileAnalysis(f).then(() => {
+            if (resultsModal?.classList.contains('is-open')) renderResults();
+          });
+        });
         parsed = true;
         setPlate('Готовий', 100);
         renderFiles();
@@ -254,18 +264,223 @@
     }, 90);
   }
 
+  function normalizeRows(rows, fileName = '') {
+    const known = [];
+    const unknown = [];
+    const nameKeys = ['name', 'title', 'element', 'item', 'marking', 'назва', 'найменування', 'маркування', 'боєприпас'];
+    const qtyKeys = ['qty', 'quantity', 'count', 'amount', 'кількість', 'залишок', 'залишки'];
+
+    const getValue = (row, keys) => {
+      if (!row || typeof row !== 'object') return '';
+      const entries = Object.entries(row);
+      for (const key of keys) {
+        const found = entries.find(([k]) => String(k).trim().toLowerCase() === key);
+        if (found) return found[1];
+      }
+      return entries[0]?.[1] ?? '';
+    };
+
+    const getQty = (row) => {
+      const raw = getValue(row, qtyKeys);
+      const value = Number(String(raw).replace(',', '.').trim());
+      return Number.isInteger(value) ? value : null;
+    };
+
+    const classify = (value) => {
+      const v = String(value).toLowerCase();
+      if (v.includes('зар') || v.includes('charge')) return 'Заряди';
+      if (v.includes('снар') || v.includes('shell')) return 'Снаряди';
+      if (v.includes('підр') || v.includes('fuze') || v.includes('fuse')) return 'Підривники';
+      if (v.includes('прай') || v.includes('primer')) return 'Праймери';
+      return 'Елемент';
+    };
+
+    rows.forEach((row, idx) => {
+      const rawName = getValue(row, nameKeys);
+      const name = String(rawName || '').trim();
+      const qty = getQty(row);
+      const validMark = /^[\p{L}\d_\- .\/]+$/u.test(name) && name.length > 0;
+      const badHint = /unknown|невідом|\?|xxx/i.test(name);
+      const payload = {
+        id: `r-${Date.now()}-${idx}-${Math.random().toString(16).slice(2)}`,
+        name: name || `Рядок ${idx + 1}`,
+        qty: qty ?? '—',
+        category: classify(name),
+        status: 'known',
+        source: fileName
+      };
+      if (!validMark || badHint || qty === null) {
+        payload.status = 'unknown';
+        payload.reason = qty === null ? 'помилка кількості' : 'немає збігу в довідниках';
+        unknown.push(payload);
+      } else {
+        known.push(payload);
+      }
+    });
+    return { known, unknown };
+  }
+
+  function extractRowsFromJson(data) {
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === 'object') {
+      const arrayValue = Object.values(data).find(Array.isArray);
+      if (arrayValue) return arrayValue;
+      return [data];
+    }
+    return [];
+  }
+
+  function parseCsvText(text) {
+    const lines = String(text || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return [];
+    const delimiter = (lines[0].match(/;/g) || []).length >= (lines[0].match(/,/g) || []).length ? ';' : ',';
+    const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+    return lines.slice(1).map(line => {
+      const cells = line.split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+      return Object.fromEntries(headers.map((h, i) => [h || `col_${i + 1}`, cells[i] ?? '']));
+    });
+  }
+
+  function fallbackAnalysis(item) {
+    const base = item.name.replace(/\.[^.]+$/, '');
+    const safe = /^[\p{L}\d_\- .]+$/u.test(base);
+    return {
+      fileName: item.name,
+      unit: '',
+      known: safe ? [{ id:`k-${item.id}-1`, name: base, qty: 0, category: 'Елемент', status: 'known', source: item.name }] : [],
+      unknown: safe ? [] : [{ id:`u-${item.id}-1`, name: base || item.name, qty: '—', category: 'Невідомо', status: 'unknown', reason: 'непрочитаний формат', source: item.name }],
+      ignored: []
+    };
+  }
+
+  async function prepareFileAnalysis(item) {
+    if (item.analysis) return item.analysis;
+    let analysis = fallbackAnalysis(item);
+    try {
+      const ext = extOf(item.name);
+      if (ext === 'json' || ext === 'csv') {
+        const text = await item.file.text();
+        const rows = ext === 'json' ? extractRowsFromJson(JSON.parse(text)) : parseCsvText(text);
+        const normalized = normalizeRows(rows, item.name);
+        analysis = {
+          fileName: item.name,
+          unit: '',
+          known: normalized.known,
+          unknown: normalized.unknown,
+          ignored: []
+        };
+      }
+    } catch (err) {
+      analysis = fallbackAnalysis(item);
+      analysis.unknown.push({ id:`err-${item.id}`, name:'Помилка читання файлу', qty:'—', category:'Система', status:'unknown', reason: err.message || 'помилка парсингу', source:item.name });
+    }
+    item.analysis = analysis;
+    return analysis;
+  }
+
+  function analysisFor(item) {
+    return item.analysis || fallbackAnalysis(item);
+  }
+
+  function resultSummary(item) {
+    const a = analysisFor(item);
+    const errors = [...a.known, ...a.unknown].filter(r => r.qty === '—' || r.reason === 'помилка кількості').length;
+    return { rows: a.known.length + a.unknown.length + a.ignored.length, known: a.known.length, unknown: a.unknown.length, errors };
+  }
+
+  function unitSelectorHtml(fileId, current = '') {
+    const options = [''].concat(demoUnits).map(v => `<option value="${escapeHtml(v)}" ${v === current ? 'selected' : ''}>${v || 'Обрати підрозділ із довідника'}</option>`).join('');
+    return `<select class="upload-unit-select" data-upload-unit-select="${fileId}">${options}</select>`;
+  }
+
+  function renderKnownRows(rows) {
+    if (!rows.length) return `<div class="upload-result-empty-line">Відомі значення поки не визначені.</div>`;
+    return `<div class="upload-result-table"><div class="upload-result-table__head"><span>Категорія</span><span>Назва</span><span>Кількість</span></div>${rows.map(r => `<div class="upload-result-row"><span>${escapeHtml(r.category)}</span><strong>${escapeHtml(r.name)}</strong><b>${escapeHtml(r.qty)}</b></div>`).join('')}</div>`;
+  }
+
+  function renderUnknownBlock(rows, fileId, compact = false) {
+    if (!rows.length) return `<div class="upload-result-empty-line is-ok">Невідомих значень немає.</div>`;
+    return `<section class="upload-unknown-block"><h4>Невідомі значення <em>${rows.length}</em></h4><div class="upload-unknown-list">${rows.map(r => `<article class="upload-unknown-row" data-unknown-id="${escapeHtml(r.id)}" data-file-id="${fileId}"><div><strong>${escapeHtml(r.name)}</strong><span>${escapeHtml(r.reason || 'немає збігу в довідниках')} · к-сть: ${escapeHtml(r.qty)}</span></div>${compact ? '' : `<div class="upload-unknown-actions"><button type="button" data-unknown-edit="${escapeHtml(r.id)}" data-file-id="${fileId}">Редагувати</button><button type="button" data-unknown-ignore="${escapeHtml(r.id)}" data-file-id="${fileId}">Ігнорувати</button></div>`}</article>`).join('')}</div></section>`;
+  }
+
+  function renderReviewResults() {
+    resultsMode = 'review';
+    resultsModal?.setAttribute('data-results-mode', 'review');
+    resultsBody.innerHTML = files.map((f, index) => {
+      const a = analysisFor(f);
+      const s = resultSummary(f);
+      return `<article class="upload-result-file upload-result-file--review" data-file-id="${f.id}">
+        <header class="upload-result-file-head"><div><small>Файл ${String(index + 1).padStart(2, '0')}</small><h3>${escapeHtml(f.name)}</h3></div><label>Підрозділ ${unitSelectorHtml(f.id, a.unit)}</label></header>
+        <div class="upload-result-stats"><span>Рядків <b>${s.rows}</b></span><span>Відомих <b>${s.known}</b></span><span>Невідомих <b>${s.unknown}</b></span><span>Помилок кількості <b>${s.errors}</b></span></div>
+        <section class="upload-known-block"><h4>Дані, що йдуть у розрахунок</h4>${renderKnownRows(a.known)}</section>
+        ${renderUnknownBlock(a.unknown, f.id, true)}
+      </article>`;
+    }).join('') || '<div class="upload-result-empty-line">Немає файлів для перегляду.</div>';
+    if (resolveModeButton) resolveModeButton.textContent = totalUnknown() ? 'Режим парсингу' : 'Немає невідомих';
+    if (resolveModeButton) resolveModeButton.disabled = !totalUnknown();
+    if (calculateButton) calculateButton.textContent = totalUnknown() ? 'Перерахувати без невідомих' : 'Приступити до розрахунку';
+  }
+
+  function renderResolveResults() {
+    resultsMode = 'resolve';
+    resultsModal?.setAttribute('data-results-mode', 'resolve');
+    const blocks = files.map((f, index) => {
+      const a = analysisFor(f);
+      return `<article class="upload-result-file upload-result-file--resolve" data-file-id="${f.id}">
+        <header class="upload-result-file-head"><div><small>Режим парсингу · файл ${String(index + 1).padStart(2, '0')}</small><h3>${escapeHtml(f.name)}</h3></div></header>
+        ${renderUnknownBlock(a.unknown, f.id, false)}
+      </article>`;
+    }).join('');
+    resultsBody.innerHTML = blocks || '<div class="upload-result-empty-line">Немає невідомих значень.</div>';
+    if (resolveModeButton) resolveModeButton.textContent = 'Повернутись до результатів';
+    if (resolveModeButton) resolveModeButton.disabled = false;
+    if (calculateButton) calculateButton.textContent = 'Ігнорувати решту і перейти до розрахунку';
+  }
+
+  function renderEditUnknown(fileId, unknownId) {
+    const item = files.find(f => String(f.id) === String(fileId));
+    if (!item) return;
+    const a = analysisFor(item);
+    const row = a.unknown.find(r => String(r.id) === String(unknownId));
+    if (!row) return;
+    resultsMode = 'edit';
+    resultsModal?.setAttribute('data-results-mode', 'edit');
+    resultsBody.innerHTML = `<article class="upload-result-file upload-result-file--editor" data-file-id="${item.id}" data-unknown-id="${escapeHtml(row.id)}">
+      <header class="upload-result-file-head"><div><small>Розпарсити значення</small><h3>${escapeHtml(row.name)}</h3></div></header>
+      <div class="upload-editor-grid">
+        <label>Категорія
+          <select id="uploadUnknownCategory">${dictCategories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select>
+        </label>
+        <label>Назва нового запису <input id="uploadUnknownName" type="text" value="${escapeHtml(row.name)}" /></label>
+        <label>Кількість <input id="uploadUnknownQty" type="number" step="1" value="${Number.isInteger(Number(row.qty)) ? escapeHtml(row.qty) : ''}" placeholder="ціле число" /></label>
+        <label>Активність
+          <select id="uploadUnknownActive"><option value="active">Активний</option><option value="inactive">Неактивний</option></select>
+        </label>
+        <label class="wide">Примітка / службове поле <input id="uploadUnknownNote" type="text" placeholder="додаткові дані довідника" /></label>
+      </div>
+      <p class="upload-editor-note">Після додавання значення потрапить у відповідний довідник, буде вилучене з невідомих і дозаповнить розпарсений файл.</p>
+      <div class="upload-editor-actions"><button type="button" data-save-unknown="${escapeHtml(row.id)}" data-file-id="${item.id}">Додати до довідника</button><button type="button" data-back-to-resolve>Назад</button></div>
+    </article>`;
+    if (resolveModeButton) resolveModeButton.textContent = 'Повернутись до списку';
+    if (calculateButton) calculateButton.textContent = 'Ігнорувати решту';
+  }
+
+  function totalUnknown() {
+    return files.reduce((acc, f) => acc + analysisFor(f).unknown.length, 0);
+  }
+
+  function renderResults() {
+    if (resultsMode === 'resolve') renderResolveResults();
+    else if (resultsMode === 'review') renderReviewResults();
+  }
+
   function openResults() {
     if (!parsed) return;
-    resultsBody.innerHTML = files.map((f, index) => `<article class="upload-result-file">
-      <h3>Файл ${String(index + 1).padStart(2, '0')}: ${escapeHtml(f.name)}</h3>
-      <label>Підрозділ: <input type="text" placeholder="Вкажіть підрозділ, якщо не визначено" /></label>
-      <div class="upload-result-stats">
-        <span>Рядків <b>0</b></span>
-        <span>Відомих <b>0</b></span>
-        <span>Невідомих <b>0</b></span>
-        <span>Помилок кількості <b>0</b></span>
-      </div>
-    </article>`).join('');
+    files.forEach(f => prepareFileAnalysis(f).then(() => {
+      if (resultsModal?.classList.contains('is-open')) renderResults();
+    }));
+    renderReviewResults();
+    document.body.classList.add('upload-results-open');
     resultsModal.classList.add('is-open');
     resultsModal.setAttribute('aria-hidden', 'false');
   }
@@ -273,6 +488,8 @@
   function closeResults() {
     resultsModal.classList.remove('is-open');
     resultsModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('upload-results-open');
+    resultsMode = 'review';
   }
 
   function resetAll() {
@@ -307,6 +524,62 @@
   });
   resultsButton.addEventListener('click', openResults);
   resetButton.addEventListener('click', resetAll);
+  resolveModeButton?.addEventListener('click', () => {
+    if (resultsMode === 'review') renderResolveResults();
+    else if (resultsMode === 'edit') renderResolveResults();
+    else renderReviewResults();
+  });
+  calculateButton?.addEventListener('click', () => {
+    files.forEach(f => {
+      const a = analysisFor(f);
+      a.ignored.push(...a.unknown.map(r => ({ ...r, status: 'ignored' })));
+      a.unknown = [];
+      f.analysis = a;
+    });
+    renderReviewResults();
+  });
+  resultsBody?.addEventListener('change', (event) => {
+    const select = event.target.closest('[data-upload-unit-select]');
+    if (!select) return;
+    const item = files.find(f => String(f.id) === String(select.dataset.uploadUnitSelect));
+    if (item) analysisFor(item).unit = select.value;
+  });
+  resultsBody?.addEventListener('click', (event) => {
+    const edit = event.target.closest('[data-unknown-edit]');
+    const ignore = event.target.closest('[data-unknown-ignore]');
+    const save = event.target.closest('[data-save-unknown]');
+    const back = event.target.closest('[data-back-to-resolve]');
+    if (edit) return renderEditUnknown(edit.dataset.fileId, edit.dataset.unknownEdit);
+    if (back) return renderResolveResults();
+    if (ignore) {
+      const item = files.find(f => String(f.id) === String(ignore.dataset.fileId));
+      const a = item && analysisFor(item);
+      if (a) {
+        const idx = a.unknown.findIndex(r => String(r.id) === String(ignore.dataset.unknownIgnore));
+        if (idx >= 0) a.ignored.push({ ...a.unknown.splice(idx, 1)[0], status: 'ignored' });
+      }
+      return renderResolveResults();
+    }
+    if (save) {
+      const item = files.find(f => String(f.id) === String(save.dataset.fileId));
+      const a = item && analysisFor(item);
+      if (a) {
+        const idx = a.unknown.findIndex(r => String(r.id) === String(save.dataset.saveUnknown));
+        const oldRow = idx >= 0 ? a.unknown.splice(idx, 1)[0] : null;
+        const newRow = {
+          ...(oldRow || {}),
+          id: `resolved-${Date.now()}`,
+          name: document.getElementById('uploadUnknownName')?.value?.trim() || oldRow?.name || 'Нове значення',
+          qty: Number(document.getElementById('uploadUnknownQty')?.value || 0),
+          category: document.getElementById('uploadUnknownCategory')?.value || 'Елемент',
+          status: 'known',
+          reason: ''
+        };
+        a.known.push(newRow);
+      }
+      return renderResolveResults();
+    }
+  });
   document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', closeResults));
   setPlateFormats();
   renderFiles();
