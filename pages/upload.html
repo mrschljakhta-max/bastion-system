@@ -6,6 +6,7 @@
   <title>BASTION — Завантаження</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
+  <link rel="stylesheet" href="../styles/upload-core.css?v=1" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -83,19 +84,53 @@
 
 
 
-  <main class="bastion-module-screen" data-module="upload">
-    <section class="bastion-module-card">
-      <div class="bastion-module-kicker">03 — Завантаження</div>
-      <h1>Завантаження</h1>
-      <p>Імпорт Word / Excel файлів і запуск первинної обробки даних.</p>
-      <ul>
-          <li>Drag & drop файлів</li>
-          <li>Перевірка структури</li>
-          <li>Передача на нормалізацію</li>
-      </ul>
-      <a class="bastion-module-back" href="./app.html">← Повернутися до основного меню</a>
+  <main class="upload-core-screen" data-module="upload">
+    <aside class="upload-side upload-side--left is-collapsed" aria-label="Системний статус">
+      <button class="upload-side-tab" type="button" data-upload-toggle="left" aria-label="Показати системну панель">‹‹</button>
+      <div class="upload-panel-head"><span>СИСТЕМА</span><button type="button" data-upload-toggle="left">×</button></div>
+      <div class="upload-status-grid">
+        <section class="upload-status-card"><small>СТАТУС СИСТЕМИ</small><b id="uploadSystemState">ГОТОВИЙ</b></section>
+        <section class="upload-status-card"><small>SUPABASE</small><b class="ok">ПІДКЛЮЧЕНО</b></section>
+        <section class="upload-status-card"><small>ФОРМАТИ</small><div class="upload-format-row"><span>XLSX</span><span>CSV</span><span>JSON</span></div></section>
+        <section class="upload-status-card"><small>ПРАВИЛА ПАРСИНГУ</small><ul><li>Зіставлення з довідниками</li><li>Літери, цифри, дефіс, _</li><li>Кількість тільки ціле число</li><li>Невідомі дані фіксуються</li></ul></section>
+        <section class="upload-status-card"><small>ПОТОЧНА СЕСІЯ</small><p id="uploadSessionInfo">Очікує файлів</p></section>
+      </div>
+    </aside>
+
+    <section id="uploadDropZone" class="upload-core" tabindex="0" role="button" aria-label="Перетягніть файли або натисніть для вибору">
+      <input id="uploadFileInput" type="file" accept=".xlsx,.xls,.csv,.json,application/json,text/csv" multiple hidden />
+      <div class="upload-ring-shell" aria-hidden="true">
+        <img class="upload-ring upload-ring--dark" src="../assets/upload/upload-ring-dark.png?v=1" alt="" />
+        <img class="upload-ring upload-ring--light" src="../assets/upload/upload-ring-light.png?v=1" alt="" />
+      </div>
+      <div class="upload-fingerprint-wrap" aria-hidden="true"><img class="upload-fingerprint" src="../assets/upload/upload-fingerprint-red.png?v=1" alt="" /></div>
+      <div class="upload-drop-copy">
+        <b id="uploadCoreTitle">DRAG & DROP</b>
+        <span id="uploadCoreHint">або натисніть для вибору файлів</span>
+        <div class="upload-mini-formats"><i>XLSX</i><i>CSV</i><i>JSON</i></div>
+      </div>
+      <div class="upload-core-badge"><span id="uploadBadgeText">ГОТОВИЙ</span><strong id="uploadProgressValue">0%</strong></div>
     </section>
+
+    <aside class="upload-side upload-side--right is-collapsed" aria-label="Завантажені файли">
+      <button class="upload-side-tab" type="button" data-upload-toggle="right" aria-label="Показати файли">››</button>
+      <div class="upload-panel-head"><span>ЗАВАНТАЖЕНІ ФАЙЛИ</span><em id="uploadFileCount">0</em><button type="button" data-upload-toggle="right">×</button></div>
+      <div id="uploadFileList" class="upload-file-list"><div class="upload-empty"><b>ФАЙЛИ НЕ ДОДАНО</b><span>Перетягніть файли у центр або натисніть для вибору</span></div></div>
+      <div class="upload-right-actions">
+        <button id="uploadStartButton" class="upload-action" type="button" disabled>СТАРТ ПАРСИНГУ</button>
+        <button id="uploadResultButton" class="upload-action upload-action--ghost" type="button" disabled>ПЕРЕГЛЯД РЕЗУЛЬТАТУ</button>
+      </div>
+    </aside>
   </main>
+
+  <div id="uploadResultModal" class="upload-result-modal" aria-hidden="true">
+    <div class="upload-result-backdrop" data-upload-close></div>
+    <section class="upload-result-card" role="dialog" aria-modal="true" aria-label="Результати імпорту">
+      <header class="upload-result-head"><div><small>BASTION IMPORT REVIEW</small><h2>Результати парсингу</h2></div><button type="button" data-upload-close>×</button></header>
+      <div id="uploadResultBody" class="upload-result-body"></div>
+      <footer class="upload-result-actions"><button id="uploadConfirmButton" type="button">ПІДТВЕРДИТИ ІМПОРТ</button><button id="uploadResetButton" type="button">СКИНУТИ ДАНІ</button><button type="button" data-upload-close>ЗАКРИТИ</button></footer>
+    </section>
+  </div>
 
   <footer class="bottom-contact hud-bottom-panel hud-bottom-left" aria-hidden="true">
     <div class="bottom-contact-panel" aria-hidden="true"></div>
@@ -238,5 +273,7 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../scripts/upload-core.js?v=1"></script>
 </body>
 </html>
