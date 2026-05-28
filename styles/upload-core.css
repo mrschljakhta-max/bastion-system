@@ -1950,3 +1950,90 @@ body.upload-results-active .profile-modal:not(.is-open):not([aria-hidden="false"
 .upload-results-close img {
   pointer-events: none;
 }
+
+/* BASTION Upload v257 — live dictionary resolve workflow */
+.upload-results-loading {
+  padding: 22px;
+  border: 1px dashed rgba(255, 83, 83, .35);
+  color: rgba(255,255,255,.82);
+  letter-spacing: .04em;
+}
+.upload-unknown-row.is-resolving {
+  align-items: stretch;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: inset 0 0 34px rgba(255, 62, 62, .08), 0 0 22px rgba(255, 35, 35, .12);
+}
+.upload-resolve-editor {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 1.3fr) minmax(110px, .7fr) auto;
+  gap: 10px;
+  align-items: end;
+  padding: 14px;
+  border: 1px solid rgba(255, 82, 82, .34);
+  background: linear-gradient(135deg, rgba(255, 57, 57, .09), rgba(0,0,0,.22));
+}
+.upload-resolve-editor label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255,255,255,.74);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.upload-resolve-editor input,
+.upload-resolve-editor select {
+  min-height: 38px;
+  border: 1px solid rgba(255, 86, 86, .48);
+  background: rgba(3, 4, 8, .72);
+  color: #fff;
+  padding: 0 10px;
+  font-weight: 800;
+  outline: none;
+}
+.upload-resolve-editor button {
+  min-height: 38px;
+  border: 1px solid rgba(255, 86, 86, .55);
+  background: rgba(70, 8, 12, .76);
+  color: #ff7575;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  cursor: pointer;
+}
+.upload-resolve-check {
+  flex-direction: row !important;
+  align-items: center !important;
+  align-self: center;
+}
+.upload-resolve-check input { min-height: auto; width: 16px; height: 16px; }
+html[data-theme="light"] .upload-results-loading {
+  color: rgba(16, 18, 24, .78);
+  background: rgba(255,255,255,.62);
+}
+html[data-theme="light"] .upload-resolve-editor {
+  background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(255, 225, 225, .5));
+  border-color: rgba(224, 32, 45, .28);
+}
+html[data-theme="light"] .upload-resolve-editor label { color: rgba(30, 32, 40, .65); }
+html[data-theme="light"] .upload-resolve-editor input,
+html[data-theme="light"] .upload-resolve-editor select {
+  background: rgba(255,255,255,.92);
+  color: #12141a;
+  border-color: rgba(224, 32, 45, .35);
+}
+html[data-theme="light"] .upload-resolve-editor button {
+  background: rgba(255,255,255,.92);
+  color: #b70f22;
+  border-color: rgba(224, 32, 45, .42);
+}
+@media (max-width: 1180px) {
+  .upload-resolve-editor { grid-template-columns: 1fr 1fr; }
+}

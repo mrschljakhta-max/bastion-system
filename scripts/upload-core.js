@@ -18,6 +18,7 @@
   const resultsModal = document.getElementById('uploadResultsModal');
   const resultsBody = document.getElementById('uploadResultsBody');
   const resetButton = document.getElementById('uploadResetButton');
+  const confirmButton = document.getElementById('uploadConfirmButton');
   const allowed = new Set(['xlsx', 'csv', 'json']);
   const MIN_PARSE_TIME = 10000;
   const RIGHT_PANEL = document.getElementById('uploadRightPanel');
@@ -28,8 +29,16 @@
     { key: 'fuzes', table: 'dict_fuzes', label: 'Підривники' },
     { key: 'primers', table: 'dict_primers', label: 'Праймери' }
   ];
-  const NAME_FIELDS = ['name', 'title', 'title_ua', 'marking', 'code', 'value', 'raw_value'];
-  const QTY_FIELDS = ['count', 'quantity', 'qty', 'amount', 'залишок', 'кількість'];
+  const NAME_FIELDS = ['name', 'title', 'title_ua', 'marking', 'mark', 'code', 'value', 'raw_value', 'nomenclature', 'item', 'назва', 'найменування'];
+  const QTY_FIELDS = ['count', 'quantity', 'qty', 'amount', 'залишок', 'кількість', 'загалом', 'total'];
+  const ALIAS_FIELDS = ['alias', 'aliases', 'short_name', 'full_name', 'display_name', 'markings', 'variants'];
+  const DICT_HINTS = {
+    projectiles: ['снаряд', 'projectile', 'projectiles', 'shell'],
+    charges: ['заряд', 'charge', 'charges'],
+    fuzes: ['підривник', 'fuze', 'fuzes', 'fuse', 'detonator'],
+    primers: ['праймер', 'primer', 'primers', 'капсуль']
+  };
+  const UNKNOWN_TABLE = 'dict_unknown_values';
 
   let files = [];
   let parsed = false;
@@ -37,6 +46,7 @@
   let fileSeq = 0;
   let dictionariesLoaded = false;
   let dictionaryLoadPromise = null;
+  let columnCache = new Map();
   let dictState = {
     units: [],
     catalogs: {},
@@ -55,8 +65,25 @@
   function normalizeValue(value) {
     return String(value ?? '')
       .trim()
+      .replace(/[\u2010-\u2015]/g, '-')
+      .replace(/[“”«»]/g, '"')
+      .replace(/[’`]/g, "'")
       .replace(/\s+/g, ' ')
       .toLocaleLowerCase('uk-UA');
+  }
+
+  function normalizeToken(value) {
+    return normalizeValue(value)
+      .replace(/[^0-9a-zа-яіїєґ_\-]+/giu, '')
+      .replace(/_+/g, '_')
+      .replace(/-+/g, '-');
+  }
+
+  function valueVariants(value) {
+    const base = normalizeValue(value);
+    const token = normalizeToken(value);
+    const compact = base.replace(/\s+/g, '');
+    return [...new Set([base, token, compact].filter(Boolean))];
   }
   function rowName(row) {
     if (row == null) return '';
@@ -76,6 +103,31 @@
     const numeric = Object.values(row).find(v => Number.isInteger(Number(v)));
     return numeric == null ? 0 : Number(numeric);
   }
+  function splitAliases(value) {
+    if (value == null) return [];
+    if (Array.isArray(value)) return value.flatMap(splitAliases);
+    if (typeof value === 'object') return Object.values(value).flatMap(splitAliases);
+    return String(value).split(/[;,|\n]/).map(v => v.trim()).filter(Boolean);
+  }
+
+  function collectRowNames(row) {
+    const values = [rowName(row)];
+    if (row && typeof row === 'object') {
+      NAME_FIELDS.forEach(field => { if (row[field] != null) values.push(row[field]); });
+      ALIAS_FIELDS.forEach(field => { if (row[field] != null) values.push(...splitAliases(row[field])); });
+    }
+    return [...new Set(values.map(v => String(v || '').trim()).filter(Boolean))];
+  }
+
+  function dictionaryMatchesConfig(item, cfg) {
+    const hay = [item?.code, item?.table_name, item?.title, item?.title_ua, item?.name].join(' ').toLocaleLowerCase('uk-UA');
+    return (DICT_HINTS[cfg.key] || []).some(h => hay.includes(h));
+  }
+
+  function inferDictConfig(item) {
+    return DICT_CONFIG.find(cfg => dictionaryMatchesConfig(item, cfg)) || null;
+  }
+
   function escapeHtml(s) {
     return String(s).replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
   }
@@ -93,28 +145,81 @@
     }
   }
 
+
+  async function fetchRegistry() {
+    const rows = await fetchTable('dict_registry', 'id, code, table_name, title, title_ua, is_active, sort_order');
+    return rows.filter(r => r?.is_active !== false && r?.table_name);
+  }
+
+  async function fetchColumns(table) {
+    if (columnCache.has(table)) return columnCache.get(table);
+    const client = sb();
+    let cols = [];
+    if (client?.rpc) {
+      try {
+        const { data, error } = await client.rpc('get_bastion_dictionary_columns', { p_table_name: table });
+        if (!error && Array.isArray(data)) cols = data.map(c => c.column_name || c.name).filter(Boolean);
+      } catch (_) {}
+    }
+    if (!cols.length) {
+      const sample = await fetchTable(table, '*');
+      cols = Object.keys(sample?.[0] || {});
+    }
+    columnCache.set(table, cols);
+    return cols;
+  }
+
   async function loadDictionaries() {
     if (dictionariesLoaded) return dictState;
     if (dictionaryLoadPromise) return dictionaryLoadPromise;
     dictionaryLoadPromise = (async () => {
-      const units = await fetchTable('dict_units', '*');
+      const registry = await fetchRegistry();
+      const unitsRegistry = registry.find(item => /unit|підрозді|частин|бригада|дивізіон|батаре/i.test([item.code, item.table_name, item.title, item.title_ua].join(' ')));
+      const unitsTable = unitsRegistry?.table_name || 'dict_units';
+      const units = await fetchTable(unitsTable, '*');
+
+      const resolvedConfigs = DICT_CONFIG.map(cfg => {
+        const reg = registry.find(item => dictionaryMatchesConfig(item, cfg));
+        return { ...cfg, table: reg?.table_name || cfg.table, label: reg?.title || reg?.title_ua || cfg.label, registry: reg || null };
+      });
+
       const catalogs = {};
       const catalogIndex = new Map();
-      for (const cfg of DICT_CONFIG) {
+      for (const cfg of resolvedConfigs) {
         const rows = await fetchTable(cfg.table, '*');
         catalogs[cfg.key] = rows;
         rows.forEach(row => {
-          const name = rowName(row);
-          const norm = normalizeValue(name);
-          if (!norm || catalogIndex.has(norm)) return;
-          catalogIndex.set(norm, { ...cfg, row, name });
+          const names = collectRowNames(row);
+          names.forEach(name => {
+            valueVariants(name).forEach(norm => {
+              if (!norm || catalogIndex.has(norm)) return;
+              catalogIndex.set(norm, { ...cfg, row, name });
+            });
+          });
         });
       }
-      dictState = { units, catalogs, catalogIndex };
+      dictState = { units, catalogs, catalogIndex, configs: resolvedConfigs, registry, unitsTable };
       dictionariesLoaded = true;
+      page.classList.add('is-dicts-ready');
       return dictState;
     })();
     return dictionaryLoadPromise;
+  }
+
+  function findCatalogHit(name) {
+    for (const key of valueVariants(name)) {
+      const hit = dictState.catalogIndex.get(key);
+      if (hit) return hit;
+    }
+    return null;
+  }
+
+  function indexDictionaryRow(cfg, row) {
+    collectRowNames(row).forEach(name => {
+      valueVariants(name).forEach(norm => {
+        if (norm) dictState.catalogIndex.set(norm, { ...cfg, row, name });
+      });
+    });
   }
 
   function openPanel(side) {
@@ -320,6 +425,18 @@
         return { name: parts[0] || '', count: parts[1] || 0 };
       });
     }
+    if (ext === 'xlsx') {
+      if (!window.XLSX) throw new Error('XLSX parser не завантажився. Перевірте підключення бібліотеки SheetJS.');
+      const buffer = await item.file.arrayBuffer();
+      const workbook = window.XLSX.read(buffer, { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = window.XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      return rows.map(row => {
+        const normalized = {};
+        Object.entries(row).forEach(([key, value]) => normalized[String(key).trim().toLowerCase()] = value);
+        return Object.keys(normalized).length ? normalized : row;
+      });
+    }
     return [];
   }
 
@@ -338,7 +455,7 @@
     rawRows.forEach((row, index) => {
       const name = rowName(row) || `Рядок ${index + 1}`;
       const count = rowQty(row);
-      const hit = dict.catalogIndex.get(normalizeValue(name));
+      const hit = findCatalogHit(name);
       const record = { index: index + 1, raw: row, name, count: Number.isFinite(count) ? count : 0, match: hit || null };
       if (!Number.isInteger(count)) quantityErrors.push(record);
       if (hit && Number.isInteger(count)) known.push(record);
@@ -437,6 +554,70 @@
     </article>`).join('');
   }
 
+  function dictionaryOptions(selected = '') {
+    const configs = dictState.configs?.length ? dictState.configs : DICT_CONFIG;
+    return `<option value="">Оберіть категорію</option>${configs.map(cfg => `<option value="${escapeHtml(cfg.key)}" ${selected === cfg.key ? 'selected' : ''}>${escapeHtml(cfg.label)}</option>`).join('')}`;
+  }
+
+  function resolveEditorHtml(record) {
+    return `<div class="upload-resolve-editor" data-resolve-index="${record.index}">
+      <label><span>Категорія</span><select data-resolve-dict>${dictionaryOptions('')}</select></label>
+      <label><span>Назва</span><input data-resolve-name value="${escapeHtml(record.name)}"></label>
+      <label><span>Кількість</span><input data-resolve-qty type="number" step="1" value="${escapeHtml(record.count)}"></label>
+      <label class="upload-resolve-check"><input data-resolve-active type="checkbox" checked><span>Активний запис</span></label>
+      <button type="button" data-upload-save-resolve="${record.index}">${reviewIcon('import')}<span>Додати в довідник</span></button>
+      <button type="button" data-upload-cancel-resolve="${record.index}">${reviewIcon('close')}<span>Скасувати</span></button>
+    </div>`;
+  }
+
+  async function insertUnknownValue(file, record, status = 'ignored') {
+    const client = sb();
+    if (!client) return;
+    try {
+      await client.from(UNKNOWN_TABLE).insert({
+        raw_value: record.name,
+        value: record.name,
+        source_file: file.name,
+        row_index: record.index,
+        quantity: Number.isInteger(record.count) ? record.count : null,
+        status,
+        created_at: new Date().toISOString()
+      });
+    } catch (error) {
+      console.warn('[BASTION upload] unknown value was not saved:', error?.message || error);
+    }
+  }
+
+  async function resolveUnknownRecord(file, idx, form) {
+    const cfg = (dictState.configs || DICT_CONFIG).find(c => c.key === form.dictKey);
+    if (!cfg) throw new Error('Оберіть категорію довідника');
+    const client = sb();
+    if (!client) throw new Error('Supabase не підключено');
+    const cols = await fetchColumns(cfg.table);
+    const payload = {};
+    if (cols.includes('name')) payload.name = form.name;
+    else if (cols.includes('title')) payload.title = form.name;
+    else if (cols.includes('value')) payload.value = form.name;
+    else payload.name = form.name;
+    if (cols.includes('is_active')) payload.is_active = !!form.active;
+    if (cols.includes('active')) payload.active = !!form.active;
+    if (cols.includes('quantity')) payload.quantity = Number(form.qty) || 0;
+    if (cols.includes('count')) payload.count = Number(form.qty) || 0;
+    if (cols.includes('created_at')) payload.created_at = new Date().toISOString();
+    const { data, error } = await client.from(cfg.table).insert(payload).select('*').single();
+    if (error) throw error;
+    const saved = data || payload;
+    indexDictionaryRow(cfg, saved);
+    const record = file.review.unknown.find(r => r.index === idx);
+    if (record) {
+      record.name = form.name;
+      record.count = Number(form.qty) || record.count;
+      record.match = { ...cfg, row: saved, name: form.name };
+      file.review.known.push(record);
+      file.review.unknown = file.review.unknown.filter(r => r.index !== idx);
+    }
+  }
+
   function renderResultsBody(mode = 'review') {
     const totalUnknown = files.reduce((sum, f) => sum + (f.review?.unknown?.length || 0), 0);
     resultsBody.innerHTML = `
@@ -524,6 +705,14 @@
     removeFileById(removeButton.dataset.uploadRemoveFile);
   });
   resultsButton.addEventListener('click', openResults);
+  confirmButton?.addEventListener('click', async () => {
+    await ensureReviewData();
+    for (const file of files) {
+      const unknown = file.review?.unknown || [];
+      for (const record of unknown) await insertUnknownValue(file, record, 'unresolved');
+    }
+    confirmButton.querySelector('span').textContent = 'Імпорт підготовлено';
+  });
   resetButton.addEventListener('click', resetAll);
   document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closeResults(); }));
   resultsBody.addEventListener('click', (event) => {
@@ -535,14 +724,55 @@
       const file = files.find(f => String(f.id) === String(fileCard?.dataset.resultFileId));
       if (file?.review) {
         const idx = Number(ignoreBtn.dataset.uploadIgnoreUnknown);
+        const record = file.review.unknown.find(r => r.index === idx);
+        if (record) insertUnknownValue(file, record, 'ignored');
         file.review.unknown = file.review.unknown.filter(r => r.index !== idx);
         renderResultsBody('parse');
       }
     }
     const editBtn = event.target.closest('[data-upload-edit-unknown]');
     if (editBtn) {
-      editBtn.textContent = 'Редактор довідника — наступний етап';
-      editBtn.disabled = true;
+      const fileCard = editBtn.closest('[data-result-file-id]');
+      const rowEl = editBtn.closest('.upload-unknown-row');
+      const file = files.find(f => String(f.id) === String(fileCard?.dataset.resultFileId));
+      const idx = Number(editBtn.dataset.uploadEditUnknown);
+      const record = file?.review?.unknown?.find(r => r.index === idx);
+      if (record && rowEl) {
+        rowEl.classList.add('is-resolving');
+        rowEl.insertAdjacentHTML('beforeend', resolveEditorHtml(record));
+        editBtn.disabled = true;
+      }
+    }
+    const cancelBtn = event.target.closest('[data-upload-cancel-resolve]');
+    if (cancelBtn) {
+      const rowEl = cancelBtn.closest('.upload-unknown-row');
+      rowEl?.querySelector('.upload-resolve-editor')?.remove();
+      rowEl?.classList.remove('is-resolving');
+      rowEl?.querySelector('[data-upload-edit-unknown]')?.removeAttribute('disabled');
+    }
+    const saveBtn = event.target.closest('[data-upload-save-resolve]');
+    if (saveBtn) {
+      const fileCard = saveBtn.closest('[data-result-file-id]');
+      const editor = saveBtn.closest('.upload-resolve-editor');
+      const file = files.find(f => String(f.id) === String(fileCard?.dataset.resultFileId));
+      const idx = Number(saveBtn.dataset.uploadSaveResolve);
+      const form = {
+        dictKey: editor?.querySelector('[data-resolve-dict]')?.value || '',
+        name: editor?.querySelector('[data-resolve-name]')?.value?.trim() || '',
+        qty: editor?.querySelector('[data-resolve-qty]')?.value || 0,
+        active: !!editor?.querySelector('[data-resolve-active]')?.checked
+      };
+      if (!form.name) return;
+      saveBtn.disabled = true;
+      saveBtn.querySelector('span').textContent = 'Додаю…';
+      try {
+        await resolveUnknownRecord(file, idx, form);
+        renderResultsBody('parse');
+      } catch (error) {
+        saveBtn.disabled = false;
+        saveBtn.querySelector('span').textContent = error?.message || 'Помилка';
+        console.warn('[BASTION upload] resolve failed:', error?.message || error);
+      }
     }
   });
   resultsBody.addEventListener('change', (event) => {
