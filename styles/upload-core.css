@@ -2058,3 +2058,195 @@ html[data-theme="light"] .upload-resolve-editor button {
     grid-template-columns:1fr 1fr;
   }
 }
+
+
+/* v261 — import review KPI control header */
+.upload-review-control-head {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.upload-review-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.upload-review-kpi {
+  min-height: 74px;
+  border: 1px solid rgba(255, 70, 70, .42);
+  background: linear-gradient(135deg, rgba(255,49,56,.12), rgba(255,49,56,.035));
+  color: rgba(255,255,255,.78);
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  font: 900 12px/1.15 "Orbitron", "Rajdhani", system-ui, sans-serif;
+}
+.upload-review-kpi .upload-review-icon { grid-row: 1 / span 2; }
+.upload-review-kpi em { font-style: normal; opacity: .78; }
+.upload-review-kpi b { color: #fff; font-size: 24px; line-height: 1; margin-top: 4px; }
+.upload-review-kpi:hover,
+.upload-review-kpi.is-active {
+  border-color: rgba(255, 98, 104, .92);
+  box-shadow: 0 0 18px rgba(255,49,56,.20), inset 0 0 18px rgba(255,49,56,.07);
+  color: #fff;
+}
+.upload-review-units {
+  border: 1px solid rgba(255,70,70,.28);
+  background: rgba(0,0,0,.16);
+  padding: 14px;
+}
+.upload-review-units-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,.72);
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+.upload-unit-badges,
+.upload-unit-missing {
+  display: grid;
+  gap: 8px;
+}
+.upload-unit-badges { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 8px; }
+.upload-unit-badge,
+.upload-unit-map-row {
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.035);
+  padding: 10px 12px;
+}
+.upload-unit-badge {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 6px 9px;
+  align-items: center;
+}
+.upload-unit-badge b { color: #fff; }
+.upload-unit-badge small { grid-column: 2; color: rgba(255,255,255,.55); overflow-wrap: anywhere; }
+.upload-unit-map-row {
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) minmax(240px, 380px);
+  gap: 12px;
+  align-items: center;
+}
+.upload-unit-map-row > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.upload-unit-map-row b { color: #ff777b; overflow-wrap: anywhere; }
+.upload-unit-map-row select {
+  min-height: 40px;
+  border: 1px solid rgba(255,70,70,.52);
+  background: #090a0e;
+  color: #fff;
+  padding: 0 12px;
+  font-weight: 800;
+}
+.upload-review-list {
+  border: 1px solid rgba(255,70,70,.24);
+  background: rgba(0,0,0,.16);
+  padding: 14px;
+}
+.upload-review-list h4 {
+  margin: 0 0 12px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 900;
+}
+.upload-review-list h4 b {
+  margin-left: 8px;
+  border: 1px solid rgba(255,80,86,.55);
+  color: #fff;
+  padding: 1px 8px;
+}
+.upload-result-table--aggregate td:first-child { max-width: 260px; overflow-wrap: anywhere; }
+.upload-row-status {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 4px 8px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 900;
+  font-size: 11px;
+}
+.upload-row-status--known { color: #00ff84; border-color: rgba(0,255,132,.30); }
+.upload-row-status--unknown { color: #ff777b; border-color: rgba(255,80,86,.42); }
+.upload-row-status--error { color: #ffbd75; border-color: rgba(255,174,66,.45); }
+.upload-result-file--parse .upload-result-file-title { margin-bottom: 12px; }
+
+body.bastion-light .upload-review-kpi,
+body.theme-light .upload-review-kpi,
+body[data-theme="light"] .upload-review-kpi,
+body.bastion-light .upload-review-units,
+body.theme-light .upload-review-units,
+body[data-theme="light"] .upload-review-units,
+body.bastion-light .upload-review-list,
+body.theme-light .upload-review-list,
+body[data-theme="light"] .upload-review-list {
+  background: rgba(255,255,255,.72);
+  border-color: rgba(202,0,20,.28);
+  color: rgba(17,19,24,.72);
+}
+body.bastion-light .upload-review-kpi b,
+body.theme-light .upload-review-kpi b,
+body[data-theme="light"] .upload-review-kpi b,
+body.bastion-light .upload-review-list h4,
+body.theme-light .upload-review-list h4,
+body[data-theme="light"] .upload-review-list h4,
+body.bastion-light .upload-unit-badge b,
+body.theme-light .upload-unit-badge b,
+body[data-theme="light"] .upload-unit-badge b {
+  color: #111318;
+}
+body.bastion-light .upload-review-kpi:hover,
+body.bastion-light .upload-review-kpi.is-active,
+body.theme-light .upload-review-kpi:hover,
+body.theme-light .upload-review-kpi.is-active,
+body[data-theme="light"] .upload-review-kpi:hover,
+body[data-theme="light"] .upload-review-kpi.is-active {
+  color: #b60012;
+  border-color: rgba(202,0,20,.55);
+  box-shadow: 0 0 18px rgba(255,49,56,.14), inset 0 0 16px rgba(255,49,56,.05);
+}
+body.bastion-light .upload-unit-badge,
+body.bastion-light .upload-unit-map-row,
+body.theme-light .upload-unit-badge,
+body.theme-light .upload-unit-map-row,
+body[data-theme="light"] .upload-unit-badge,
+body[data-theme="light"] .upload-unit-map-row {
+  background: rgba(255,255,255,.58);
+  border-color: rgba(20,20,20,.11);
+}
+body.bastion-light .upload-unit-map-row select,
+body.theme-light .upload-unit-map-row select,
+body[data-theme="light"] .upload-unit-map-row select {
+  background: #fff;
+  color: #111318;
+  border-color: rgba(202,0,20,.38);
+}
+body.bastion-light .upload-unit-badge small,
+body.theme-light .upload-unit-badge small,
+body[data-theme="light"] .upload-unit-badge small,
+body.bastion-light .upload-review-units-title,
+body.theme-light .upload-review-units-title,
+body[data-theme="light"] .upload-review-units-title {
+  color: rgba(17,19,24,.62);
+}
+
+@media (max-width: 920px) {
+  .upload-review-kpi-grid,
+  .upload-unit-map-row { grid-template-columns: 1fr; }
+}

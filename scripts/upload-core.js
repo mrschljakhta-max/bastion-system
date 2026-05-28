@@ -618,31 +618,104 @@
     }
   }
 
-  function renderResultsBody(mode = 'review') {
-    const totalUnknown = files.reduce((sum, f) => sum + (f.review?.unknown?.length || 0), 0);
+  function reviewTotals() {
+    return files.reduce((acc, f) => {
+      const review = f.review || { rows: [], known: [], unknown: [], quantityErrors: [] };
+      acc.rows += review.rows?.length || 0;
+      acc.known += review.known?.length || 0;
+      acc.unknown += review.unknown?.length || 0;
+      acc.errors += review.quantityErrors?.length || 0;
+      return acc;
+    }, { rows: 0, known: 0, unknown: 0, errors: 0 });
+  }
+
+  function unitDisplayName(value) {
+    if (!value) return '';
+    const found = (dictState.units || []).find(row => String(row.id || rowName(row)) === String(value));
+    return found ? (rowName(found) || found.name || found.title || value) : value;
+  }
+
+  function reviewUnitsHtml() {
+    const selected = files
+      .map(f => ({ file: f, review: f.review || {} }))
+      .filter(item => item.review.unitId)
+      .map(item => `<span class="upload-unit-badge">${reviewIcon('unit')}<b>${escapeHtml(unitDisplayName(item.review.unitId))}</b><small>${escapeHtml(item.file.name)}</small></span>`)
+      .join('');
+
+    const selectors = files.map((f, index) => {
+      const review = f.review || {};
+      if (review.unitId) return '';
+      return `<label class="upload-unit-map-row"><span>${reviewIcon('file')}<b>${escapeHtml(f.name)}</b></span><select data-upload-unit-select="${f.id}">${unitOptions(review.unitId)}</select></label>`;
+    }).join('');
+
+    return `<section class="upload-review-units">
+      <div class="upload-review-units-title">${reviewIcon('unit')}<span>Підрозділи</span></div>
+      ${selected ? `<div class="upload-unit-badges">${selected}</div>` : ''}
+      ${selectors ? `<div class="upload-unit-missing">${selectors}</div>` : ''}
+    </section>`;
+  }
+
+  function flatRows(kind = 'all') {
+    const rows = [];
+    files.forEach((file, fileIndex) => {
+      const review = file.review || { rows: [], known: [], unknown: [], quantityErrors: [] };
+      const add = (record, type) => rows.push({ ...record, type, fileName: file.name, fileIndex: fileIndex + 1 });
+      if (kind === 'all') {
+        review.known.forEach(r => add(r, 'known'));
+        review.unknown.forEach(r => add(r, 'unknown'));
+        review.quantityErrors.forEach(r => {
+          if (!review.unknown.some(u => u.index === r.index) && !review.known.some(k => k.index === r.index)) add(r, 'error');
+        });
+      } else if (kind === 'known') review.known.forEach(r => add(r, 'known'));
+      else if (kind === 'unknown') review.unknown.forEach(r => add(r, 'unknown'));
+      else if (kind === 'errors') review.quantityErrors.forEach(r => add(r, 'error'));
+    });
+    return rows;
+  }
+
+  function aggregatedRowsTable(rows, title, emptyText) {
+    if (!rows.length) return `<section class="upload-review-list"><h4>${escapeHtml(title)}</h4><div class="upload-result-empty is-ok">${escapeHtml(emptyText)}</div></section>`;
+    return `<section class="upload-review-list"><h4>${escapeHtml(title)} <b>${rows.length}</b></h4>
+      <table class="upload-result-table upload-result-table--aggregate"><thead><tr><th>Файл</th><th>Назва</th><th>Категорія</th><th>Кількість</th><th>Статус</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${escapeHtml(r.fileName)}</td><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.match?.label || (r.type === 'unknown' ? 'Невідомо' : '—'))}</td><td>${escapeHtml(r.count)}</td><td><span class="upload-row-status upload-row-status--${r.type}">${r.type === 'known' ? 'Відомо' : r.type === 'error' ? 'Помилка' : 'Невідомо'}</span></td></tr>`).join('')}
+      </tbody></table></section>`;
+  }
+
+  function parseModeHtml() {
+    return files.map((f) => {
+      const review = f.review || { unknown: [] };
+      if (!review.unknown.length) return '';
+      return `<article class="upload-result-file upload-result-file--parse" data-result-file-id="${f.id}">
+        <div class="upload-result-file-title"><small>${reviewIcon('file')}<span>${escapeHtml(f.name)}</span></small></div>
+        <section class="upload-unknown-block"><h4>Невідомі значення <b>${review.unknown.length}</b></h4>${unknownRowsHtml(review.unknown)}</section>
+      </article>`;
+    }).join('') || `<div class="upload-result-empty is-ok">Невідомих значень немає. Можна підтверджувати імпорт.</div>`;
+  }
+
+  function renderResultsBody(mode = 'review', filter = 'known') {
+    const totals = reviewTotals();
+    const activeFilter = mode === 'parse' ? 'unknown' : filter;
+    const kpi = [
+      ['all', 'rows', 'Загальна кількість', totals.rows],
+      ['known', 'known', 'Відомі', totals.known],
+      ['unknown', 'unknown', 'Невідомі', totals.unknown],
+      ['errors', 'errors', 'Помилки', totals.errors]
+    ];
+    const listTitle = activeFilter === 'all' ? 'Всі дані імпорту' : activeFilter === 'known' ? 'Відомі дані' : activeFilter === 'unknown' ? 'Невідомі дані' : 'Помилки кількості';
+    const rows = flatRows(activeFilter);
+
     resultsBody.innerHTML = `
-      <div class="upload-review-toolbar">
-        <button type="button" class="${mode === 'review' ? 'is-active' : ''}" data-review-mode="review">${reviewIcon('review')}<span>Огляд</span></button>
-        <button type="button" class="${mode === 'parse' ? 'is-active' : ''}" data-review-mode="parse">${reviewIcon('parse')}<span>Режим парсингу</span><b>${totalUnknown}</b></button>
+      <div class="upload-review-control-head">
+        <div class="upload-review-toolbar">
+          <button type="button" class="${mode === 'review' ? 'is-active' : ''}" data-review-mode="review" data-review-filter="${escapeHtml(activeFilter)}">${reviewIcon('review')}<span>Огляд</span></button>
+          <button type="button" class="${mode === 'parse' ? 'is-active' : ''}" data-review-mode="parse">${reviewIcon('parse')}<span>Режим парсингу</span><b>${totals.unknown}</b></button>
+        </div>
+        <div class="upload-review-kpi-grid">
+          ${kpi.map(([key, icon, label, value]) => `<button type="button" class="upload-review-kpi ${activeFilter === key && mode !== 'parse' ? 'is-active' : ''}" data-review-filter="${key}">${reviewIcon(icon)}<em>${label}</em><b>${value}</b></button>`).join('')}
+        </div>
+        ${reviewUnitsHtml()}
       </div>
-      ${files.map((f, index) => {
-        const review = f.review || { rows: [], known: [], unknown: [], quantityErrors: [] };
-        return `<article class="upload-result-file" data-result-file-id="${f.id}">
-          <div class="upload-result-file-head">
-            <div class="upload-result-file-title"><small>${reviewIcon('file')}<span>Файл ${String(index + 1).padStart(2, '0')}</span></small><h3>${escapeHtml(f.name)}</h3></div>
-            <label class="upload-unit-select"><span>${reviewIcon('unit')}<span>Підрозділ</span></span><select data-upload-unit-select="${f.id}">${unitOptions(review.unitId)}</select></label>
-          </div>
-          <div class="upload-result-stats">
-            <span>${reviewIcon('rows')}<em>Рядків</em> <b>${review.rows.length}</b></span>
-            <span>${reviewIcon('known')}<em>Відомих</em> <b>${review.known.length}</b></span>
-            <span>${reviewIcon('unknown')}<em>Невідомих</em> <b>${review.unknown.length}</b></span>
-            <span>${reviewIcon('errors')}<em>Помилок кількості</em> <b>${review.quantityErrors.length}</b></span>
-          </div>
-          ${review.parseError ? `<div class="upload-result-warning">${escapeHtml(review.parseError)}</div>` : ''}
-          ${mode === 'review' ? `<section class="upload-known-block"><h4>Дані, що йдуть у розрахунок</h4>${knownRowsHtml(review.known)}</section>` : ''}
-          <section class="upload-unknown-block"><h4>Невідомі значення <b>${review.unknown.length}</b></h4>${unknownRowsHtml(review.unknown)}</section>
-        </article>`;
-      }).join('')}`;
+      ${mode === 'parse' ? parseModeHtml() : aggregatedRowsTable(rows, listTitle, 'Даних у цій категорії немає.')}`;
   }
 
   async function openResults() {
@@ -717,7 +790,15 @@
   document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closeResults(); }));
   resultsBody.addEventListener('click', async (event) => {
     const modeBtn = event.target.closest('[data-review-mode]');
-    if (modeBtn) renderResultsBody(modeBtn.dataset.reviewMode);
+    if (modeBtn) {
+      renderResultsBody(modeBtn.dataset.reviewMode, modeBtn.dataset.reviewFilter || 'known');
+      return;
+    }
+    const filterBtn = event.target.closest('[data-review-filter]');
+    if (filterBtn && !filterBtn.closest('[data-review-mode]')) {
+      renderResultsBody('review', filterBtn.dataset.reviewFilter || 'known');
+      return;
+    }
     const ignoreBtn = event.target.closest('[data-upload-ignore-unknown]');
     if (ignoreBtn) {
       const fileCard = ignoreBtn.closest('[data-result-file-id]');
