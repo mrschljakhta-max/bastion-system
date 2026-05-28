@@ -272,6 +272,32 @@
     renderCarouselPositions();
   }
 
+  async function hydrateRegistryCounts(items) {
+    if (!sb || !Array.isArray(items) || !items.length) return items || [];
+    const hydrated = await Promise.all(items.map(async (item) => {
+      if (!item?.table_name || !item?.id) return item;
+      try {
+        const { count, error } = await sb
+          .from(item.table_name)
+          .select('id', { count: 'exact', head: true });
+        if (error || typeof count !== 'number') return item;
+        if (Number(item.records_count || 0) !== count) {
+          sb.from('dict_registry')
+            .update({ records_count: count, updated_at: new Date().toISOString() })
+            .eq('id', item.id)
+            .then(({ error: updateError }) => {
+              if (updateError) console.warn('BASTION dict count update warning:', updateError.message);
+            });
+        }
+        return { ...item, records_count: count };
+      } catch (error) {
+        console.warn('BASTION dict count hydrate warning:', error?.message || error);
+        return item;
+      }
+    }));
+    return hydrated;
+  }
+
   async function loadRegistry() {
     sb = createSupabaseClient();
     if (!sb) return setCarouselItems(fallbackDictionaries);
@@ -284,7 +310,8 @@
       console.warn("BASTION dict_registry fallback:", error.message);
       return setCarouselItems(fallbackDictionaries);
     }
-    setCarouselItems(data || fallbackDictionaries);
+    const hydrated = await hydrateRegistryCounts(data || fallbackDictionaries);
+    setCarouselItems(hydrated || fallbackDictionaries);
   }
 
   function rotate(direction) {
@@ -1420,6 +1447,22 @@
   left?.addEventListener("click", () => rotate(-1));
   right?.addEventListener("click", () => rotate(1));
   initSitemapDots();
+
+  window.addEventListener('bastion:dictionary-count-updated', (event) => {
+    const detail = event.detail || {};
+    if (!detail.table_name || typeof detail.records_count !== 'number') return;
+    registryItems = registryItems.map((item) => {
+      if (item.table_name !== detail.table_name) return item;
+      return { ...item, records_count: detail.records_count };
+    });
+    setCarouselItems(registryItems);
+    if (currentDict?.table_name === detail.table_name) {
+      currentDict.records_count = detail.records_count;
+      if (manageLead) manageLead.textContent = countLabel(detail.records_count);
+      if (dictMetaRecords) dictMetaRecords.textContent = String(detail.records_count);
+    }
+  });
+
   loadRegistry();
 
 
