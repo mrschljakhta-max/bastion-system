@@ -12,6 +12,7 @@
   const progressPlate = document.querySelector('.upload-progress-plate');
   const dropTitle = dropZone?.querySelector('.upload-orb__copy strong');
   const dropHint = dropZone?.querySelector('.upload-orb__copy span');
+  const coreWordCloud = document.getElementById('uploadCoreWordCloud');
   const startButton = document.getElementById('uploadStartButton');
   const resultsButton = document.getElementById('uploadResultsButton');
   const clearQueueButton = document.getElementById('uploadClearQueueButton');
@@ -174,6 +175,23 @@
     window.setTimeout(() => el.remove(), 2050);
   }
 
+  function spawnCoreWord(text) {
+    if (!text || !coreWordCloud || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const el = document.createElement('span');
+    el.className = 'upload-core-word';
+    el.textContent = text;
+    const x = 18 + Math.random() * 64;
+    const y = 18 + Math.random() * 64;
+    const dx = (Math.random() * 36 - 18).toFixed(1);
+    const dy = (Math.random() * 28 - 24).toFixed(1);
+    el.style.setProperty('--cx', `${x}%`);
+    el.style.setProperty('--cy', `${y}%`);
+    el.style.setProperty('--dx', `${dx}px`);
+    el.style.setProperty('--dy', `${dy}px`);
+    coreWordCloud.appendChild(el);
+    window.setTimeout(() => el.remove(), 3000);
+  }
+
   function spawnStageWordBurst(stage, pct) {
     const bank = {
       'Сканування': ['СКАНУВАННЯ', 'SCAN', 'INPUT'],
@@ -184,9 +202,15 @@
     };
     const fallback = ['КІЛЬКІСТЬ', 'UNIT', 'UNKNOWN', 'NORMALIZE'];
     const words = bank[stage] || fallback;
-    spawnStageWord(words[Math.floor(Math.random() * words.length)]);
+    const primaryWord = words[Math.floor(Math.random() * words.length)];
+    spawnStageWord(primaryWord);
+    spawnCoreWord(primaryWord);
     if (pct % 3 === 0) {
-      window.setTimeout(() => spawnStageWord(fallback[Math.floor(Math.random() * fallback.length)]), 120);
+      window.setTimeout(() => {
+        const secondaryWord = fallback[Math.floor(Math.random() * fallback.length)];
+        spawnStageWord(secondaryWord);
+        spawnCoreWord(secondaryWord);
+      }, 120);
     }
   }
 
