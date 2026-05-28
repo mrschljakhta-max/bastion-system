@@ -1538,4 +1538,253 @@
     return (c ^ 0xffffffff) >>> 0;
   }
 
+
+  /* EXPORT PATCH v230 — final dictionary exports: clean XLSX + branded PDF */
+  function exportExcel() {
+    const headers = exportHeaders();
+    const rows = exportRows();
+    downloadBlob(makeBastionXlsxBlob(headers, rows, dictionaryTitle(currentDict)), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", exportFileName("xlsx"));
+  }
+
+  async function exportPdf() {
+    const headers = exportHeaders();
+    const rows = exportRows();
+    const user = profileInfo();
+    const now = new Date();
+    const filename = exportFileName("pdf");
+    try {
+      await loadDictExportScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js");
+      await loadDictExportScript("https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.min.js");
+      if (!window.pdfMake) throw new Error("pdfMake unavailable");
+
+      const red = "#e51b23";
+      const dark = "#0b0f17";
+      const grid = "#d9dde3";
+      const logo = await dictExportImageDataUrl("../assets/logo/bastion-report-mark.png").catch(() => null);
+      const icons = await dictExportReportIcons();
+      const title = String(dictionaryTitle(currentDict) || "ДОВІДНИК").toUpperCase();
+
+      const body = [
+        headers.map((h) => ({
+          text: String(h || "").toUpperCase(),
+          bold: true,
+          color: "#ffffff",
+          fillColor: dark,
+          fontSize: 10,
+          margin: [7, 10, 7, 10]
+        })),
+        ...rows.map((r, rowIndex) => r.map((v, colIndex) => ({
+          text: String(v ?? ""),
+          color: colIndex === 0 ? red : "#111827",
+          bold: colIndex === 0,
+          fontSize: 10,
+          margin: [7, 9, 7, 9],
+          fillColor: rowIndex % 2 ? "#fbfbfc" : "#ffffff"
+        })))
+      ];
+
+      const footerItems = [
+        dictFooterItem(icons.world, "bastion-system.com", 118),
+        dictFooterItem(icons.calendar, `Дата: ${now.toLocaleDateString("uk-UA")}`, 94),
+        dictFooterItem(icons.clock, `Час: ${now.toLocaleTimeString("uk-UA")}`, 90),
+        dictFooterItem(icons.pen, `Виконавець: ${user.login || "—"}`, 118),
+        dictFooterItem(icons.mail, `Email: ${user.email || "—"}`, 132),
+        dictFooterItem(icons.clipboard, `Записів: ${rows.length}`, 82),
+        dictFooterItem(icons.floppy, "BASTION SYSTEM", 108)
+      ];
+
+      const brand = {
+        columns: [
+          { text: "BASTION", alignment: "right", fontSize: 18, bold: true, color: "#111827", margin: [0, 1, 8, 0] },
+          logo
+            ? { image: logo, width: 28, height: 28, alignment: "right", margin: [0, 0, 0, 0] }
+            : { text: "◆", width: 28, alignment: "right", fontSize: 22, color: red }
+        ],
+        columnGap: 2,
+        width: 180
+      };
+
+      const doc = {
+        pageSize: "A4",
+        pageOrientation: "landscape",
+        pageMargins: [26, 24, 26, 46],
+        content: [
+          {
+            columns: [
+              { text: title, fontSize: 27, bold: true, color: red, characterSpacing: 2, margin: [0, 2, 0, 0] },
+              brand
+            ],
+            columnGap: 16
+          },
+          { canvas: [{ type: "line", x1: 0, y1: 0, x2: 790, y2: 0, lineWidth: 1.15, lineColor: red }], margin: [0, 15, 0, 18] },
+          {
+            table: {
+              headerRows: 1,
+              widths: headers.map((_, i) => i === 0 ? 34 : "*"),
+              body
+            },
+            layout: {
+              hLineColor: () => grid,
+              vLineColor: () => grid,
+              hLineWidth: (i) => i === 0 || i === body.length ? 0.8 : 0.55,
+              vLineWidth: () => 0.55,
+              paddingLeft: () => 0,
+              paddingRight: () => 0,
+              paddingTop: () => 0,
+              paddingBottom: () => 0
+            }
+          }
+        ],
+        footer: () => ({
+          margin: [26, 0, 26, 12],
+          stack: [
+            { canvas: [{ type: "line", x1: 0, y1: 0, x2: 790, y2: 0, lineWidth: 1, lineColor: red }], margin: [0, 0, 0, 7] },
+            { columns: footerItems, columnGap: 5 }
+          ]
+        }),
+        defaultStyle: { font: "Roboto", fontSize: 10 },
+        styles: { footerText: { fontSize: 8.5, color: "#111827" } }
+      };
+
+      window.pdfMake.createPdf(doc).download(filename);
+    } catch (error) {
+      const html = `<!DOCTYPE html><html lang="uk"><head><meta charset="UTF-8"><title>${escapeHtml(dictionaryTitle(currentDict))}</title></head><body><h1>${escapeHtml(dictionaryTitle(currentDict))}</h1><table border="1"><thead><tr>${headers.map((h) => `<th>${escapeHtml(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((v) => `<td>${escapeHtml(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
+      downloadBlob(html, "text/html;charset=utf-8", exportFileName("html"));
+      setManageStatus("PDF-бібліотеку не завантажено. Збережено HTML-звіт як fallback.", "error");
+    }
+  }
+
+  function dictFooterItem(svg, text, width) {
+    return {
+      width,
+      columns: [
+        svg ? { svg, width: 12, height: 12, margin: [0, 0, 4, 0] } : { text: "•", width: 10, color: "#e51b23" },
+        { text, style: "footerText", margin: [0, 1, 0, 0] }
+      ],
+      columnGap: 2
+    };
+  }
+
+  async function dictExportReportIcons() {
+    const icon = async (name) => {
+      const raw = await dictExportTextAsset(`../assets/icons/report/${name}.svg`).catch(() => "");
+      return raw
+        .replaceAll("currentColor", "#e51b23")
+        .replace(/stroke="[^"]*"/g, 'stroke="#e51b23"')
+        .replace(/fill="none"/g, 'fill="none"')
+        .replace(/class="[^"]*"/g, "");
+    };
+    return {
+      world: await icon("world-www"),
+      calendar: await icon("calendar-event"),
+      clock: await icon("clock-hour-2"),
+      pen: await icon("ballpen"),
+      mail: await icon("mail-opened"),
+      clipboard: await icon("clipboard-text"),
+      floppy: await icon("device-floppy")
+    };
+  }
+
+  async function dictExportTextAsset(src) {
+    const res = await fetch(src, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`Asset not found: ${src}`);
+    return res.text();
+  }
+
+  async function dictExportImageDataUrl(src) {
+    const res = await fetch(src, { cache: "force-cache" });
+    if (!res.ok) throw new Error(`Image not found: ${src}`);
+    const blob = await res.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function makeBastionXlsxBlob(headers, rows, title = "BASTION") {
+    const shared = [];
+    const si = new Map();
+    const getSi = (v) => {
+      const s = String(v ?? "");
+      if (!si.has(s)) { si.set(s, shared.length); shared.push(s); }
+      return si.get(s);
+    };
+    const esc = (s) => String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+    const colName = (n) => {
+      let s = "";
+      while (n >= 0) {
+        s = String.fromCharCode((n % 26) + 65) + s;
+        n = Math.floor(n / 26) - 1;
+      }
+      return s;
+    };
+
+    const data = [headers, ...rows];
+    const maxLen = headers.map((_, cidx) => Math.max(
+      ...data.map((row) => String(row?.[cidx] ?? "").length),
+      cidx === 0 ? 2 : 10
+    ));
+    const colsXml = maxLen.map((len, idx) => {
+      const width = Math.min(Math.max(len + 3, idx === 0 ? 6 : 12), 42);
+      return `<col min="${idx + 1}" max="${idx + 1}" width="${width}" customWidth="1"/>`;
+    }).join("");
+
+    const cellXml = (v, ridx, cidx) => {
+      const ref = `${colName(cidx)}${ridx + 1}`;
+      const style = ridx === 0 ? 1 : 2;
+      return `<c r="${ref}" t="s" s="${style}"><v>${getSi(v)}</v></c>`;
+    };
+
+    const sheetRows = data.map((r, ridx) => {
+      const height = ridx === 0 ? 25 : 22;
+      return `<row r="${ridx + 1}" ht="${height}" customHeight="1">${r.map((v, cidx) => cellXml(v, ridx, cidx)).join("")}</row>`;
+    }).join("");
+
+    const lastCol = colName(Math.max(headers.length - 1, 0));
+    const lastRow = Math.max(data.length, 1);
+    const autoFilterRef = headers.length ? `A1:${lastCol}${lastRow}` : "A1:A1";
+    const safeSheetName = esc(String(title || "Export").replace(/[\\/?*:[\]]+/g, " ").trim()).slice(0, 31) || "Export";
+
+    const stylesXml = `<?xml version="1.0" encoding="UTF-8"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="2">
+    <font><sz val="11"/><name val="Aptos"/><family val="2"/></font>
+    <font><b/><sz val="11"/><name val="Aptos"/><family val="2"/></font>
+  </fonts>
+  <fills count="2">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+  </fills>
+  <borders count="3">
+    <border/>
+    <border><left style="thin"/><right style="thin"/><top style="thin"/><bottom style="medium"/></border>
+    <border><left style="thin"/><right style="thin"/><top style="thin"/><bottom style="thin"/></border>
+  </borders>
+  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+  <cellXfs count="3">
+    <xf xfId="0" fontId="0" fillId="0" borderId="0"/>
+    <xf xfId="0" fontId="1" fillId="0" borderId="1" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>
+    <xf xfId="0" fontId="0" fillId="0" borderId="2" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>
+  </cellXfs>
+  <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+</styleSheet>`;
+
+    const files = {
+      "[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
+      "_rels/.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
+      "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${safeSheetName}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+      "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
+      "xl/styles.xml": stylesXml,
+      "xl/sharedStrings.xml": `<?xml version="1.0" encoding="UTF-8"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${shared.length}" uniqueCount="${shared.length}">${shared.map((s) => `<si><t>${esc(s)}</t></si>`).join("")}</sst>`,
+      "xl/worksheets/sheet1.xml": `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${colsXml}</cols><sheetData>${sheetRows}</sheetData><autoFilter ref="${autoFilterRef}"/></worksheet>`
+    };
+    return new Blob([makeBastionZip(files)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+
 })();
