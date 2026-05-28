@@ -157,13 +157,37 @@
     const el = document.createElement('span');
     el.className = 'upload-stage-word';
     el.textContent = text;
-    const fromLeft = Math.random() > .5;
-    const x = fromLeft ? (30 + Math.random() * 12) : (70 - Math.random() * 12);
-    const y = 42 + Math.random() * 18;
-    el.style.setProperty('--x', `${x}%`);
-    el.style.setProperty('--y', `${y}%`);
+
+    const rect = dropZone.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const angle = Math.random() * Math.PI * 2;
+    const radius = rect.width * (.36 + Math.random() * .18);
+    const x = cx + Math.cos(angle) * radius;
+    const y = cy + Math.sin(angle) * radius;
+
+    el.style.setProperty('--x', `${x}px`);
+    el.style.setProperty('--y', `${y}px`);
+    el.style.setProperty('--core-x', `${cx}px`);
+    el.style.setProperty('--core-y', `${cy}px`);
     document.body.appendChild(el);
-    window.setTimeout(() => el.remove(), 1800);
+    window.setTimeout(() => el.remove(), 2050);
+  }
+
+  function spawnStageWordBurst(stage, pct) {
+    const bank = {
+      'Сканування': ['СКАНУВАННЯ', 'SCAN', 'INPUT'],
+      'Перевірка': ['ПЕРЕВІРКА', 'FORMAT', 'VALIDATE'],
+      'Парсинг': ['ПАРСИНГ', 'READ', 'DATA'],
+      'Зіставлення': ['ДОВІДНИКИ', 'MATCH', 'DICT'],
+      'Готовий': ['ГОТОВО', 'SYNC', '100%']
+    };
+    const fallback = ['КІЛЬКІСТЬ', 'UNIT', 'UNKNOWN', 'NORMALIZE'];
+    const words = bank[stage] || fallback;
+    spawnStageWord(words[Math.floor(Math.random() * words.length)]);
+    if (pct % 3 === 0) {
+      window.setTimeout(() => spawnStageWord(fallback[Math.floor(Math.random() * fallback.length)]), 120);
+    }
   }
 
   function startParsing() {
@@ -188,10 +212,9 @@
       const pct = Math.min(100, Math.round((elapsed / MIN_PARSE_TIME) * 100));
       const stage = stages.reduce((acc, cur) => pct >= cur[0] ? cur[1] : acc, 'Сканування');
       setPlate(stage, pct);
-      if (pct - lastWordPct >= 18 && pct < 98) {
+      if (pct - lastWordPct >= 9 && pct < 98) {
         lastWordPct = pct;
-        const words = ['СКАНУВАННЯ', 'ПЕРЕВІРКА', 'ПАРСИНГ', 'ЗІСТАВЛЕННЯ', 'КІЛЬКІСТЬ'];
-        spawnStageWord(words[Math.floor(Math.random() * words.length)]);
+        spawnStageWordBurst(stage, pct);
       }
       if (pct >= 100) {
         clearInterval(timer);
