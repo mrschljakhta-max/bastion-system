@@ -18,6 +18,7 @@
   const resetButton = document.getElementById('uploadResetButton');
   const allowed = new Set(['xlsx', 'csv', 'json']);
   const MIN_PARSE_TIME = 10000;
+  const RIGHT_PANEL = document.getElementById('uploadRightPanel');
   let files = [];
   let parsed = false;
   let timer = null;
@@ -60,11 +61,24 @@
     platePercent.textContent = '0%';
   }
 
+  function syncActionButtons() {
+    const hasFiles = files.length > 0;
+    if (startButton) {
+      startButton.classList.toggle('is-hidden', parsed);
+      startButton.disabled = !hasFiles || parsed || !!timer;
+    }
+    if (resultsButton) {
+      resultsButton.classList.toggle('is-hidden', !parsed);
+      resultsButton.disabled = !parsed;
+    }
+    if (clearQueueButton) clearQueueButton.disabled = !hasFiles;
+    RIGHT_PANEL?.classList.toggle('has-queue', hasFiles);
+    RIGHT_PANEL?.classList.toggle('is-parsed', parsed);
+  }
+
   function renderFiles() {
     fileCount.textContent = String(files.length);
-    startButton.disabled = files.length === 0 || parsed;
-    resultsButton.disabled = !parsed;
-    if (clearQueueButton) clearQueueButton.disabled = files.length === 0;
+    syncActionButtons();
     if (!files.length) {
       filesList.innerHTML = `<div class="upload-empty-state"><img class="upload-empty-icon" src="../assets/upload/icons/files.svg?v=246" alt="" aria-hidden="true" /><strong>Файли не додано</strong><span>Перетягніть файли у центр або натисніть для вибору</span></div>`;
       return;
@@ -72,7 +86,7 @@
     filesList.innerHTML = files.map((item) => {
       const ext = extOf(item.name).toUpperCase();
       return `<article class="upload-file-card" data-upload-file-index="${item.id}">
-        <button class="upload-file-card__remove" type="button" data-upload-remove-file="${item.id}" aria-label="Видалити файл ${escapeHtml(item.name)}">×</button>
+        <button class="upload-file-card__remove" type="button" data-upload-remove-file="${item.id}" aria-label="Видалити файл ${escapeHtml(item.name)}" title="Видалити файл">×</button>
         <div class="upload-file-card__icon">${ext}</div>
         <div>
           <div class="upload-file-card__name">${escapeHtml(item.name)}</div>
@@ -117,8 +131,7 @@
   function startParsing() {
     if (!files.length || timer) return;
     parsed = false;
-    startButton.disabled = true;
-    resultsButton.disabled = true;
+    syncActionButtons();
     let start = performance.now();
     files.forEach(f => f.status = 'парсинг');
     renderFiles();

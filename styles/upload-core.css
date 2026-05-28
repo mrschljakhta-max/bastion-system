@@ -1,5 +1,5 @@
 
-/* BASTION Upload Core v247 */
+/* BASTION Upload Core v248 */
 body.bastion-core-page:has(.upload-core-page) { overflow: hidden; }
 .upload-core-page {
   --upload-red: #ff3138;
@@ -768,5 +768,124 @@ body.theme-light .upload-action-button--danger,
 body[data-theme="light"] .upload-action-button--danger {
   background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(235,238,244,.82));
   color: #b60012;
+  border-color: rgba(190,0,20,.48);
+}
+
+
+/* v248 — single action button flow + icon buttons + light counter contrast */
+.upload-action-button.is-hidden { display: none !important; }
+
+.upload-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.upload-action-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  filter: brightness(0) saturate(100%) invert(41%) sepia(94%) saturate(1733%) hue-rotate(330deg) brightness(110%) contrast(103%)
+          drop-shadow(0 0 9px rgba(255,49,56,.42));
+}
+
+.upload-action-button--primary:not(:disabled) {
+  color: #fff;
+  background:
+    linear-gradient(180deg, rgba(255,52,58,.92), rgba(130,0,15,.92)),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.20), transparent 62%);
+  border-color: rgba(255,92,96,.92);
+  box-shadow: 0 0 20px rgba(255,49,56,.35), inset 0 0 18px rgba(255,255,255,.12);
+}
+
+.upload-action-button--primary:not(:disabled) .upload-action-icon {
+  filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.40));
+}
+
+.upload-action-button--ghost:not(:disabled) {
+  color: #fff;
+  border-color: rgba(255,80,86,.86);
+  background:
+    linear-gradient(180deg, rgba(36,8,12,.86), rgba(12,10,13,.92)),
+    radial-gradient(circle at 50% 0%, rgba(255,60,64,.18), transparent 58%);
+  box-shadow: 0 0 18px rgba(255,49,56,.26), inset 0 0 18px rgba(255,49,56,.08);
+}
+
+.upload-action-button--danger:not(:disabled) .upload-action-icon {
+  filter: brightness(0) saturate(100%) invert(45%) sepia(96%) saturate(1457%) hue-rotate(327deg) brightness(109%) contrast(102%)
+          drop-shadow(0 0 9px rgba(255,49,56,.35));
+}
+
+/* Right panel: one main action at a time; keep actions higher and stable */
+.upload-side-panel--right .upload-panel-actions {
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.upload-side-panel--right:not(.has-queue) .upload-files-list {
+  flex-basis: clamp(210px, 31vh, 300px);
+  max-height: clamp(210px, 31vh, 300px);
+}
+
+.upload-side-panel--right.has-queue .upload-files-list {
+  flex-basis: clamp(210px, 34vh, 360px);
+  max-height: clamp(210px, 34vh, 360px);
+}
+
+.upload-panel-head em {
+  background: rgba(255,49,56,.10);
+  text-shadow: 0 0 8px rgba(255,49,56,.35);
+}
+
+/* Light theme fixes */
+body.bastion-light .upload-panel-head em,
+body.theme-light .upload-panel-head em,
+body[data-theme="light"] .upload-panel-head em {
+  color: #b60012;
+  background: rgba(255,255,255,.72);
+  border-color: rgba(190,0,20,.42);
+  box-shadow: inset 0 0 8px rgba(255,40,48,.10), 0 0 8px rgba(255,40,48,.16);
+  text-shadow: none;
+}
+
+body.bastion-light .upload-action-icon,
+body.theme-light .upload-action-icon,
+body[data-theme="light"] .upload-action-icon {
+  filter: brightness(0) saturate(100%) invert(18%) sepia(97%) saturate(4021%) hue-rotate(345deg) brightness(95%) contrast(101%)
+          drop-shadow(0 0 6px rgba(255,49,56,.22));
+}
+
+body.bastion-light .upload-action-button--primary:not(:disabled),
+body.theme-light .upload-action-button--primary:not(:disabled),
+body[data-theme="light"] .upload-action-button--primary:not(:disabled) {
+  color: #fff;
+  background:
+    linear-gradient(180deg, rgba(224,20,30,.96), rgba(158,0,18,.96)),
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.28), transparent 62%);
+  border-color: rgba(190,0,20,.55);
+  box-shadow: 0 0 18px rgba(255,49,56,.24), inset 0 0 14px rgba(255,255,255,.18);
+}
+
+body.bastion-light .upload-action-button--primary:not(:disabled) .upload-action-icon,
+body.theme-light .upload-action-button--primary:not(:disabled) .upload-action-icon,
+body[data-theme="light"] .upload-action-button--primary:not(:disabled) .upload-action-icon {
+  filter: brightness(0) invert(1) drop-shadow(0 0 7px rgba(255,255,255,.35));
+}
+
+body.bastion-light .upload-action-button--ghost:not(:disabled),
+body.theme-light .upload-action-button--ghost:not(:disabled),
+body[data-theme="light"] .upload-action-button--ghost:not(:disabled) {
+  color: #12151c;
+  background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(236,239,245,.88));
+  border-color: rgba(190,0,20,.48);
+}
+
+body.bastion-light .upload-action-button--danger:not(:disabled),
+body.theme-light .upload-action-button--danger:not(:disabled),
+body[data-theme="light"] .upload-action-button--danger:not(:disabled) {
+  color: #b60012;
+  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(238,240,245,.86));
   border-color: rgba(190,0,20,.48);
 }

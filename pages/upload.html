@@ -6,7 +6,7 @@
   <title>BASTION — Завантаження</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/upload-core.css?v=247" />
+  <link rel="stylesheet" href="../styles/upload-core.css?v=248" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -176,9 +176,18 @@
           </div>
         </div>
         <div class="upload-panel-actions">
-          <button id="uploadStartButton" class="upload-action-button" type="button" disabled>Старт парсингу</button>
-          <button id="uploadResultsButton" class="upload-action-button upload-action-button--ghost" type="button" disabled>Перегляд результату</button>
-          <button id="uploadClearQueueButton" class="upload-action-button upload-action-button--danger" type="button" disabled>Очистити чергу</button>
+          <button id="uploadStartButton" class="upload-action-button upload-action-button--primary" type="button" disabled>
+            <img class="upload-action-icon" src="../assets/upload/icons/player-play.svg?v=248" alt="" aria-hidden="true" />
+            <span>Старт парсингу</span>
+          </button>
+          <button id="uploadResultsButton" class="upload-action-button upload-action-button--ghost is-hidden" type="button" disabled>
+            <img class="upload-action-icon" src="../assets/upload/icons/zoom-reset.svg?v=248" alt="" aria-hidden="true" />
+            <span>Перегляд результату</span>
+          </button>
+          <button id="uploadClearQueueButton" class="upload-action-button upload-action-button--danger" type="button" disabled>
+            <img class="upload-action-icon" src="../assets/upload/icons/trash.svg?v=248" alt="" aria-hidden="true" />
+            <span>Очистити чергу</span>
+          </button>
         </div>
       </div>
     </section>
