@@ -715,7 +715,7 @@
   });
   resetButton.addEventListener('click', resetAll);
   document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closeResults(); }));
-  resultsBody.addEventListener('click', (event) => {
+  resultsBody.addEventListener('click', async (event) => {
     const modeBtn = event.target.closest('[data-review-mode]');
     if (modeBtn) renderResultsBody(modeBtn.dataset.reviewMode);
     const ignoreBtn = event.target.closest('[data-upload-ignore-unknown]');
