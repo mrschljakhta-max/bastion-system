@@ -497,6 +497,23 @@
   ['dragenter', 'dragover'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.add('is-dragging'); setDropText('drag'); }));
   ['dragleave', 'drop'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.remove('is-dragging'); setDropText('idle'); }));
   dropZone.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+
+
+  function guardResultsModalClick(event) {
+    if (!document.body.classList.contains('upload-results-active')) return;
+    const inResultsModal = resultsModal && resultsModal.contains(event.target);
+    if (inResultsModal) return;
+    const blockedProfileTarget = event.target.closest?.('#userMenuButton, .b116-panel--right, .b116-top-panels, [data-open-profile], [data-profile-open], .profile-entry, .profile-trigger');
+    if (blockedProfileTarget) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+    }
+  }
+
+  document.addEventListener('pointerdown', guardResultsModalClick, true);
+  document.addEventListener('click', guardResultsModalClick, true);
+
   startButton.addEventListener('click', startParsing);
   clearQueueButton?.addEventListener('click', clearQueue);
   filesList.addEventListener('click', (event) => {
@@ -508,7 +525,7 @@
   });
   resultsButton.addEventListener('click', openResults);
   resetButton.addEventListener('click', resetAll);
-  document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', closeResults));
+  document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closeResults(); }));
   resultsBody.addEventListener('click', (event) => {
     const modeBtn = event.target.closest('[data-review-mode]');
     if (modeBtn) renderResultsBody(modeBtn.dataset.reviewMode);

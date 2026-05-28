@@ -1899,3 +1899,54 @@ body.theme-light .upload-results-close,
 body[data-theme="light"] .upload-results-close {
   color:#9f0012;
 }
+
+
+/* v256 — isolate result modal from top profile trigger */
+body.upload-results-active #userMenuButton,
+body.upload-results-active .b116-panel--right,
+body.upload-results-active .b116-top-panels,
+body.upload-results-active [data-open-profile],
+body.upload-results-active [data-profile-open],
+body.upload-results-active .profile-entry,
+body.upload-results-active .profile-trigger {
+  pointer-events: none !important;
+}
+
+body.upload-results-active .profile-modal:not(.is-open):not([aria-hidden="false"]) {
+  pointer-events: none !important;
+}
+
+.upload-results-modal {
+  z-index: 2147483000 !important;
+  isolation: isolate;
+}
+
+.upload-results-modal.is-open {
+  display: block !important;
+  pointer-events: auto !important;
+}
+
+.upload-results-backdrop {
+  z-index: 1 !important;
+  pointer-events: auto !important;
+}
+
+.upload-results-card {
+  z-index: 3 !important;
+  pointer-events: auto !important;
+}
+
+.upload-results-close {
+  z-index: 6 !important;
+  pointer-events: auto !important;
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  line-height: 1;
+  border-radius: 0;
+}
+
+.upload-results-close img {
+  pointer-events: none;
+}
