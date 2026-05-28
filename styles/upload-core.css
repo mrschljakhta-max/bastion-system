@@ -2037,3 +2037,24 @@ html[data-theme="light"] .upload-resolve-editor button {
 @media (max-width: 1180px) {
   .upload-resolve-editor { grid-template-columns: 1fr 1fr; }
 }
+
+
+/* v259 — resolve editor full width */
+.upload-unknown-row.is-resolving{
+  display:flex;
+  flex-direction:column;
+}
+.upload-resolve-editor{
+  width:100%;
+  grid-template-columns: minmax(220px,1.2fr) minmax(220px,1.2fr) minmax(140px,.8fr) auto;
+  box-sizing:border-box;
+}
+.upload-unknown-row.is-resolving .upload-resolve-editor{
+  margin-top:12px;
+  width:100%;
+}
+@media (max-width:1280px){
+  .upload-resolve-editor{
+    grid-template-columns:1fr 1fr;
+  }
+}
