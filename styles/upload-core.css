@@ -1,5 +1,5 @@
 
-/* BASTION Upload Core v246 */
+/* BASTION Upload Core v247 */
 body.bastion-core-page:has(.upload-core-page) { overflow: hidden; }
 .upload-core-page {
   --upload-red: #ff3138;
@@ -631,3 +631,142 @@ body[data-theme="light"] .upload-empty-state strong { color: #17171b; }
 body.bastion-light .upload-empty-state span,
 body.theme-light .upload-empty-state span,
 body[data-theme="light"] .upload-empty-state span { color: rgba(20,21,26,.68); }
+
+
+/* v247 — HUD scrollbars + upload queue controls */
+.upload-panel-shell {
+  display: flex;
+  flex-direction: column;
+}
+.upload-status-grid {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+.upload-side-panel--right .upload-panel-shell {
+  gap: 0;
+}
+.upload-side-panel--right .upload-files-list {
+  height: auto;
+  flex: 0 1 clamp(220px, 35vh, 370px);
+  min-height: 0;
+  max-height: clamp(220px, 35vh, 370px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+.upload-side-panel--right .upload-empty-state {
+  min-height: clamp(210px, 30vh, 285px);
+}
+.upload-side-panel--right .upload-panel-actions {
+  margin-top: 12px;
+  flex: 0 0 auto;
+}
+.upload-status-grid::-webkit-scrollbar,
+.upload-files-list::-webkit-scrollbar,
+.upload-results-card::-webkit-scrollbar {
+  width: 9px;
+}
+.upload-status-grid::-webkit-scrollbar-track,
+.upload-files-list::-webkit-scrollbar-track,
+.upload-results-card::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, rgba(255,49,56,.08), rgba(255,49,56,.02));
+  border-left: 1px solid rgba(255,49,56,.18);
+  border-radius: 999px;
+}
+.upload-status-grid::-webkit-scrollbar-thumb,
+.upload-files-list::-webkit-scrollbar-thumb,
+.upload-results-card::-webkit-scrollbar-thumb {
+  background:
+    linear-gradient(180deg, rgba(255,116,116,.95), rgba(185,0,12,.96)),
+    repeating-linear-gradient(180deg, transparent 0 8px, rgba(255,255,255,.22) 8px 10px);
+  border: 2px solid rgba(8,8,12,.78);
+  border-radius: 999px;
+  box-shadow: 0 0 12px rgba(255,49,56,.55), inset 0 0 8px rgba(255,255,255,.16);
+}
+.upload-status-grid,
+.upload-files-list,
+.upload-results-card {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,64,70,.92) rgba(255,64,70,.10);
+}
+.upload-file-card {
+  position: relative;
+  padding-right: 42px;
+}
+.upload-file-card__remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(255,78,84,.62);
+  background: rgba(60,8,12,.68);
+  color: #ff686d;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font: 900 18px/1 "Orbitron", "Rajdhani", system-ui, sans-serif;
+  box-shadow: 0 0 12px rgba(255,49,56,.22), inset 0 0 12px rgba(255,49,56,.08);
+  clip-path: polygon(22% 0, 78% 0, 100% 22%, 100% 78%, 78% 100%, 22% 100%, 0 78%, 0 22%);
+  transition: transform .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.upload-file-card__remove:hover {
+  transform: scale(1.08);
+  color: #fff;
+  border-color: rgba(255,100,104,.95);
+  box-shadow: 0 0 18px rgba(255,49,56,.55), inset 0 0 14px rgba(255,49,56,.18);
+}
+.upload-action-button--danger {
+  background: rgba(34,6,9,.78);
+  color: #ff676c;
+  border-color: rgba(255,54,62,.72);
+}
+.upload-action-button--danger:not(:disabled):hover {
+  color: #fff;
+  box-shadow: 0 0 18px rgba(255,49,56,.32), inset 0 0 16px rgba(255,49,56,.10);
+}
+body.bastion-light .upload-status-grid::-webkit-scrollbar-track,
+body.bastion-light .upload-files-list::-webkit-scrollbar-track,
+body.bastion-light .upload-results-card::-webkit-scrollbar-track,
+body.theme-light .upload-status-grid::-webkit-scrollbar-track,
+body.theme-light .upload-files-list::-webkit-scrollbar-track,
+body.theme-light .upload-results-card::-webkit-scrollbar-track,
+body[data-theme="light"] .upload-status-grid::-webkit-scrollbar-track,
+body[data-theme="light"] .upload-files-list::-webkit-scrollbar-track,
+body[data-theme="light"] .upload-results-card::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.55);
+  border-left-color: rgba(205,0,18,.24);
+}
+body.bastion-light .upload-status-grid::-webkit-scrollbar-thumb,
+body.bastion-light .upload-files-list::-webkit-scrollbar-thumb,
+body.bastion-light .upload-results-card::-webkit-scrollbar-thumb,
+body.theme-light .upload-status-grid::-webkit-scrollbar-thumb,
+body.theme-light .upload-files-list::-webkit-scrollbar-thumb,
+body.theme-light .upload-results-card::-webkit-scrollbar-thumb,
+body[data-theme="light"] .upload-status-grid::-webkit-scrollbar-thumb,
+body[data-theme="light"] .upload-files-list::-webkit-scrollbar-thumb,
+body[data-theme="light"] .upload-results-card::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255,64,70,.95), rgba(170,0,12,.96));
+  border-color: rgba(255,255,255,.72);
+}
+body.bastion-light .upload-file-card__remove,
+body.theme-light .upload-file-card__remove,
+body[data-theme="light"] .upload-file-card__remove {
+  background: rgba(255,255,255,.72);
+  color: #c00016;
+  border-color: rgba(190,0,18,.42);
+  box-shadow: 0 0 12px rgba(255,49,56,.18), inset 0 0 10px rgba(255,255,255,.48);
+}
+body.bastion-light .upload-action-button--danger,
+body.theme-light .upload-action-button--danger,
+body[data-theme="light"] .upload-action-button--danger {
+  background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(235,238,244,.82));
+  color: #b60012;
+  border-color: rgba(190,0,20,.48);
+}

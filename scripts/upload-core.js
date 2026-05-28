@@ -12,6 +12,7 @@
   const progressPlate = document.querySelector('.upload-progress-plate');
   const startButton = document.getElementById('uploadStartButton');
   const resultsButton = document.getElementById('uploadResultsButton');
+  const clearQueueButton = document.getElementById('uploadClearQueueButton');
   const resultsModal = document.getElementById('uploadResultsModal');
   const resultsBody = document.getElementById('uploadResultsBody');
   const resetButton = document.getElementById('uploadResetButton');
@@ -20,6 +21,7 @@
   let files = [];
   let parsed = false;
   let timer = null;
+  let fileSeq = 0;
 
   const fmtSize = (bytes) => {
     if (!bytes) return '0 KB';
@@ -62,13 +64,15 @@
     fileCount.textContent = String(files.length);
     startButton.disabled = files.length === 0 || parsed;
     resultsButton.disabled = !parsed;
+    if (clearQueueButton) clearQueueButton.disabled = files.length === 0;
     if (!files.length) {
       filesList.innerHTML = `<div class="upload-empty-state"><img class="upload-empty-icon" src="../assets/upload/icons/files.svg?v=246" alt="" aria-hidden="true" /><strong>Файли не додано</strong><span>Перетягніть файли у центр або натисніть для вибору</span></div>`;
       return;
     }
     filesList.innerHTML = files.map((item) => {
       const ext = extOf(item.name).toUpperCase();
-      return `<article class="upload-file-card">
+      return `<article class="upload-file-card" data-upload-file-index="${item.id}">
+        <button class="upload-file-card__remove" type="button" data-upload-remove-file="${item.id}" aria-label="Видалити файл ${escapeHtml(item.name)}">×</button>
         <div class="upload-file-card__icon">${ext}</div>
         <div>
           <div class="upload-file-card__name">${escapeHtml(item.name)}</div>
@@ -82,11 +86,32 @@
   function addFiles(list) {
     const incoming = Array.from(list || []).filter(file => allowed.has(extOf(file.name)));
     if (!incoming.length) return;
-    incoming.forEach(file => files.push({ name: file.name, size: file.size, file, status: 'готовий' }));
+    incoming.forEach(file => files.push({ id: ++fileSeq, name: file.name, size: file.size, file, status: 'готовий' }));
     parsed = false;
     setPlateFormats();
     renderFiles();
     openPanel('right');
+  }
+
+  function removeFileById(id) {
+    const numericId = Number(id);
+    files = files.filter(item => item.id !== numericId);
+    if (!files.length) {
+      parsed = false;
+      setPlateFormats();
+    } else if (parsed) {
+      parsed = files.every(item => item.status === 'оброблено');
+    }
+    renderFiles();
+  }
+
+  function clearQueue() {
+    if (timer) { clearInterval(timer); timer = null; }
+    files = [];
+    parsed = false;
+    fileInput.value = '';
+    setPlateFormats();
+    renderFiles();
   }
 
   function startParsing() {
@@ -161,6 +186,14 @@
   ['dragleave', 'drop'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.remove('is-dragging'); }));
   dropZone.addEventListener('drop', e => addFiles(e.dataTransfer.files));
   startButton.addEventListener('click', startParsing);
+  clearQueueButton?.addEventListener('click', clearQueue);
+  filesList.addEventListener('click', (event) => {
+    const removeButton = event.target.closest('[data-upload-remove-file]');
+    if (!removeButton) return;
+    event.preventDefault();
+    event.stopPropagation();
+    removeFileById(removeButton.dataset.uploadRemoveFile);
+  });
   resultsButton.addEventListener('click', openResults);
   resetButton.addEventListener('click', resetAll);
   document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', closeResults));
