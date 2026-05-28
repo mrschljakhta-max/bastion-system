@@ -1,5 +1,5 @@
 
-/* BASTION Upload Core v248 */
+/* BASTION Upload Core v249 */
 body.bastion-core-page:has(.upload-core-page) { overflow: hidden; }
 .upload-core-page {
   --upload-red: #ff3138;
@@ -888,4 +888,256 @@ body[data-theme="light"] .upload-action-button--danger:not(:disabled) {
   color: #b60012;
   background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(238,240,245,.86));
   border-color: rgba(190,0,20,.48);
+}
+
+
+/* v249 — premium upload core motion pack */
+.upload-orb {
+  isolation: isolate;
+}
+
+.upload-orb::before,
+.upload-orb::after {
+  content:"";
+  position:absolute;
+  inset: 12.5%;
+  border-radius: 999px;
+  pointer-events:none;
+  z-index: 2;
+  opacity: 0;
+}
+
+.upload-orb::before {
+  border: 1px solid rgba(255,74,80,.34);
+  box-shadow: 0 0 28px rgba(255,49,56,.22), inset 0 0 24px rgba(255,49,56,.08);
+  animation: uploadCoreBreath 5.8s ease-in-out infinite;
+}
+
+.upload-orb::after {
+  inset: 8.2%;
+  background: conic-gradient(from 0deg, transparent 0 26deg, rgba(255,70,76,.82) 38deg, transparent 54deg, transparent 360deg);
+  -webkit-mask: radial-gradient(circle, transparent 56%, #000 57%, #000 61%, transparent 62%);
+  mask: radial-gradient(circle, transparent 56%, #000 57%, #000 61%, transparent 62%);
+  filter: drop-shadow(0 0 12px rgba(255,49,56,.55));
+}
+
+.upload-orb__ring {
+  animation: uploadRingIdle 18s ease-in-out infinite;
+  transform-origin: 50% 50%;
+  will-change: transform, filter;
+}
+
+.upload-orb:hover .upload-orb__ring {
+  animation-duration: 10s;
+  filter: brightness(1.08) saturate(1.08) drop-shadow(0 0 10px rgba(255,49,56,.34));
+}
+
+.upload-orb:hover::after {
+  opacity: .58;
+  animation: uploadSweep 2.2s cubic-bezier(.2,.72,.18,1) infinite;
+}
+
+.upload-orb__glass {
+  animation: uploadGlassPulse 7.2s ease-in-out infinite;
+}
+
+.upload-orb__fingerprint {
+  animation: uploadFingerprintIdle 6.4s ease-in-out infinite;
+}
+
+.upload-orb__fingerprint::after { display:none; }
+
+.upload-orb__copy strong,
+.upload-orb__copy span,
+.upload-plate-formats span {
+  animation: uploadTextFlicker 7.8s steps(1,end) infinite;
+}
+
+.upload-orb.is-dragging .upload-orb__ring {
+  animation: uploadRingDrag 4.6s linear infinite;
+  transform: scale(1.025);
+  filter: brightness(1.24) saturate(1.24) drop-shadow(0 0 18px rgba(255,49,56,.58));
+}
+
+.upload-orb.is-dragging::before {
+  opacity: .92;
+  animation: uploadDropZonePulse 1.25s ease-in-out infinite;
+}
+
+.upload-orb.is-dragging::after {
+  opacity: .88;
+  animation: uploadSweep .95s linear infinite;
+}
+
+.upload-orb.is-file-added .upload-orb__ring {
+  animation: uploadRingLockIn .68s cubic-bezier(.2,1.1,.25,1), uploadRingIdle 18s ease-in-out .68s infinite;
+}
+
+.upload-core-page.is-parsing .upload-orb__ring {
+  animation: uploadRingParsing 6.5s linear infinite;
+  filter: brightness(1.18) saturate(1.22) drop-shadow(0 0 20px rgba(255,49,56,.50));
+}
+
+.upload-core-page.is-parsing .upload-orb::after {
+  opacity: .92;
+  animation: uploadSweep .82s linear infinite reverse;
+}
+
+.upload-core-page.is-parsing .upload-orb__glass {
+  animation: uploadReactorGrid 1.35s linear infinite;
+}
+
+.upload-core-page.is-parsing .upload-progress-plate {
+  animation: uploadPlateWorking 1.35s ease-in-out infinite;
+}
+
+.upload-core-page.is-complete .upload-orb__ring {
+  animation: uploadRingComplete 1.4s cubic-bezier(.12,.92,.21,1) both;
+}
+
+.upload-core-page.is-complete .upload-orb::before {
+  opacity: 1;
+  animation: uploadCompletePulse 1.05s ease-out 1;
+}
+
+.upload-core-page.is-complete .upload-orb__fingerprint {
+  animation: uploadFingerprintComplete 1.2s ease-out 1;
+}
+
+.upload-action-button:not(:disabled) {
+  transition: transform .2s ease, box-shadow .25s ease, filter .25s ease, opacity .25s ease;
+}
+.upload-action-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.upload-action-button.is-hidden {
+  opacity: 0;
+  transform: translateY(8px) scale(.98);
+}
+
+.upload-file-card {
+  animation: uploadQueueCardIn .36s cubic-bezier(.18,.86,.22,1) both;
+}
+
+.upload-file-card__status {
+  transition: color .25s ease, text-shadow .25s ease;
+}
+.upload-core-page.is-parsing .upload-file-card__status {
+  color: #ff7272;
+  text-shadow: 0 0 10px rgba(255,49,56,.46);
+}
+
+.upload-stage-word {
+  position: fixed;
+  left: var(--x, 50%);
+  top: var(--y, 50%);
+  z-index: 13;
+  pointer-events:none;
+  color: rgba(255,105,105,.94);
+  font: 900 clamp(10px,.76vw,13px)/1 "Orbitron", "Rajdhani", system-ui, sans-serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(255,49,56,.58), 0 0 24px rgba(255,49,56,.25);
+  transform: translate(-50%,-50%);
+  animation: uploadWordToCore 1.65s cubic-bezier(.14,.76,.22,1) forwards;
+}
+
+body.bastion-light .upload-stage-word,
+body.theme-light .upload-stage-word,
+body[data-theme="light"] .upload-stage-word {
+  color: rgba(182,0,18,.94);
+  text-shadow: 0 0 10px rgba(255,49,56,.24);
+}
+
+@keyframes uploadRingIdle {
+  0%,100% { transform: rotate(-1.6deg) scale(1); }
+  38% { transform: rotate(1.8deg) scale(1.002); }
+  70% { transform: rotate(-.45deg) scale(.999); }
+}
+@keyframes uploadRingDrag {
+  from { transform: rotate(0deg) scale(1.025); }
+  to { transform: rotate(360deg) scale(1.025); }
+}
+@keyframes uploadRingParsing {
+  from { transform: rotate(0deg) scale(1.004); }
+  to { transform: rotate(360deg) scale(1.004); }
+}
+@keyframes uploadRingLockIn {
+  0% { transform: rotate(0) scale(1); }
+  36% { transform: rotate(-2.2deg) scale(.992); }
+  74% { transform: rotate(1.4deg) scale(1.012); }
+  100% { transform: rotate(0) scale(1); }
+}
+@keyframes uploadRingComplete {
+  0% { transform: rotate(0deg) scale(1.004); filter: brightness(1.22) saturate(1.22); }
+  62% { transform: rotate(18deg) scale(1.012); filter: brightness(1.35) saturate(1.35); }
+  100% { transform: rotate(21deg) scale(1); filter: brightness(1.08) saturate(1.08); }
+}
+@keyframes uploadSweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes uploadCoreBreath {
+  0%,100% { opacity:.18; transform:scale(.985); }
+  50% { opacity:.54; transform:scale(1.012); }
+}
+@keyframes uploadDropZonePulse {
+  0%,100% { opacity:.55; transform:scale(.985); }
+  50% { opacity:1; transform:scale(1.03); }
+}
+@keyframes uploadGlassPulse {
+  0%,100% { opacity:.84; filter:brightness(1); }
+  48% { opacity:1; filter:brightness(1.16); }
+}
+@keyframes uploadReactorGrid {
+  0% { filter:brightness(1) saturate(1); transform: rotate(0deg); }
+  50% { filter:brightness(1.28) saturate(1.32); }
+  100% { filter:brightness(1) saturate(1); transform: rotate(-360deg); }
+}
+@keyframes uploadFingerprintIdle {
+  0%,100% { opacity:.92; filter: drop-shadow(0 0 16px rgba(255,35,35,.68)); }
+  50% { opacity:1; filter: drop-shadow(0 0 24px rgba(255,35,35,.92)); }
+}
+@keyframes uploadFingerprintComplete {
+  0% { transform: translateX(-50%) scale(1); filter: drop-shadow(0 0 18px rgba(255,35,35,.75)); }
+  40% { transform: translateX(-50%) scale(1.045); filter: drop-shadow(0 0 35px rgba(255,80,80,1)); }
+  100% { transform: translateX(-50%) scale(1); filter: drop-shadow(0 0 18px rgba(255,35,35,.75)); }
+}
+@keyframes uploadCompletePulse {
+  0% { transform:scale(.84); opacity:.95; }
+  100% { transform:scale(1.34); opacity:0; }
+}
+@keyframes uploadPlateWorking {
+  0%,100% { box-shadow: 0 0 24px rgba(255,30,30,.42), inset 0 0 28px rgba(255,45,45,.14), inset 0 -10px 22px rgba(255,22,22,.10); }
+  50% { box-shadow: 0 0 34px rgba(255,30,30,.64), inset 0 0 34px rgba(255,45,45,.22), inset 0 -10px 26px rgba(255,22,22,.16); }
+}
+@keyframes uploadTextFlicker {
+  0%, 92%, 100% { opacity:1; }
+  93% { opacity:.76; }
+  94% { opacity:1; }
+  97% { opacity:.86; }
+  98% { opacity:1; }
+}
+@keyframes uploadQueueCardIn {
+  0% { opacity:0; transform: translateX(16px) scale(.985); filter:blur(2px); }
+  100% { opacity:1; transform: translateX(0) scale(1); filter:blur(0); }
+}
+@keyframes uploadWordToCore {
+  0% { opacity:0; transform: translate(-50%,-50%) scale(.86); }
+  18% { opacity:1; }
+  100% { opacity:0; left:50%; top:50%; transform: translate(-50%,-50%) scale(.42); letter-spacing:.04em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-orb__ring,
+  .upload-orb__glass,
+  .upload-orb__fingerprint,
+  .upload-orb::before,
+  .upload-orb::after,
+  .upload-progress-plate,
+  .upload-stage-word,
+  .upload-file-card {
+    animation: none !important;
+  }
 }

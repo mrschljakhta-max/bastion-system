@@ -10,6 +10,8 @@
   const plateText = document.getElementById('uploadPlateText');
   const platePercent = document.getElementById('uploadPlatePercent');
   const progressPlate = document.querySelector('.upload-progress-plate');
+  const dropTitle = dropZone?.querySelector('.upload-orb__copy strong');
+  const dropHint = dropZone?.querySelector('.upload-orb__copy span');
   const startButton = document.getElementById('uploadStartButton');
   const resultsButton = document.getElementById('uploadResultsButton');
   const clearQueueButton = document.getElementById('uploadClearQueueButton');
@@ -61,6 +63,17 @@
     platePercent.textContent = '0%';
   }
 
+  function setDropText(mode) {
+    if (!dropTitle || !dropHint) return;
+    if (mode === 'drag') {
+      dropTitle.textContent = 'Відпустіть файл';
+      dropHint.textContent = 'система прийме дані в чергу';
+    } else {
+      dropTitle.textContent = 'Перетягніть файл';
+      dropHint.textContent = 'або натисніть для вибору файлів';
+    }
+  }
+
   function syncActionButtons() {
     const hasFiles = files.length > 0;
     if (startButton) {
@@ -102,8 +115,10 @@
     if (!incoming.length) return;
     incoming.forEach(file => files.push({ id: ++fileSeq, name: file.name, size: file.size, file, status: 'готовий' }));
     parsed = false;
+    page.classList.remove('is-parsing', 'is-complete');
     setPlateFormats();
     renderFiles();
+    pulseFileAdded();
     openPanel('right');
   }
 
@@ -123,16 +138,42 @@
     if (timer) { clearInterval(timer); timer = null; }
     files = [];
     parsed = false;
+    page.classList.remove('is-parsing', 'is-complete');
+    dropZone.classList.remove('is-file-added');
     fileInput.value = '';
     setPlateFormats();
     renderFiles();
   }
 
+  function pulseFileAdded() {
+    dropZone.classList.remove('is-file-added');
+    void dropZone.offsetWidth;
+    dropZone.classList.add('is-file-added');
+    window.setTimeout(() => dropZone.classList.remove('is-file-added'), 900);
+  }
+
+  function spawnStageWord(text) {
+    if (!text || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const el = document.createElement('span');
+    el.className = 'upload-stage-word';
+    el.textContent = text;
+    const fromLeft = Math.random() > .5;
+    const x = fromLeft ? (30 + Math.random() * 12) : (70 - Math.random() * 12);
+    const y = 42 + Math.random() * 18;
+    el.style.setProperty('--x', `${x}%`);
+    el.style.setProperty('--y', `${y}%`);
+    document.body.appendChild(el);
+    window.setTimeout(() => el.remove(), 1800);
+  }
+
   function startParsing() {
     if (!files.length || timer) return;
     parsed = false;
+    page.classList.remove('is-complete');
+    page.classList.add('is-parsing');
     syncActionButtons();
     let start = performance.now();
+    let lastWordPct = -20;
     files.forEach(f => f.status = 'парсинг');
     renderFiles();
     const stages = [
@@ -147,9 +188,17 @@
       const pct = Math.min(100, Math.round((elapsed / MIN_PARSE_TIME) * 100));
       const stage = stages.reduce((acc, cur) => pct >= cur[0] ? cur[1] : acc, 'Сканування');
       setPlate(stage, pct);
+      if (pct - lastWordPct >= 18 && pct < 98) {
+        lastWordPct = pct;
+        const words = ['СКАНУВАННЯ', 'ПЕРЕВІРКА', 'ПАРСИНГ', 'ЗІСТАВЛЕННЯ', 'КІЛЬКІСТЬ'];
+        spawnStageWord(words[Math.floor(Math.random() * words.length)]);
+      }
       if (pct >= 100) {
         clearInterval(timer);
         timer = null;
+        page.classList.remove('is-parsing');
+        page.classList.add('is-complete');
+        window.setTimeout(() => page.classList.remove('is-complete'), 1800);
         files.forEach(f => f.status = 'оброблено');
         parsed = true;
         setPlate('Готовий', 100);
@@ -183,6 +232,8 @@
     if (timer) { clearInterval(timer); timer = null; }
     files = [];
     parsed = false;
+    page.classList.remove('is-parsing', 'is-complete');
+    dropZone.classList.remove('is-file-added');
     fileInput.value = '';
     setPlateFormats();
     closeResults();
@@ -195,8 +246,8 @@
 
   dropZone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', e => addFiles(e.target.files));
-  ['dragenter', 'dragover'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.add('is-dragging'); }));
-  ['dragleave', 'drop'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.remove('is-dragging'); }));
+  ['dragenter', 'dragover'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.add('is-dragging'); setDropText('drag'); }));
+  ['dragleave', 'drop'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); dropZone.classList.remove('is-dragging'); setDropText('idle'); }));
   dropZone.addEventListener('drop', e => addFiles(e.dataTransfer.files));
   startButton.addEventListener('click', startParsing);
   clearQueueButton?.addEventListener('click', clearQueue);
