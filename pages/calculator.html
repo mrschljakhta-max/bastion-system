@@ -6,7 +6,7 @@
   <title>BASTION — Калькулятор</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/calculator-core.css?v=263" />
+  <link rel="stylesheet" href="../styles/calculator-core.css?v=267" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -106,11 +106,14 @@
           </select>
         </label>
 
-        <div class="calc-meta">
-          <div><span>Рядків зв’язку</span><strong id="calcRows">148</strong></div>
-          <div><span>Категорій</span><strong id="calcCats">4</strong></div>
-          <div><span>Компонентів</span><strong id="calcComponents">23</strong></div>
-          <div><span>Унікальних рецептів</span><strong id="calcRecipes">612</strong></div>
+        <div class="calc-used">
+          <h3>Використовується</h3>
+          <div class="calc-used__grid" id="calcUsedComponents">
+            <span><i aria-hidden="true">◆</i> Снаряди</span>
+            <span><i aria-hidden="true">◆</i> Заряди</span>
+            <span><i aria-hidden="true">◆</i> Підривники</span>
+            <span><i aria-hidden="true">◆</i> Праймера</span>
+          </div>
         </div>
 
         <button class="calc-card__footer" type="button">
@@ -120,9 +123,46 @@
         </button>
       </article>
 
-      <article class="calc-card calc-card--limits" data-step="02">
+      <article class="calc-card calc-card--units" data-step="02">
         <header class="calc-card__head">
           <div class="calc-card__num">02</div>
+          <div class="calc-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img"><path d="M32 7 47 22 32 57 17 22 32 7Zm0 0v50M17 22h30M13 51l-7 6m45-6 7 6M15 42h34"/></svg>
+          </div>
+        </header>
+
+        <h2>Підрозділи</h2>
+        <p class="calc-card__hint">Обрано автоматично: усі підрозділи з імпорту</p>
+
+        <div class="calc-unit-summary">
+          <span class="calc-unit-summary__icon" aria-hidden="true">≡</span>
+          <div>
+            <span>Підрозділів</span>
+            <strong id="calcUnitCount">4</strong>
+          </div>
+        </div>
+
+        <div class="calc-toggle-row">
+          <label class="calc-switch">
+            <input id="calcExchange" type="checkbox" checked />
+            <span></span>
+          </label>
+          <div>
+            <strong>Дозволити обмін</strong>
+            <p>Глобальний дозвіл на переміщення ресурсів між обраними підрозділами</p>
+          </div>
+        </div>
+
+        <button class="calc-card__footer" type="button">
+          <span class="calc-mini-icon" aria-hidden="true">▦</span>
+          Матриця обміну
+          <span aria-hidden="true">›</span>
+        </button>
+      </article>
+
+      <article class="calc-card calc-card--limits" data-step="03">
+        <header class="calc-card__head">
+          <div class="calc-card__num">03</div>
           <div class="calc-card__icon" aria-hidden="true">
             <svg viewBox="0 0 64 64" role="img"><path d="M18 14h-6v44h40V14h-6M24 14a8 8 0 0 1 16 0H24Zm-2 18 5 5 12-13m-17 21 5 5 12-13"/></svg>
           </div>
@@ -155,43 +195,6 @@
         <button class="calc-card__footer" type="button">
           <span class="calc-mini-icon" aria-hidden="true">⚙</span>
           По підрозділах
-          <span aria-hidden="true">›</span>
-        </button>
-      </article>
-
-      <article class="calc-card calc-card--units" data-step="03">
-        <header class="calc-card__head">
-          <div class="calc-card__num">03</div>
-          <div class="calc-card__icon" aria-hidden="true">
-            <svg viewBox="0 0 64 64" role="img"><path d="M32 7 47 22 32 57 17 22 32 7Zm0 0v50M17 22h30M13 51l-7 6m45-6 7 6M15 42h34"/></svg>
-          </div>
-        </header>
-
-        <h2>Підрозділи</h2>
-        <p class="calc-card__hint">Обрано автоматично: усі підрозділи з імпорту</p>
-
-        <div class="calc-unit-summary">
-          <span class="calc-unit-summary__icon" aria-hidden="true">≡</span>
-          <div>
-            <span>Підрозділів</span>
-            <strong id="calcUnitCount">4</strong>
-          </div>
-        </div>
-
-        <div class="calc-toggle-row">
-          <label class="calc-switch">
-            <input id="calcExchange" type="checkbox" checked />
-            <span></span>
-          </label>
-          <div>
-            <strong>Дозволити обмін</strong>
-            <p>Глобальний дозвіл на переміщення ресурсів між обраними підрозділами</p>
-          </div>
-        </div>
-
-        <button class="calc-card__footer" type="button">
-          <span class="calc-mini-icon" aria-hidden="true">▦</span>
-          Матриця обміну
           <span aria-hidden="true">›</span>
         </button>
       </article>

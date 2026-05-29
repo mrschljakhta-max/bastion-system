@@ -786,3 +786,209 @@ body.light .calc-card{
     transform:translateY(-.8vh);
   }
 }
+
+/* v267: calculator card content cleanup
+   - 02 and 03 cards are swapped in HTML
+   - 01 card shows only components used by selected link
+   - compact internal layout avoids card scroll/overflow */
+@media (min-width: 761px){
+  .calc-card--units{ color:var(--calc-blue); }
+  .calc-card--limits{ color:var(--calc-teal); }
+
+  .calculator-deck{
+    width:min(1280px, 78vw);
+  }
+
+  .calc-card{
+    height:clamp(500px, 54vh, 540px);
+    max-height:min(540px, calc(100vh - 310px));
+    padding:clamp(18px, 1.35vw, 24px);
+  }
+
+  .calc-card__head{
+    margin-bottom:clamp(12px, 1.55vh, 18px);
+  }
+
+  .calc-card__num{
+    font-size:clamp(44px, 3.35vw, 62px);
+  }
+
+  .calc-card__icon{
+    width:clamp(42px, 3.3vw, 56px);
+    height:clamp(42px, 3.3vw, 56px);
+  }
+
+  .calc-card h2{
+    margin-bottom:7px;
+    font-size:clamp(17px, 1.18vw, 24px);
+  }
+
+  .calc-card__hint{
+    min-height:0;
+    margin-bottom:14px;
+    font-size:clamp(11px, .7vw, 13px);
+  }
+
+  .calc-select select{
+    min-height:46px;
+    font-size:clamp(12px, .78vw, 15px);
+  }
+
+  .calc-card__footer{
+    min-height:44px;
+    font-size:clamp(10px, .68vw, 13px);
+  }
+
+  .calc-used{
+    margin-top:14px;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+
+  .calc-used h3{
+    margin:0 0 12px;
+    color:currentColor;
+    font:900 clamp(12px, .78vw, 15px)/1 "Arial", sans-serif;
+    letter-spacing:.055em;
+    text-transform:uppercase;
+    text-shadow:0 0 14px color-mix(in srgb, currentColor 38%, transparent);
+  }
+
+  .calc-used__grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
+  .calc-used__grid span{
+    min-height:34px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 10px;
+    color:var(--calc-text);
+    background:rgba(4,8,13,.35);
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:9px;
+    font:800 clamp(11px, .76vw, 14px)/1.1 "Arial", sans-serif;
+  }
+
+  .calc-used__grid i{
+    color:currentColor;
+    font-style:normal;
+    font-size:.8em;
+    filter:drop-shadow(0 0 8px currentColor);
+  }
+
+  .calc-unit-summary{
+    grid-template-columns:58px minmax(0,1fr);
+    min-height:90px;
+    margin:18px 0 18px;
+    padding:12px 14px;
+  }
+
+  .calc-unit-summary__icon{
+    width:48px;
+    height:48px;
+    font-size:26px;
+  }
+
+  .calc-unit-summary strong{
+    font-size:clamp(25px, 1.7vw, 34px);
+  }
+
+  .calc-toggle-row{
+    grid-template-columns:62px minmax(0,1fr);
+    padding:14px 0;
+  }
+
+  .calc-toggle-row strong{
+    font-size:clamp(13px, .82vw, 17px);
+  }
+
+  .calc-toggle-row p{
+    margin-top:6px;
+    font-size:clamp(10px, .64vw, 12px);
+    line-height:1.25;
+  }
+
+  .calc-limit{
+    padding:13px 0;
+  }
+
+  .calc-limit:first-of-type{
+    margin-top:4px;
+  }
+
+  .calc-limit label{
+    margin-bottom:9px;
+    font-size:clamp(11px, .7vw, 14px);
+  }
+
+  .calc-limit p{
+    margin-top:6px;
+    font-size:clamp(10px, .64vw, 12px);
+  }
+
+  .calc-range-row{
+    grid-template-columns:34px minmax(0, 1fr) 34px 54px;
+    gap:8px;
+  }
+
+  .calc-range-row button{
+    width:34px;
+    height:34px;
+    font-size:19px;
+  }
+
+  .calc-range-row output{
+    height:36px;
+    font-size:clamp(14px, .95vw, 19px);
+  }
+
+  .calc-mode{
+    grid-template-columns:28px 40px minmax(0,1fr);
+    min-height:82px;
+    gap:9px;
+    margin-bottom:11px;
+    padding:12px;
+  }
+
+  .calc-mode__radio{
+    width:22px;
+    height:22px;
+  }
+
+  .calc-mode__icon{
+    font-size:32px;
+  }
+
+  .calc-mode strong{
+    font-size:clamp(11px, .72vw, 14px);
+    line-height:1.08;
+  }
+
+  .calc-mode em{
+    margin-top:5px;
+    font-size:clamp(9px, .58vw, 11px);
+    line-height:1.22;
+  }
+
+  .calc-run{
+    min-height:50px;
+    grid-template-columns:30px 1fr 20px;
+    padding:0 14px;
+    font-size:clamp(12px, .82vw, 17px);
+  }
+}
+
+@media (min-width: 1381px){
+  .calculator-deck-screen{
+    padding-top:clamp(178px, 21.2vh, 220px);
+    padding-bottom:clamp(132px, 16vh, 172px);
+  }
+
+  .calculator-deck{
+    transform:translateY(-.4vh);
+  }
+}
