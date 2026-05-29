@@ -747,3 +747,42 @@ body.light .calc-card{
     max-width:1320px;
   }
 }
+
+/* v266: vertical centering inside the safe area between top profile HUDs and bottom HUD panels.
+   Card size is kept from v265; only the deck position is rebalanced. */
+@media (min-width: 761px){
+  .calculator-deck-screen{
+    min-height:100svh;
+    align-items:center;
+    /* safe top/bottom zones: top avatars/profile plates + bottom HUD plates */
+    padding-top:clamp(176px, 21.5vh, 220px);
+    padding-bottom:clamp(118px, 15.2vh, 156px);
+    box-sizing:border-box;
+  }
+
+  .calculator-deck{
+    transform:translateY(-1.2vh);
+  }
+}
+
+@media (min-width: 1381px){
+  .calculator-deck-screen{
+    padding-top:clamp(178px, 21.8vh, 224px);
+    padding-bottom:clamp(120px, 15.6vh, 160px);
+  }
+
+  .calculator-deck{
+    transform:translateY(-1.4vh);
+  }
+}
+
+@media (min-width: 761px) and (max-height: 850px){
+  .calculator-deck-screen{
+    padding-top:150px;
+    padding-bottom:118px;
+  }
+
+  .calculator-deck{
+    transform:translateY(-.8vh);
+  }
+}
