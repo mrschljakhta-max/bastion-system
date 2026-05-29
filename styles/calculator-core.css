@@ -992,3 +992,41 @@ body.light .calc-card{
     transform:translateY(-.4vh);
   }
 }
+
+
+/* v268: local scrollbar for the components list on card 01.
+   The list can contain a variable number of elements from the selected link,
+   so only this inner block scrolls while the card height stays fixed. */
+@media (min-width: 761px){
+  .calc-card--link .calc-used{
+    margin-bottom:10px;
+  }
+
+  .calc-card--link .calc-used__grid{
+    max-height:clamp(104px, 14.2vh, 138px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-right:6px;
+    scrollbar-width:thin;
+    scrollbar-color:currentColor rgba(255,255,255,.06);
+  }
+
+  .calc-card--link .calc-used__grid::-webkit-scrollbar{
+    width:6px;
+  }
+
+  .calc-card--link .calc-used__grid::-webkit-scrollbar-track{
+    background:rgba(255,255,255,.055);
+    border-radius:999px;
+  }
+
+  .calc-card--link .calc-used__grid::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg, currentColor, rgba(255,255,255,.35));
+    border-radius:999px;
+    box-shadow:0 0 10px color-mix(in srgb, currentColor 45%, transparent);
+  }
+
+  .calc-card--link .calc-used__grid span{
+    min-height:30px;
+  }
+}
