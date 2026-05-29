@@ -39,14 +39,35 @@
     { id: 'u4', name: 'Резерв БК', enabled: true }
   ];
 
-  const updateRange = (input) => {
+  const clampNumber = (value, min = 0, max = 9999) => {
+    const parsed = Number.parseInt(String(value ?? '').replace(/\D+/g, ''), 10);
+    if (!Number.isFinite(parsed)) return min;
+    return Math.max(min, Math.min(max, parsed));
+  };
+
+  const getLimitValue = (id) => {
+    const input = byId(id);
+    return input ? clampNumber(input.value, Number(input.min || 0), Number(input.max || 9999)) : 0;
+  };
+
+  const updateRange = (input, source = 'range') => {
     const out = byId(`${input.id}Out`);
-    if (out) out.value = input.value;
+    if (!out) return;
+    const min = Number(input.min || 0);
+    const max = Number(input.max || 9999);
+    const next = clampNumber(source === 'number' ? out.value : input.value, min, max);
+    input.value = String(next);
+    out.value = String(next);
   };
 
   document.querySelectorAll('.calc-range-row input[type="range"]').forEach((input) => {
     updateRange(input);
-    input.addEventListener('input', () => updateRange(input));
+    input.addEventListener('input', () => updateRange(input, 'range'));
+    const out = byId(`${input.id}Out`);
+    if (out instanceof HTMLInputElement) {
+      out.addEventListener('input', () => updateRange(input, 'number'));
+      out.addEventListener('blur', () => updateRange(input, 'number'));
+    }
   });
 
   document.querySelectorAll('[data-stepper]').forEach((button) => {
@@ -56,7 +77,7 @@
       const delta = Number(button.dataset.delta || 0) * 10;
       const next = Math.max(
         Number(input.min || 0),
-        Math.min(Number(input.max || 1000), Number(input.value || 0) + delta)
+        Math.min(Number(input.max || 9999), Number(input.value || 0) + delta)
       );
       input.value = String(next);
       input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -82,6 +103,11 @@
   const clearAllButton = byId('calcLinkClearAll');
   const unitsSelectAllButton = byId('calcUnitsSelectAll');
   const unitsClearAllButton = byId('calcUnitsClearAll');
+  const unitLimitsButton = byId('calcUnitLimitsButton');
+  const unitLimitsModal = byId('calcUnitLimitsModal');
+  const unitLimitsRows = byId('calcUnitLimitsRows');
+  const unitLimitsState = new Map();
+  let unitLimitsInitialized = false;
 
   const currentPreset = () => {
     const key = linkSelect?.value || 'distance';
@@ -207,6 +233,85 @@
       unitRows.appendChild(label);
     });
   };
+ 
+  const ensureUnitLimitState = () => {
+    if (unitLimitsInitialized) return;
+    const globalMin = getLimitValue('calcMin');
+    const globalMax = getLimitValue('calcMax');
+    unitPresets.forEach((unit) => {
+      if (!unitLimitsState.has(unit.id)) {
+        unitLimitsState.set(unit.id, { min: globalMin, max: globalMax, touched: false });
+      }
+    });
+    unitLimitsInitialized = true;
+  };
+
+  const syncUnitLimitControl = (row, type, source = 'range') => {
+    const range = row.querySelector(`[data-unit-limit-range="${type}"]`);
+    const number = row.querySelector(`[data-unit-limit-number="${type}"]`);
+    if (!(range instanceof HTMLInputElement) || !(number instanceof HTMLInputElement)) return;
+    const next = clampNumber(source === 'number' ? number.value : range.value, Number(range.min || 0), Number(range.max || 9999));
+    range.value = String(next);
+    number.value = String(next);
+    const unitId = row.dataset.unitId;
+    if (!unitId) return;
+    const state = unitLimitsState.get(unitId) || { min: getLimitValue('calcMin'), max: getLimitValue('calcMax'), touched: false };
+    state[type] = next;
+    state.touched = true;
+    unitLimitsState.set(unitId, state);
+  };
+
+  const renderUnitLimitRows = () => {
+    if (!unitLimitsRows) return;
+    ensureUnitLimitState();
+    unitLimitsRows.innerHTML = '';
+    unitPresets.forEach((unit, index) => {
+      const state = unitLimitsState.get(unit.id) || { min: getLimitValue('calcMin'), max: getLimitValue('calcMax'), touched: false };
+      const row = document.createElement('article');
+      row.className = 'calc-unit-limit-row';
+      row.dataset.unitId = unit.id;
+      row.innerHTML = `
+        <div class="calc-unit-limit-row__title">
+          <strong>${String(index + 1).padStart(2, '0')} · ${unit.name}</strong>
+          <span>Індивідуальні обмеження</span>
+        </div>
+        <div class="calc-unit-limit-row__controls">
+          <div class="calc-unit-limit-control">
+            <span>Мінімум</span>
+            <button type="button" data-unit-limit-step="min" data-delta="-10">−</button>
+            <input type="range" min="0" max="9999" value="${state.min}" data-unit-limit-range="min" />
+            <button type="button" data-unit-limit-step="min" data-delta="10">+</button>
+            <input type="number" min="0" max="9999" value="${state.min}" inputmode="numeric" data-unit-limit-number="min" aria-label="Мінімум для ${unit.name}" />
+          </div>
+          <div class="calc-unit-limit-control">
+            <span>Максимум</span>
+            <button type="button" data-unit-limit-step="max" data-delta="-10">−</button>
+            <input type="range" min="0" max="9999" value="${state.max}" data-unit-limit-range="max" />
+            <button type="button" data-unit-limit-step="max" data-delta="10">+</button>
+            <input type="number" min="0" max="9999" value="${state.max}" inputmode="numeric" data-unit-limit-number="max" aria-label="Максимум для ${unit.name}" />
+          </div>
+        </div>
+      `;
+      row.querySelectorAll('[data-unit-limit-range]').forEach((range) => {
+        range.addEventListener('input', () => syncUnitLimitControl(row, range.dataset.unitLimitRange, 'range'));
+      });
+      row.querySelectorAll('[data-unit-limit-number]').forEach((number) => {
+        number.addEventListener('input', () => syncUnitLimitControl(row, number.dataset.unitLimitNumber, 'number'));
+        number.addEventListener('blur', () => syncUnitLimitControl(row, number.dataset.unitLimitNumber, 'number'));
+      });
+      row.querySelectorAll('[data-unit-limit-step]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const type = button.dataset.unitLimitStep;
+          const range = row.querySelector(`[data-unit-limit-range="${type}"]`);
+          if (!(range instanceof HTMLInputElement)) return;
+          const next = clampNumber(Number(range.value || 0) + Number(button.dataset.delta || 0), Number(range.min || 0), Number(range.max || 9999));
+          range.value = String(next);
+          syncUnitLimitControl(row, type, 'range');
+        });
+      });
+      unitLimitsRows.appendChild(row);
+    });
+  };
 
   const renderRows = () => {
     const preset = currentPreset();
@@ -269,6 +374,25 @@
     if (matrixButton instanceof HTMLElement) matrixButton.focus({ preventScroll: true });
   };
 
+
+  const openUnitLimitsModal = () => {
+    if (!unitLimitsModal) return;
+    closePopover();
+    closeUnitsPopover();
+    renderUnitLimitRows();
+    unitLimitsModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('calc-modal-open');
+    const closeButton = unitLimitsModal.querySelector('[data-close-calc-unit-limits-modal]');
+    if (closeButton instanceof HTMLElement) closeButton.focus({ preventScroll: true });
+  };
+
+  const closeUnitLimitsModal = () => {
+    if (!unitLimitsModal) return;
+    unitLimitsModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('calc-modal-open');
+    if (unitLimitsButton instanceof HTMLElement) unitLimitsButton.focus({ preventScroll: true });
+  };
+
   if (componentsBadge) {
     componentsBadge.addEventListener('click', (event) => {
       event.stopPropagation();
@@ -300,6 +424,7 @@
     closeUnitsPopover();
     closeModal();
     closeMatrixModal();
+    closeUnitLimitsModal();
   });
 
   window.addEventListener('resize', () => { placePopover(); placeUnitsPopover(); });
@@ -317,8 +442,10 @@
 
   tuningButton?.addEventListener('click', openModal);
   matrixButton?.addEventListener('click', openMatrixModal);
+  unitLimitsButton?.addEventListener('click', openUnitLimitsModal);
   document.querySelectorAll('[data-close-calc-link-modal]').forEach((item) => item.addEventListener('click', closeModal));
   document.querySelectorAll('[data-close-calc-matrix-modal]').forEach((item) => item.addEventListener('click', closeMatrixModal));
+  document.querySelectorAll('[data-close-calc-unit-limits-modal]').forEach((item) => item.addEventListener('click', closeUnitLimitsModal));
 
   selectAllButton?.addEventListener('click', () => {
     currentPreset().rows.forEach((row) => row.enabled = true);
