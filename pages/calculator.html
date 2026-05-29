@@ -6,7 +6,7 @@
   <title>BASTION — Калькулятор</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/calculator-core.css?v=269" />
+  <link rel="stylesheet" href="../styles/calculator-core.css?v=270" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -106,21 +106,19 @@
           </select>
         </label>
 
-        <div class="calc-used" id="calcUsedBlock">
-          <button class="calc-used__toggle" id="calcUsedToggle" type="button" aria-expanded="false" aria-controls="calcUsedComponents">
-            <span>Використовується</span>
-            <em>перелік елементів зв’язку</em>
-            <b aria-hidden="true">›</b>
+        <div class="calc-link-summary" id="calcLinkSummary">
+          <button class="calc-link-summary__badge" id="calcComponentsBadge" type="button" aria-expanded="false" aria-controls="calcComponentsPopover">
+            <span>Елементів</span>
+            <strong id="calcComponentsCount">4</strong>
+            <i aria-hidden="true">ⓘ</i>
           </button>
-          <div class="calc-used__grid" id="calcUsedComponents" data-collapsible-list>
-            <span><i aria-hidden="true">◆</i> Снаряди</span>
-            <span><i aria-hidden="true">◆</i> Заряди</span>
-            <span><i aria-hidden="true">◆</i> Підривники</span>
-            <span><i aria-hidden="true">◆</i> Праймера</span>
+          <div class="calc-components-popover" id="calcComponentsPopover" role="tooltip" hidden>
+            <div class="calc-components-popover__title">Склад зв’язку</div>
+            <div class="calc-components-popover__list" id="calcComponentsPopoverList"></div>
           </div>
         </div>
 
-        <button class="calc-card__footer" type="button">
+        <button id="calcLinkTuningButton" class="calc-card__footer" type="button">
           <span class="calc-mini-icon" aria-hidden="true">⚙</span>
           Тонке налаштування
           <span aria-hidden="true">›</span>
@@ -242,6 +240,22 @@
       </article>
     </section>
   </main>
+
+
+  <div id="calcLinkModal" class="calc-link-modal" aria-hidden="true">
+    <div class="calc-link-modal__backdrop" data-close-calc-link-modal></div>
+    <section class="calc-link-modal__panel" role="dialog" aria-modal="true" aria-labelledby="calcLinkModalTitle">
+      <button class="calc-link-modal__close" type="button" data-close-calc-link-modal aria-label="Закрити">×</button>
+      <div class="calc-link-modal__eyebrow">BASTION LINK SETTINGS</div>
+      <h2 id="calcLinkModalTitle">Тонке налаштування зв’язку</h2>
+      <p class="calc-link-modal__hint">Вимкніть рядки, які не потрібно враховувати в розрахунку.</p>
+      <div class="calc-link-modal__toolbar">
+        <button type="button" id="calcLinkSelectAll">Увімкнути всі</button>
+        <button type="button" id="calcLinkClearAll">Вимкнути всі</button>
+      </div>
+      <div id="calcLinkRows" class="calc-link-rows" aria-label="Рядки обраного зв’язку"></div>
+    </section>
+  </div>
 
   <footer class="bottom-contact hud-bottom-panel hud-bottom-left" aria-hidden="true">
     <div class="bottom-contact-panel" aria-hidden="true"></div>
@@ -384,6 +398,6 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
-  <script src="../scripts/calculator-core.js?v=269"></script>
+  <script src="../scripts/calculator-core.js?v=270"></script>
 </body>
 </html>
