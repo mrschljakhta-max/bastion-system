@@ -72,6 +72,29 @@
     return linkPresets[key] || linkPresets.distance;
   };
 
+  if (popover && popover.parentElement !== document.body) {
+    document.body.appendChild(popover);
+  }
+
+  const placePopover = () => {
+    if (!popover || !componentsBadge || popover.hidden) return;
+    const rect = componentsBadge.getBoundingClientRect();
+    const gap = 10;
+    const width = Math.min(320, window.innerWidth - 32);
+    let left = rect.left;
+    if (left + width > window.innerWidth - 16) left = window.innerWidth - width - 16;
+    if (left < 16) left = 16;
+
+    popover.style.width = `${width}px`;
+    popover.style.left = `${left}px`;
+
+    const below = rect.bottom + gap;
+    const estimatedHeight = Math.min(popover.offsetHeight || 120, 220);
+    const canOpenBelow = below + estimatedHeight < window.innerHeight - 16;
+    popover.classList.toggle('is-floating-above', !canOpenBelow);
+    popover.style.top = canOpenBelow ? `${below}px` : `${Math.max(16, rect.top - estimatedHeight - gap)}px`;
+  };
+
   const closePopover = () => {
     if (!popover || !componentsBadge) return;
     popover.hidden = true;
@@ -82,6 +105,7 @@
     if (!popover || !componentsBadge) return;
     popover.hidden = false;
     componentsBadge.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(placePopover);
   };
 
   const renderComponents = () => {
@@ -124,15 +148,19 @@
 
   const openModal = () => {
     if (!linkModal) return;
+    closePopover();
     renderRows();
     linkModal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('calc-modal-open');
+    const closeButton = linkModal.querySelector('[data-close-calc-link-modal]');
+    if (closeButton instanceof HTMLElement) closeButton.focus({ preventScroll: true });
   };
 
   const closeModal = () => {
     if (!linkModal) return;
     linkModal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('calc-modal-open');
+    if (tuningButton instanceof HTMLElement) tuningButton.focus({ preventScroll: true });
   };
 
   if (componentsBadge) {
@@ -154,6 +182,9 @@
     closePopover();
     closeModal();
   });
+
+  window.addEventListener('resize', placePopover);
+  window.addEventListener('scroll', placePopover, true);
 
   if (linkSelect) {
     linkSelect.addEventListener('change', () => {
