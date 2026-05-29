@@ -6,6 +6,7 @@
   <title>BASTION — Калькулятор</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
+  <link rel="stylesheet" href="../styles/calculator-core.css?v=261" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -83,17 +84,155 @@
 
 
 
-  <main class="bastion-module-screen" data-module="calculator">
-    <section class="bastion-module-card">
-      <div class="bastion-module-kicker">04 — Калькулятор</div>
-      <h1>Калькулятор</h1>
-      <p>Розрахунковий модуль для формул, комбінацій і прикладних обчислень.</p>
-      <ul>
-          <li>Комбінації</li>
-          <li>Сумісність</li>
-          <li>Оперативні формули</li>
-      </ul>
-      <a class="bastion-module-back" href="./app.html">← Повернутися до основного меню</a>
+  <main class="calculator-deck-screen" data-module="calculator" aria-label="Калькулятор BASTION">
+    <section class="calculator-deck" aria-label="Панель налаштування розрахунку">
+      <article class="calc-card calc-card--link" data-step="01">
+        <header class="calc-card__head">
+          <div class="calc-card__num">01</div>
+          <div class="calc-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img"><path d="M18 28a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm28 0a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM32 23a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM10 55c0-8 6-15 15-15h14c9 0 15 7 15 15M3 54c0-7 5-12 12-12m34 0c7 0 12 5 12 12"/></svg>
+          </div>
+        </header>
+
+        <h2>Вибір зв’язку</h2>
+        <p class="calc-card__hint">Оберіть вузол / зв’язок для розрахунку</p>
+
+        <label class="calc-select">
+          <span class="sr-only">Зв’язок для розрахунку</span>
+          <select id="calcLinkSelect">
+            <option value="distance">Дальність BASTION</option>
+            <option value="nato155">155 мм / повний набір</option>
+            <option value="reserve">Резервний зв’язок</option>
+          </select>
+        </label>
+
+        <div class="calc-meta">
+          <div><span>Рядків зв’язку</span><strong id="calcRows">148</strong></div>
+          <div><span>Категорій</span><strong id="calcCats">4</strong></div>
+          <div><span>Компонентів</span><strong id="calcComponents">23</strong></div>
+          <div><span>Унікальних рецептів</span><strong id="calcRecipes">612</strong></div>
+        </div>
+
+        <button class="calc-card__footer" type="button">
+          <span class="calc-mini-icon" aria-hidden="true">⚙</span>
+          Тонке налаштування
+          <span aria-hidden="true">›</span>
+        </button>
+      </article>
+
+      <article class="calc-card calc-card--limits" data-step="02">
+        <header class="calc-card__head">
+          <div class="calc-card__num">02</div>
+          <div class="calc-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img"><path d="M18 14h-6v44h40V14h-6M24 14a8 8 0 0 1 16 0H24Zm-2 18 5 5 12-13m-17 21 5 5 12-13"/></svg>
+          </div>
+        </header>
+
+        <h2>Обмеження</h2>
+
+        <div class="calc-limit">
+          <label for="calcMin">Мінімальний залишок</label>
+          <div class="calc-range-row">
+            <button type="button" data-stepper="calcMin" data-delta="-1">−</button>
+            <input id="calcMin" type="range" min="0" max="500" value="50" />
+            <button type="button" data-stepper="calcMin" data-delta="1">+</button>
+            <output id="calcMinOut" for="calcMin">50</output>
+          </div>
+          <p>для всіх підрозділів</p>
+        </div>
+
+        <div class="calc-limit">
+          <label for="calcMax">Максимальний відбір</label>
+          <div class="calc-range-row">
+            <button type="button" data-stepper="calcMax" data-delta="-1">−</button>
+            <input id="calcMax" type="range" min="0" max="1000" value="300" />
+            <button type="button" data-stepper="calcMax" data-delta="1">+</button>
+            <output id="calcMaxOut" for="calcMax">300</output>
+          </div>
+          <p>для всіх підрозділів</p>
+        </div>
+
+        <button class="calc-card__footer" type="button">
+          <span class="calc-mini-icon" aria-hidden="true">⚙</span>
+          По підрозділах
+          <span aria-hidden="true">›</span>
+        </button>
+      </article>
+
+      <article class="calc-card calc-card--units" data-step="03">
+        <header class="calc-card__head">
+          <div class="calc-card__num">03</div>
+          <div class="calc-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img"><path d="M32 7 47 22 32 57 17 22 32 7Zm0 0v50M17 22h30M13 51l-7 6m45-6 7 6M15 42h34"/></svg>
+          </div>
+        </header>
+
+        <h2>Підрозділи</h2>
+        <p class="calc-card__hint">Обрано автоматично: усі підрозділи з імпорту</p>
+
+        <div class="calc-unit-summary">
+          <span class="calc-unit-summary__icon" aria-hidden="true">≡</span>
+          <div>
+            <span>Підрозділів</span>
+            <strong id="calcUnitCount">4</strong>
+          </div>
+        </div>
+
+        <div class="calc-toggle-row">
+          <label class="calc-switch">
+            <input id="calcExchange" type="checkbox" checked />
+            <span></span>
+          </label>
+          <div>
+            <strong>Дозволити обмін</strong>
+            <p>Глобальний дозвіл на переміщення ресурсів між обраними підрозділами</p>
+          </div>
+        </div>
+
+        <button class="calc-card__footer" type="button">
+          <span class="calc-mini-icon" aria-hidden="true">▦</span>
+          Матриця обміну
+          <span aria-hidden="true">›</span>
+        </button>
+      </article>
+
+      <article class="calc-card calc-card--mode" data-step="04">
+        <header class="calc-card__head">
+          <div class="calc-card__num">04</div>
+          <div class="calc-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img"><rect x="13" y="7" width="38" height="50" rx="5"/><path d="M21 18h22M21 29h7m8 0h7M21 40h7m8 0h7M21 50h22"/></svg>
+          </div>
+        </header>
+
+        <h2>Режим розрахунку</h2>
+        <p class="calc-card__hint">Оберіть режим розрахунку</p>
+
+        <label class="calc-mode is-active">
+          <input type="radio" name="calcMode" value="general" checked />
+          <span class="calc-mode__radio"></span>
+          <span class="calc-mode__icon" aria-hidden="true">Σ</span>
+          <span>
+            <strong>Загальний розрахунок</strong>
+            <em>Розрахунок без урахування відстані</em>
+          </span>
+        </label>
+
+        <label class="calc-mode">
+          <input type="radio" name="calcMode" value="distance" />
+          <span class="calc-mode__radio"></span>
+          <span class="calc-mode__icon" aria-hidden="true">⌖</span>
+          <span>
+            <strong>Вибір максимальної дальності</strong>
+            <em>Розрахунок з умовою по максимальній дальності</em>
+          </span>
+        </label>
+
+        <button id="calcRunButton" class="calc-run" type="button">
+          <span aria-hidden="true">▣</span>
+          Розрахувати
+          <span aria-hidden="true">›</span>
+        </button>
+      </article>
     </section>
   </main>
 
@@ -238,5 +377,6 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
+  <script src="../scripts/calculator-core.js?v=261"></script>
 </body>
 </html>
