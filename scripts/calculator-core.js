@@ -1,11 +1,16 @@
-
 (() => {
   const byId = (id) => document.getElementById(id);
 
-  const linkStats = {
-    distance: { rows: 148, cats: 4, components: 23, recipes: 612 },
-    nato155: { rows: 96, cats: 4, components: 18, recipes: 384 },
-    reserve: { rows: 42, cats: 3, components: 11, recipes: 128 }
+  const linkPresets = {
+    distance: {
+      components: ['Снаряди', 'Заряди', 'Підривники', 'Праймера']
+    },
+    nato155: {
+      components: ['Снаряди', 'Заряди', 'Підривники', 'Праймера', 'Модулі зарядів', 'Додаткові елементи']
+    },
+    reserve: {
+      components: ['Снаряди', 'Заряди', 'Підривники']
+    }
   };
 
   const updateRange = (input) => {
@@ -23,21 +28,49 @@
       const input = byId(button.dataset.stepper);
       if (!input) return;
       const delta = Number(button.dataset.delta || 0) * 10;
-      const next = Math.max(Number(input.min || 0), Math.min(Number(input.max || 1000), Number(input.value || 0) + delta));
+      const next = Math.max(
+        Number(input.min || 0),
+        Math.min(Number(input.max || 1000), Number(input.value || 0) + delta)
+      );
       input.value = String(next);
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
   });
 
+  const usedBlock = byId('calcUsedBlock');
+  const usedToggle = byId('calcUsedToggle');
+  const usedComponents = byId('calcUsedComponents');
+
+  const renderUsedComponents = (items) => {
+    if (!usedComponents) return;
+    usedComponents.innerHTML = '';
+    items.forEach((name) => {
+      const item = document.createElement('span');
+      item.innerHTML = '<i aria-hidden="true">◆</i> ';
+      item.append(document.createTextNode(name));
+      usedComponents.appendChild(item);
+    });
+  };
+
+  if (usedToggle && usedBlock) {
+    usedToggle.addEventListener('click', () => {
+      const expanded = usedBlock.classList.toggle('is-expanded');
+      usedToggle.setAttribute('aria-expanded', String(expanded));
+    });
+  }
+
   const linkSelect = byId('calcLinkSelect');
   if (linkSelect) {
-    linkSelect.addEventListener('change', () => {
-      const stats = linkStats[linkSelect.value] || linkStats.distance;
-      byId('calcRows').textContent = stats.rows;
-      byId('calcCats').textContent = stats.cats;
-      byId('calcComponents').textContent = stats.components;
-      byId('calcRecipes').textContent = stats.recipes;
-    });
+    const syncLink = () => {
+      const preset = linkPresets[linkSelect.value] || linkPresets.distance;
+      renderUsedComponents(preset.components);
+      if (usedBlock && usedToggle) {
+        usedBlock.classList.remove('is-expanded');
+        usedToggle.setAttribute('aria-expanded', 'false');
+      }
+    };
+    linkSelect.addEventListener('change', syncLink);
+    syncLink();
   }
 
   document.querySelectorAll('.calc-mode').forEach((label) => {

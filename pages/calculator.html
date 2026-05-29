@@ -6,7 +6,7 @@
   <title>BASTION — Калькулятор</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/calculator-core.css?v=268" />
+  <link rel="stylesheet" href="../styles/calculator-core.css?v=269" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -106,9 +106,13 @@
           </select>
         </label>
 
-        <div class="calc-used">
-          <h3>Використовується</h3>
-          <div class="calc-used__grid" id="calcUsedComponents">
+        <div class="calc-used" id="calcUsedBlock">
+          <button class="calc-used__toggle" id="calcUsedToggle" type="button" aria-expanded="false" aria-controls="calcUsedComponents">
+            <span>Використовується</span>
+            <em>перелік елементів зв’язку</em>
+            <b aria-hidden="true">›</b>
+          </button>
+          <div class="calc-used__grid" id="calcUsedComponents" data-collapsible-list>
             <span><i aria-hidden="true">◆</i> Снаряди</span>
             <span><i aria-hidden="true">◆</i> Заряди</span>
             <span><i aria-hidden="true">◆</i> Підривники</span>
@@ -380,6 +384,6 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
-  <script src="../scripts/calculator-core.js?v=263"></script>
+  <script src="../scripts/calculator-core.js?v=269"></script>
 </body>
 </html>
