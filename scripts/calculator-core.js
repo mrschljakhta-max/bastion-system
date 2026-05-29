@@ -32,6 +32,13 @@
     }
   };
 
+  const unitPresets = [
+    { id: 'u1', name: '1 САДн', enabled: true },
+    { id: 'u2', name: '2 САДн', enabled: true },
+    { id: 'u3', name: '3 САДн', enabled: true },
+    { id: 'u4', name: 'Резерв БК', enabled: true }
+  ];
+
   const updateRange = (input) => {
     const out = byId(`${input.id}Out`);
     if (out) out.value = input.value;
@@ -63,9 +70,18 @@
   const popoverList = byId('calcComponentsPopoverList');
   const linkModal = byId('calcLinkModal');
   const linkRows = byId('calcLinkRows');
+  const unitsBadge = byId('calcUnitsBadge');
+  const unitsPopover = byId('calcUnitsPopover');
+  const unitsPopoverList = byId('calcUnitsPopoverList');
+  const matrixButton = byId('calcMatrixButton');
+  const matrixModal = byId('calcMatrixModal');
+  const unitRows = byId('calcUnitRows');
+  const unitCount = byId('calcUnitCount');
   const tuningButton = byId('calcLinkTuningButton');
   const selectAllButton = byId('calcLinkSelectAll');
   const clearAllButton = byId('calcLinkClearAll');
+  const unitsSelectAllButton = byId('calcUnitsSelectAll');
+  const unitsClearAllButton = byId('calcUnitsClearAll');
 
   const currentPreset = () => {
     const key = linkSelect?.value || 'distance';
@@ -74,6 +90,9 @@
 
   if (popover && popover.parentElement !== document.body) {
     document.body.appendChild(popover);
+  }
+  if (unitsPopover && unitsPopover.parentElement !== document.body) {
+    document.body.appendChild(unitsPopover);
   }
 
   const placePopover = () => {
@@ -95,10 +114,33 @@
     popover.style.top = canOpenBelow ? `${below}px` : `${Math.max(16, rect.top - estimatedHeight - gap)}px`;
   };
 
+  const placeUnitsPopover = () => {
+    if (!unitsPopover || !unitsBadge || unitsPopover.hidden) return;
+    const rect = unitsBadge.getBoundingClientRect();
+    const gap = 10;
+    const width = Math.min(320, window.innerWidth - 32);
+    let left = rect.left;
+    if (left + width > window.innerWidth - 16) left = window.innerWidth - width - 16;
+    if (left < 16) left = 16;
+    unitsPopover.style.width = `${width}px`;
+    unitsPopover.style.left = `${left}px`;
+    const below = rect.bottom + gap;
+    const estimatedHeight = Math.min(unitsPopover.offsetHeight || 120, 220);
+    const canOpenBelow = below + estimatedHeight < window.innerHeight - 16;
+    unitsPopover.classList.toggle('is-floating-above', !canOpenBelow);
+    unitsPopover.style.top = canOpenBelow ? `${below}px` : `${Math.max(16, rect.top - estimatedHeight - gap)}px`;
+  };
+
   const closePopover = () => {
     if (!popover || !componentsBadge) return;
     popover.hidden = true;
     componentsBadge.setAttribute('aria-expanded', 'false');
+  };
+
+  const closeUnitsPopover = () => {
+    if (!unitsPopover || !unitsBadge) return;
+    unitsPopover.hidden = true;
+    unitsBadge.setAttribute('aria-expanded', 'false');
   };
 
   const openPopover = () => {
@@ -106,6 +148,13 @@
     popover.hidden = false;
     componentsBadge.setAttribute('aria-expanded', 'true');
     requestAnimationFrame(placePopover);
+  };
+
+  const openUnitsPopover = () => {
+    if (!unitsPopover || !unitsBadge) return;
+    unitsPopover.hidden = false;
+    unitsBadge.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(placeUnitsPopover);
   };
 
   const renderComponents = () => {
@@ -119,6 +168,44 @@
         popoverList.appendChild(item);
       });
     }
+  };
+
+  const renderUnits = () => {
+    if (unitCount) unitCount.textContent = String(unitPresets.length);
+    if (unitsPopoverList) {
+      unitsPopoverList.innerHTML = '';
+      unitPresets.forEach((unit) => {
+        const item = document.createElement('span');
+        item.textContent = unit.name;
+        unitsPopoverList.appendChild(item);
+      });
+    }
+  };
+
+  const renderUnitRows = () => {
+    if (!unitRows) return;
+    unitRows.innerHTML = '';
+    unitPresets.forEach((unit, index) => {
+      const label = document.createElement('label');
+      label.className = 'calc-link-row calc-unit-row';
+      label.innerHTML = `
+        <input type="checkbox" ${unit.enabled ? 'checked' : ''} data-unit-row="${unit.id}">
+        <span class="calc-link-row__check" aria-hidden="true"></span>
+        <span class="calc-link-row__body">
+          <strong>${String(index + 1).padStart(2, '0')} · ${unit.name}</strong>
+          <em>${unit.enabled ? 'Увімкнено для обміну' : 'Виключено з обміну'}</em>
+        </span>
+      `;
+      const input = label.querySelector('input');
+      input?.addEventListener('change', () => {
+        unit.enabled = Boolean(input.checked);
+        label.classList.toggle('is-disabled', !unit.enabled);
+        const hint = label.querySelector('em');
+        if (hint) hint.textContent = unit.enabled ? 'Увімкнено для обміну' : 'Виключено з обміну';
+      });
+      label.classList.toggle('is-disabled', !unit.enabled);
+      unitRows.appendChild(label);
+    });
   };
 
   const renderRows = () => {
@@ -149,6 +236,7 @@
   const openModal = () => {
     if (!linkModal) return;
     closePopover();
+    closeUnitsPopover();
     renderRows();
     linkModal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('calc-modal-open');
@@ -163,6 +251,24 @@
     if (tuningButton instanceof HTMLElement) tuningButton.focus({ preventScroll: true });
   };
 
+  const openMatrixModal = () => {
+    if (!matrixModal) return;
+    closePopover();
+    closeUnitsPopover();
+    renderUnitRows();
+    matrixModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('calc-modal-open');
+    const closeButton = matrixModal.querySelector('[data-close-calc-matrix-modal]');
+    if (closeButton instanceof HTMLElement) closeButton.focus({ preventScroll: true });
+  };
+
+  const closeMatrixModal = () => {
+    if (!matrixModal) return;
+    matrixModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('calc-modal-open');
+    if (matrixButton instanceof HTMLElement) matrixButton.focus({ preventScroll: true });
+  };
+
   if (componentsBadge) {
     componentsBadge.addEventListener('click', (event) => {
       event.stopPropagation();
@@ -171,31 +277,48 @@
     });
   }
 
+  if (unitsBadge) {
+    unitsBadge.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (unitsPopover?.hidden) openUnitsPopover();
+      else closeUnitsPopover();
+    });
+  }
+
   document.addEventListener('click', (event) => {
-    if (!popover || popover.hidden) return;
-    if (event.target instanceof Node && (popover.contains(event.target) || componentsBadge?.contains(event.target))) return;
-    closePopover();
+    if (popover && !popover.hidden) {
+      if (!(event.target instanceof Node && (popover.contains(event.target) || componentsBadge?.contains(event.target)))) closePopover();
+    }
+    if (unitsPopover && !unitsPopover.hidden) {
+      if (!(event.target instanceof Node && (unitsPopover.contains(event.target) || unitsBadge?.contains(event.target)))) closeUnitsPopover();
+    }
   });
 
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
     closePopover();
+    closeUnitsPopover();
     closeModal();
+    closeMatrixModal();
   });
 
-  window.addEventListener('resize', placePopover);
-  window.addEventListener('scroll', placePopover, true);
+  window.addEventListener('resize', () => { placePopover(); placeUnitsPopover(); });
+  window.addEventListener('scroll', () => { placePopover(); placeUnitsPopover(); }, true);
 
   if (linkSelect) {
     linkSelect.addEventListener('change', () => {
       closePopover();
+      closeUnitsPopover();
       renderComponents();
     });
     renderComponents();
   }
+  renderUnits();
 
   tuningButton?.addEventListener('click', openModal);
+  matrixButton?.addEventListener('click', openMatrixModal);
   document.querySelectorAll('[data-close-calc-link-modal]').forEach((item) => item.addEventListener('click', closeModal));
+  document.querySelectorAll('[data-close-calc-matrix-modal]').forEach((item) => item.addEventListener('click', closeMatrixModal));
 
   selectAllButton?.addEventListener('click', () => {
     currentPreset().rows.forEach((row) => row.enabled = true);
@@ -205,6 +328,16 @@
   clearAllButton?.addEventListener('click', () => {
     currentPreset().rows.forEach((row) => row.enabled = false);
     renderRows();
+  });
+
+  unitsSelectAllButton?.addEventListener('click', () => {
+    unitPresets.forEach((unit) => unit.enabled = true);
+    renderUnitRows();
+  });
+
+  unitsClearAllButton?.addEventListener('click', () => {
+    unitPresets.forEach((unit) => unit.enabled = false);
+    renderUnitRows();
   });
 
   document.querySelectorAll('.calc-mode').forEach((label) => {

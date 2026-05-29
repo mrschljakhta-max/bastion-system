@@ -1546,3 +1546,53 @@ body.calc-modal-open #userMenuButton{
   border-right:1px solid currentColor;
   border-bottom:1px solid currentColor;
 }
+
+/* v273: units tooltip + exchange matrix modal */
+.calc-unit-summary-wrap{
+  position:relative;
+}
+
+.calc-unit-summary{
+  width:100%;
+  border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;
+  color:inherit;
+  text-align:left;
+  font-family:inherit;
+}
+
+.calc-unit-summary:hover{
+  border-color:currentColor;
+  box-shadow:0 0 22px color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.calc-unit-summary i{
+  justify-self:end;
+  align-self:center;
+  width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  border:1px solid currentColor;
+  border-radius:50%;
+  color:currentColor;
+  font-style:normal;
+  font-size:12px;
+  opacity:.92;
+}
+
+.calc-units-popover .calc-components-popover__list span{
+  border-color:rgba(38,223,209,.22);
+}
+
+.calc-unit-modal__rows{
+  min-height:220px;
+}
+
+.calc-unit-row .calc-link-row__body strong{
+  letter-spacing:.025em;
+}
+
+.calc-unit-row .calc-link-row__body em{
+  color:color-mix(in srgb, var(--calc-cyan) 78%, var(--calc-muted));
+}

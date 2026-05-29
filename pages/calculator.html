@@ -136,11 +136,18 @@
         <h2>Підрозділи</h2>
         <p class="calc-card__hint">Обрано автоматично: усі підрозділи з імпорту</p>
 
-        <div class="calc-unit-summary">
-          <span class="calc-unit-summary__icon" aria-hidden="true">≡</span>
-          <div>
-            <span>Підрозділів</span>
-            <strong id="calcUnitCount">4</strong>
+        <div class="calc-unit-summary-wrap">
+          <button class="calc-unit-summary" id="calcUnitsBadge" type="button" aria-expanded="false" aria-controls="calcUnitsPopover">
+            <span class="calc-unit-summary__icon" aria-hidden="true">≡</span>
+            <div>
+              <span>Підрозділів</span>
+              <strong id="calcUnitCount">4</strong>
+            </div>
+            <i aria-hidden="true">ⓘ</i>
+          </button>
+          <div class="calc-components-popover calc-units-popover" id="calcUnitsPopover" role="tooltip" hidden>
+            <div class="calc-components-popover__title">Підрозділи з імпорту</div>
+            <div class="calc-components-popover__list" id="calcUnitsPopoverList"></div>
           </div>
         </div>
 
@@ -155,7 +162,7 @@
           </div>
         </div>
 
-        <button class="calc-card__footer" type="button">
+        <button id="calcMatrixButton" class="calc-card__footer" type="button">
           <span class="calc-mini-icon" aria-hidden="true">▦</span>
           Матриця обміну
           <span aria-hidden="true">›</span>
@@ -284,6 +291,22 @@
   </nav>
 
   <aside id="floatingDetail" class="floating-detail" aria-hidden="true"></aside>
+
+  <div id="calcMatrixModal" class="calc-link-modal calc-matrix-modal" aria-hidden="true">
+    <div class="calc-link-modal__backdrop" data-close-calc-matrix-modal></div>
+    <section class="calc-link-modal__panel" role="dialog" aria-modal="true" aria-labelledby="calcMatrixModalTitle">
+      <button class="calc-link-modal__close" type="button" data-close-calc-matrix-modal aria-label="Закрити">×</button>
+      <div class="calc-link-modal__eyebrow">BASTION UNIT EXCHANGE</div>
+      <h2 id="calcMatrixModalTitle">Матриця обміну підрозділів</h2>
+      <p class="calc-link-modal__hint">Вимкніть підрозділи, які не потрібно враховувати в обміні ресурсами.</p>
+      <div class="calc-link-modal__toolbar">
+        <button id="calcUnitsSelectAll" type="button">Увімкнути всі</button>
+        <button id="calcUnitsClearAll" type="button">Вимкнути всі</button>
+      </div>
+      <div id="calcUnitRows" class="calc-link-modal__rows calc-unit-modal__rows" aria-label="Підрозділи для обміну"></div>
+    </section>
+  </div>
+
   <div id="profileModal" class="profile-modal bastion-profile-modal" aria-hidden="true">
     <div class="profile-backdrop" data-close-profile></div>
     <section class="profile-card profile-command-card" role="dialog" aria-modal="true" aria-label="Профіль користувача">
