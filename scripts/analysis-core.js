@@ -4,6 +4,8 @@
     mode: 'Загальний режим',
     kits: 342,
     bestRange: 27400,
+    activeRecipes: 18,
+    totalRecipes: 24,
     bottleneck: 'ZA8',
     remainPercent: 68,
     units: [
@@ -203,7 +205,6 @@
     renderUnits(data.units);
     renderRecipes(data.recipes);
     renderBottlenecks(data.bottlenecks);
-    renderResources(data.resources);
     initTilt();
     bindActions();
   });

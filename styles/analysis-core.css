@@ -1,5 +1,5 @@
 
-/* BASTION Analysis Dashboard v282 */
+/* BASTION Analysis Dashboard v281 */
 :root {
   --analysis-red: #ff4f55;
   --analysis-red-strong: #ff222b;
@@ -15,18 +15,19 @@
   position: relative;
   z-index: 8;
   min-height: 100vh;
-  padding: clamp(126px, 14vh, 148px) clamp(34px, 5vw, 76px) clamp(112px, 13vh, 134px);
+  padding: clamp(116px, 13vh, 142px) clamp(34px, 5vw, 76px) clamp(88px, 10vh, 112px);
   display: grid;
-  place-items: start center;
+  place-items: center;
   pointer-events: none;
 }
 
 .analysis-shell {
   width: min(1260px, 82vw);
-  max-height: min(720px, calc(100vh - 230px));
+  min-height: min(620px, calc(100vh - 245px));
+  max-height: min(760px, calc(100vh - 205px));
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
-  gap: 13px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
   pointer-events: auto;
   color: var(--analysis-text);
   perspective: 1100px;
@@ -36,17 +37,19 @@
 .analysis-kpi,
 .analysis-panel,
 .analysis-action {
-  position: relative;
-  border: 1px solid var(--analysis-line);
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.015) 42%, rgba(255,40,40,.045)),
-    var(--analysis-panel);
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,.35) inset,
-    0 18px 48px rgba(0,0,0,.34),
-    0 0 36px rgba(255,33,40,.09);
-  backdrop-filter: blur(14px);
-  overflow: hidden;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--analysis-text);
+  text-decoration: none;
+  font: 900 11px/1 "Rajdhani", "Arial", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .analysis-hero::before,
@@ -142,21 +145,10 @@
 
 .analysis-kpi {
   min-height: 76px;
-  padding: 12px 15px;
+  padding: 12px 16px;
   border-radius: 16px;
   transform-style: preserve-3d;
   transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-}
-
-.analysis-kpi::after {
-  content: "";
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 0;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(255,80,84,.92), rgba(255,80,84,0));
-  opacity: .65;
 }
 
 .analysis-kpi span,
@@ -171,8 +163,8 @@
 
 .analysis-kpi strong {
   display: block;
-  margin-top: 8px;
-  font: 900 30px/.9 "Rajdhani", "Arial", sans-serif;
+  margin-top: 6px;
+  font: 900 31px/.86 "Rajdhani", "Arial", sans-serif;
   letter-spacing: .02em;
 }
 
@@ -180,13 +172,14 @@
   display: block;
   margin-top: 7px;
   color: var(--analysis-muted);
-  font: 700 12px/1.1 "Rajdhani", "Arial", sans-serif;
+  font: 700 11px/1.05 "Rajdhani", "Arial", sans-serif;
 }
 
 .analysis-kpi--warn strong { color: #ffce6c; text-shadow: 0 0 18px rgba(255,206,108,.28); }
 
 .analysis-dashboard-grid {
   min-height: 0;
+  height: 100%;
   display: grid;
   grid-template-columns: 1.02fr 1.9fr 1.08fr;
   gap: 12px;
@@ -275,7 +268,7 @@
   position: relative;
   z-index: 1;
   min-height: 0;
-  max-height: 286px;
+  max-height: min(430px, calc(100vh - 385px));
   overflow: auto;
   padding-right: 4px;
   margin-top: 12px;
@@ -375,9 +368,7 @@
   box-shadow: 0 0 18px rgba(255,90,70,.38);
 }
 
-.analysis-panel--resources {
-  min-height: 120px;
-}
+.analysis-panel--resources { display: none; }
 
 .resource-grid {
   position: relative;
@@ -427,23 +418,27 @@
 
 .analysis-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: min(820px, 58vw);
+  margin: 0 auto;
 }
 
 .analysis-action {
-  min-height: 44px;
-  padding: 0 18px;
-  border-radius: 12px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: var(--analysis-text);
   text-decoration: none;
-  font: 900 13px/1 "Rajdhani", "Arial", sans-serif;
+  font: 900 11px/1 "Rajdhani", "Arial", sans-serif;
   text-transform: uppercase;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .analysis-action--primary {
@@ -481,13 +476,19 @@ body.theme-light .analysis-hero,
 body.theme-light .analysis-kpi,
 body.theme-light .analysis-panel,
 body.theme-light .analysis-action {
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.84), rgba(255,255,255,.58) 45%, rgba(255,65,70,.08)),
-    var(--analysis-panel);
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,.55) inset,
-    0 18px 46px rgba(95,112,130,.22),
-    0 0 35px rgba(255,40,40,.08);
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--analysis-text);
+  text-decoration: none;
+  font: 900 11px/1 "Rajdhani", "Arial", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 body.light-theme .analysis-table td,
@@ -516,18 +517,28 @@ body.theme-light .analysis-status {
 }
 
 @media (max-width: 1180px) {
-  .analysis-shell { width: min(1180px, 92vw); }
-  .analysis-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .analysis-dashboard-grid { grid-template-columns: 1fr; }
-  .resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .analysis-shell {
+  width: min(1260px, 82vw);
+  min-height: min(620px, calc(100vh - 245px));
+  max-height: min(760px, calc(100vh - 205px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  pointer-events: auto;
+  color: var(--analysis-text);
+  perspective: 1100px;
 }
 
 @media (max-height: 800px) {
-  .analysis-screen { padding-top: 112px; padding-bottom: 96px; }
-  .analysis-shell { max-height: calc(100vh - 200px); gap: 10px; }
-  .analysis-hero { min-height: 78px; padding: 14px 20px; }
-  .analysis-kpi { min-height: 74px; padding: 11px 13px; }
-  .analysis-kpi strong { font-size: 28px; }
-  .resource-grid { display: none; }
-  .analysis-panel--resources { min-height: auto; }
+  .analysis-screen { padding-top: 108px; padding-bottom: 84px; }
+  .analysis-shell { max-height: calc(100vh - 190px); min-height: calc(100vh - 215px); gap: 9px; }
+  .analysis-kpi { min-height: 66px; padding: 10px 13px; }
+  .analysis-kpi strong { font-size: 27px; }
+  .analysis-panel { padding: 13px; }
+  .analysis-action { min-height: 31px; padding: 0 10px; font-size: 10px; }
 }
+
+.analysis-dashboard-grid > .analysis-panel { height: 100%; }
+
+.analysis-action--ghost:first-child { min-width: 210px; }
+.analysis-action--primary { min-width: 190px; }
