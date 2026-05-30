@@ -4,8 +4,6 @@
     mode: 'Загальний режим',
     kits: 342,
     bestRange: 27400,
-    activeRecipes: 18,
-    totalRecipes: 24,
     bottleneck: 'ZA8',
     remainPercent: 68,
     units: [
@@ -78,7 +76,6 @@
   function renderKpis(data) {
     setText('kpiKits', data.kits ?? fallback.kits);
     setText('kpiRange', formatRange(data.bestRange ?? fallback.bestRange));
-    setText('kpiRecipes', `${data.activeRecipes ?? fallback.activeRecipes} / ${data.totalRecipes ?? fallback.totalRecipes}`);
     setText('kpiBottleneck', data.bottleneck ?? fallback.bottleneck);
     setText('kpiRemain', `${data.remainPercent ?? fallback.remainPercent}%`);
     setText('recipeModeChip', data.mode || fallback.mode);
