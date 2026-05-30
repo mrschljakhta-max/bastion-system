@@ -2200,3 +2200,299 @@ body.light .calc-card{
     radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 22%), rgba(255,70,70,.12), transparent 30%),
     linear-gradient(180deg, rgba(255,255,255,.90), rgba(242,246,250,.82)) !important;
 }
+
+/* v280: polished light theme for calculator cards
+   White tactical panels, red neon accents, readable black text, matching snowy BASTION theme. */
+html[data-theme="light"] .calculator-deck-screen,
+body.light .calculator-deck-screen,
+body[data-theme="light"] .calculator-deck-screen{
+  color:#11151c;
+}
+
+html[data-theme="light"] .calc-card,
+body.light .calc-card,
+body[data-theme="light"] .calc-card{
+  --calc-red:#ff454b;
+  --calc-hot:#ff2630;
+  --calc-warm:#ff7b73;
+  --calc-text:#141820;
+  --calc-muted:rgba(35,40,52,.70);
+  --edge:rgba(255,69,75,.48);
+  --edge-soft:rgba(255,69,75,.15);
+  color:var(--calc-red) !important;
+  border-color:rgba(255,69,75,.42) !important;
+  background:
+    linear-gradient(135deg, rgba(255,70,70,.18) 0 1px, transparent 1px 52px) top left/78px 78px,
+    linear-gradient(315deg, rgba(255,70,70,.11) 0 1px, transparent 1px 58px) bottom right/92px 92px,
+    radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 22%), rgba(255,68,68,.18), transparent 30%),
+    radial-gradient(circle at 18% 0%, rgba(255,255,255,.92), transparent 36%),
+    linear-gradient(180deg, rgba(255,255,255,.90), rgba(246,248,251,.82)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.72),
+    inset 0 0 0 2px rgba(255,65,70,.055),
+    inset 0 0 58px rgba(255,255,255,.50),
+    0 22px 54px rgba(79,91,110,.16),
+    0 0 30px rgba(255,55,62,.13) !important;
+  backdrop-filter:blur(15px) saturate(1.05);
+}
+
+html[data-theme="light"] .calc-card::before,
+body.light .calc-card::before,
+body[data-theme="light"] .calc-card::before{
+  opacity:.44 !important;
+  background:
+    linear-gradient(rgba(255,70,70,.052) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,70,70,.036) 1px, transparent 1px),
+    radial-gradient(circle at 88% 8%, rgba(255,70,70,.16), transparent 14%),
+    radial-gradient(circle at 10% 93%, rgba(255,70,70,.10), transparent 18%) !important;
+  background-size:34px 34px, 34px 34px, 100% 100%, 100% 100% !important;
+  mask-image:linear-gradient(180deg, rgba(0,0,0,.88), rgba(0,0,0,.20));
+}
+
+html[data-theme="light"] .calc-card::after,
+body.light .calc-card::after,
+body[data-theme="light"] .calc-card::after{
+  background:linear-gradient(100deg, transparent 0%, rgba(255,255,255,.20) 42%, rgba(255,55,62,.30) 50%, transparent 58%) !important;
+  opacity:.20 !important;
+}
+
+html[data-theme="light"] .calc-card.is-tilting,
+body.light .calc-card.is-tilting,
+body[data-theme="light"] .calc-card.is-tilting{
+  border-color:rgba(255,63,70,.72) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.90),
+    inset 0 0 0 2px rgba(255,65,70,.09),
+    inset 0 0 68px rgba(255,255,255,.62),
+    0 30px 66px rgba(54,68,88,.23),
+    0 0 44px rgba(255,55,62,.22) !important;
+  filter:brightness(1.025) saturate(1.04);
+}
+
+html[data-theme="light"] .calc-card__num,
+body.light .calc-card__num,
+body[data-theme="light"] .calc-card__num,
+html[data-theme="light"] .calc-card__icon,
+body.light .calc-card__icon,
+body[data-theme="light"] .calc-card__icon{
+  color:#ff4048 !important;
+  text-shadow:0 0 12px rgba(255,64,72,.30), 0 0 26px rgba(255,64,72,.18) !important;
+  filter:drop-shadow(0 0 12px rgba(255,64,72,.22)) !important;
+}
+
+html[data-theme="light"] .calc-card h2,
+body.light .calc-card h2,
+body[data-theme="light"] .calc-card h2,
+html[data-theme="light"] .calc-mode strong,
+body.light .calc-mode strong,
+body[data-theme="light"] .calc-mode strong,
+html[data-theme="light"] .calc-toggle-row strong,
+body.light .calc-toggle-row strong,
+body[data-theme="light"] .calc-toggle-row strong{
+  color:#12151d !important;
+  text-shadow:none !important;
+}
+
+html[data-theme="light"] .calc-card__hint,
+body.light .calc-card__hint,
+body[data-theme="light"] .calc-card__hint,
+html[data-theme="light"] .calc-limit p,
+body.light .calc-limit p,
+body[data-theme="light"] .calc-limit p,
+html[data-theme="light"] .calc-toggle-row p,
+body.light .calc-toggle-row p,
+body[data-theme="light"] .calc-toggle-row p,
+html[data-theme="light"] .calc-mode em,
+body.light .calc-mode em,
+body[data-theme="light"] .calc-mode em{
+  color:rgba(24,28,38,.66) !important;
+}
+
+html[data-theme="light"] .calc-limit label,
+body.light .calc-limit label,
+body[data-theme="light"] .calc-limit label{
+  color:rgba(20,24,34,.74) !important;
+}
+
+html[data-theme="light"] .calc-select select,
+body.light .calc-select select,
+body[data-theme="light"] .calc-select select,
+html[data-theme="light"] .calc-components-badge,
+body.light .calc-components-badge,
+body[data-theme="light"] .calc-components-badge,
+html[data-theme="light"] .calc-link-summary__badge,
+body.light .calc-link-summary__badge,
+body[data-theme="light"] .calc-link-summary__badge,
+html[data-theme="light"] .calc-unit-summary,
+body.light .calc-unit-summary,
+body[data-theme="light"] .calc-unit-summary,
+html[data-theme="light"] .calc-mode,
+body.light .calc-mode,
+body[data-theme="light"] .calc-mode,
+html[data-theme="light"] .calc-card__footer,
+body.light .calc-card__footer,
+body[data-theme="light"] .calc-card__footer,
+html[data-theme="light"] .calc-range-row button,
+body.light .calc-range-row button,
+body[data-theme="light"] .calc-range-row button,
+html[data-theme="light"] .calc-range-row .calc-value-input,
+body.light .calc-range-row .calc-value-input,
+body[data-theme="light"] .calc-range-row .calc-value-input{
+  color:#12151d !important;
+  border-color:rgba(255,68,75,.24) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.88), rgba(239,243,248,.82)) !important;
+  box-shadow:
+    inset 0 0 18px rgba(255,255,255,.62),
+    0 0 0 1px rgba(255,68,75,.035),
+    0 10px 26px rgba(40,55,75,.055) !important;
+}
+
+html[data-theme="light"] .calc-select select:hover,
+body.light .calc-select select:hover,
+body[data-theme="light"] .calc-select select:hover,
+html[data-theme="light"] .calc-select select:focus,
+body.light .calc-select select:focus,
+body[data-theme="light"] .calc-select select:focus,
+html[data-theme="light"] .calc-components-badge:hover,
+body.light .calc-components-badge:hover,
+body[data-theme="light"] .calc-components-badge:hover,
+html[data-theme="light"] .calc-link-summary__badge:hover,
+body.light .calc-link-summary__badge:hover,
+body[data-theme="light"] .calc-link-summary__badge:hover,
+html[data-theme="light"] .calc-unit-summary:hover,
+body.light .calc-unit-summary:hover,
+body[data-theme="light"] .calc-unit-summary:hover,
+html[data-theme="light"] .calc-card__footer:hover,
+body.light .calc-card__footer:hover,
+body[data-theme="light"] .calc-card__footer:hover,
+html[data-theme="light"] .calc-mode:hover,
+body.light .calc-mode:hover,
+body[data-theme="light"] .calc-mode:hover,
+html[data-theme="light"] .calc-mode.is-active,
+body.light .calc-mode.is-active,
+body[data-theme="light"] .calc-mode.is-active,
+html[data-theme="light"] .calc-mode:has(input:checked),
+body.light .calc-mode:has(input:checked),
+body[data-theme="light"] .calc-mode:has(input:checked){
+  border-color:rgba(255,56,64,.62) !important;
+  box-shadow:
+    inset 0 0 24px rgba(255,255,255,.74),
+    0 0 24px rgba(255,56,64,.16) !important;
+}
+
+html[data-theme="light"] .calc-select::after,
+body.light .calc-select::after,
+body[data-theme="light"] .calc-select::after,
+html[data-theme="light"] .calc-components-badge strong,
+body.light .calc-components-badge strong,
+body[data-theme="light"] .calc-components-badge strong,
+html[data-theme="light"] .calc-link-summary__badge strong,
+body.light .calc-link-summary__badge strong,
+body[data-theme="light"] .calc-link-summary__badge strong,
+html[data-theme="light"] .calc-unit-summary strong,
+body.light .calc-unit-summary strong,
+body[data-theme="light"] .calc-unit-summary strong,
+html[data-theme="light"] .calc-mode__icon,
+body.light .calc-mode__icon,
+body[data-theme="light"] .calc-mode__icon{
+  color:#ff3d45 !important;
+  text-shadow:0 0 14px rgba(255,61,69,.22) !important;
+}
+
+html[data-theme="light"] .calc-range-row input[type="range"],
+body.light .calc-range-row input[type="range"],
+body[data-theme="light"] .calc-range-row input[type="range"]{
+  accent-color:#ff4048 !important;
+}
+
+html[data-theme="light"] .calc-range-row button:hover,
+body.light .calc-range-row button:hover,
+body[data-theme="light"] .calc-range-row button:hover,
+html[data-theme="light"] .calc-range-row .calc-value-input:focus,
+body.light .calc-range-row .calc-value-input:focus,
+body[data-theme="light"] .calc-range-row .calc-value-input:focus{
+  color:#ff2630 !important;
+}
+
+html[data-theme="light"] .calc-switch span,
+body.light .calc-switch span,
+body[data-theme="light"] .calc-switch span{
+  border-color:rgba(255,64,72,.25) !important;
+  background:rgba(235,240,246,.82) !important;
+  box-shadow:inset 0 0 12px rgba(0,0,0,.06) !important;
+}
+
+html[data-theme="light"] .calc-switch span::after,
+body.light .calc-switch span::after,
+body[data-theme="light"] .calc-switch span::after{
+  background:#fff !important;
+  box-shadow:0 6px 14px rgba(28,40,60,.16) !important;
+}
+
+html[data-theme="light"] .calc-switch input:checked + span,
+body.light .calc-switch input:checked + span,
+body[data-theme="light"] .calc-switch input:checked + span{
+  background:linear-gradient(90deg, #ff3038, #ff7870) !important;
+  box-shadow:0 0 24px rgba(255,64,72,.28) !important;
+}
+
+html[data-theme="light"] .calc-run,
+body.light .calc-run,
+body[data-theme="light"] .calc-run{
+  color:#fff !important;
+  border-color:rgba(255,53,61,.52) !important;
+  background:linear-gradient(135deg, #ff313a, #ff6a62) !important;
+  box-shadow:0 16px 32px rgba(255,49,58,.22), 0 0 30px rgba(255,49,58,.18) !important;
+}
+
+html[data-theme="light"] .calc-run:hover,
+body.light .calc-run:hover,
+body[data-theme="light"] .calc-run:hover{
+  border-color:rgba(255,36,47,.80) !important;
+  box-shadow:0 20px 42px rgba(255,49,58,.28), 0 0 38px rgba(255,49,58,.24) !important;
+}
+
+html[data-theme="light"] .calc-card__footer,
+body.light .calc-card__footer,
+body[data-theme="light"] .calc-card__footer{
+  background:linear-gradient(180deg, rgba(255,255,255,.86), rgba(244,247,251,.78)) !important;
+}
+
+html[data-theme="light"] .calc-components-popover,
+body.light .calc-components-popover,
+body[data-theme="light"] .calc-components-popover,
+html[data-theme="light"] .calc-dialog,
+body.light .calc-dialog,
+body[data-theme="light"] .calc-dialog{
+  color:#151923 !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,248,252,.92)) !important;
+  border-color:rgba(255,62,70,.36) !important;
+  box-shadow:0 28px 88px rgba(62,76,96,.24), 0 0 40px rgba(255,58,66,.14) !important;
+}
+
+html[data-theme="light"] .calc-mode__radio,
+body.light .calc-mode__radio,
+body[data-theme="light"] .calc-mode__radio{
+  border-color:rgba(23,28,38,.45) !important;
+}
+
+html[data-theme="light"] .calc-mode:has(input:checked) .calc-mode__radio::after,
+body.light .calc-mode:has(input:checked) .calc-mode__radio::after,
+body[data-theme="light"] .calc-mode:has(input:checked) .calc-mode__radio::after,
+html[data-theme="light"] .calc-mode.is-active .calc-mode__radio::after,
+body.light .calc-mode.is-active .calc-mode__radio::after,
+body[data-theme="light"] .calc-mode.is-active .calc-mode__radio::after{
+  background:#ff333c !important;
+  box-shadow:0 0 18px rgba(255,51,60,.50) !important;
+}
+
+html[data-theme="light"] .calc-card__head::before,
+body.light .calc-card__head::before,
+body[data-theme="light"] .calc-card__head::before,
+html[data-theme="light"] .calc-card__head::after,
+body.light .calc-card__head::after,
+body[data-theme="light"] .calc-card__head::after{
+  background:linear-gradient(90deg, transparent, rgba(255,64,72,.70), transparent);
+  box-shadow:0 0 16px rgba(255,64,72,.28);
+}
