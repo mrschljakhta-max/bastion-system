@@ -1948,3 +1948,255 @@ body.light .calc-card{
     transition:none !important;
   }
 }
+
+/* v279: NEON FRAME / BASTION ARMOR EDITION
+   Cleaner first-concept card shape: red neon frame, cut corners, internal grid,
+   active corner accents and Lavash-style bending without rainbow palette. */
+:root{
+  --calc-purple:#ff5a5f;
+  --calc-blue:#ff5a5f;
+  --calc-teal:#ff5a5f;
+  --calc-green:#ff5a5f;
+  --calc-red:#ff5a5f;
+  --calc-hot:#ff3038;
+  --calc-warm:#ff8a7d;
+  --calc-card-cut:18px;
+}
+
+.calculator-deck{
+  perspective:1600px;
+}
+
+.calc-card{
+  --edge:rgba(255,74,78,.56);
+  --edge-soft:rgba(255,74,78,.18);
+  --panel-dark:rgba(5,7,11,.88);
+  --panel-mid:rgba(24,13,15,.72);
+  color:var(--calc-red) !important;
+  isolation:isolate;
+  overflow:hidden;
+  border:1px solid var(--edge) !important;
+  border-radius:18px !important;
+  clip-path:polygon(
+    0 0,
+    calc(100% - var(--calc-card-cut)) 0,
+    100% var(--calc-card-cut),
+    100% 100%,
+    var(--calc-card-cut) 100%,
+    0 calc(100% - var(--calc-card-cut))
+  );
+  background:
+    linear-gradient(135deg, rgba(255,80,80,.18) 0 1px, transparent 1px 48px) top left/72px 72px,
+    linear-gradient(315deg, rgba(255,80,80,.11) 0 1px, transparent 1px 52px) bottom right/86px 86px,
+    radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 22%), rgba(255,75,75,.20), transparent 28%),
+    radial-gradient(circle at 20% 0%, rgba(255,72,72,.13), transparent 38%),
+    linear-gradient(180deg, var(--panel-mid), var(--panel-dark)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.035),
+    inset 0 0 0 2px rgba(255,74,78,.055),
+    inset 0 0 56px rgba(255,47,47,.07),
+    0 18px 46px rgba(0,0,0,.42),
+    0 0 26px rgba(255,47,47,.10) !important;
+  transform:
+    perspective(1200px)
+    rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg))
+    translate3d(0, var(--lift-y, 0px), 0);
+  transform-style:preserve-3d;
+  transition:
+    transform .46s cubic-bezier(.2,.8,.2,1),
+    border-color .24s ease,
+    box-shadow .24s ease,
+    filter .24s ease;
+}
+
+.calc-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.52 !important;
+  background:
+    linear-gradient(rgba(255,85,85,.046) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,85,85,.032) 1px, transparent 1px),
+    radial-gradient(circle at 88% 8%, rgba(255,75,75,.18), transparent 14%),
+    radial-gradient(circle at 10% 93%, rgba(255,75,75,.11), transparent 18%) !important;
+  background-size:34px 34px, 34px 34px, 100% 100%, 100% 100% !important;
+  mask-image:linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.25));
+}
+
+.calc-card::after{
+  content:"";
+  position:absolute;
+  left:-65%;
+  top:0;
+  width:55%;
+  height:100% !important;
+  z-index:0;
+  pointer-events:none;
+  opacity:.22 !important;
+  background:linear-gradient(100deg, transparent 0%, rgba(255,255,255,.045) 45%, rgba(255,95,95,.26) 50%, transparent 58%) !important;
+  transform:skewX(-16deg) translateX(var(--sweep-x, 0));
+  animation:calcCardSweep 9.6s ease-in-out infinite;
+  box-shadow:none !important;
+}
+
+@keyframes calcCardSweep{
+  0%, 68%{ transform:skewX(-16deg) translateX(0); opacity:.0; }
+  72%{ opacity:.20; }
+  100%{ transform:skewX(-16deg) translateX(320%); opacity:0; }
+}
+
+.calc-card > *{
+  transform:translateZ(18px);
+}
+
+.calc-card.is-tilting{
+  --lift-y:-5px;
+  border-color:rgba(255,109,109,.86) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.055),
+    inset 0 0 0 2px rgba(255,74,78,.09),
+    inset 0 0 68px rgba(255,55,55,.10),
+    0 25px 58px rgba(0,0,0,.52),
+    0 0 40px rgba(255,55,55,.20) !important;
+  filter:brightness(1.06) saturate(1.05);
+}
+
+.calc-card.is-tilting::after{
+  animation:none;
+  left:calc(var(--spot-x, 50%) - 28%);
+  opacity:.34 !important;
+  transform:skewX(-15deg) translateX(0);
+}
+
+.calc-card__head::before,
+.calc-card__head::after{
+  content:"";
+  position:absolute;
+  top:-12px;
+  width:54px;
+  height:2px;
+  background:linear-gradient(90deg, transparent, rgba(255,82,82,.95), transparent);
+  box-shadow:0 0 14px rgba(255,72,72,.42);
+  pointer-events:none;
+}
+
+.calc-card__head::before{ left:0; }
+.calc-card__head::after{ right:0; }
+
+.calc-card__num,
+.calc-card__icon{
+  color:#ff555a !important;
+  text-shadow:
+    0 0 10px rgba(255,77,77,.34),
+    0 0 26px rgba(255,55,55,.28) !important;
+  filter:drop-shadow(0 0 12px rgba(255,72,72,.28)) !important;
+}
+
+.calc-card h2{
+  color:#fff !important;
+  text-shadow:0 0 18px rgba(255,255,255,.10);
+}
+
+.calc-card__hint,
+.calc-limit p,
+.calc-toggle-row p,
+.calc-mode em{
+  color:rgba(230,235,241,.68) !important;
+}
+
+.calc-select select,
+.calc-components-badge,
+.calc-link-summary__badge,
+.calc-unit-summary,
+.calc-mode,
+.calc-card__footer,
+.calc-run,
+.calc-range-row button,
+.calc-range-row .calc-value-input{
+  border-color:rgba(255,255,255,.20) !important;
+  background:
+    linear-gradient(180deg, rgba(12,15,20,.74), rgba(4,6,10,.72)) !important;
+  box-shadow:
+    inset 0 0 18px rgba(255,255,255,.025),
+    0 0 0 1px rgba(255,74,78,.035) !important;
+}
+
+.calc-select select:hover,
+.calc-select select:focus,
+.calc-components-badge:hover,
+.calc-link-summary__badge:hover,
+.calc-unit-summary:hover,
+.calc-card__footer:hover,
+.calc-mode:hover,
+.calc-mode.is-active,
+.calc-mode:has(input:checked),
+.calc-run:hover,
+.calc-range-row button:hover,
+.calc-range-row .calc-value-input:focus{
+  border-color:rgba(255,91,91,.88) !important;
+  box-shadow:
+    inset 0 0 24px rgba(255,68,68,.055),
+    0 0 22px rgba(255,68,68,.18) !important;
+}
+
+.calc-card__footer,
+.calc-run{
+  position:relative;
+  overflow:hidden;
+  border-radius:10px !important;
+  background:
+    linear-gradient(180deg, rgba(43,18,20,.78), rgba(10,7,9,.78)) !important;
+}
+
+.calc-card__footer::before,
+.calc-run::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.18;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg, transparent, rgba(255,79,79,.45), transparent) -120% 0/45% 100% no-repeat;
+  transition:background-position .55s ease;
+}
+
+.calc-card__footer:hover::before,
+.calc-run:hover::before{
+  background-position:220% 0;
+}
+
+.calc-switch span{
+  border-color:rgba(255,255,255,.22) !important;
+  background:rgba(10,10,12,.74) !important;
+}
+
+.calc-switch input:checked + span{
+  background:linear-gradient(90deg, #7b1014, #ff4c52) !important;
+  box-shadow:0 0 24px rgba(255,78,78,.32) !important;
+}
+
+.calc-range-row input[type="range"]{
+  accent-color:#ff5757 !important;
+}
+
+.calc-range-row input[type="range"]::-webkit-slider-thumb{
+  filter:drop-shadow(0 0 8px rgba(255,80,80,.45));
+}
+
+.calc-components-popover,
+.calc-dialog{
+  border-color:rgba(255,88,88,.44) !important;
+  box-shadow:0 26px 80px rgba(0,0,0,.62), 0 0 40px rgba(255,57,57,.13) !important;
+}
+
+html[data-theme="light"] .calc-card,
+body.light .calc-card{
+  color:#cf1119 !important;
+  border-color:rgba(255,70,70,.38) !important;
+  background:
+    radial-gradient(circle at var(--spot-x, 50%) var(--spot-y, 22%), rgba(255,70,70,.12), transparent 30%),
+    linear-gradient(180deg, rgba(255,255,255,.90), rgba(242,246,250,.82)) !important;
+}
