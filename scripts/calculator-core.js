@@ -50,34 +50,14 @@
     return input ? clampNumber(input.value, Number(input.min || 0), Number(input.max || 9999)) : 0;
   };
 
-  const setRangeFill = (range) => {
-    if (!(range instanceof HTMLInputElement)) return;
-    const min = Number(range.min || 0);
-    const max = Number(range.max || 100);
-    const value = Number(range.value || 0);
-    const percent = max === min ? 0 : ((value - min) / (max - min)) * 100;
-    range.style.setProperty('--range-fill', `${Math.max(0, Math.min(100, percent))}%`);
-  };
-
-  const pulseNumber = (element) => {
-    if (!(element instanceof HTMLElement)) return;
-    element.classList.remove('is-pulsing');
-    void element.offsetWidth;
-    element.classList.add('is-pulsing');
-    window.setTimeout(() => element.classList.remove('is-pulsing'), 360);
-  };
-
   const updateRange = (input, source = 'range') => {
     const out = byId(`${input.id}Out`);
     if (!out) return;
     const min = Number(input.min || 0);
     const max = Number(input.max || 9999);
-    const previous = String(input.value || '');
     const next = clampNumber(source === 'number' ? out.value : input.value, min, max);
     input.value = String(next);
     out.value = String(next);
-    setRangeFill(input);
-    if (String(next) !== previous || source === 'number') pulseNumber(out);
   };
 
   document.querySelectorAll('.calc-range-row input[type="range"]').forEach((input) => {
@@ -271,11 +251,8 @@
     const number = row.querySelector(`[data-unit-limit-number="${type}"]`);
     if (!(range instanceof HTMLInputElement) || !(number instanceof HTMLInputElement)) return;
     const next = clampNumber(source === 'number' ? number.value : range.value, Number(range.min || 0), Number(range.max || 9999));
-    const previous = String(range.value || '');
     range.value = String(next);
     number.value = String(next);
-    setRangeFill(range);
-    if (String(next) !== previous || source === 'number') pulseNumber(number);
     const unitId = row.dataset.unitId;
     if (!unitId) return;
     const state = unitLimitsState.get(unitId) || { min: getLimitValue('calcMin'), max: getLimitValue('calcMax'), touched: false };
@@ -332,7 +309,6 @@
           syncUnitLimitControl(row, type, 'range');
         });
       });
-      row.querySelectorAll('[data-unit-limit-range]').forEach((range) => setRangeFill(range));
       unitLimitsRows.appendChild(row);
     });
   };
@@ -500,17 +476,6 @@
     });
   });
 
-  document.querySelectorAll('.calc-switch input').forEach((input) => {
-    input.addEventListener('change', () => {
-      const switcher = input.closest('.calc-switch');
-      if (!(switcher instanceof HTMLElement)) return;
-      switcher.classList.remove('is-switching');
-      void switcher.offsetWidth;
-      switcher.classList.add('is-switching');
-      window.setTimeout(() => switcher.classList.remove('is-switching'), 480);
-    });
-  });
-
   const runButton = byId('calcRunButton');
   if (runButton) {
     runButton.addEventListener('click', () => {
@@ -521,4 +486,41 @@
       }, 650);
     });
   }
+
+
+  // v278: Lavash-style 3D bend for calculator cards.
+  const enableCardTilt = () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cards = document.querySelectorAll('.calc-card');
+    cards.forEach((card) => {
+      let raf = 0;
+      const resetTilt = () => {
+        window.cancelAnimationFrame(raf);
+        card.classList.remove('is-tilting');
+        card.style.setProperty('--tilt-x', '0deg');
+        card.style.setProperty('--tilt-y', '0deg');
+        card.style.setProperty('--spot-x', '50%');
+        card.style.setProperty('--spot-y', '22%');
+      };
+      card.addEventListener('pointermove', (event) => {
+        if (event.pointerType === 'touch') return;
+        const rect = card.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width;
+        const y = (event.clientY - rect.top) / rect.height;
+        const rotateY = (x - 0.5) * 8;
+        const rotateX = (0.5 - y) * 8;
+        window.cancelAnimationFrame(raf);
+        raf = window.requestAnimationFrame(() => {
+          card.classList.add('is-tilting');
+          card.style.setProperty('--tilt-x', `${rotateX.toFixed(2)}deg`);
+          card.style.setProperty('--tilt-y', `${rotateY.toFixed(2)}deg`);
+          card.style.setProperty('--spot-x', `${(x * 100).toFixed(1)}%`);
+          card.style.setProperty('--spot-y', `${(y * 100).toFixed(1)}%`);
+        });
+      });
+      card.addEventListener('pointerleave', resetTilt);
+      card.addEventListener('blur', resetTilt, true);
+    });
+  };
+  enableCardTilt();
 })();
