@@ -6,6 +6,7 @@
   <title>BASTION — Аналіз</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
+  <link rel="stylesheet" href="../styles/analysis-core.css?v=281" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -79,21 +80,112 @@
       </div>
     </button>
   </div>
+  <main class="analysis-screen" data-module="analysis">
+    <section class="analysis-shell" aria-label="BASTION analysis dashboard">
+      <header class="analysis-hero analysis-tilt">
+        <div>
+          <p class="analysis-kicker">05 — АНАЛІЗ РОЗРАХУНКУ</p>
+          <h1>Результати розрахунку</h1>
+          <p class="analysis-subtitle">Чисте табло результату: комплекти, дальність, використання, залишки та обмежувальні елементи.</p>
+        </div>
+        <div class="analysis-status">
+          <span class="analysis-status__dot"></span>
+          <span id="analysisStatusText">Розрахунок готовий</span>
+        </div>
+      </header>
 
+      <section class="analysis-kpi-grid" aria-label="Ключові показники">
+        <article class="analysis-kpi analysis-tilt">
+          <span>Макс. комплектів</span>
+          <strong id="kpiKits">342</strong>
+          <small>згенеровано комплектів</small>
+        </article>
+        <article class="analysis-kpi analysis-tilt">
+          <span>Найкраща дальність</span>
+          <strong id="kpiRange">27.4 км</strong>
+          <small>активний рецепт</small>
+        </article>
+        <article class="analysis-kpi analysis-tilt">
+          <span>Активних рядків</span>
+          <strong id="kpiRecipes">18 / 24</strong>
+          <small>враховано у зв’язку</small>
+        </article>
+        <article class="analysis-kpi analysis-tilt analysis-kpi--warn">
+          <span>Обмежувальний елемент</span>
+          <strong id="kpiBottleneck">ZA8</strong>
+          <small>вузьке місце</small>
+        </article>
+        <article class="analysis-kpi analysis-tilt">
+          <span>Залишок складу</span>
+          <strong id="kpiRemain">68%</strong>
+          <small>після розрахунку</small>
+        </article>
+      </section>
 
+      <section class="analysis-dashboard-grid">
+        <article class="analysis-panel analysis-panel--units analysis-tilt">
+          <div class="analysis-panel__head">
+            <div>
+              <p>Розподіл</p>
+              <h2>Підрозділи</h2>
+            </div>
+            <span class="analysis-chip">4 активні</span>
+          </div>
+          <div id="unitDistribution" class="unit-hex-grid" aria-label="Розподіл комплектів по підрозділах"></div>
+        </article>
 
+        <article class="analysis-panel analysis-panel--matrix analysis-tilt">
+          <div class="analysis-panel__head">
+            <div>
+              <p>Matrix</p>
+              <h2>Результат розрахунку</h2>
+            </div>
+            <span id="recipeModeChip" class="analysis-chip">Загальний режим</span>
+          </div>
+          <div class="result-table-wrap">
+            <table class="analysis-table">
+              <thead>
+                <tr>
+                  <th>Рецепт</th>
+                  <th>Дальність</th>
+                  <th>Комплектів</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody id="resultRows"></tbody>
+            </table>
+          </div>
+        </article>
 
-  <main class="bastion-module-screen" data-module="analysis">
-    <section class="bastion-module-card">
-      <div class="bastion-module-kicker">05 — Аналіз</div>
-      <h1>Аналіз</h1>
-      <p>Дашборди, карти, heatmaps і зведена аналітика по завантажених даних.</p>
-      <ul>
-          <li>Статистика</li>
-          <li>Графіки</li>
-          <li>Карти та теплокарти</li>
-      </ul>
-      <a class="bastion-module-back" href="./app.html">← Повернутися до основного меню</a>
+        <article class="analysis-panel analysis-panel--bottleneck analysis-tilt">
+          <div class="analysis-panel__head">
+            <div>
+              <p>Critical</p>
+              <h2>Вузькі місця</h2>
+            </div>
+            <span class="analysis-chip analysis-chip--danger">Контроль</span>
+          </div>
+          <div id="bottleneckBars" class="bottleneck-list"></div>
+        </article>
+      </section>
+
+      <section class="analysis-panel analysis-panel--resources analysis-tilt">
+        <div class="analysis-panel__head">
+          <div>
+            <p>Inventory</p>
+            <h2>Використано / залишилось</h2>
+          </div>
+          <span class="analysis-chip">Ресурси</span>
+        </div>
+        <div id="resourceCards" class="resource-grid"></div>
+      </section>
+
+      <footer class="analysis-actions">
+        <a class="analysis-action analysis-action--ghost" href="./calculator.html">← Повернутись до калькулятора</a>
+        <button id="analysisRecalculate" class="analysis-action analysis-action--ghost" type="button">Перерахувати</button>
+        <button id="analysisExport" class="analysis-action analysis-action--ghost" type="button">Експорт XLSX</button>
+        <a class="analysis-action analysis-action--primary" href="./command.html">Перейти до висновків →</a>
+      </footer>
     </section>
   </main>
 
@@ -238,5 +330,6 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
+  <script src="../scripts/analysis-core.js?v=281"></script>
 </body>
 </html>
