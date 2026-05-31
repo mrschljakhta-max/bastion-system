@@ -856,7 +856,14 @@
       const remainGroup = ensureGroup(remainMap, item.unit);
       allocationGroup.items.set(item.name, (allocationGroup.items.get(item.name) || 0) + alloc);
       allocationGroup.total += alloc;
-      remainGroup.items.set(item.name, (remainGroup.items.get(item.name) || 0) + remain);
+
+      const previousRemain = remainGroup.items.get(item.name) || { name: item.name, qty: 0, initial: 0, used: 0 };
+      remainGroup.items.set(item.name, {
+        name: item.name,
+        qty: Number(previousRemain.qty || 0) + remain,
+        initial: Number(previousRemain.initial || 0) + qty,
+        used: Number(previousRemain.used || 0) + alloc
+      });
       remainGroup.total += remain;
     });
 
@@ -864,8 +871,18 @@
       unit: group.unit,
       total: group.total,
       items: [...group.items.entries()]
-        .map(([name, qty]) => ({ name, qty }))
-        .filter(item => item.qty > 0)
+        .map(([name, value]) => {
+          if (value && typeof value === 'object') {
+            return {
+              name: value.name || name,
+              qty: Number(value.qty || 0),
+              initial: Number(value.initial || 0),
+              used: Number(value.used || 0)
+            };
+          }
+          return { name, qty: Number(value || 0) };
+        })
+        .filter(item => item.qty > 0 || item.used > 0 || item.initial > 0)
         .sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name, 'uk'))
     })).filter(group => group.items.length);
 

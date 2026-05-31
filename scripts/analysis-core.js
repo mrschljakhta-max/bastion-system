@@ -45,10 +45,10 @@
         unit: '1 САДн',
         total: 54,
         items: [
-          { name: 'SN7', qty: 38 },
-          { name: 'ZA8', qty: 7 },
-          { name: 'PID5', qty: 19 },
-          { name: 'PR1', qty: 82 }
+          { name: 'SN7', qty: 38, used: 82, initial: 120 },
+          { name: 'ZA8', qty: 7, used: 83, initial: 90 },
+          { name: 'PID5', qty: 19, used: 41, initial: 60 },
+          { name: 'PR1', qty: 82, used: 48, initial: 130 }
         ]
       },
       {
@@ -135,10 +135,17 @@
       return {
         unit: group.unit || fallbackGroup?.unit || `Підрозділ ${idx + 1}`,
         total,
-        items: items.map(item => ({
-          name: item.name || item.title || 'Елемент',
-          qty: Number(item.qty ?? item.count ?? item.total ?? 0)
-        }))
+        items: items.map(item => {
+          const qty = Number(item.qty ?? item.count ?? item.total ?? item.remaining ?? 0);
+          const initial = Number(item.initial ?? item.before ?? item.start ?? 0);
+          const used = Number(item.used ?? item.spent ?? item.consumed ?? (initial ? Math.max(0, initial - qty) : 0));
+          return {
+            name: item.name || item.title || 'Елемент',
+            qty,
+            initial,
+            used
+          };
+        })
       };
     });
   }
@@ -215,7 +222,9 @@
     const emptyText = options.emptyText || 'Дані відсутні';
     const rowName = options.rowName || (hostId === 'remainBlocks' ? 'Елемент' : 'Комбінація');
     const rowQty = options.rowQty || (hostId === 'remainBlocks' ? 'Залишок' : 'Кількість');
+    const rowUsed = options.rowUsed || 'Викор.';
     const unitLabel = options.unitLabel || (hostId === 'remainBlocks' ? 'Залишки' : 'Підрозділ');
+    const hasUsedColumn = Boolean(options.usedColumn);
 
     if (!Array.isArray(groups) || !groups.length) {
       host.innerHTML = `<div class="analysis-empty">${escapeHtml(emptyText)}</div>`;
@@ -239,16 +248,22 @@
             <b>${total}</b>
           </button>
           <div id="${bodyId}" class="result-unit-items" hidden>
-            <div class="result-line result-line--head">
+            <div class="result-line result-line--head${hasUsedColumn ? ' result-line--triple' : ''}">
               <span>${escapeHtml(rowName)}</span>
+              ${hasUsedColumn ? `<em>${escapeHtml(rowUsed)}</em>` : ''}
               <b>${escapeHtml(rowQty)}</b>
             </div>
-            ${items.map(item => `
-              <div class="result-line">
-                <span>${escapeHtml(item.name)}</span>
-                <b>${Number(item.qty ?? 0)}</b>
-              </div>
-            `).join('')}
+            ${items.map(item => {
+              const qty = Number(item.qty ?? 0);
+              const used = Number(item.used ?? (Number(item.initial || 0) ? Math.max(0, Number(item.initial || 0) - qty) : 0));
+              return `
+                <div class="result-line${hasUsedColumn ? ' result-line--triple' : ''}">
+                  <span>${escapeHtml(item.name)}</span>
+                  ${hasUsedColumn ? `<em>${used}</em>` : ''}
+                  <b>${qty}</b>
+                </div>
+              `;
+            }).join('')}
           </div>
         </section>
       `;
@@ -438,7 +453,7 @@
     const data = readStoredResult();
     renderKpis(data);
     renderGroupedBlocks('allocationBlocks', data.allocations, { unitLabel: 'Підрозділ', rowName: 'Комбінація', rowQty: 'Кількість' });
-    renderGroupedBlocks('remainBlocks', data.remains, { unitLabel: 'Залишки', rowName: 'Елемент', rowQty: 'Залишок' });
+    renderGroupedBlocks('remainBlocks', data.remains, { unitLabel: 'Залишки', rowName: 'Елемент', rowUsed: 'Викор.', rowQty: 'Залишок', usedColumn: true });
     initStyledScrollbars();
     initTilt();
     bindActions();
