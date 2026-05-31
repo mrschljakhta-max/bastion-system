@@ -751,22 +751,23 @@
     }).join('') || `<div class="upload-result-empty is-ok">Невідомих значень немає. Можна підтверджувати імпорт.</div>`;
   }
 
-  function renderResultsBody(mode = 'review', filter = 'known') {
+  function renderResultsBody(mode = 'review', filter = '') {
     const totals = reviewTotals();
-    const activeFilter = mode === 'parse' ? 'unknown' : filter;
+    const activeFilter = mode === 'parse' ? 'unknown' : (filter || '');
     const kpi = [
       ['all', 'rows', 'Загальна кількість', totals.rows],
       ['known', 'known', 'Відомі', totals.known],
       ['unknown', 'unknown', 'Невідомі', totals.unknown],
       ['errors', 'errors', 'Помилки', totals.errors]
     ];
-    const listTitle = activeFilter === 'all' ? 'Всі дані імпорту' : activeFilter === 'known' ? 'Відомі дані' : activeFilter === 'unknown' ? 'Невідомі дані' : 'Помилки кількості';
-    const rows = flatRows(activeFilter);
+    const listTitle = activeFilter === 'all' ? 'Всі дані імпорту' : activeFilter === 'known' ? 'Відомі дані' : activeFilter === 'unknown' ? 'Невідомі дані' : activeFilter === 'errors' ? 'Помилки кількості' : '';
+    const rows = activeFilter ? flatRows(activeFilter) : [];
+    const detailsHtml = activeFilter ? aggregatedRowsTable(rows, listTitle, 'Даних у цій категорії немає.') : '';
 
     resultsBody.innerHTML = `
       <div class="upload-review-control-head">
         <div class="upload-review-toolbar">
-          <button type="button" class="${mode === 'review' ? 'is-active' : ''}" data-review-mode="review" data-review-filter="${escapeHtml(activeFilter)}">${reviewIcon('review')}<span>Огляд</span></button>
+          <button type="button" class="${mode === 'review' && !activeFilter ? 'is-active' : ''}" data-review-mode="review" data-review-filter="">${reviewIcon('review')}<span>Огляд</span></button>
           <button type="button" class="${mode === 'parse' ? 'is-active' : ''}" data-review-mode="parse">${reviewIcon('parse')}<span>Режим парсингу</span><b>${totals.unknown}</b></button>
         </div>
         <div class="upload-review-kpi-grid">
@@ -774,7 +775,7 @@
         </div>
         ${reviewUnitsHtml()}
       </div>
-      ${mode === 'parse' ? parseModeHtml() : aggregatedRowsTable(rows, listTitle, 'Даних у цій категорії немає.')}`;
+      ${mode === 'parse' ? parseModeHtml() : detailsHtml}`;
   }
 
   async function openResults() {
@@ -850,12 +851,12 @@
   resultsBody.addEventListener('click', async (event) => {
     const modeBtn = event.target.closest('[data-review-mode]');
     if (modeBtn) {
-      renderResultsBody(modeBtn.dataset.reviewMode, modeBtn.dataset.reviewFilter || 'known');
+      renderResultsBody(modeBtn.dataset.reviewMode, modeBtn.dataset.reviewFilter || '');
       return;
     }
     const filterBtn = event.target.closest('[data-review-filter]');
     if (filterBtn && !filterBtn.closest('[data-review-mode]')) {
-      renderResultsBody('review', filterBtn.dataset.reviewFilter || 'known');
+      renderResultsBody('review', filterBtn.dataset.reviewFilter || '');
       return;
     }
     const ignoreBtn = event.target.closest('[data-upload-ignore-unknown]');
