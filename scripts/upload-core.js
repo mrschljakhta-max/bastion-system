@@ -844,7 +844,11 @@
       const unknown = file.review?.unknown || [];
       for (const record of unknown) await insertUnknownValue(file, record, 'unresolved');
     }
-    confirmButton.querySelector('span').textContent = 'Імпорт підготовлено';
+    const confirmLabel = confirmButton.querySelector('span');
+    if (confirmLabel) confirmLabel.textContent = 'Імпорт підтверджено';
+    setTimeout(() => {
+      window.location.assign('./calculator.html');
+    }, 650);
   });
   resetButton.addEventListener('click', resetAll);
   document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closeResults(); }));
