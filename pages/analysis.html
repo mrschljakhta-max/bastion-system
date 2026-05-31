@@ -6,7 +6,7 @@
   <title>BASTION — Аналіз</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/analysis-core.css?v=285" />
+  <link rel="stylesheet" href="../styles/analysis-core.css?v=286" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -105,74 +105,27 @@
         </article>
       </section>
 
-      <section class="analysis-dashboard-grid">
-        <article class="analysis-panel analysis-panel--units analysis-tilt">
+      <section class="analysis-dashboard-grid analysis-dashboard-grid--summary" aria-label="Результати розподілу та залишків">
+        <article class="analysis-panel analysis-panel--distribution analysis-tilt">
           <div class="analysis-panel__head">
             <div>
-              <p>Розподіл</p>
-              <h2>Підрозділи</h2>
+              <p>Distribution</p>
+              <h2>Хто що отримує</h2>
             </div>
-            <span id="activeUnitsChip" class="analysis-chip">4 активні</span>
+            <span class="analysis-chip">Розподіл</span>
           </div>
-          <div id="unitDistribution" class="unit-hex-grid" aria-label="Розподіл комплектів по підрозділах"></div>
+          <div id="issueTable" class="unit-result-table" aria-label="Розподіл боєприпасів по підрозділах"></div>
         </article>
 
-        <article class="analysis-panel analysis-panel--matrix analysis-tilt">
+        <article class="analysis-panel analysis-panel--remaining analysis-tilt">
           <div class="analysis-panel__head">
             <div>
-              <p>Matrix</p>
-              <h2>Результат розрахунку</h2>
-            </div>
-            <span id="recipeModeChip" class="analysis-chip">Загальний режим</span>
-          </div>
-          <div class="result-table-wrap">
-            <table class="analysis-table">
-              <thead>
-                <tr>
-                  <th>Рецепт</th>
-                  <th>Дальність</th>
-                  <th>Комплектів</th>
-                  <th>Статус</th>
-                </tr>
-              </thead>
-              <tbody id="resultRows"></tbody>
-            </table>
-          </div>
-        </article>
-
-        <article class="analysis-panel analysis-panel--bottleneck analysis-tilt">
-          <div class="analysis-panel__head">
-            <div>
-              <p>Critical</p>
-              <h2>Вузькі місця</h2>
-            </div>
-            <span class="analysis-chip analysis-chip--danger">Контроль</span>
-          </div>
-          <div id="bottleneckBars" class="bottleneck-list"></div>
-        </article>
-      </section>
-
-      <section class="analysis-remain-grid" aria-label="Залишки після розрахунку">
-        <article class="analysis-panel analysis-panel--resources analysis-tilt">
-          <div class="analysis-panel__head analysis-panel__head--compact">
-            <div>
-              <p>Inventory</p>
-              <h2>Залишки по видах</h2>
-            </div>
-            <span class="analysis-chip">Було / використано / залишилось</span>
-          </div>
-          <div id="resourceCards" class="resource-grid"></div>
-        </article>
-
-        <article class="analysis-panel analysis-panel--unit-remains analysis-tilt">
-          <div class="analysis-panel__head analysis-panel__head--compact">
-            <div>
-              <p>Units</p>
-              <h2>Залишки по підрозділах</h2>
+              <p>Remain</p>
+              <h2>Залишки</h2>
             </div>
             <span class="analysis-chip">Після розрахунку</span>
           </div>
-          <div id="unitRemainCards" class="unit-remain-grid"></div>
+          <div id="remainTable" class="unit-result-table" aria-label="Залишки по підрозділах"></div>
         </article>
       </section>
 
