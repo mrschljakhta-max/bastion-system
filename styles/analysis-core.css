@@ -743,3 +743,46 @@ body.theme-light .result-line--head {
   .result-unit-head b { font-size: 29px; }
   .result-unit-chevron { width: 25px; height: 25px; }
 }
+
+/* v300 — show collapsed block totals near unit names */
+.result-unit-head > b,
+.result-unit-block .result-unit-head > b {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 76, 82, .28);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.075), rgba(255,255,255,.025)),
+    rgba(0,0,0,.26);
+  color: var(--analysis-text);
+  font: 900 30px/.9 "Rajdhani", "Arial", sans-serif;
+  letter-spacing: .02em;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(255,255,255,.12);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.28) inset,
+    0 0 18px rgba(255, 50, 60, .10);
+}
+
+.result-unit-block.is-open .result-unit-head > b {
+  border-color: rgba(255, 76, 82, .48);
+  box-shadow:
+    0 0 0 1px rgba(255, 76, 82, .08) inset,
+    0 0 24px rgba(255, 50, 60, .18);
+}
+
+.result-unit-head {
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+}
+
+body.light-theme .result-unit-head > b,
+body.theme-light .result-unit-head > b {
+  background: rgba(255,255,255,.56);
+  border-color: rgba(255,70,70,.22);
+  color: rgba(15,18,25,.92);
+  text-shadow: none;
+}
