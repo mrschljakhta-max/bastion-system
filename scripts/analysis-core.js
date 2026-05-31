@@ -45,10 +45,10 @@
         unit: '1 САДн',
         total: 54,
         items: [
-          { name: 'SN7', qty: 38, used: 82, initial: 120 },
-          { name: 'ZA8', qty: 7, used: 83, initial: 90 },
-          { name: 'PID5', qty: 19, used: 41, initial: 60 },
-          { name: 'PR1', qty: 82, used: 48, initial: 130 }
+          { name: 'SN7', qty: 38 },
+          { name: 'ZA8', qty: 7 },
+          { name: 'PID5', qty: 19 },
+          { name: 'PR1', qty: 82 }
         ]
       },
       {
@@ -136,14 +136,14 @@
         unit: group.unit || fallbackGroup?.unit || `Підрозділ ${idx + 1}`,
         total,
         items: items.map(item => {
-          const qty = Number(item.qty ?? item.count ?? item.total ?? item.remaining ?? 0);
-          const initial = Number(item.initial ?? item.before ?? item.start ?? 0);
-          const used = Number(item.used ?? item.spent ?? item.consumed ?? (initial ? Math.max(0, initial - qty) : 0));
+          const qty = Number(item.qty ?? item.count ?? item.total ?? item.remaining ?? item.left ?? 0);
+          const initial = Number(item.initial ?? item.start ?? item.before ?? item.original ?? item.stock ?? item.totalBefore ?? NaN);
+          const used = Number(item.used ?? item.consumed ?? item.spent ?? item.issued ?? (Number.isFinite(initial) ? Math.max(0, initial - qty) : 0));
           return {
             name: item.name || item.title || 'Елемент',
             qty,
-            initial,
-            used
+            used,
+            initial: Number.isFinite(initial) ? initial : qty + used
           };
         })
       };
@@ -189,10 +189,16 @@
     return units.map((unit, idx) => ({
       unit: unit.name || `Підрозділ ${idx + 1}`,
       total: Number(unit.left ?? Math.max(0, Math.round(Number(unit.kits ?? 0) * .42))),
-      items: resources.slice(0, 4).map(resource => ({
-        name: resource.name || 'Елемент',
-        qty: Math.max(0, Math.round(Number(resource.left ?? 0) / units.length))
-      }))
+      items: resources.slice(0, 4).map(resource => {
+        const remaining = Math.max(0, Math.round(Number(resource.left ?? resource.remaining ?? 0) / units.length));
+        const initial = Math.max(0, Math.round(Number(resource.initial ?? resource.stock ?? resource.qty ?? resource.quantity ?? resource.total ?? resource.left ?? 0) / units.length));
+        return {
+          name: resource.name || 'Елемент',
+          qty: remaining,
+          used: Math.max(0, initial - remaining),
+          initial
+        };
+      })
     }));
   }
 
@@ -224,7 +230,7 @@
     const rowQty = options.rowQty || (hostId === 'remainBlocks' ? 'Залишок' : 'Кількість');
     const rowUsed = options.rowUsed || 'Викор.';
     const unitLabel = options.unitLabel || (hostId === 'remainBlocks' ? 'Залишки' : 'Підрозділ');
-    const hasUsedColumn = Boolean(options.usedColumn);
+    const isRemain = hostId === 'remainBlocks' || options.type === 'remain';
 
     if (!Array.isArray(groups) || !groups.length) {
       host.innerHTML = `<div class="analysis-empty">${escapeHtml(emptyText)}</div>`;
@@ -237,6 +243,37 @@
       const unit = group.unit || `Підрозділ ${index + 1}`;
       const bodyId = `${hostId}-details-${index}`;
 
+      const headerLine = isRemain
+        ? `<div class="result-line result-line--head result-line--remain">
+              <span>${escapeHtml(rowName)}</span>
+              <em>${escapeHtml(rowUsed)}</em>
+              <b>${escapeHtml(rowQty)}</b>
+            </div>`
+        : `<div class="result-line result-line--head">
+              <span>${escapeHtml(rowName)}</span>
+              <b>${escapeHtml(rowQty)}</b>
+            </div>`;
+
+      const itemLines = items.map(item => {
+        const qty = Number(item.qty ?? 0);
+        const used = Number(item.used ?? item.consumed ?? item.spent ?? item.issued ?? 0);
+        if (isRemain) {
+          return `
+              <div class="result-line result-line--remain">
+                <span>${escapeHtml(item.name)}</span>
+                <em>${used}</em>
+                <b>${qty}</b>
+              </div>
+            `;
+        }
+        return `
+              <div class="result-line">
+                <span>${escapeHtml(item.name)}</span>
+                <b>${qty}</b>
+              </div>
+            `;
+      }).join('');
+
       return `
         <section class="result-unit-block result-unit-block--collapsed" data-unit="${escapeHtml(unit)}">
           <button class="result-unit-head" type="button" aria-expanded="false" aria-controls="${bodyId}">
@@ -248,22 +285,8 @@
             <b>${total}</b>
           </button>
           <div id="${bodyId}" class="result-unit-items" hidden>
-            <div class="result-line result-line--head${hasUsedColumn ? ' result-line--triple' : ''}">
-              <span>${escapeHtml(rowName)}</span>
-              ${hasUsedColumn ? `<em>${escapeHtml(rowUsed)}</em>` : ''}
-              <b>${escapeHtml(rowQty)}</b>
-            </div>
-            ${items.map(item => {
-              const qty = Number(item.qty ?? 0);
-              const used = Number(item.used ?? (Number(item.initial || 0) ? Math.max(0, Number(item.initial || 0) - qty) : 0));
-              return `
-                <div class="result-line${hasUsedColumn ? ' result-line--triple' : ''}">
-                  <span>${escapeHtml(item.name)}</span>
-                  ${hasUsedColumn ? `<em>${used}</em>` : ''}
-                  <b>${qty}</b>
-                </div>
-              `;
-            }).join('')}
+            ${headerLine}
+            ${itemLines}
           </div>
         </section>
       `;
@@ -453,7 +476,7 @@
     const data = readStoredResult();
     renderKpis(data);
     renderGroupedBlocks('allocationBlocks', data.allocations, { unitLabel: 'Підрозділ', rowName: 'Комбінація', rowQty: 'Кількість' });
-    renderGroupedBlocks('remainBlocks', data.remains, { unitLabel: 'Залишки', rowName: 'Елемент', rowUsed: 'Викор.', rowQty: 'Залишок', usedColumn: true });
+    renderGroupedBlocks('remainBlocks', data.remains, { type: 'remain', unitLabel: 'Залишки', rowName: 'Елемент', rowUsed: 'Викор.', rowQty: 'Залишок' });
     initStyledScrollbars();
     initTilt();
     bindActions();

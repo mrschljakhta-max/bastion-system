@@ -534,28 +534,6 @@ body.theme-light .analysis-action--ghost { background: rgba(255,255,255,.58); }
   font: 900 18px/.9 "Rajdhani", "Arial", sans-serif;
 }
 
-.result-line--triple {
-  grid-template-columns: minmax(0, 1fr) minmax(44px, 64px) minmax(48px, 68px);
-}
-
-.result-line em {
-  min-width: 44px;
-  text-align: right;
-  color: rgba(255, 210, 126, .95);
-  font: 900 16px/.9 "Rajdhani", "Arial", sans-serif;
-  font-style: normal;
-  letter-spacing: .035em;
-  text-shadow: 0 0 12px rgba(255, 180, 70, .18);
-}
-
-.result-line--head em {
-  color: rgba(255, 116, 116, .9);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .14em;
-  text-shadow: none;
-}
-
 .analysis-empty {
   padding: 18px;
   border: 1px dashed rgba(255,255,255,.16);
@@ -983,13 +961,78 @@ body.theme-light .analysis-scroll-thumb {
   z-index: 20;
 }
 
-body.light-theme .result-line em,
-body.theme-light .result-line em {
-  color: rgba(145, 78, 12, .92);
+/* v304 — fixed three-column layout for REMAIN table: element | used | remaining */
+#remainBlocks .result-line--remain,
+.analysis-panel--remain .result-line--remain {
+  grid-template-columns: minmax(0, 1fr) 72px 82px !important;
+  column-gap: 12px;
+  align-items: center;
+}
+
+#remainBlocks .result-line--remain span,
+.analysis-panel--remain .result-line--remain span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#remainBlocks .result-line--remain em,
+.analysis-panel--remain .result-line--remain em {
+  min-width: 72px;
+  text-align: right;
+  color: #ffce6c;
+  font: 900 16px/.9 "Rajdhani", "Arial", sans-serif;
+  letter-spacing: .03em;
+  font-style: normal;
+  text-shadow: 0 0 14px rgba(255,206,108,.18);
+}
+
+#remainBlocks .result-line--remain b,
+.analysis-panel--remain .result-line--remain b {
+  min-width: 82px;
+  text-align: right;
+}
+
+#remainBlocks .result-line--head.result-line--remain em,
+.analysis-panel--remain .result-line--head.result-line--remain em,
+#remainBlocks .result-line--head.result-line--remain b,
+.analysis-panel--remain .result-line--head.result-line--remain b {
+  color: rgba(255, 120, 126, .92);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
   text-shadow: none;
 }
 
-body.light-theme .result-line--head em,
-body.theme-light .result-line--head em {
-  color: rgba(210, 58, 58, .92);
+body.light-theme #remainBlocks .result-line--remain em,
+body.theme-light #remainBlocks .result-line--remain em,
+body.light-theme .analysis-panel--remain .result-line--remain em,
+body.theme-light .analysis-panel--remain .result-line--remain em {
+  color: #b96a12;
+  text-shadow: none;
+}
+
+body.light-theme #remainBlocks .result-line--head.result-line--remain em,
+body.theme-light #remainBlocks .result-line--head.result-line--remain em,
+body.light-theme .analysis-panel--remain .result-line--head.result-line--remain em,
+body.theme-light .analysis-panel--remain .result-line--head.result-line--remain em {
+  color: rgba(255, 70, 76, .90);
+}
+
+@media (max-width: 760px) {
+  #remainBlocks .result-line--remain,
+  .analysis-panel--remain .result-line--remain {
+    grid-template-columns: minmax(0, 1fr) 58px 66px !important;
+    column-gap: 8px;
+  }
+  #remainBlocks .result-line--remain em,
+  .analysis-panel--remain .result-line--remain em {
+    min-width: 58px;
+    font-size: 14px;
+  }
+  #remainBlocks .result-line--remain b,
+  .analysis-panel--remain .result-line--remain b {
+    min-width: 66px;
+  }
 }
