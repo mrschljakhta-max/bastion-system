@@ -39,6 +39,7 @@
     primers: ['праймер', 'primer', 'primers', 'капсуль']
   };
   const UNKNOWN_TABLE = 'dict_unknown_values';
+  const IMPORT_STORAGE_KEYS = ['bastion.import.context', 'bastionImportContext', 'BASTION_IMPORT_CONTEXT', 'bastionUploadImportContext'];
 
   let files = [];
   let parsed = false;
@@ -461,17 +462,7 @@
       if (hit && Number.isInteger(count)) known.push(record);
       else unknown.push(record);
     });
-    const detectedUnit = detectUnitForFile(item, rawRows);
-    return {
-      rows: rawRows,
-      known,
-      unknown,
-      quantityErrors,
-      parseError,
-      unitId: detectedUnit?.value || '',
-      unitName: detectedUnit?.name || '',
-      unitAutoDetected: !!detectedUnit
-    };
+    return { rows: rawRows, known, unknown, quantityErrors, parseError, unitId: '', unitName: '' };
   }
 
   async function ensureReviewData() {
@@ -521,63 +512,10 @@
     const rows = dictState.units || [];
     const fallback = rows.length ? '' : '<option value="45 ОАБр">45 ОАБр</option><option value="1 дивізіон">1 дивізіон</option><option value="2 батарея">2 батарея</option>';
     return `<option value="">Обрати підрозділ із довідника</option>${fallback}${rows.map(row => {
-      const name = unitRowDisplay(row);
-      const value = unitRowValue(row);
+      const name = rowName(row) || row.name || row.title || row.code || row.id;
+      const value = row.id || name;
       return `<option value="${escapeHtml(value)}" ${String(selected) === String(value) ? 'selected' : ''}>${escapeHtml(name)}</option>`;
     }).join('')}`;
-  }
-
-
-  function unitRowValue(row) {
-    const name = rowName(row) || row?.name || row?.title || row?.title_ua || row?.code || row?.id || '';
-    return row?.id || name;
-  }
-
-  function unitRowDisplay(row) {
-    return rowName(row) || row?.name || row?.title || row?.title_ua || row?.code || row?.id || '';
-  }
-
-  function collectUnitNames(row) {
-    const values = collectRowNames(row);
-    if (row && typeof row === 'object') {
-      ['name', 'title', 'title_ua', 'code', 'short_name', 'full_name', 'display_name', 'unit_name', 'unit', 'підрозділ', 'пiдроздiл'].forEach(field => {
-        if (row[field] != null) values.push(row[field]);
-      });
-    }
-    return [...new Set(values.map(v => String(v || '').trim()).filter(Boolean))];
-  }
-
-  function normalizeForUnitSearch(value) {
-    return normalizeToken(value).replace(/[_\-]+/g, '');
-  }
-
-  function findUnitHit(candidates = []) {
-    const units = dictState.units || [];
-    if (!units.length) return null;
-    const haystack = candidates
-      .flatMap(value => [normalizeValue(value), normalizeToken(value), normalizeForUnitSearch(value)])
-      .join('\n');
-    for (const row of units) {
-      const names = collectUnitNames(row);
-      for (const name of names) {
-        const variants = [...valueVariants(name), normalizeForUnitSearch(name)]
-          .map(v => String(v || '').trim())
-          .filter(v => v.length >= 2);
-        if (variants.some(v => haystack.includes(v))) {
-          return { row, value: unitRowValue(row), name: unitRowDisplay(row) };
-        }
-      }
-    }
-    return null;
-  }
-
-  function detectUnitForFile(item, rows = []) {
-    const rowPreview = rows.slice(0, 80).map(row => {
-      if (row == null) return '';
-      if (typeof row === 'string' || typeof row === 'number') return String(row);
-      try { return JSON.stringify(row); } catch (_) { return Object.values(row).join(' '); }
-    });
-    return findUnitHit([item?.name || '', ...rowPreview]);
   }
 
 
@@ -694,23 +632,27 @@
 
   function unitDisplayName(value) {
     if (!value) return '';
-    const found = (dictState.units || []).find(row => String(unitRowValue(row)) === String(value));
-    return found ? (unitRowDisplay(found) || value) : value;
+    const found = (dictState.units || []).find(row => String(row.id || rowName(row)) === String(value));
+    return found ? (rowName(found) || found.name || found.title || value) : value;
   }
 
   function reviewUnitsHtml() {
-    const selectors = files.map((f) => {
+    const selected = files
+      .map(f => ({ file: f, review: f.review || {} }))
+      .filter(item => item.review.unitId)
+      .map(item => `<span class="upload-unit-badge">${reviewIcon('unit')}<b>${escapeHtml(unitDisplayName(item.review.unitId))}</b><small>${escapeHtml(item.file.name)}</small></span>`)
+      .join('');
+
+    const selectors = files.map((f, index) => {
       const review = f.review || {};
-      const selectedName = review.unitId ? unitDisplayName(review.unitId) : '';
-      const auto = review.unitAutoDetected && selectedName
-        ? `<small class="upload-unit-auto">знайдено автоматично: ${escapeHtml(selectedName)}</small>`
-        : `<small class="upload-unit-auto is-missing">підрозділ не визначено автоматично</small>`;
-      return `<label class="upload-unit-map-row ${review.unitId ? 'is-detected' : 'is-missing'}"><span>${reviewIcon('file')}<b>${escapeHtml(f.name)}</b>${auto}</span><select data-upload-unit-select="${f.id}">${unitOptions(review.unitId)}</select></label>`;
+      if (review.unitId) return '';
+      return `<label class="upload-unit-map-row"><span>${reviewIcon('file')}<b>${escapeHtml(f.name)}</b></span><select data-upload-unit-select="${f.id}">${unitOptions(review.unitId)}</select></label>`;
     }).join('');
 
     return `<section class="upload-review-units">
       <div class="upload-review-units-title">${reviewIcon('unit')}<span>Підрозділи</span></div>
-      <div class="upload-unit-missing">${selectors}</div>
+      ${selected ? `<div class="upload-unit-badges">${selected}</div>` : ''}
+      ${selectors ? `<div class="upload-unit-missing">${selectors}</div>` : ''}
     </section>`;
   }
 
@@ -751,23 +693,22 @@
     }).join('') || `<div class="upload-result-empty is-ok">Невідомих значень немає. Можна підтверджувати імпорт.</div>`;
   }
 
-  function renderResultsBody(mode = 'review', filter = '') {
+  function renderResultsBody(mode = 'review', filter = 'known') {
     const totals = reviewTotals();
-    const activeFilter = mode === 'parse' ? 'unknown' : (filter || '');
+    const activeFilter = mode === 'parse' ? 'unknown' : filter;
     const kpi = [
       ['all', 'rows', 'Загальна кількість', totals.rows],
       ['known', 'known', 'Відомі', totals.known],
       ['unknown', 'unknown', 'Невідомі', totals.unknown],
       ['errors', 'errors', 'Помилки', totals.errors]
     ];
-    const listTitle = activeFilter === 'all' ? 'Всі дані імпорту' : activeFilter === 'known' ? 'Відомі дані' : activeFilter === 'unknown' ? 'Невідомі дані' : activeFilter === 'errors' ? 'Помилки кількості' : '';
-    const rows = activeFilter ? flatRows(activeFilter) : [];
-    const detailsHtml = activeFilter ? aggregatedRowsTable(rows, listTitle, 'Даних у цій категорії немає.') : '';
+    const listTitle = activeFilter === 'all' ? 'Всі дані імпорту' : activeFilter === 'known' ? 'Відомі дані' : activeFilter === 'unknown' ? 'Невідомі дані' : 'Помилки кількості';
+    const rows = flatRows(activeFilter);
 
     resultsBody.innerHTML = `
       <div class="upload-review-control-head">
         <div class="upload-review-toolbar">
-          <button type="button" class="${mode === 'review' && !activeFilter ? 'is-active' : ''}" data-review-mode="review" data-review-filter="">${reviewIcon('review')}<span>Огляд</span></button>
+          <button type="button" class="${mode === 'review' ? 'is-active' : ''}" data-review-mode="review" data-review-filter="${escapeHtml(activeFilter)}">${reviewIcon('review')}<span>Огляд</span></button>
           <button type="button" class="${mode === 'parse' ? 'is-active' : ''}" data-review-mode="parse">${reviewIcon('parse')}<span>Режим парсингу</span><b>${totals.unknown}</b></button>
         </div>
         <div class="upload-review-kpi-grid">
@@ -775,7 +716,7 @@
         </div>
         ${reviewUnitsHtml()}
       </div>
-      ${mode === 'parse' ? parseModeHtml() : detailsHtml}`;
+      ${mode === 'parse' ? parseModeHtml() : aggregatedRowsTable(rows, listTitle, 'Даних у цій категорії немає.')}`;
   }
 
   async function openResults() {
@@ -828,6 +769,45 @@
   document.addEventListener('pointerdown', guardResultsModalClick, true);
   document.addEventListener('click', guardResultsModalClick, true);
 
+
+  function uniqueImportUnits() {
+    const map = new Map();
+    files.forEach(file => {
+      const unitName = file.review?.unitName || unitDisplayName(file.review?.unitId) || '';
+      const unitId = file.review?.unitId || unitName;
+      const key = normalizeToken(unitName || unitId);
+      if (!key) return;
+      if (!map.has(key)) map.set(key, { id: String(unitId), name: String(unitName || unitId), enabled: true, sourceFiles: [] });
+      map.get(key).sourceFiles.push(file.name);
+    });
+    return [...map.values()];
+  }
+
+  function saveImportContext() {
+    const payload = {
+      version: 1,
+      createdAt: new Date().toISOString(),
+      units: uniqueImportUnits(),
+      files: files.map(file => ({
+        id: file.id,
+        name: file.name,
+        unitId: file.review?.unitId || '',
+        unitName: file.review?.unitName || unitDisplayName(file.review?.unitId) || '',
+        rows: file.review?.rows?.length || 0,
+        known: file.review?.known?.length || 0,
+        unknown: file.review?.unknown?.length || 0,
+        errors: file.review?.quantityErrors?.length || 0
+      })),
+      totals: reviewTotals()
+    };
+    const raw = JSON.stringify(payload);
+    IMPORT_STORAGE_KEYS.forEach(key => {
+      try { window.localStorage?.setItem(key, raw); } catch (_) {}
+      try { window.sessionStorage?.setItem(key, raw); } catch (_) {}
+    });
+    return payload;
+  }
+
   startButton.addEventListener('click', startParsing);
   clearQueueButton?.addEventListener('click', clearQueue);
   filesList.addEventListener('click', (event) => {
@@ -840,27 +820,28 @@
   resultsButton.addEventListener('click', openResults);
   confirmButton?.addEventListener('click', async () => {
     await ensureReviewData();
+    saveImportContext();
     for (const file of files) {
       const unknown = file.review?.unknown || [];
       for (const record of unknown) await insertUnknownValue(file, record, 'unresolved');
     }
-    const confirmLabel = confirmButton.querySelector('span');
-    if (confirmLabel) confirmLabel.textContent = 'Імпорт підтверджено';
-    setTimeout(() => {
+    const label = confirmButton.querySelector('span');
+    if (label) label.textContent = 'Імпорт підтверджено';
+    window.setTimeout(() => {
       window.location.assign('./calculator.html');
-    }, 650);
+    }, 450);
   });
   resetButton.addEventListener('click', resetAll);
   document.querySelectorAll('[data-upload-results-close]').forEach(el => el.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); closeResults(); }));
   resultsBody.addEventListener('click', async (event) => {
     const modeBtn = event.target.closest('[data-review-mode]');
     if (modeBtn) {
-      renderResultsBody(modeBtn.dataset.reviewMode, modeBtn.dataset.reviewFilter || '');
+      renderResultsBody(modeBtn.dataset.reviewMode, modeBtn.dataset.reviewFilter || 'known');
       return;
     }
     const filterBtn = event.target.closest('[data-review-filter]');
     if (filterBtn && !filterBtn.closest('[data-review-mode]')) {
-      renderResultsBody('review', filterBtn.dataset.reviewFilter || '');
+      renderResultsBody('review', filterBtn.dataset.reviewFilter || 'known');
       return;
     }
     const ignoreBtn = event.target.closest('[data-upload-ignore-unknown]');
@@ -927,7 +908,6 @@
     if (file?.review) {
       file.review.unitId = select.value;
       file.review.unitName = select.options[select.selectedIndex]?.textContent || '';
-      file.review.unitAutoDetected = false;
     }
   });
   document.addEventListener('keydown', (event) => {
