@@ -786,3 +786,131 @@ body.theme-light .result-unit-head > b {
   color: rgba(15,18,25,.92);
   text-shadow: none;
 }
+
+/* v301 — BASTION styled fixed scroll runner for analysis tables */
+.analysis-panel {
+  position: relative;
+}
+
+.analysis-block-list {
+  scrollbar-width: none !important;
+  padding-right: 22px !important;
+}
+
+.analysis-block-list::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+.analysis-panel.has-bastion-scrollbar .analysis-scrollbar {
+  position: absolute;
+  z-index: 8;
+  right: 10px;
+  top: 92px;
+  bottom: 18px;
+  width: 18px;
+  border-radius: 999px;
+  pointer-events: auto;
+  opacity: .92;
+}
+
+.analysis-panel.has-bastion-scrollbar .analysis-scrollbar::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg,
+    rgba(255, 80, 86, 0),
+    rgba(255, 80, 86, .34) 18%,
+    rgba(255, 80, 86, .50) 50%,
+    rgba(255, 80, 86, .34) 82%,
+    rgba(255, 80, 86, 0)
+  );
+  box-shadow: 0 0 14px rgba(255, 52, 62, .20);
+}
+
+.analysis-scroll-thumb {
+  position: absolute;
+  left: 3px;
+  top: 0;
+  width: 12px;
+  min-height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 96, 102, .66);
+  background:
+    linear-gradient(180deg, rgba(255, 92, 98, .98), rgba(125, 18, 24, .92)),
+    rgba(255, 50, 60, .85);
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.36) inset,
+    0 0 18px rgba(255, 48, 56, .42),
+    0 8px 24px rgba(0,0,0,.30);
+  cursor: grab;
+  transition: box-shadow .18s ease, transform .18s ease, opacity .18s ease;
+}
+
+.analysis-scroll-thumb::before,
+.analysis-scroll-thumb::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 5px;
+  height: 1px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(255,255,255,.68);
+  box-shadow: 0 0 8px rgba(255,255,255,.36);
+}
+
+.analysis-scroll-thumb::before { top: 13px; }
+.analysis-scroll-thumb::after { bottom: 13px; }
+
+.analysis-scroll-thumb:hover,
+.analysis-scroll-thumb.is-dragging {
+  transform: scaleX(1.15);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.16) inset,
+    0 0 25px rgba(255, 48, 56, .62),
+    0 10px 26px rgba(0,0,0,.38);
+}
+
+.analysis-scroll-thumb.is-dragging {
+  cursor: grabbing;
+}
+
+.analysis-scrollbar.is-disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.light-theme .analysis-panel.has-bastion-scrollbar .analysis-scrollbar::before,
+body.theme-light .analysis-panel.has-bastion-scrollbar .analysis-scrollbar::before {
+  background: linear-gradient(180deg,
+    rgba(255, 70, 75, 0),
+    rgba(255, 70, 75, .24) 18%,
+    rgba(255, 70, 75, .38) 50%,
+    rgba(255, 70, 75, .24) 82%,
+    rgba(255, 70, 75, 0)
+  );
+}
+
+body.light-theme .analysis-scroll-thumb,
+body.theme-light .analysis-scroll-thumb {
+  border-color: rgba(255, 70, 75, .52);
+  background: linear-gradient(180deg, rgba(255, 82, 86, .92), rgba(255, 30, 40, .78));
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.55) inset,
+    0 0 18px rgba(255, 48, 56, .28),
+    0 7px 20px rgba(80, 90, 105, .18);
+}
+
+@media (max-height: 800px) {
+  .analysis-panel.has-bastion-scrollbar .analysis-scrollbar {
+    top: 84px;
+    bottom: 14px;
+  }
+  .analysis-scroll-thumb { min-height: 38px; }
+}

@@ -266,13 +266,17 @@
 
         if (isOpen) {
           panel.style.maxHeight = `${panel.scrollHeight}px`;
+          panel.style.opacity = '1';
+          window.dispatchEvent(new Event('resize'));
         } else {
           panel.style.maxHeight = `${panel.scrollHeight}px`;
           requestAnimationFrame(() => {
             panel.style.maxHeight = '0px';
             panel.style.opacity = '0';
+            window.dispatchEvent(new Event('resize'));
           });
         }
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 360);
       });
     });
 
@@ -324,6 +328,98 @@
     });
   }
 
+
+  function initStyledScrollbars() {
+    document.querySelectorAll('.analysis-block-list').forEach(list => {
+      const panel = list.closest('.analysis-panel');
+      if (!panel || panel.querySelector('.analysis-scrollbar')) return;
+
+      panel.classList.add('has-bastion-scrollbar');
+      const rail = document.createElement('div');
+      rail.className = 'analysis-scrollbar';
+      rail.setAttribute('aria-hidden', 'true');
+
+      const thumb = document.createElement('div');
+      thumb.className = 'analysis-scroll-thumb';
+      rail.appendChild(thumb);
+      panel.appendChild(rail);
+
+      let dragging = false;
+      let startY = 0;
+      let startTop = 0;
+
+      const metrics = () => {
+        const railHeight = rail.clientHeight;
+        const scrollHeight = list.scrollHeight;
+        const visibleHeight = list.clientHeight;
+        const maxScroll = Math.max(0, scrollHeight - visibleHeight);
+        const ratio = visibleHeight > 0 && scrollHeight > 0 ? visibleHeight / scrollHeight : 1;
+        const thumbHeight = Math.max(46, Math.min(railHeight, Math.round(railHeight * ratio)));
+        const maxTop = Math.max(0, railHeight - thumbHeight);
+        return { railHeight, maxScroll, thumbHeight, maxTop };
+      };
+
+      const update = () => {
+        const { maxScroll, thumbHeight, maxTop } = metrics();
+        if (maxScroll <= 2 || maxTop <= 2) {
+          rail.classList.add('is-disabled');
+          thumb.style.height = `${thumbHeight}px`;
+          thumb.style.transform = 'translateY(0px)';
+          return;
+        }
+        rail.classList.remove('is-disabled');
+        const top = (list.scrollTop / maxScroll) * maxTop;
+        thumb.style.height = `${thumbHeight}px`;
+        thumb.style.transform = `translateY(${top}px)`;
+      };
+
+      list.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update, { passive: true });
+
+      thumb.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        const currentTransform = thumb.style.transform.match(/translateY\(([-0-9.]+)px\)/);
+        dragging = true;
+        startY = event.clientY;
+        startTop = currentTransform ? Number(currentTransform[1]) : 0;
+        thumb.classList.add('is-dragging');
+        thumb.setPointerCapture?.(event.pointerId);
+      });
+
+      document.addEventListener('pointermove', event => {
+        if (!dragging) return;
+        const { maxScroll, maxTop } = metrics();
+        if (maxScroll <= 0 || maxTop <= 0) return;
+        const nextTop = Math.max(0, Math.min(maxTop, startTop + event.clientY - startY));
+        list.scrollTop = (nextTop / maxTop) * maxScroll;
+        update();
+      });
+
+      document.addEventListener('pointerup', () => {
+        if (!dragging) return;
+        dragging = false;
+        thumb.classList.remove('is-dragging');
+      });
+
+      rail.addEventListener('pointerdown', event => {
+        if (event.target === thumb) return;
+        const { maxScroll, thumbHeight, maxTop } = metrics();
+        if (maxScroll <= 0 || maxTop <= 0) return;
+        const rect = rail.getBoundingClientRect();
+        const nextTop = Math.max(0, Math.min(maxTop, event.clientY - rect.top - thumbHeight / 2));
+        list.scrollTo({ top: (nextTop / maxTop) * maxScroll, behavior: 'smooth' });
+      });
+
+      if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(update);
+        observer.observe(list);
+        observer.observe(panel);
+      }
+
+      requestAnimationFrame(update);
+    });
+  }
+
   function bindActions() {
 
     const exportBtn = document.getElementById('analysisExport');
@@ -340,6 +436,7 @@
     renderKpis(data);
     renderGroupedBlocks('allocationBlocks', data.allocations, { unitLabel: 'Підрозділ', rowName: 'Комбінація', rowQty: 'Кількість' });
     renderGroupedBlocks('remainBlocks', data.remains, { unitLabel: 'Залишки', rowName: 'Елемент', rowQty: 'Залишок' });
+    initStyledScrollbars();
     initTilt();
     bindActions();
   });
