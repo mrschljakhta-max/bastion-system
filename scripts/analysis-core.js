@@ -262,33 +262,36 @@
 
         const isOpen = block.classList.toggle('is-open');
         button.setAttribute('aria-expanded', String(isOpen));
-        panel.hidden = false;
 
         if (isOpen) {
-          panel.style.maxHeight = `${panel.scrollHeight}px`;
+          panel.hidden = false;
+          panel.style.removeProperty('max-height');
           panel.style.opacity = '1';
-          window.dispatchEvent(new Event('resize'));
-        } else {
-          panel.style.maxHeight = `${panel.scrollHeight}px`;
+          // Ensure the opened block becomes part of the parent scroller, not an inner clipped area.
           requestAnimationFrame(() => {
-            panel.style.maxHeight = '0px';
-            panel.style.opacity = '0';
+            block.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             window.dispatchEvent(new Event('resize'));
           });
+        } else {
+          panel.hidden = true;
+          panel.style.opacity = '0';
+          panel.style.removeProperty('max-height');
+          window.dispatchEvent(new Event('resize'));
         }
-        setTimeout(() => window.dispatchEvent(new Event('resize')), 360);
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 120);
       });
     });
 
     host.querySelectorAll('.result-unit-block:not(.is-open) .result-unit-items').forEach(panel => {
-      panel.style.maxHeight = '0px';
+      panel.hidden = true;
       panel.style.opacity = '0';
+      panel.style.removeProperty('max-height');
     });
 
     host.querySelectorAll('.result-unit-block.is-open .result-unit-items').forEach(panel => {
       panel.hidden = false;
-      panel.style.maxHeight = `${panel.scrollHeight}px`;
       panel.style.opacity = '1';
+      panel.style.removeProperty('max-height');
     });
   }
 

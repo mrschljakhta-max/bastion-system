@@ -914,3 +914,49 @@ body.theme-light .analysis-scroll-thumb {
   }
   .analysis-scroll-thumb { min-height: 38px; }
 }
+
+
+/* v302 — accordion content participates in main scroll, no inner clipping */
+.analysis-block-list {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  align-content: start !important;
+}
+
+.result-unit-block {
+  overflow: visible !important;
+}
+
+.result-unit-block::before {
+  border-radius: inherit;
+}
+
+.result-unit-items {
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1;
+  display: grid;
+}
+
+.result-unit-items[hidden] {
+  display: none !important;
+}
+
+.result-unit-block.is-open .result-unit-items {
+  max-height: none !important;
+  overflow: visible !important;
+  padding-top: 8px;
+  padding-bottom: 13px;
+}
+
+.result-unit-block.is-open {
+  z-index: 3;
+}
+
+.result-line {
+  min-height: 30px;
+}
+
+.analysis-panel.has-bastion-scrollbar .analysis-scrollbar {
+  z-index: 20;
+}
