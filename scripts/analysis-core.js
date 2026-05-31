@@ -278,13 +278,6 @@
   }
 
   function bindActions() {
-    const recalc = document.getElementById('analysisRecalculate');
-    if (recalc) {
-      recalc.addEventListener('click', () => {
-        window.location.href = './calculator.html';
-      });
-    }
-
     const exportBtn = document.getElementById('analysisExport');
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {

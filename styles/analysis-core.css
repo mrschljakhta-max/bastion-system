@@ -606,3 +606,103 @@ body.theme-light .result-line span::before {
   background: rgba(255,65,70,.90);
   box-shadow: 0 0 9px rgba(255,65,70,.25);
 }
+
+
+/* v296 — analysis layout cleanup: 3 actions, taller result tables, safe HUD gaps */
+.analysis-screen {
+  padding-top: clamp(126px, 15.2vh, 150px);
+  padding-bottom: clamp(92px, 11.2vh, 116px);
+}
+
+.analysis-shell {
+  width: min(1320px, 82vw);
+  height: min(690px, calc(100vh - 220px));
+  min-height: 520px;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.analysis-kpi-grid {
+  gap: 10px;
+}
+
+.analysis-kpi {
+  min-height: 68px;
+  padding: 10px 14px;
+}
+
+.analysis-kpi strong {
+  margin-top: 5px;
+  font-size: 30px;
+}
+
+.analysis-two-table-grid {
+  min-height: 0;
+  height: 100%;
+  gap: 12px;
+}
+
+.analysis-panel--allocation,
+.analysis-panel--remain {
+  height: 100%;
+  padding: 14px;
+}
+
+.analysis-panel__head {
+  padding-bottom: 10px;
+}
+
+.analysis-block-list {
+  height: calc(100% - 58px);
+  padding-top: 10px;
+  gap: 9px;
+}
+
+.result-unit-head {
+  padding: 10px 13px 7px;
+}
+
+.result-unit-head strong {
+  font-size: 21px;
+}
+
+.result-unit-items {
+  padding: 8px 13px 11px;
+  gap: 5px;
+}
+
+.result-line {
+  min-height: 27px;
+  padding: 6px 10px;
+}
+
+.analysis-actions {
+  width: min(760px, 54vw);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 0;
+  align-self: center;
+}
+
+.analysis-action {
+  min-height: 31px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 10px;
+  letter-spacing: .095em;
+}
+
+@media (max-width: 1180px) {
+  .analysis-actions { width: min(780px, 92vw); grid-template-columns: 1fr; }
+}
+
+@media (max-height: 800px) {
+  .analysis-screen { padding-top: 112px; padding-bottom: 82px; }
+  .analysis-shell { height: calc(100vh - 194px); min-height: 470px; gap: 8px; }
+  .analysis-kpi { min-height: 58px; padding: 9px 12px; }
+  .analysis-kpi strong { font-size: 26px; }
+  .analysis-panel--allocation .analysis-panel__head h2,
+  .analysis-panel--remain .analysis-panel__head h2 { font-size: 24px; }
+  .analysis-actions { width: min(680px, 50vw); }
+  .analysis-action { min-height: 29px; font-size: 9.5px; }
+}
