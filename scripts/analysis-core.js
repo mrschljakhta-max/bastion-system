@@ -6,11 +6,11 @@
     bottleneck: 'ZA8',
     remainTotal: 260,
     remainPercent: 68,
-    issueByUnit: [
+    allocations: [
       {
         unit: '1 САДн',
         total: 126,
-        rows: [
+        items: [
           { name: 'SN7 + ZA8 + PID5 + PR1', qty: 42 },
           { name: 'SN4 + ZA1 + PID1 + PR2', qty: 31 },
           { name: 'SN6 + ZA10 + PID2 + PR1', qty: 53 }
@@ -19,16 +19,15 @@
       {
         unit: '2 САДн',
         total: 94,
-        rows: [
-          { name: 'SN7 + ZA8 + PID5 + PR1', qty: 28 },
-          { name: 'SN5 + ZA4 + PID3 + PR2', qty: 48 },
-          { name: 'SN2 + ZA3 + PID2 + PR0', qty: 18 }
+        items: [
+          { name: 'SN7 + ZA8 + PID5 + PR1', qty: 18 },
+          { name: 'SN5 + ZA4 + PID3 + PR2', qty: 76 }
         ]
       },
       {
         unit: '3 САДн',
         total: 72,
-        rows: [
+        items: [
           { name: 'SN6 + ZA10 + PID2 + PR1', qty: 41 },
           { name: 'SN4 + ZA1 + PID1 + PR2', qty: 31 }
         ]
@@ -36,16 +35,16 @@
       {
         unit: 'Резерв БК',
         total: 50,
-        rows: [
+        items: [
           { name: 'SN5 + ZA4 + PID3 + PR2', qty: 50 }
         ]
       }
     ],
-    remainByUnit: [
+    remains: [
       {
         unit: '1 САДн',
         total: 54,
-        rows: [
+        items: [
           { name: 'SN7', qty: 38 },
           { name: 'ZA8', qty: 7 },
           { name: 'PID5', qty: 19 },
@@ -55,31 +54,31 @@
       {
         unit: '2 САДн',
         total: 46,
-        rows: [
+        items: [
           { name: 'SN7', qty: 54 },
           { name: 'ZA8', qty: 18 },
           { name: 'PID3', qty: 22 },
-          { name: 'PR2', qty: 36 }
+          { name: 'PR2', qty: 41 }
         ]
       },
       {
         unit: '3 САДн',
         total: 48,
-        rows: [
-          { name: 'SN5', qty: 46 },
-          { name: 'ZA4', qty: 29 },
-          { name: 'PID2', qty: 14 },
-          { name: 'PR0', qty: 20 }
+        items: [
+          { name: 'SN6', qty: 25 },
+          { name: 'ZA10', qty: 14 },
+          { name: 'PID2', qty: 9 },
+          { name: 'PR1', qty: 61 }
         ]
       },
       {
         unit: 'Резерв БК',
         total: 112,
-        rows: [
-          { name: 'SN4', qty: 28 },
-          { name: 'ZA1', qty: 34 },
-          { name: 'PID1', qty: 21 },
-          { name: 'PR2', qty: 29 }
+        items: [
+          { name: 'SN5', qty: 46 },
+          { name: 'ZA4', qty: 29 },
+          { name: 'PID3', qty: 22 },
+          { name: 'PR2', qty: 15 }
         ]
       }
     ]
@@ -107,48 +106,39 @@
 
   function normalizeResult(input) {
     const data = { ...fallback, ...input };
-    data.issueByUnit = normalizeIssueByUnit(input.issueByUnit || input.distributionByUnit || input.allocations || input.units);
-    data.remainByUnit = normalizeRemainByUnit(input.remainByUnit || input.leftoversByUnit || input.remainingByUnit || input.unitRemainders);
-    data.remainTotal = input.remainTotal ?? input.remainingTotal ?? input.leftTotal ?? fallback.remainTotal;
+    data.allocations = Array.isArray(input.allocations) && input.allocations.length
+      ? input.allocations
+      : buildAllocationsFromLegacy(input.units, input.recipes) || fallback.allocations;
+    data.remains = Array.isArray(input.remains) && input.remains.length
+      ? input.remains
+      : buildRemainsFromLegacy(input.units, input.resources) || fallback.remains;
+    data.remainTotal = Number(input.remainTotal ?? input.remainingTotal ?? data.remainTotal ?? fallback.remainTotal);
     return data;
   }
 
-  function normalizeIssueByUnit(source) {
-    if (!Array.isArray(source) || !source.length) return fallback.issueByUnit;
-
-    return source.map((unit, index) => {
-      const rows = Array.isArray(unit.rows) ? unit.rows
-        : Array.isArray(unit.items) ? unit.items
-        : Array.isArray(unit.recipes) ? unit.recipes
-        : [];
-      return {
-        unit: unit.unit || unit.name || `Підрозділ ${index + 1}`,
-        total: unit.total ?? unit.kits ?? rows.reduce((sum, row) => sum + Number(row.qty ?? row.kits ?? row.count ?? 0), 0),
-        rows: rows.map(row => ({
-          name: row.name || row.recipe || row.item || row.label || 'Елемент',
-          qty: row.qty ?? row.kits ?? row.count ?? row.value ?? 0
-        }))
-      };
-    });
+  function buildAllocationsFromLegacy(units, recipes) {
+    if (!Array.isArray(units) || !units.length) return null;
+    const recipeList = Array.isArray(recipes) && recipes.length ? recipes : fallback.allocations.flatMap(group => group.items.map(item => ({ name: item.name })));
+    return units.map((unit, idx) => ({
+      unit: unit.name || `Підрозділ ${idx + 1}`,
+      total: Number(unit.kits ?? unit.total ?? 0),
+      items: recipeList.slice(0, Math.max(1, Math.min(3, recipeList.length))).map((recipe, rIdx) => ({
+        name: recipe.name || recipe.title || `Рецепт ${rIdx + 1}`,
+        qty: Math.max(0, Math.round(Number(unit.kits ?? unit.total ?? 0) / Math.max(2, rIdx + 2)))
+      }))
+    }));
   }
 
-  function normalizeRemainByUnit(source) {
-    if (!Array.isArray(source) || !source.length) return fallback.remainByUnit;
-
-    return source.map((unit, index) => {
-      const rows = Array.isArray(unit.rows) ? unit.rows
-        : Array.isArray(unit.items) ? unit.items
-        : Array.isArray(unit.resources) ? unit.resources
-        : [];
-      return {
-        unit: unit.unit || unit.name || `Підрозділ ${index + 1}`,
-        total: unit.total ?? unit.left ?? unit.remaining ?? rows.reduce((sum, row) => sum + Number(row.qty ?? row.left ?? row.remaining ?? row.count ?? 0), 0),
-        rows: rows.map(row => ({
-          name: row.name || row.item || row.resource || row.label || 'Елемент',
-          qty: row.qty ?? row.left ?? row.remaining ?? row.count ?? row.value ?? 0
-        }))
-      };
-    });
+  function buildRemainsFromLegacy(units, resources) {
+    if (!Array.isArray(units) || !units.length || !Array.isArray(resources) || !resources.length) return null;
+    return units.map((unit, idx) => ({
+      unit: unit.name || `Підрозділ ${idx + 1}`,
+      total: Number(unit.left ?? Math.max(0, Math.round(Number(unit.kits ?? 0) * .42))),
+      items: resources.slice(0, 4).map(resource => ({
+        name: resource.name || 'Елемент',
+        qty: Math.max(0, Math.round(Number(resource.left ?? 0) / units.length))
+      }))
+    }));
   }
 
   function formatRange(value) {
@@ -166,39 +156,46 @@
     setText('kpiKits', data.kits ?? fallback.kits);
     setText('kpiRange', formatRange(data.bestRange ?? fallback.bestRange));
     setText('kpiBottleneck', data.bottleneck ?? fallback.bottleneck);
-    setText('kpiRemain', data.remainTotal ?? fallback.remainTotal);
-
-    const remainCard = document.getElementById('kpiRemain')?.closest('.analysis-kpi');
-    if (remainCard) {
-      const small = remainCard.querySelector('small');
-      if (small) small.textContent = `${data.remainPercent ?? fallback.remainPercent}% після розрахунку`;
-      remainCard.title = `Залишок складу: ${data.remainTotal ?? fallback.remainTotal} од. / ${data.remainPercent ?? fallback.remainPercent}%`;
-    }
+    setText('kpiRemain', Number(data.remainTotal ?? fallback.remainTotal));
+    const remain = document.getElementById('kpiRemain');
+    if (remain) remain.closest('.analysis-kpi')?.querySelector('small')?.replaceChildren(document.createTextNode(`${data.remainPercent ?? fallback.remainPercent}% після розрахунку`));
   }
 
-  function renderUnitBlocks(hostId, units, mode) {
+  function renderGroupedBlocks(hostId, groups, options = {}) {
     const host = document.getElementById(hostId);
     if (!host) return;
+    const emptyText = options.emptyText || 'Дані відсутні';
+    if (!Array.isArray(groups) || !groups.length) {
+      host.innerHTML = `<div class="analysis-empty">${escapeHtml(emptyText)}</div>`;
+      return;
+    }
 
-    host.innerHTML = units.map(unit => `
-      <section class="unit-result-block" tabindex="0">
-        <header class="unit-result-block__head">
-          <div>
-            <span>${mode === 'issue' ? 'підрозділ' : 'залишки'}</span>
-            <strong>${escapeHtml(unit.unit)}</strong>
-          </div>
-          <b>${Number(unit.total ?? 0)}</b>
-        </header>
-        <div class="unit-result-block__rows">
-          ${(unit.rows || []).map(row => `
-            <div class="unit-result-row">
-              <span>${escapeHtml(row.name)}</span>
-              <b>${Number(row.qty ?? 0)}</b>
+    host.innerHTML = groups.map(group => {
+      const items = Array.isArray(group.items) ? group.items : [];
+      return `
+        <section class="result-unit-block" data-unit="${escapeHtml(group.unit)}">
+          <header class="result-unit-head">
+            <div>
+              <span>${escapeHtml(options.unitLabel || 'Підрозділ')}</span>
+              <strong>${escapeHtml(group.unit)}</strong>
             </div>
-          `).join('')}
-        </div>
-      </section>
-    `).join('');
+            <b>${Number(group.total ?? sumItems(items))}</b>
+          </header>
+          <div class="result-unit-items">
+            ${items.map(item => `
+              <div class="result-line">
+                <span>${escapeHtml(item.name)}</span>
+                <b>${Number(item.qty ?? 0)}</b>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }).join('');
+  }
+
+  function sumItems(items) {
+    return items.reduce((sum, item) => sum + Number(item.qty ?? 0), 0);
   }
 
   function escapeHtml(value) {
@@ -218,8 +215,8 @@
         const rect = card.getBoundingClientRect();
         const x = (event.clientX - rect.left) / rect.width;
         const y = (event.clientY - rect.top) / rect.height;
-        const rx = (0.5 - y) * 4;
-        const ry = (x - 0.5) * 5;
+        const rx = (0.5 - y) * 5;
+        const ry = (x - 0.5) * 7;
         card.style.setProperty('--mx', `${x * 100}%`);
         card.style.setProperty('--my', `${y * 100}%`);
         card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
@@ -253,8 +250,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     const data = readStoredResult();
     renderKpis(data);
-    renderUnitBlocks('issueTable', data.issueByUnit, 'issue');
-    renderUnitBlocks('remainTable', data.remainByUnit, 'remain');
+    renderGroupedBlocks('allocationBlocks', data.allocations, { unitLabel: 'Підрозділ' });
+    renderGroupedBlocks('remainBlocks', data.remains, { unitLabel: 'Залишки' });
     initTilt();
     bindActions();
   });

@@ -6,7 +6,7 @@
   <title>BASTION — Аналіз</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/analysis-core.css?v=286" />
+  <link rel="stylesheet" href="../styles/analysis-core.css?v=284" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -105,8 +105,8 @@
         </article>
       </section>
 
-      <section class="analysis-dashboard-grid analysis-dashboard-grid--summary" aria-label="Результати розподілу та залишків">
-        <article class="analysis-panel analysis-panel--distribution analysis-tilt">
+      <section class="analysis-two-table-grid" aria-label="Результати розрахунку по підрозділах">
+        <article class="analysis-panel analysis-panel--allocation analysis-tilt">
           <div class="analysis-panel__head">
             <div>
               <p>Distribution</p>
@@ -114,10 +114,10 @@
             </div>
             <span class="analysis-chip">Розподіл</span>
           </div>
-          <div id="issueTable" class="unit-result-table" aria-label="Розподіл боєприпасів по підрозділах"></div>
+          <div id="allocationBlocks" class="analysis-block-list" aria-label="Розподіл боєприпасів по підрозділах"></div>
         </article>
 
-        <article class="analysis-panel analysis-panel--remaining analysis-tilt">
+        <article class="analysis-panel analysis-panel--remain analysis-tilt">
           <div class="analysis-panel__head">
             <div>
               <p>Remain</p>
@@ -125,7 +125,7 @@
             </div>
             <span class="analysis-chip">Після розрахунку</span>
           </div>
-          <div id="remainTable" class="unit-result-table" aria-label="Залишки по підрозділах"></div>
+          <div id="remainBlocks" class="analysis-block-list" aria-label="Залишки елементів по підрозділах"></div>
         </article>
       </section>
 
