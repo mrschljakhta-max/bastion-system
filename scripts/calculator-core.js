@@ -785,9 +785,144 @@
     });
   });
 
+
+
+  const ANALYSIS_STORAGE_KEYS = [
+    'bastion.analysis.result',
+    'bastion.calculation.result',
+    'bastionCalculatorResult',
+    'bastionAnalysisResult'
+  ];
+
+  const parseRangeMeters = (value) => {
+    const text = String(value ?? '').toLowerCase().replace(',', '.');
+    const num = Number.parseFloat(text.replace(/[^0-9.\-]/g, ''));
+    if (!Number.isFinite(num)) return 0;
+    return text.includes('км') ? Math.round(num * 1000) : Math.round(num);
+  };
+
+  const normalizeItemName = (value) => String(value || '').trim() || 'Елемент';
+
+  const analysisItemsFromImport = () => {
+    const ctx = readImportContext();
+    const rows = [];
+    const pushItem = (file, item) => {
+      if (!item || typeof item !== 'object') return;
+      const unit = String(file?.unitName || file?.unit || file?.review?.unitName || file?.review?.unit || '').trim();
+      if (!unit) return;
+      const qty = numericQuantityFrom(item.quantity ?? item.count ?? item.qty ?? item.amount ?? item.total ?? item.value ?? item['кількість'] ?? item['загалом']);
+      if (qty === null) return;
+      rows.push({
+        unit,
+        name: normalizeItemName(item.name || item.title || item.label || item.value || item.item || item['назва'] || item['найменування']),
+        qty
+      });
+    };
+    if (ctx && Array.isArray(ctx.files)) {
+      ctx.files.forEach((file) => {
+        const itemArrays = [file.items, file.known, file.rows, file.inventory].filter(Array.isArray);
+        itemArrays.forEach((arr) => arr.forEach((item) => pushItem(file, item)));
+      });
+    }
+    return rows;
+  };
+
+  const groupedAnalysisFromItems = (items) => {
+    const minReserve = getLimitValue('calcMin');
+    const maxTake = Math.max(0, getLimitValue('calcMax'));
+    const enabledUnits = new Set(unitPresets.filter(u => u.enabled !== false).map(u => normalizeUnitName(u.name)));
+    const allocationMap = new Map();
+    const remainMap = new Map();
+    let totalStock = 0;
+    let totalAllocated = 0;
+    let totalRemain = 0;
+
+    const ensureGroup = (map, unit) => {
+      const key = normalizeUnitName(unit);
+      if (!map.has(key)) map.set(key, { unit, total: 0, items: new Map() });
+      return map.get(key);
+    };
+
+    items.forEach((item) => {
+      const unitKey = normalizeUnitName(item.unit);
+      if (enabledUnits.size && !enabledUnits.has(unitKey)) return;
+      const qty = Math.max(0, Number(item.qty || 0));
+      const alloc = Math.max(0, Math.min(maxTake || qty, qty - minReserve));
+      const remain = Math.max(0, qty - alloc);
+      totalStock += qty;
+      totalAllocated += alloc;
+      totalRemain += remain;
+      const allocationGroup = ensureGroup(allocationMap, item.unit);
+      const remainGroup = ensureGroup(remainMap, item.unit);
+      allocationGroup.items.set(item.name, (allocationGroup.items.get(item.name) || 0) + alloc);
+      allocationGroup.total += alloc;
+      remainGroup.items.set(item.name, (remainGroup.items.get(item.name) || 0) + remain);
+      remainGroup.total += remain;
+    });
+
+    const toArray = (map) => [...map.values()].map(group => ({
+      unit: group.unit,
+      total: group.total,
+      items: [...group.items.entries()]
+        .map(([name, qty]) => ({ name, qty }))
+        .filter(item => item.qty > 0)
+        .sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name, 'uk'))
+    })).filter(group => group.items.length);
+
+    const remains = toArray(remainMap);
+    const allocations = toArray(allocationMap);
+    const flatRemains = remains.flatMap(group => group.items.map(item => ({ ...item, unit: group.unit })));
+    const bottleneck = flatRemains.length
+      ? flatRemains.slice().sort((a, b) => a.qty - b.qty || a.name.localeCompare(b.name, 'uk'))[0].name
+      : '—';
+    return {
+      allocations,
+      remains,
+      kits: totalAllocated,
+      remainTotal: totalRemain,
+      remainPercent: totalStock ? Math.round((totalRemain / totalStock) * 100) : 0,
+      bottleneck
+    };
+  };
+
+  const buildAnalysisResult = () => {
+    const importItems = analysisItemsFromImport();
+    const inventoryResult = groupedAnalysisFromItems(importItems);
+    const preset = currentPreset();
+    const enabledRows = (preset.rows || []).filter(row => row.enabled !== false);
+    const bestRange = enabledRows.length
+      ? Math.max(...enabledRows.map(row => parseRangeMeters(row.range)))
+      : 0;
+    const fallbackMode = document.querySelector('.calc-mode input:checked')?.value || 'general';
+    return {
+      version: 3,
+      createdAt: new Date().toISOString(),
+      mode: fallbackMode === 'range' ? 'Вибір максимальної дальності' : 'Загальний розрахунок',
+      selectedLink: linkSelect?.selectedOptions?.[0]?.textContent?.trim() || linkSelect?.value || '',
+      bestRange,
+      kits: inventoryResult.kits,
+      bottleneck: inventoryResult.bottleneck,
+      remainTotal: inventoryResult.remainTotal,
+      remainPercent: inventoryResult.remainPercent,
+      allocations: inventoryResult.allocations,
+      remains: inventoryResult.remains,
+      source: 'calculator-import-context'
+    };
+  };
+
+  const saveAnalysisResult = (result) => {
+    const raw = JSON.stringify(result);
+    ANALYSIS_STORAGE_KEYS.forEach((key) => {
+      try { window.localStorage?.setItem(key, raw); } catch (_) {}
+      try { window.sessionStorage?.setItem(key, raw); } catch (_) {}
+    });
+  };
+
   const runButton = byId('calcRunButton');
   if (runButton) {
     runButton.addEventListener('click', () => {
+      const analysisResult = buildAnalysisResult();
+      saveAnalysisResult(analysisResult);
       runButton.classList.add('is-loading');
       runButton.innerHTML = '<span aria-hidden="true">▣</span> Розрахунок… <span aria-hidden="true">›</span>';
       window.setTimeout(() => {
