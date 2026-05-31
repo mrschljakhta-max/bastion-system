@@ -1,7 +1,7 @@
 (() => {
   const byId = (id) => document.getElementById(id);
 
-  const linkPresets = {
+  const fallbackLinkPresets = {
     distance: {
       components: ['Снаряди', 'Заряди', 'Підривники', 'Праймера'],
       rows: [
@@ -30,6 +30,169 @@
         { id: 'q3', name: 'Reserve C + Boost charge + Fuse 2', range: '17 500 м', enabled: true }
       ]
     }
+  };
+
+  let linkPresets = { ...fallbackLinkPresets };
+
+  const createCalculatorSupabaseClient = () => {
+    if (window.BastionSupabase) return window.BastionSupabase;
+    if (window.supabaseClient) return window.supabaseClient;
+    const cfg = window.BASTION_CONFIG || {};
+    const url = cfg.SUPABASE_URL || window.SUPABASE_URL;
+    const key = cfg.SUPABASE_ANON_KEY || window.SUPABASE_ANON_KEY;
+    if (!window.supabase || !url || !key) return null;
+    return window.supabase.createClient(url, key);
+  };
+
+  const cleanLabel = (value) => String(value ?? '')
+    .replace(/^dict_/i, '')
+    .replace(/^rel_/i, '')
+    .replace(/[_-]+/g, ' ')
+    .trim();
+
+  const normalizeLinkKey = (value) => String(value || 'relation')
+    .toLowerCase()
+    .replace(/[а-яіїєґ]/gi, (ch) => ({
+      'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ye','ж':'zh','з':'z','и':'y','і':'i','ї':'yi','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ь':'','ю':'yu','я':'ya'
+    }[ch.toLowerCase()] || ch))
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'relation';
+
+  const unique = (items) => [...new Set(items.map((item) => String(item || '').trim()).filter(Boolean))];
+
+  const normalizeRelationSchemaColumns = (schema) => {
+    const cols = Array.isArray(schema?.columns) ? schema.columns : [];
+    return cols.map((col, index) => {
+      const sourceTable = col.sourceTable || col.table || col.dict_table || col.source_table || '';
+      const column = col.column || col.name || col.dict_column || '';
+      const storageKey = col.storage_key || col.storageKey || `c_${String(index + 1).padStart(3, '0')}_${normalizeLinkKey(column).replace(/-/g, '_')}`;
+      const quantityKey = col.quantity_key || col.quantityKey || `${storageKey}_qty`;
+      return {
+        dictionary: col.dictionary || col.dictTitle || col.title || cleanLabel(sourceTable) || `Елемент ${index + 1}`,
+        label: col.label || cleanLabel(column) || `Колонка ${index + 1}`,
+        sourceTable, column, storageKey, quantityKey,
+        hasQuantity: col.hasQuantity ?? col.has_quantity ?? true
+      };
+    });
+  };
+
+  const formatRelationCell = (value, qty) => {
+    const label = String(value ?? '').trim();
+    if (!label) return '';
+    const amount = String(qty ?? '').trim();
+    return amount ? `${label} ×${amount}` : label;
+  };
+
+  const relationResultRange = (record, schema) => {
+    const resultKeys = [
+      'result_value', 'result', '__result', 'range', 'distance', 'дальність',
+      schema?.result?.storage_key, schema?.result?.column
+    ].filter(Boolean);
+    for (const key of resultKeys) {
+      const value = record?.[key];
+      if (value !== undefined && value !== null && String(value).trim() !== '') {
+        const text = String(value).trim();
+        return /м|км/i.test(text) ? text : `${text} м`;
+      }
+    }
+    return '—';
+  };
+
+  const relationRowName = (record, columns) => {
+    const parts = columns.map((col) => formatRelationCell(record?.[col.storageKey], record?.[col.quantityKey])).filter(Boolean);
+    return parts.length ? parts.join(' + ') : (record?.name || record?.title || record?.id || 'Рядок зв’язку');
+  };
+
+  const relationRowsFromRecords = (records, columns, schema) => records.map((record, index) => ({
+    id: String(record?.id || `row-${index + 1}`),
+    name: relationRowName(record, columns),
+    range: relationResultRange(record, schema),
+    enabled: record?.is_active === false ? false : true,
+    raw: record
+  }));
+
+  const loadRelationRowsForCalculator = async (sb, relation, columns, schema) => {
+    if (!sb || !relation.tableName) return [];
+    try {
+      const { data, error } = await sb.from(relation.tableName).select('*').limit(1000);
+      if (!error && Array.isArray(data)) return relationRowsFromRecords(data, columns, schema);
+    } catch (error) {
+      console.warn('BASTION calculator relation table fallback:', relation.tableName, error?.message || error);
+    }
+    try {
+      const { data, error } = await sb
+        .from('rel_rows')
+        .select('id, row_data, is_active, created_at')
+        .eq('relation_id', relation.dbId)
+        .eq('is_active', true)
+        .limit(1000);
+      if (!error && Array.isArray(data)) {
+        return data.map((row, index) => {
+          const payload = row.row_data || {};
+          return {
+            id: String(row.id || `row-${index + 1}`),
+            name: Array.isArray(payload.values) ? payload.values.filter(Boolean).join(' + ') : relationRowName(payload, columns),
+            range: relationResultRange(payload, schema),
+            enabled: row.is_active !== false,
+            raw: payload
+          };
+        });
+      }
+    } catch (error) {
+      console.warn('BASTION calculator rel_rows fallback:', error?.message || error);
+    }
+    return [];
+  };
+
+  const loadLiveLinkPresets = async () => {
+    const sb = createCalculatorSupabaseClient();
+    if (!sb) return false;
+    try {
+      const { data, error } = await sb
+        .from('rel_registry')
+        .select('id, relation_name, relation_slug, table_name, description, schema, records_count, is_active, created_at')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      if (error || !Array.isArray(data) || !data.length) throw error || new Error('rel_registry empty');
+
+      const next = {};
+      for (const item of data) {
+        const schema = item.schema || {};
+        const columns = normalizeRelationSchemaColumns(schema);
+        const components = unique([
+          ...(Array.isArray(schema.dictionaries) ? schema.dictionaries.map((d) => d.title || d.name || d.table || d) : []),
+          ...columns.map((col) => col.dictionary)
+        ]);
+        const key = item.relation_slug || normalizeLinkKey(item.relation_name || item.table_name || item.id);
+        const relation = { dbId: item.id, tableName: item.table_name || schema.table_name || `rel_${normalizeLinkKey(item.relation_name).replace(/-/g, '_')}` };
+        const rows = await loadRelationRowsForCalculator(sb, relation, columns, schema);
+        next[key] = {
+          id: key,
+          name: item.relation_name || schema.relation_name || key,
+          description: item.description || schema.description || '',
+          components: components.length ? components : ['Елементи зв’язку'],
+          rows: rows.length ? rows : [{ id: `${key}-empty`, name: 'Записи зв’язку ще не додані', range: '—', enabled: false }],
+          columns,
+          source: 'supabase'
+        };
+      }
+      linkPresets = Object.keys(next).length ? next : { ...fallbackLinkPresets };
+      window.BASTION_CALCULATOR_LINKS = linkPresets;
+      return true;
+    } catch (error) {
+      console.warn('BASTION calculator live links fallback:', error?.message || error);
+      linkPresets = { ...fallbackLinkPresets };
+      return false;
+    }
+  };
+
+  const populateLinkSelect = () => {
+    if (!linkSelect) return;
+    const previous = linkSelect.value;
+    linkSelect.innerHTML = Object.entries(linkPresets).map(([key, preset]) => (
+      `<option value="${key.replace(/"/g, '&quot;')}">${String(preset.name || key).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}</option>`
+    )).join('');
+    if (linkPresets[previous]) linkSelect.value = previous;
   };
 
   const unitPresets = [
@@ -110,8 +273,8 @@
   let unitLimitsInitialized = false;
 
   const currentPreset = () => {
-    const key = linkSelect?.value || 'distance';
-    return linkPresets[key] || linkPresets.distance;
+    const key = linkSelect?.value || Object.keys(linkPresets)[0] || 'distance';
+    return linkPresets[key] || Object.values(linkPresets)[0] || fallbackLinkPresets.distance;
   };
 
   if (popover && popover.parentElement !== document.body) {
@@ -435,8 +598,15 @@
       closePopover();
       closeUnitsPopover();
       renderComponents();
+      if (linkModal?.getAttribute('aria-hidden') === 'false') renderRows();
     });
+    populateLinkSelect();
     renderComponents();
+    loadLiveLinkPresets().then(() => {
+      populateLinkSelect();
+      renderComponents();
+      if (linkModal?.getAttribute('aria-hidden') === 'false') renderRows();
+    });
   }
   renderUnits();
 
