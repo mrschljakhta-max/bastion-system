@@ -461,7 +461,17 @@
       if (hit && Number.isInteger(count)) known.push(record);
       else unknown.push(record);
     });
-    return { rows: rawRows, known, unknown, quantityErrors, parseError, unitId: '', unitName: '' };
+    const detectedUnit = detectUnitForFile(item, rawRows);
+    return {
+      rows: rawRows,
+      known,
+      unknown,
+      quantityErrors,
+      parseError,
+      unitId: detectedUnit?.value || '',
+      unitName: detectedUnit?.name || '',
+      unitAutoDetected: !!detectedUnit
+    };
   }
 
   async function ensureReviewData() {
@@ -511,10 +521,63 @@
     const rows = dictState.units || [];
     const fallback = rows.length ? '' : '<option value="45 ОАБр">45 ОАБр</option><option value="1 дивізіон">1 дивізіон</option><option value="2 батарея">2 батарея</option>';
     return `<option value="">Обрати підрозділ із довідника</option>${fallback}${rows.map(row => {
-      const name = rowName(row) || row.name || row.title || row.code || row.id;
-      const value = row.id || name;
+      const name = unitRowDisplay(row);
+      const value = unitRowValue(row);
       return `<option value="${escapeHtml(value)}" ${String(selected) === String(value) ? 'selected' : ''}>${escapeHtml(name)}</option>`;
     }).join('')}`;
+  }
+
+
+  function unitRowValue(row) {
+    const name = rowName(row) || row?.name || row?.title || row?.title_ua || row?.code || row?.id || '';
+    return row?.id || name;
+  }
+
+  function unitRowDisplay(row) {
+    return rowName(row) || row?.name || row?.title || row?.title_ua || row?.code || row?.id || '';
+  }
+
+  function collectUnitNames(row) {
+    const values = collectRowNames(row);
+    if (row && typeof row === 'object') {
+      ['name', 'title', 'title_ua', 'code', 'short_name', 'full_name', 'display_name', 'unit_name', 'unit', 'підрозділ', 'пiдроздiл'].forEach(field => {
+        if (row[field] != null) values.push(row[field]);
+      });
+    }
+    return [...new Set(values.map(v => String(v || '').trim()).filter(Boolean))];
+  }
+
+  function normalizeForUnitSearch(value) {
+    return normalizeToken(value).replace(/[_\-]+/g, '');
+  }
+
+  function findUnitHit(candidates = []) {
+    const units = dictState.units || [];
+    if (!units.length) return null;
+    const haystack = candidates
+      .flatMap(value => [normalizeValue(value), normalizeToken(value), normalizeForUnitSearch(value)])
+      .join('\n');
+    for (const row of units) {
+      const names = collectUnitNames(row);
+      for (const name of names) {
+        const variants = [...valueVariants(name), normalizeForUnitSearch(name)]
+          .map(v => String(v || '').trim())
+          .filter(v => v.length >= 2);
+        if (variants.some(v => haystack.includes(v))) {
+          return { row, value: unitRowValue(row), name: unitRowDisplay(row) };
+        }
+      }
+    }
+    return null;
+  }
+
+  function detectUnitForFile(item, rows = []) {
+    const rowPreview = rows.slice(0, 80).map(row => {
+      if (row == null) return '';
+      if (typeof row === 'string' || typeof row === 'number') return String(row);
+      try { return JSON.stringify(row); } catch (_) { return Object.values(row).join(' '); }
+    });
+    return findUnitHit([item?.name || '', ...rowPreview]);
   }
 
 
@@ -631,27 +694,23 @@
 
   function unitDisplayName(value) {
     if (!value) return '';
-    const found = (dictState.units || []).find(row => String(row.id || rowName(row)) === String(value));
-    return found ? (rowName(found) || found.name || found.title || value) : value;
+    const found = (dictState.units || []).find(row => String(unitRowValue(row)) === String(value));
+    return found ? (unitRowDisplay(found) || value) : value;
   }
 
   function reviewUnitsHtml() {
-    const selected = files
-      .map(f => ({ file: f, review: f.review || {} }))
-      .filter(item => item.review.unitId)
-      .map(item => `<span class="upload-unit-badge">${reviewIcon('unit')}<b>${escapeHtml(unitDisplayName(item.review.unitId))}</b><small>${escapeHtml(item.file.name)}</small></span>`)
-      .join('');
-
-    const selectors = files.map((f, index) => {
+    const selectors = files.map((f) => {
       const review = f.review || {};
-      if (review.unitId) return '';
-      return `<label class="upload-unit-map-row"><span>${reviewIcon('file')}<b>${escapeHtml(f.name)}</b></span><select data-upload-unit-select="${f.id}">${unitOptions(review.unitId)}</select></label>`;
+      const selectedName = review.unitId ? unitDisplayName(review.unitId) : '';
+      const auto = review.unitAutoDetected && selectedName
+        ? `<small class="upload-unit-auto">знайдено автоматично: ${escapeHtml(selectedName)}</small>`
+        : `<small class="upload-unit-auto is-missing">підрозділ не визначено автоматично</small>`;
+      return `<label class="upload-unit-map-row ${review.unitId ? 'is-detected' : 'is-missing'}"><span>${reviewIcon('file')}<b>${escapeHtml(f.name)}</b>${auto}</span><select data-upload-unit-select="${f.id}">${unitOptions(review.unitId)}</select></label>`;
     }).join('');
 
     return `<section class="upload-review-units">
       <div class="upload-review-units-title">${reviewIcon('unit')}<span>Підрозділи</span></div>
-      ${selected ? `<div class="upload-unit-badges">${selected}</div>` : ''}
-      ${selectors ? `<div class="upload-unit-missing">${selectors}</div>` : ''}
+      <div class="upload-unit-missing">${selectors}</div>
     </section>`;
   }
 
@@ -863,6 +922,7 @@
     if (file?.review) {
       file.review.unitId = select.value;
       file.review.unitName = select.options[select.selectedIndex]?.textContent || '';
+      file.review.unitAutoDetected = false;
     }
   });
   document.addEventListener('keydown', (event) => {

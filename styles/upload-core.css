@@ -2250,3 +2250,47 @@ body[data-theme="light"] .upload-review-units-title {
   .upload-review-kpi-grid,
   .upload-unit-map-row { grid-template-columns: 1fr; }
 }
+
+/* v289: auto-detect unit from file name/content and keep selector editable */
+.upload-unit-map-row.is-detected {
+  border-color: rgba(0, 255, 132, .26);
+  box-shadow: inset 3px 0 0 rgba(0, 255, 132, .65);
+}
+.upload-unit-map-row.is-missing {
+  box-shadow: inset 3px 0 0 rgba(255, 80, 86, .55);
+}
+.upload-unit-map-row > span {
+  flex-wrap: wrap;
+}
+.upload-unit-map-row > span b {
+  flex: 1 1 100%;
+}
+.upload-unit-auto {
+  flex: 1 1 100%;
+  color: rgba(0, 255, 132, .82);
+  font-size: 11px;
+  line-height: 1.25;
+  text-transform: uppercase;
+  letter-spacing: .045em;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.upload-unit-auto.is-missing {
+  color: rgba(255, 120, 126, .76);
+}
+body.bastion-light .upload-unit-map-row.is-detected,
+body.theme-light .upload-unit-map-row.is-detected,
+body[data-theme="light"] .upload-unit-map-row.is-detected {
+  border-color: rgba(0, 150, 96, .22);
+  box-shadow: inset 3px 0 0 rgba(0, 174, 112, .70);
+}
+body.bastion-light .upload-unit-auto,
+body.theme-light .upload-unit-auto,
+body[data-theme="light"] .upload-unit-auto {
+  color: rgba(0, 122, 78, .86);
+}
+body.bastion-light .upload-unit-auto.is-missing,
+body.theme-light .upload-unit-auto.is-missing,
+body[data-theme="light"] .upload-unit-auto.is-missing {
+  color: rgba(190, 0, 25, .76);
+}
