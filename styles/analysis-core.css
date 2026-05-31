@@ -468,10 +468,10 @@ body.theme-light .analysis-action--ghost { background: rgba(255,255,255,.58); }
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
+  grid-template-columns: 1fr;
+  gap: 6px;
   align-items: center;
-  padding: 12px 14px 10px;
+  padding: 12px 14px 9px;
   border-bottom: 1px solid rgba(255,255,255,.075);
 }
 
@@ -578,4 +578,31 @@ body.theme-light .result-line b {
   .result-unit-head strong { font-size: 20px; }
   .result-unit-head b { font-size: 29px; }
   .result-line { min-height: 27px; padding: 6px 9px; }
+}
+
+
+/* v288 — grouped result tables: unit title only, item rows carry quantities */
+.result-unit-head b { display: none; }
+.result-unit-items { padding-top: 8px; }
+.result-line {
+  grid-template-columns: minmax(0, 1fr) minmax(46px, auto);
+}
+.result-line span::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 9px;
+  border-radius: 50%;
+  background: rgba(255,82,88,.95);
+  box-shadow: 0 0 10px rgba(255,82,88,.45);
+  vertical-align: 1px;
+}
+.result-unit-block:hover .result-line {
+  border-color: rgba(255,82,88,.16);
+}
+body.light-theme .result-line span::before,
+body.theme-light .result-line span::before {
+  background: rgba(255,65,70,.90);
+  box-shadow: 0 0 9px rgba(255,65,70,.25);
 }

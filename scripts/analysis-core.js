@@ -106,14 +106,62 @@
 
   function normalizeResult(input) {
     const data = { ...fallback, ...input };
-    data.allocations = Array.isArray(input.allocations) && input.allocations.length
-      ? input.allocations
-      : buildAllocationsFromLegacy(input.units, input.recipes) || fallback.allocations;
-    data.remains = Array.isArray(input.remains) && input.remains.length
-      ? input.remains
-      : buildRemainsFromLegacy(input.units, input.resources) || fallback.remains;
+    data.allocations = normalizeGroups(
+      Array.isArray(input.allocations) && input.allocations.length
+        ? input.allocations
+        : buildAllocationsFromLegacy(input.units, input.recipes),
+      fallback.allocations,
+      'allocation'
+    );
+    data.remains = normalizeGroups(
+      Array.isArray(input.remains) && input.remains.length
+        ? input.remains
+        : buildRemainsFromLegacy(input.units, input.resources),
+      fallback.remains,
+      'remain'
+    );
     data.remainTotal = Number(input.remainTotal ?? input.remainingTotal ?? data.remainTotal ?? fallback.remainTotal);
     return data;
+  }
+
+
+  function normalizeGroups(groups, fallbackGroups, type = 'allocation') {
+    const source = Array.isArray(groups) && groups.length ? groups : fallbackGroups;
+    return source.map((group, idx) => {
+      const fallbackGroup = fallbackGroups.find(item => normalizeName(item.unit) === normalizeName(group.unit)) || fallbackGroups[idx] || fallbackGroups[0];
+      const rawItems = Array.isArray(group.items) && group.items.length ? group.items : null;
+      const items = rawItems || (fallbackGroup && Array.isArray(fallbackGroup.items) ? fallbackGroup.items : buildSyntheticItems(group, type));
+      const total = Number(group.total ?? sumItems(items));
+      return {
+        unit: group.unit || fallbackGroup?.unit || `Підрозділ ${idx + 1}`,
+        total,
+        items: items.map(item => ({
+          name: item.name || item.title || 'Елемент',
+          qty: Number(item.qty ?? item.count ?? item.total ?? 0)
+        }))
+      };
+    });
+  }
+
+  function normalizeName(value) {
+    return String(value || '').trim().toLowerCase();
+  }
+
+  function buildSyntheticItems(group, type) {
+    const total = Number(group.total ?? 0);
+    if (type === 'remain') {
+      return [
+        { name: 'SN7', qty: Math.max(0, Math.round(total * .38)) },
+        { name: 'ZA8', qty: Math.max(0, Math.round(total * .22)) },
+        { name: 'PID5', qty: Math.max(0, Math.round(total * .16)) },
+        { name: 'PR1', qty: Math.max(0, Math.round(total * .24)) }
+      ];
+    }
+    return [
+      { name: 'SN7 + ZA8 + PID5 + PR1', qty: Math.max(0, Math.round(total * .34)) },
+      { name: 'SN4 + ZA1 + PID1 + PR2', qty: Math.max(0, Math.round(total * .25)) },
+      { name: 'SN6 + ZA10 + PID2 + PR1', qty: Math.max(0, total - Math.round(total * .34) - Math.round(total * .25)) }
+    ];
   }
 
   function buildAllocationsFromLegacy(units, recipes) {
@@ -179,7 +227,6 @@
               <span>${escapeHtml(options.unitLabel || 'Підрозділ')}</span>
               <strong>${escapeHtml(group.unit)}</strong>
             </div>
-            <b>${Number(group.total ?? sumItems(items))}</b>
           </header>
           <div class="result-unit-items">
             ${items.map(item => `
