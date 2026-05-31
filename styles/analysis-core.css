@@ -1,4 +1,4 @@
-/* BASTION Analysis Dashboard v284 */
+/* BASTION Analysis Dashboard v285 */
 :root {
   --analysis-red: #ff4f55;
   --analysis-red-strong: #ff222b;
@@ -22,11 +22,11 @@
 
 .analysis-shell {
   width: min(1320px, 82vw);
-  height: min(640px, calc(100vh - 242px));
-  min-height: 500px;
+  height: min(720px, calc(100vh - 218px));
+  min-height: 560px;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 12px;
+  grid-template-rows: auto minmax(0, 1fr) minmax(140px, .52fr) auto;
+  gap: 10px;
   pointer-events: auto;
   color: var(--analysis-text);
   perspective: 1100px;
@@ -130,6 +130,106 @@
   gap: 12px;
 }
 
+.analysis-remain-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1.16fr .84fr;
+  gap: 12px;
+}
+
+.analysis-panel__head--compact { padding-bottom: 9px; }
+.analysis-panel__head--compact h2 { font-size: 18px; }
+
+.resource-grid,
+.unit-remain-grid {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  max-height: calc(100% - 48px);
+  overflow: auto;
+  padding-top: 10px;
+  display: grid;
+  gap: 9px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,76,82,.9) rgba(255,255,255,.06);
+}
+
+.resource-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.unit-remain-grid { grid-template-columns: 1fr; }
+
+.resource-card,
+.unit-remain-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,255,255,.045), rgba(0,0,0,.18));
+  padding: 10px 11px;
+}
+
+.resource-card h3,
+.unit-remain-card h3 {
+  margin: 0 0 8px;
+  color: rgba(255,255,255,.9);
+  font: 900 14px/1 "Rajdhani", "Arial", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.resource-flow,
+.unit-remain-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.resource-stat,
+.unit-remain-stat {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 7px 7px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  background: rgba(0,0,0,.18);
+}
+
+.resource-stat span,
+.unit-remain-stat span {
+  color: var(--analysis-muted);
+  font: 800 9px/1 "Rajdhani", "Arial", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .11em;
+}
+
+.resource-stat b,
+.unit-remain-stat b {
+  color: var(--analysis-text);
+  font: 900 18px/.9 "Rajdhani", "Arial", sans-serif;
+}
+
+.resource-gauge,
+.unit-remain-gauge {
+  height: 6px;
+  margin-top: 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  overflow: hidden;
+}
+
+.resource-gauge span,
+.unit-remain-gauge span {
+  display: block;
+  height: 100%;
+  width: var(--w);
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255,70,70,.85), rgba(255,205,120,.96));
+  box-shadow: 0 0 14px rgba(255,80,80,.32);
+}
+
+.unit-remain-card.is-critical { border-color: rgba(255,80,80,.42); }
+.unit-remain-card.is-stable { border-color: rgba(85,255,166,.28); }
+
 .analysis-panel {
   border-radius: 20px;
   padding: 16px;
@@ -196,7 +296,7 @@
   grid-template-columns: 1fr auto;
   gap: 8px;
   align-items: center;
-  padding: 12px;
+  padding: 10px 11px;
   border: 1px solid rgba(255,255,255,.12);
   border-radius: 14px;
   background: rgba(0,0,0,.25);
@@ -210,6 +310,13 @@
 .unit-tile span {
   color: var(--analysis-muted);
   font: 700 12px/1 "Rajdhani", "Arial", sans-serif;
+}
+.unit-tile small {
+  display:block;
+  margin-top:5px;
+  color: rgba(255,255,255,.52);
+  font: 800 11px/1 "Rajdhani", "Arial", sans-serif;
+  text-transform: uppercase;
 }
 
 .unit-tile b {
@@ -357,7 +464,15 @@ body.theme-light .analysis-table th { color: rgba(20,24,30,.48); }
 body.light-theme .analysis-table td,
 body.theme-light .analysis-table td,
 body.light-theme .unit-tile,
-body.theme-light .unit-tile {
+body.theme-light .unit-tile,
+body.light-theme .resource-card,
+body.theme-light .resource-card,
+body.light-theme .unit-remain-card,
+body.theme-light .unit-remain-card,
+body.light-theme .resource-stat,
+body.theme-light .resource-stat,
+body.light-theme .unit-remain-stat,
+body.theme-light .unit-remain-stat {
   background: rgba(255,255,255,.54);
   border-color: rgba(25,25,35,.10);
   color: rgba(15,18,25,.86);
@@ -383,15 +498,28 @@ body.theme-light .analysis-action--ghost { background: rgba(255,255,255,.58); }
   .analysis-shell { width: min(1180px, 92vw); }
   .analysis-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .analysis-dashboard-grid { grid-template-columns: 1fr; }
+  .analysis-remain-grid { grid-template-columns: 1fr; }
   .analysis-actions { width: min(900px, 92vw); grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-height: 800px) {
   .analysis-screen { padding-top: 118px; padding-bottom: 84px; }
-  .analysis-shell { height: calc(100vh - 202px); min-height: 455px; gap: 9px; }
+  .analysis-shell { height: calc(100vh - 190px); min-height: 520px; gap: 8px; }
   .analysis-kpi { min-height: 64px; padding: 10px 12px; }
   .analysis-kpi strong { font-size: 27px; }
   .analysis-panel { padding: 13px; }
   .analysis-actions { width: min(780px, 55vw); }
   .analysis-action { min-height: 32px; font-size: 10px; padding: 0 10px; }
 }
+
+body.light-theme .resource-card h3,
+body.theme-light .resource-card h3,
+body.light-theme .unit-remain-card h3,
+body.theme-light .unit-remain-card h3,
+body.light-theme .resource-stat b,
+body.theme-light .resource-stat b,
+body.light-theme .unit-remain-stat b,
+body.theme-light .unit-remain-stat b { color: rgba(15,18,25,.92); }
+
+body.light-theme .unit-tile small,
+body.theme-light .unit-tile small { color: rgba(20,24,30,.54); }

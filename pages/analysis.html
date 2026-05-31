@@ -6,7 +6,7 @@
   <title>BASTION — Аналіз</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/analysis-core.css?v=284" />
+  <link rel="stylesheet" href="../styles/analysis-core.css?v=285" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -112,7 +112,7 @@
               <p>Розподіл</p>
               <h2>Підрозділи</h2>
             </div>
-            <span class="analysis-chip">4 активні</span>
+            <span id="activeUnitsChip" class="analysis-chip">4 активні</span>
           </div>
           <div id="unitDistribution" class="unit-hex-grid" aria-label="Розподіл комплектів по підрозділах"></div>
         </article>
@@ -149,6 +149,30 @@
             <span class="analysis-chip analysis-chip--danger">Контроль</span>
           </div>
           <div id="bottleneckBars" class="bottleneck-list"></div>
+        </article>
+      </section>
+
+      <section class="analysis-remain-grid" aria-label="Залишки після розрахунку">
+        <article class="analysis-panel analysis-panel--resources analysis-tilt">
+          <div class="analysis-panel__head analysis-panel__head--compact">
+            <div>
+              <p>Inventory</p>
+              <h2>Залишки по видах</h2>
+            </div>
+            <span class="analysis-chip">Було / використано / залишилось</span>
+          </div>
+          <div id="resourceCards" class="resource-grid"></div>
+        </article>
+
+        <article class="analysis-panel analysis-panel--unit-remains analysis-tilt">
+          <div class="analysis-panel__head analysis-panel__head--compact">
+            <div>
+              <p>Units</p>
+              <h2>Залишки по підрозділах</h2>
+            </div>
+            <span class="analysis-chip">Після розрахунку</span>
+          </div>
+          <div id="unitRemainCards" class="unit-remain-grid"></div>
         </article>
       </section>
 

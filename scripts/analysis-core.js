@@ -9,10 +9,10 @@
     bottleneck: 'ZA8',
     remainPercent: 68,
     units: [
-      { name: '1 САДн', kits: 126, load: 78 },
-      { name: '2 САДн', kits: 94, load: 64 },
-      { name: '3 САДн', kits: 72, load: 56 },
-      { name: 'Резерв БК', kits: 50, load: 42 }
+      { name: '1 САДн', kits: 126, load: 78, start: 180, used: 126, left: 54 },
+      { name: '2 САДн', kits: 94, load: 64, start: 140, used: 94, left: 46 },
+      { name: '3 САДн', kits: 72, load: 56, start: 120, used: 72, left: 48 },
+      { name: 'Резерв БК', kits: 50, load: 42, start: 96, used: 50, left: 46 }
     ],
     recipes: [
       { name: 'SN7 + ZA8 + PID5 + PR1', range: 27400, kits: 14, status: 'Використано' },
@@ -61,6 +61,13 @@
     data.recipes = Array.isArray(input.recipes) && input.recipes.length ? input.recipes : fallback.recipes;
     data.bottlenecks = Array.isArray(input.bottlenecks) && input.bottlenecks.length ? input.bottlenecks : fallback.bottlenecks;
     data.resources = Array.isArray(input.resources) && input.resources.length ? input.resources : fallback.resources;
+    data.units = data.units.map((unit, index) => {
+      const base = fallback.units[index] || {};
+      const start = Number(unit.start ?? unit.total ?? base.start ?? 0);
+      const used = Number(unit.used ?? unit.kits ?? base.used ?? 0);
+      const left = Number(unit.left ?? Math.max(0, start - used));
+      return { ...base, ...unit, start, used, left };
+    });
     return data;
   }
 
@@ -79,18 +86,21 @@
     setText('kpiKits', data.kits ?? fallback.kits);
     setText('kpiRange', formatRange(data.bestRange ?? fallback.bestRange));
     setText('kpiBottleneck', data.bottleneck ?? fallback.bottleneck);
-    setText('kpiRemain', `${data.remainPercent ?? fallback.remainPercent}%`);
+    const totalLeft = (data.resources || []).reduce((sum, item) => sum + Number(item.left ?? 0), 0);
+    setText('kpiRemain', totalLeft ? totalLeft : `${data.remainPercent ?? fallback.remainPercent}%`);
     setText('recipeModeChip', data.mode || fallback.mode);
+    setText('activeUnitsChip', `${(data.units || []).length} активні`);
   }
 
   function renderUnits(units) {
     const host = document.getElementById('unitDistribution');
     if (!host) return;
     host.innerHTML = units.map(unit => `
-      <div class="unit-tile">
+      <div class="unit-tile" data-detail="unit:${escapeHtml(unit.name)}">
         <div>
           <strong>${escapeHtml(unit.name)}</strong>
           <span>навантаження ${Number(unit.load ?? 0)}%</span>
+          <small>залишок ${Number(unit.left ?? 0)} од.</small>
         </div>
         <b>${Number(unit.kits ?? 0)}</b>
       </div>
@@ -139,12 +149,37 @@
       const left = Number(item.left ?? Math.max(0, start - used));
       const pct = start > 0 ? Math.max(0, Math.min(100, Math.round((used / start) * 100))) : 0;
       return `
-        <article class="resource-card">
+        <article class="resource-card" data-detail="resource:${escapeHtml(item.name)}">
           <h3>${escapeHtml(item.name)}</h3>
-          <div class="resource-stat"><span>Було</span><b>${start}</b></div>
-          <div class="resource-stat"><span>Використано</span><b>${used}</b></div>
-          <div class="resource-stat"><span>Залишилось</span><b>${left}</b></div>
+          <div class="resource-flow">
+            <div class="resource-stat"><span>Було</span><b>${start}</b></div>
+            <div class="resource-stat"><span>Викор.</span><b>${used}</b></div>
+            <div class="resource-stat"><span>Залиш.</span><b>${left}</b></div>
+          </div>
           <div class="resource-gauge" aria-hidden="true"><span style="--w:${pct}%"></span></div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  function renderUnitRemains(units) {
+    const host = document.getElementById('unitRemainCards');
+    if (!host) return;
+    host.innerHTML = units.map(unit => {
+      const start = Number(unit.start ?? 0);
+      const used = Number(unit.used ?? unit.kits ?? 0);
+      const left = Number(unit.left ?? Math.max(0, start - used));
+      const leftPct = start > 0 ? Math.max(0, Math.min(100, Math.round((left / start) * 100))) : 0;
+      const stateClass = leftPct < 25 ? 'is-critical' : leftPct >= 50 ? 'is-stable' : '';
+      return `
+        <article class="unit-remain-card ${stateClass}" data-detail="unit-remain:${escapeHtml(unit.name)}">
+          <h3>${escapeHtml(unit.name)}</h3>
+          <div class="unit-remain-flow">
+            <div class="unit-remain-stat"><span>Було</span><b>${start}</b></div>
+            <div class="unit-remain-stat"><span>Видано</span><b>${used}</b></div>
+            <div class="unit-remain-stat"><span>Залиш.</span><b>${left}</b></div>
+          </div>
+          <div class="unit-remain-gauge" aria-hidden="true"><span style="--w:${leftPct}%"></span></div>
         </article>
       `;
     }).join('');
@@ -205,6 +240,8 @@
     renderUnits(data.units);
     renderRecipes(data.recipes);
     renderBottlenecks(data.bottlenecks);
+    renderResources(data.resources);
+    renderUnitRemains(data.units);
     initTilt();
     bindActions();
   });
