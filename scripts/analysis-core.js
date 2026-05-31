@@ -84,118 +84,6 @@
     ]
   };
 
-  const IMPORT_STORAGE_KEYS = [
-    'bastion.import.context',
-    'bastionImportContext',
-    'BASTION_IMPORT_CONTEXT',
-    'bastionUploadImportContext'
-  ];
-
-  function safeJsonParse(value) {
-    try { return value ? JSON.parse(value) : null; } catch (_) { return null; }
-  }
-
-  function readImportContext() {
-    for (const key of IMPORT_STORAGE_KEYS) {
-      const raw = safeJsonParse(localStorage.getItem(key)) || safeJsonParse(sessionStorage.getItem(key));
-      if (raw && typeof raw === 'object') return raw;
-    }
-    return null;
-  }
-
-  function normalizeUnitName(value) {
-    return String(value || '')
-      .trim()
-      .replace(/[_-]+/g, ' ')
-      .replace(/\s+/g, ' ')
-      .toLocaleLowerCase('uk-UA');
-  }
-
-  function quantityFrom(value) {
-    if (value == null || value === '') return null;
-    const num = Number(String(value).replace(',', '.').replace(/[^0-9.\-]/g, ''));
-    return Number.isFinite(num) ? Math.max(0, Math.trunc(num)) : null;
-  }
-
-  function itemNameFrom(item) {
-    if (!item || typeof item !== 'object') return 'Елемент';
-    return String(item.name || item.title || item.label || item.value || item.item || item['назва'] || item['найменування'] || 'Елемент').trim();
-  }
-
-  function itemsFromImportContext(ctx) {
-    const rows = [];
-    const push = (file, item) => {
-      if (!item || typeof item !== 'object') return;
-      const unit = String(file?.unitName || file?.unit || file?.review?.unitName || file?.review?.unit || '').trim();
-      if (!unit) return;
-      const qty = quantityFrom(item.quantity ?? item.count ?? item.qty ?? item.amount ?? item.total ?? item.value ?? item['кількість'] ?? item['загалом']);
-      if (qty === null) return;
-      rows.push({ unit, name: itemNameFrom(item), qty });
-    };
-    if (ctx && Array.isArray(ctx.files)) {
-      ctx.files.forEach((file) => {
-        [file.items, file.known, file.rows, file.inventory].filter(Array.isArray).forEach((arr) => arr.forEach((item) => push(file, item)));
-      });
-    }
-    return rows;
-  }
-
-  function buildResultFromImportContext(ctx) {
-    const items = itemsFromImportContext(ctx);
-    if (!items.length) return null;
-    const allocation = new Map();
-    const remain = new Map();
-    let total = 0;
-    let allocated = 0;
-    let remained = 0;
-    const minQty = Math.min(...items.map(item => item.qty));
-    const maxQty = Math.max(...items.map(item => item.qty));
-
-    const ensure = (map, unit) => {
-      const key = normalizeUnitName(unit);
-      if (!map.has(key)) map.set(key, { unit, total: 0, items: new Map() });
-      return map.get(key);
-    };
-
-    items.forEach((item) => {
-      const qty = Math.max(0, Number(item.qty || 0));
-      const use = Math.max(0, Math.min(maxQty, qty - minQty));
-      const left = Math.max(0, qty - use);
-      total += qty;
-      allocated += use;
-      remained += left;
-      const a = ensure(allocation, item.unit);
-      const r = ensure(remain, item.unit);
-      a.items.set(item.name, (a.items.get(item.name) || 0) + use);
-      r.items.set(item.name, (r.items.get(item.name) || 0) + left);
-      a.total += use;
-      r.total += left;
-    });
-
-    const toGroups = (map) => [...map.values()].map(group => ({
-      unit: group.unit,
-      total: group.total,
-      items: [...group.items.entries()]
-        .map(([name, qty]) => ({ name, qty }))
-        .filter(item => item.qty > 0)
-        .sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name, 'uk'))
-    })).filter(group => group.items.length);
-
-    const remains = toGroups(remain);
-    const flatRemain = remains.flatMap(group => group.items.map(item => ({ ...item, unit: group.unit })));
-    return normalizeResult({
-      source: 'import-context-direct',
-      kits: allocated,
-      bestRange: fallback.bestRange,
-      bottleneck: flatRemain.length ? flatRemain.slice().sort((a, b) => a.qty - b.qty || a.name.localeCompare(b.name, 'uk'))[0].name : '—',
-      remainTotal: remained,
-      remainPercent: total ? Math.round((remained / total) * 100) : 0,
-      allocations: toGroups(allocation),
-      remains
-    });
-  }
-
-
   function readStoredResult() {
     const keys = [
       'bastion.analysis.result',
@@ -212,9 +100,6 @@
         if (parsed && typeof parsed === 'object') return normalizeResult(parsed);
       } catch (_) {}
     }
-
-    const importResult = buildResultFromImportContext(readImportContext());
-    if (importResult) return importResult;
 
     return fallback;
   }
@@ -328,22 +213,36 @@
     const host = document.getElementById(hostId);
     if (!host) return;
     const emptyText = options.emptyText || 'Дані відсутні';
+    const rowName = options.rowName || (hostId === 'remainBlocks' ? 'Елемент' : 'Комбінація');
+    const rowQty = options.rowQty || (hostId === 'remainBlocks' ? 'Залишок' : 'Кількість');
+    const unitLabel = options.unitLabel || (hostId === 'remainBlocks' ? 'Залишки' : 'Підрозділ');
+
     if (!Array.isArray(groups) || !groups.length) {
       host.innerHTML = `<div class="analysis-empty">${escapeHtml(emptyText)}</div>`;
       return;
     }
 
-    host.innerHTML = groups.map(group => {
+    host.innerHTML = groups.map((group, index) => {
       const items = Array.isArray(group.items) ? group.items : [];
+      const total = Number(group.total ?? sumItems(items));
+      const unit = group.unit || `Підрозділ ${index + 1}`;
+      const bodyId = `${hostId}-details-${index}`;
+
       return `
-        <section class="result-unit-block" data-unit="${escapeHtml(group.unit)}">
-          <header class="result-unit-head">
-            <div>
-              <span>${escapeHtml(options.unitLabel || 'Підрозділ')}</span>
-              <strong>${escapeHtml(group.unit)}</strong>
+        <section class="result-unit-block result-unit-block--collapsed" data-unit="${escapeHtml(unit)}">
+          <button class="result-unit-head" type="button" aria-expanded="false" aria-controls="${bodyId}">
+            <span class="result-unit-chevron" aria-hidden="true">›</span>
+            <div class="result-unit-title">
+              <span>${escapeHtml(unitLabel)}</span>
+              <strong>${escapeHtml(unit)}</strong>
             </div>
-          </header>
-          <div class="result-unit-items">
+            <b>${total}</b>
+          </button>
+          <div id="${bodyId}" class="result-unit-items" hidden>
+            <div class="result-line result-line--head">
+              <span>${escapeHtml(rowName)}</span>
+              <b>${escapeHtml(rowQty)}</b>
+            </div>
             ${items.map(item => `
               <div class="result-line">
                 <span>${escapeHtml(item.name)}</span>
@@ -354,6 +253,39 @@
         </section>
       `;
     }).join('');
+
+    host.querySelectorAll('.result-unit-head').forEach(button => {
+      button.addEventListener('click', () => {
+        const block = button.closest('.result-unit-block');
+        const panel = block?.querySelector('.result-unit-items');
+        if (!block || !panel) return;
+
+        const isOpen = block.classList.toggle('is-open');
+        button.setAttribute('aria-expanded', String(isOpen));
+        panel.hidden = false;
+
+        if (isOpen) {
+          panel.style.maxHeight = `${panel.scrollHeight}px`;
+        } else {
+          panel.style.maxHeight = `${panel.scrollHeight}px`;
+          requestAnimationFrame(() => {
+            panel.style.maxHeight = '0px';
+            panel.style.opacity = '0';
+          });
+        }
+      });
+    });
+
+    host.querySelectorAll('.result-unit-block:not(.is-open) .result-unit-items').forEach(panel => {
+      panel.style.maxHeight = '0px';
+      panel.style.opacity = '0';
+    });
+
+    host.querySelectorAll('.result-unit-block.is-open .result-unit-items').forEach(panel => {
+      panel.hidden = false;
+      panel.style.maxHeight = `${panel.scrollHeight}px`;
+      panel.style.opacity = '1';
+    });
   }
 
   function sumItems(items) {
@@ -393,6 +325,7 @@
   }
 
   function bindActions() {
+
     const exportBtn = document.getElementById('analysisExport');
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {
@@ -405,8 +338,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     const data = readStoredResult();
     renderKpis(data);
-    renderGroupedBlocks('allocationBlocks', data.allocations, { unitLabel: 'Підрозділ' });
-    renderGroupedBlocks('remainBlocks', data.remains, { unitLabel: 'Залишки' });
+    renderGroupedBlocks('allocationBlocks', data.allocations, { unitLabel: 'Підрозділ', rowName: 'Комбінація', rowQty: 'Кількість' });
+    renderGroupedBlocks('remainBlocks', data.remains, { unitLabel: 'Залишки', rowName: 'Елемент', rowQty: 'Залишок' });
     initTilt();
     bindActions();
   });

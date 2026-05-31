@@ -608,101 +608,138 @@ body.theme-light .result-line span::before {
 }
 
 
-/* v296 — analysis layout cleanup: 3 actions, taller result tables, safe HUD gaps */
-.analysis-screen {
-  padding-top: clamp(126px, 15.2vh, 150px);
-  padding-bottom: clamp(92px, 11.2vh, 116px);
+/* BASTION Analysis — accordion result blocks v298 */
+.analysis-actions {
+  grid-template-columns: 1.35fr 1fr 1.25fr;
+  width: min(720px, 48vw);
 }
 
-.analysis-shell {
-  width: min(1320px, 82vw);
-  height: min(690px, calc(100vh - 220px));
-  min-height: 520px;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 10px;
-}
-
-.analysis-kpi-grid {
-  gap: 10px;
-}
-
-.analysis-kpi {
-  min-height: 68px;
-  padding: 10px 14px;
-}
-
-.analysis-kpi strong {
-  margin-top: 5px;
-  font-size: 30px;
-}
-
-.analysis-two-table-grid {
-  min-height: 0;
-  height: 100%;
-  gap: 12px;
-}
-
-.analysis-panel--allocation,
-.analysis-panel--remain {
-  height: 100%;
-  padding: 14px;
-}
-
-.analysis-panel__head {
-  padding-bottom: 10px;
-}
-
-.analysis-block-list {
-  height: calc(100% - 58px);
-  padding-top: 10px;
-  gap: 9px;
+.result-unit-block {
+  overflow: hidden;
 }
 
 .result-unit-head {
-  padding: 10px 13px 7px;
+  width: 100%;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  background: transparent;
+  transition: background .22s ease, border-color .22s ease, transform .22s ease;
 }
 
-.result-unit-head strong {
-  font-size: 21px;
+.result-unit-head:hover {
+  background: rgba(255, 71, 78, .035);
+}
+
+.result-unit-title {
+  min-width: 0;
+}
+
+.result-unit-title span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--analysis-red);
+  font: 900 10px/1 "Rajdhani", "Arial", sans-serif;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.result-unit-title strong {
+  display: block;
+  color: var(--analysis-text);
+  font: 900 23px/.95 "Rajdhani", "Arial", sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-unit-chevron {
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 88, 92, .32);
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  color: rgba(255, 90, 96, .95);
+  background: rgba(0,0,0,.18);
+  font: 900 23px/1 "Rajdhani", "Arial", sans-serif;
+  transform: rotate(0deg);
+  transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
+}
+
+.result-unit-block.is-open .result-unit-chevron {
+  transform: rotate(90deg);
+  border-color: rgba(255, 90, 96, .72);
+  box-shadow: 0 0 16px rgba(255, 50, 60, .18);
 }
 
 .result-unit-items {
-  padding: 8px 13px 11px;
-  gap: 5px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .32s ease, opacity .22s ease, padding .22s ease;
 }
 
-.result-line {
-  min-height: 27px;
-  padding: 6px 10px;
+.result-unit-block.is-open .result-unit-items {
+  opacity: 1 !important;
+  padding-top: 6px;
 }
 
-.analysis-actions {
-  width: min(760px, 54vw);
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 0;
-  align-self: center;
+.result-line--head {
+  min-height: 24px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background: rgba(255, 76, 82, .09);
+  border-color: rgba(255, 76, 82, .16);
 }
 
-.analysis-action {
-  min-height: 31px;
-  padding: 0 12px;
-  border-radius: 10px;
+.result-line--head span,
+.result-line--head b {
+  color: rgba(255, 120, 126, .92);
   font-size: 10px;
-  letter-spacing: .095em;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.result-line span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-line b {
+  min-width: 44px;
+  text-align: right;
+}
+
+body.light-theme .result-unit-chevron,
+body.theme-light .result-unit-chevron {
+  background: rgba(255,255,255,.50);
+  border-color: rgba(255,70,70,.26);
+  color: rgba(255,70,70,.90);
+}
+
+body.light-theme .result-line--head,
+body.theme-light .result-line--head {
+  background: rgba(255,78,84,.09);
+  border-color: rgba(255,78,84,.18);
 }
 
 @media (max-width: 1180px) {
-  .analysis-actions { width: min(780px, 92vw); grid-template-columns: 1fr; }
+  .analysis-actions {
+    width: min(820px, 92vw);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-height: 800px) {
-  .analysis-screen { padding-top: 112px; padding-bottom: 82px; }
-  .analysis-shell { height: calc(100vh - 194px); min-height: 470px; gap: 8px; }
-  .analysis-kpi { min-height: 58px; padding: 9px 12px; }
-  .analysis-kpi strong { font-size: 26px; }
-  .analysis-panel--allocation .analysis-panel__head h2,
-  .analysis-panel--remain .analysis-panel__head h2 { font-size: 24px; }
-  .analysis-actions { width: min(680px, 50vw); }
-  .analysis-action { min-height: 29px; font-size: 9.5px; }
+  .result-unit-title strong { font-size: 20px; }
+  .result-unit-head b { font-size: 29px; }
+  .result-unit-chevron { width: 25px; height: 25px; }
 }
