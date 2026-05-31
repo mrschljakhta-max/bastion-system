@@ -850,9 +850,33 @@
     return [...map.values()];
   }
 
+  function collectImportItems(file) {
+    const review = file.review || {};
+    const source = [];
+    if (Array.isArray(review.known)) source.push(...review.known);
+    if (Array.isArray(review.unknown)) source.push(...review.unknown);
+    if (!source.length && Array.isArray(review.rows)) {
+      review.rows.forEach((row, index) => {
+        const name = rowName(row) || `Рядок ${index + 1}`;
+        const count = rowQty(row);
+        source.push({ index: index + 1, raw: row, name, count: Number.isFinite(count) ? count : 0, match: null });
+      });
+    }
+    return source
+      .map((record) => ({
+        index: record.index || 0,
+        name: record.name || rowName(record.raw) || '',
+        quantity: Number.isInteger(Number(record.count)) ? Number(record.count) : null,
+        category: record.match?.label || record.match?.config?.label || record.match?.dictLabel || '',
+        dictKey: record.match?.config?.key || record.match?.dictKey || '',
+        known: !!record.match && Number.isInteger(Number(record.count))
+      }))
+      .filter(item => item.quantity !== null);
+  }
+
   function saveImportContext() {
     const payload = {
-      version: 1,
+      version: 2,
       createdAt: new Date().toISOString(),
       units: uniqueImportUnits(),
       files: files.map(file => ({
@@ -863,7 +887,8 @@
         rows: file.review?.rows?.length || 0,
         known: file.review?.known?.length || 0,
         unknown: file.review?.unknown?.length || 0,
-        errors: file.review?.quantityErrors?.length || 0
+        errors: file.review?.quantityErrors?.length || 0,
+        items: collectImportItems(file)
       })),
       totals: reviewTotals()
     };

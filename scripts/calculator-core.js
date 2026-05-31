@@ -264,6 +264,57 @@
     return [...map.values()];
   };
 
+  const numericQuantityFrom = (value) => {
+    if (value == null || value === '') return null;
+    const num = Number(String(value).replace(',', '.').replace(/[^0-9.\-]/g, ''));
+    return Number.isFinite(num) ? Math.max(0, Math.trunc(num)) : null;
+  };
+
+  const collectImportQuantities = () => {
+    const ctx = readImportContext();
+    const values = [];
+    const scanItem = (item) => {
+      if (!item || typeof item !== 'object') return;
+      const candidates = [item.quantity, item.count, item.qty, item.amount, item.total, item.value, item['кількість'], item['загалом']];
+      for (const candidate of candidates) {
+        const qty = numericQuantityFrom(candidate);
+        if (qty !== null) {
+          values.push(qty);
+          return;
+        }
+      }
+    };
+    const scanArray = (rows) => {
+      if (!Array.isArray(rows)) return;
+      rows.forEach(scanItem);
+    };
+    if (ctx && typeof ctx === 'object') {
+      scanArray(ctx.items);
+      scanArray(ctx.inventory);
+      if (Array.isArray(ctx.files)) {
+        ctx.files.forEach((file) => {
+          scanArray(file.items);
+          scanArray(file.rows);
+          scanArray(file.known);
+          scanArray(file.unknown);
+          if (Array.isArray(file.review?.known)) scanArray(file.review.known);
+          if (Array.isArray(file.review?.unknown)) scanArray(file.review.unknown);
+        });
+      }
+    }
+    return values.filter((value) => Number.isFinite(value));
+  };
+
+  const importLimitDefaults = () => {
+    const values = collectImportQuantities();
+    if (!values.length) return null;
+    return {
+      min: Math.min(...values),
+      max: Math.max(...values),
+      count: values.length
+    };
+  };
+
   let unitPresets = unitsFromImportContext();
   if (!unitPresets.length) unitPresets = fallbackUnitPresets.map(unit => ({ ...unit }));
 
@@ -287,6 +338,29 @@
     input.value = String(next);
     out.value = String(next);
   };
+
+  const applyImportLimitDefaults = () => {
+    const defaults = importLimitDefaults();
+    if (!defaults) return;
+    const controls = [
+      { range: byId('calcMin'), number: byId('calcMinOut'), value: defaults.min },
+      { range: byId('calcMax'), number: byId('calcMaxOut'), value: defaults.max }
+    ];
+    const dynamicMax = Math.max(9999, defaults.max);
+    controls.forEach(({ range, number, value }) => {
+      if (range instanceof HTMLInputElement) {
+        range.max = String(dynamicMax);
+        range.value = String(value);
+      }
+      if (number instanceof HTMLInputElement) {
+        number.max = String(dynamicMax);
+        number.value = String(value);
+      }
+      if (range instanceof HTMLInputElement) updateRange(range, 'range');
+    });
+  };
+
+  applyImportLimitDefaults();
 
   document.querySelectorAll('.calc-range-row input[type="range"]').forEach((input) => {
     updateRange(input);
