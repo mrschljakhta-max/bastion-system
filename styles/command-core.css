@@ -1,176 +1,195 @@
 
-/* BASTION COMMAND — hard scale fix v315
-   Додати в кінець styles/command-core.css
-   Мета: зменшити сторінку Висновки, щоб вона нормально вміщалась між верхніми/нижніми HUD-плашками.
+/* BASTION COMMAND — scale restore/fix v316
+   Fix після v315: повертає центральну модалку/панель і масштабує тільки внутрішній content,
+   не root-контейнери сторінки.
+   Додати в кінець styles/command-core.css або замінити попередній hard scale fix.
 */
 
-:root {
-  --command-scale: clamp(0.66, 0.78vw, 0.82);
-}
-
+/* 1) Повертаємо root layout */
 .command-page,
-.command-shell,
 .command-root,
-.command-stage,
-.command-layout,
-.command-wrap,
-.command-panel,
 .command-main,
-.command-hub {
-  max-width: min(1180px, calc(100vw - 360px)) !important;
-}
-
-.command-shell,
 .command-stage,
+.command-shell,
 .command-wrap,
 .command-hub,
+.command-layout,
 .command-panel {
-  transform: scale(var(--command-scale)) !important;
-  transform-origin: center center !important;
-}
-
-.command-shell,
-.command-stage,
-.command-wrap,
-.command-hub {
-  margin-inline: auto !important;
+  transform: none !important;
+  overflow: visible !important;
 }
 
 .command-page,
 .command-root,
 .command-main {
-  min-height: calc(100vh - 170px) !important;
-  height: calc(100vh - 170px) !important;
-  display: grid !important;
-  place-items: center !important;
-  overflow: hidden !important;
-  padding: 70px 0 86px !important;
+  min-height: calc(100vh - 92px) !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 108px 24px 104px !important;
   box-sizing: border-box !important;
 }
 
+/* 2) Сама центральна панель — видима і керована */
+.command-shell,
+.command-stage,
+.command-wrap,
+.command-hub,
 .command-panel,
-.command-card,
-.command-node-board {
-  max-height: 760px !important;
-  overflow: hidden !important;
+.command-node-panel,
+.command-command-panel {
+  position: relative !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  max-width: min(1180px, calc(100vw - 420px)) !important;
+  width: min(1180px, calc(100vw - 420px)) !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
 }
 
+/* 3) Масштабуємо тільки внутрішній контент, якщо він існує */
+.command-content,
+.command-inner,
+.command-board,
+.command-card,
+.command-command-card {
+  transform-origin: center center !important;
+  box-sizing: border-box !important;
+}
+
+/* 4) Компактніші елементи без зникнення панелі */
 .command-title,
 .command-hero-title {
-  font-size: clamp(52px, 5vw, 88px) !important;
-  line-height: 0.9 !important;
+  font-size: clamp(56px, 5.1vw, 92px) !important;
+  line-height: 0.88 !important;
   letter-spacing: -0.045em !important;
-}
-
-.command-subtitle,
-.command-hero-text {
-  font-size: clamp(14px, 1vw, 18px) !important;
 }
 
 .command-hex-row,
 .command-nodes,
 .command-actions,
 .command-hex-grid {
-  gap: clamp(18px, 1.4vw, 30px) !important;
+  gap: clamp(18px, 1.5vw, 30px) !important;
 }
 
 .command-hex,
 .command-node,
 .command-action-hex {
-  width: clamp(230px, 20vw, 320px) !important;
-  height: clamp(115px, 10vw, 165px) !important;
+  width: clamp(240px, 20vw, 330px) !important;
+  height: clamp(118px, 9.8vw, 166px) !important;
 }
 
 .command-hex h2,
 .command-node h2,
 .command-action-hex h2 {
-  font-size: clamp(24px, 2.1vw, 38px) !important;
-}
-
-.command-hex p,
-.command-node p,
-.command-action-hex p {
-  font-size: clamp(11px, 0.8vw, 14px) !important;
+  font-size: clamp(25px, 2.05vw, 38px) !important;
 }
 
 .command-brief,
 .command-decision-brief,
 .command-summary,
 .command-brief-grid {
-  max-height: 245px !important;
+  max-height: min(280px, calc(100vh - 620px)) !important;
   overflow: hidden !important;
 }
 
-.command-brief-card,
-.command-brief-item,
-.command-risk-card {
-  min-height: 0 !important;
-  padding: clamp(14px, 1.1vw, 22px) !important;
-}
-
-.command-footer-actions,
-.command-bottom-actions,
-.command-controls {
-  transform: scale(0.88) !important;
-  transform-origin: center center !important;
-  margin-top: 8px !important;
-}
-
-/* 1366-1536px width — ще компактніше */
+/* 5) 1366–1536 width */
 @media (max-width: 1536px) {
-  :root { --command-scale: 0.68; }
-
   .command-page,
   .command-root,
   .command-main {
-    padding-top: 42px !important;
-    padding-bottom: 72px !important;
+    padding: 82px 20px 82px !important;
   }
 
-  .command-panel,
   .command-shell,
   .command-stage,
   .command-wrap,
-  .command-hub {
-    max-width: 1080px !important;
+  .command-hub,
+  .command-panel,
+  .command-node-panel,
+  .command-command-panel {
+    max-width: min(980px, calc(100vw - 340px)) !important;
+    width: min(980px, calc(100vw - 340px)) !important;
   }
 
   .command-title,
   .command-hero-title {
-    font-size: clamp(48px, 4.6vw, 72px) !important;
+    font-size: clamp(46px, 4.5vw, 72px) !important;
+  }
+
+  .command-hex,
+  .command-node,
+  .command-action-hex {
+    width: clamp(205px, 18vw, 270px) !important;
+    height: clamp(96px, 8.4vw, 132px) !important;
+  }
+
+  .command-hex h2,
+  .command-node h2,
+  .command-action-hex h2 {
+    font-size: clamp(20px, 1.75vw, 30px) !important;
   }
 
   .command-brief,
   .command-decision-brief,
   .command-summary,
   .command-brief-grid {
-    max-height: 215px !important;
+    max-height: 210px !important;
   }
 }
 
-/* low-height screens */
+/* 6) Низька висота екрана */
 @media (max-height: 820px) {
-  :root { --command-scale: 0.62; }
-
   .command-page,
   .command-root,
   .command-main {
-    padding-top: 32px !important;
-    padding-bottom: 58px !important;
+    padding-top: 58px !important;
+    padding-bottom: 66px !important;
+  }
+
+  .command-shell,
+  .command-stage,
+  .command-wrap,
+  .command-hub,
+  .command-panel,
+  .command-node-panel,
+  .command-command-panel {
+    max-height: calc(100vh - 150px) !important;
+  }
+
+  .command-title,
+  .command-hero-title {
+    font-size: clamp(42px, 4.1vw, 64px) !important;
   }
 
   .command-brief,
   .command-decision-brief,
   .command-summary,
   .command-brief-grid {
-    max-height: 180px !important;
+    max-height: 170px !important;
   }
 }
 
-/* Якщо глобальний layout має окремий контент-контейнер */
-body.command-page-active .page-content,
-body.command-page-active .main-content,
-body.command-page-active .app-content,
-body.command-page-active main {
-  overflow: hidden !important;
+/* 7) Дуже вузькі екрани — краще вертикальна прокрутка, ніж зникнення */
+@media (max-width: 1100px) {
+  .command-page,
+  .command-root,
+  .command-main {
+    overflow-y: auto !important;
+    align-items: flex-start !important;
+  }
+
+  .command-shell,
+  .command-stage,
+  .command-wrap,
+  .command-hub,
+  .command-panel,
+  .command-node-panel,
+  .command-command-panel {
+    width: min(92vw, 900px) !important;
+    max-width: min(92vw, 900px) !important;
+  }
 }
