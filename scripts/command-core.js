@@ -1,21 +1,8 @@
 (() => {
   const fallback = {
     mode: 'Загальний режим', kits: 1694, bestRange: 27400, bottleneck: 'Заряд-1', remainTotal: 1008, remainPercent: 37,
-    units: ['1 САДн', '2 САДн', '1 АДн', '2 АДн', 'РЕАБАТР'],
-    allocations: [
-      { unit: '1 САДн', total: 1020 },
-      { unit: '2 САДн', total: 270 },
-      { unit: '1 АДн', total: 220 },
-      { unit: '2 АДн', total: 124 },
-      { unit: 'РЕАБАТР', total: 60 }
-    ],
-    remains: [
-      { unit: '1 САДн', total: 820, items: [{ name: 'Заряд-1', total: 820 }] },
-      { unit: '2 САДн', total: 610, items: [{ name: 'Заряд-1', total: 610 }] },
-      { unit: '1 АДн', total: 548, items: [{ name: 'Заряд-1', total: 548 }] },
-      { unit: '2 АДн', total: 504, items: [{ name: 'Заряд-1', total: 504 }] },
-      { unit: 'РЕАБАТР', total: 730, items: [{ name: 'Заряд-1', total: 730 }] }
-    ]
+    allocations: [{ unit: '1 САДн', total: 1020 }, { unit: '2 САДн', total: 337 }, { unit: '1 АДн', total: 168 }, { unit: '2 АДн', total: 169 }, { unit: 'РЕАБАТР', total: 0 }],
+    remains: [{ unit: '1 САДн', total: 504 }, { unit: '2 САДн', total: 620 }, { unit: '1 АДн', total: 580 }, { unit: '2 АДн', total: 504 }, { unit: 'РЕАБАТР', total: 1008 }]
   };
 
   function readResult(){
@@ -40,30 +27,15 @@
     data.remainPercent = Number(input.remainPercent ?? fallback.remainPercent);
     data.allocations = normalizeGroups(input.allocations || input.distribution || fallback.allocations);
     data.remains = normalizeGroups(input.remains || input.remaining || fallback.remains);
-    data.units = normalizeUnits(input.units || input.departments || input.subunits || data.allocations.concat(data.remains).map(g => g.unit) || fallback.units);
-    if (!data.units.length) data.units = normalizeUnits(fallback.units);
     return data;
   }
 
   function normalizeGroups(groups){
     return (Array.isArray(groups) ? groups : []).map((g, idx) => {
-      const rawItems = Array.isArray(g.items) ? g.items : Array.isArray(g.elements) ? g.elements : [];
-      const items = rawItems.map((i, n) => ({
-        name: i.name || i.element || i.resource || i.title || `Елемент ${n+1}`,
-        total: Number(i.total ?? i.qty ?? i.count ?? i.remaining ?? i.remain ?? 0)
-      }));
-      const total = Number(g.total ?? g.qty ?? g.count ?? g.remaining ?? g.remain ?? items.reduce((sum,item)=>sum+Number(item.total||0),0));
-      return { unit: g.unit || g.name || g.department || `Підрозділ ${idx+1}`, total, items };
+      const items = Array.isArray(g.items) ? g.items : [];
+      const total = Number(g.total ?? g.qty ?? g.count ?? items.reduce((s,i)=>s+Number(i.qty||i.count||i.total||i.remaining||0),0));
+      return { unit: g.unit || g.name || `Підрозділ ${idx+1}`, total, items };
     });
-  }
-
-  function normalizeUnits(units){
-    const source = Array.isArray(units) ? units : [];
-    const seen = new Set();
-    return source
-      .map(u => typeof u === 'string' ? u : (u.unit || u.name || u.department || ''))
-      .map(u => String(u || '').trim())
-      .filter(u => u && !seen.has(u) && seen.add(u));
   }
 
   const data = readResult();
@@ -82,23 +54,33 @@
   function minRemain(){
     return [...data.remains].sort((a,b)=>(a.total||0)-(b.total||0))[0] || { unit:'—', total:0 };
   }
-  function minElementRemain(){
-    const rows = [];
-    data.remains.forEach(group => {
-      if (Array.isArray(group.items) && group.items.length){
-        group.items.forEach(item => rows.push({ unit: group.unit, element: item.name || data.bottleneck, total: Number(item.total || 0) }));
-      } else {
-        rows.push({ unit: group.unit, element: data.bottleneck, total: Number(group.total || 0) });
-      }
+
+  function allUnits(){
+    const defaultUnits = ['1 САДн','2 САДн','1 АДн','2 АДн','РЕАБАТР'];
+    const fromData = [...data.allocations, ...data.remains]
+      .map(g => g.unit)
+      .filter(Boolean);
+    const unique = [...new Set(fromData)];
+    return unique.length >= 3 ? unique : defaultUnits;
+  }
+
+  function minElement(){
+    const candidates = [];
+    [...data.allocations, ...data.remains].forEach(group => {
+      (group.items || []).forEach(item => {
+        const name = item.name || item.element || item.resource || item.title || item.type;
+        const qty = Number(item.remaining ?? item.remain ?? item.qty ?? item.count ?? item.total);
+        if (name && Number.isFinite(qty)) candidates.push({ name, qty, unit: group.unit });
+      });
     });
-    return rows.sort((a,b)=>(a.total||0)-(b.total||0))[0] || { unit:'—', element:data.bottleneck || '—', total:0 };
+    if (candidates.length) return candidates.sort((a,b)=>a.qty-b.qty)[0];
+    const weak = minRemain();
+    return { name: data.bottleneck || '—', qty: weak.total || data.remainTotal || 0, unit: weak.unit || '—' };
   }
 
-  function unitChips(){
-    const units = data.units && data.units.length ? data.units : normalizeUnits(data.allocations.concat(data.remains).map(g => g.unit));
-    return units.map(unit => `<span class="command-unit-chip">${escapeHtml(unit)}</span>`).join('');
+  function unitsChips(){
+    return allUnits().map(unit => `<span class="command-unit-chip">${escapeHtml(unit)}</span>`).join('');
   }
-
   function readiness(){
     const kits = Math.max(0, Number(data.kits || 0));
     const remain = Math.max(0, Number(data.remainTotal || 0));
@@ -109,49 +91,49 @@
   function conclusionsView(){
     const top = maxUnit();
     const weak = minRemain();
-    const minElement = minElementRemain();
+    const minEl = minElement();
     content.innerHTML = `
-      <div class="command-final-summary">
-        <article class="command-final-card command-final-card--primary">
-          <span class="command-final-card__label">Сформовано комплектів</span>
-          <strong class="command-final-card__mega">${data.kits}</strong>
-        </article>
-
-        <div class="command-final-grid">
-          <article class="command-final-card command-final-card--range">
-            <span class="command-final-card__label">Максимальна дальність</span>
-            <strong>${fmtRange(data.bestRange)}</strong>
+      <div class="command-final-layout">
+        <section class="command-final-left" aria-label="Загальні показники">
+          <article class="command-final-card command-final-card--hero">
+            <span class="command-final-card__label">Сформовано комплектів</span>
+            <strong class="command-final-card__main">${data.kits}</strong>
           </article>
 
-          <article class="command-final-card command-final-card--units">
-            <span class="command-final-card__label">Враховано підрозділів</span>
-            <div class="command-unit-chipset">${unitChips()}</div>
-          </article>
+          <div class="command-final-left__bottom">
+            <article class="command-final-card command-final-card--range">
+              <span class="command-final-card__label">Максимальна дальність</span>
+              <strong>${fmtRange(data.bestRange)}</strong>
+            </article>
+            <article class="command-final-card command-final-card--remain">
+              <span class="command-final-card__label">Залишок складу</span>
+              <strong>${data.remainTotal}</strong>
+              <small>${data.remainPercent || 0}% після розрахунку</small>
+            </article>
+          </div>
+        </section>
 
-          <article class="command-final-card command-final-card--accent">
+        <section class="command-final-right" aria-label="Деталізація результату">
+          <article class="command-final-card command-final-card--bottleneck">
             <span class="command-final-card__label">Обмежувальний елемент</span>
-            <strong>${escapeHtml(data.bottleneck)}</strong>
+            <strong>${data.bottleneck}</strong>
             <small>вузьке місце</small>
           </article>
-
-          <article class="command-final-card">
-            <span class="command-final-card__label">Залишок складу</span>
-            <strong>${data.remainTotal}</strong>
-            <small>${data.remainPercent || 0}% після розрахунку</small>
-          </article>
-
-          <article class="command-final-card">
-            <span class="command-final-card__label">Найбільше отримав</span>
-            <strong>${escapeHtml(top.unit)}</strong>
-            <small>${top.total} комплектів</small>
-          </article>
-
           <article class="command-final-card">
             <span class="command-final-card__label">Найменший запас</span>
-            <strong>${escapeHtml(minElement.unit)}</strong>
-            <small>${escapeHtml(minElement.element)} — ${minElement.total} од.</small>
+            <strong>${minEl.name}</strong>
+            <small>${minEl.unit} · ${minEl.qty} од.</small>
           </article>
-        </div>
+          <article class="command-final-card">
+            <span class="command-final-card__label">Найбільше отримав</span>
+            <strong>${top.unit}</strong>
+            <small>${top.total} комплектів</small>
+          </article>
+          <article class="command-final-card command-final-card--units">
+            <span class="command-final-card__label">Враховано підрозділів</span>
+            <div class="command-unit-chip-grid">${unitsChips()}</div>
+          </article>
+        </section>
       </div>`;
   }
 
@@ -206,19 +188,18 @@
   function reportText(){
     const top = maxUnit();
     const weak = minRemain();
-    const minElement = minElementRemain();
-    const units = data.units && data.units.length ? data.units : normalizeUnits(data.allocations.concat(data.remains).map(g => g.unit));
+    const minEl = minElement();
     const lines = [];
     lines.push('BASTION — ВИСНОВКИ');
     lines.push('');
     lines.push(`Сформовано комплектів: ${data.kits}`);
     lines.push(`Максимальна дальність: ${fmtRange(data.bestRange)}`);
-    lines.push(`Враховано підрозділів: ${units.join(', ') || '—'}`);
-    lines.push(`Обмежувальний елемент: ${data.bottleneck}`);
     lines.push(`Залишок складу: ${data.remainTotal} (${data.remainPercent || 0}% після розрахунку)`);
+    lines.push(`Обмежувальний елемент: ${data.bottleneck}`);
     lines.push(`Найбільше отримав: ${top.unit} — ${top.total} комплектів`);
-    lines.push(`Найменший залишок підрозділу: ${weak.unit} — ${weak.total} од.`);
-    lines.push(`Найменший запас по елементах: ${minElement.unit}; ${minElement.element} — ${minElement.total} од.`);
+    lines.push(`Найменший запас: ${minEl.name} — ${minEl.qty} од. (${minEl.unit})`);
+    lines.push(`Найменший залишок по підрозділах: ${weak.unit} — ${weak.total} од.`);
+    lines.push(`Враховано підрозділів: ${allUnits().join(', ')}`);
     return lines.join('\n');
   }
 
