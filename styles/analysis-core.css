@@ -1696,3 +1696,22 @@ body.light-theme .analysis-export-meta b,
 body.theme-light .analysis-export-meta b,
 body[data-theme="light"] .analysis-export-meta b { color:#1a2633; }
 @media (max-width: 900px) { .analysis-export-format-grid{grid-template-columns: repeat(2,1fr);} .analysis-export-card{width:min(680px,92vw);} }
+
+/* Export modal file-type icons */
+.analysis-export-hex img{
+  width: 64px;
+  height: 64px;
+  display:block;
+  object-fit:contain;
+  filter: drop-shadow(0 0 10px rgba(255,76,84,.55));
+}
+.analysis-export-format:hover .analysis-export-hex img{
+  transform: translateY(-1px) scale(1.06);
+  transition: transform .18s ease, filter .18s ease;
+  filter: drop-shadow(0 0 16px rgba(255,76,84,.8));
+}
+body.light-theme .analysis-export-hex img,
+body.theme-light .analysis-export-hex img,
+body[data-theme="light"] .analysis-export-hex img{
+  filter: drop-shadow(0 0 10px rgba(255,76,84,.42));
+}

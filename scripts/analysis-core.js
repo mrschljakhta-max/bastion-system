@@ -566,61 +566,277 @@
     return `<h2>${escapeHtml(title)}</h2><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
   }
 
+  function xmlEscape(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function makeWorksheetXml(rows, headers) {
+    const allRows = [headers.map(h => h.label), ...rows.map(row => headers.map(h => row[h.key]))];
+    const widths = headers.map((header, index) => {
+      const maxLen = Math.max(
+        String(header.label || '').length,
+        ...rows.map(row => String(row[header.key] ?? '').length)
+      );
+      return Math.min(Math.max(maxLen + 4, 12), 42);
+    });
+    const cols = widths.map((width, idx) => `<col min="${idx + 1}" max="${idx + 1}" width="${width}" customWidth="1"/>`).join('');
+    const rowXml = allRows.map((cells, rowIndex) => {
+      const style = rowIndex === 0 ? ' s="1"' : '';
+      const height = rowIndex === 0 ? ' ht="22" customHeight="1"' : ' ht="20" customHeight="1"';
+      const cellsXml = cells.map(cell => {
+        const value = cell ?? '';
+        if (typeof value === 'number' && Number.isFinite(value)) return `<c${style}><v>${value}</v></c>`;
+        const numeric = String(value).trim().replace(',', '.');
+        if (numeric && /^-?\d+(\.\d+)?$/.test(numeric)) return `<c${style}><v>${numeric}</v></c>`;
+        return `<c t="inlineStr"${style}><is><t>${xmlEscape(value)}</t></is></c>`;
+      }).join('');
+      return `<row r="${rowIndex + 1}"${height}>${cellsXml}</row>`;
+    }).join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <cols>${cols}</cols>
+  <sheetData>${rowXml}</sheetData>
+</worksheet>`;
+  }
+
+  function crc32(input) {
+    const table = crc32.table || (crc32.table = (() => {
+      const table = new Uint32Array(256);
+      for (let i = 0; i < 256; i++) {
+        let c = i;
+        for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        table[i] = c >>> 0;
+      }
+      return table;
+    })());
+    let c = 0xffffffff;
+    for (let i = 0; i < input.length; i++) c = table[(c ^ input[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+
+  function u16(n) { return [n & 255, (n >>> 8) & 255]; }
+  function u32(n) { return [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255]; }
+
+  function createZip(entries) {
+    const encoder = new TextEncoder();
+    const chunks = [];
+    const central = [];
+    let offset = 0;
+
+    const push = bytes => { chunks.push(Uint8Array.from(bytes)); offset += bytes.length; };
+    const pushBytes = bytes => { chunks.push(bytes); offset += bytes.length; };
+
+    entries.forEach(entry => {
+      const nameBytes = encoder.encode(entry.name);
+      const dataBytes = typeof entry.data === 'string' ? encoder.encode(entry.data) : entry.data;
+      const crc = crc32(dataBytes);
+      const localOffset = offset;
+      push([0x50,0x4b,0x03,0x04, ...u16(20), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(crc), ...u32(dataBytes.length), ...u32(dataBytes.length), ...u16(nameBytes.length), ...u16(0)]);
+      pushBytes(nameBytes);
+      pushBytes(dataBytes);
+      central.push({ nameBytes, crc, size: dataBytes.length, offset: localOffset });
+    });
+
+    const centralStart = offset;
+    central.forEach(entry => {
+      push([0x50,0x4b,0x01,0x02, ...u16(20), ...u16(20), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(entry.crc), ...u32(entry.size), ...u32(entry.size), ...u16(entry.nameBytes.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(entry.offset)]);
+      pushBytes(entry.nameBytes);
+    });
+    const centralSize = offset - centralStart;
+    push([0x50,0x4b,0x05,0x06, ...u16(0), ...u16(0), ...u16(central.length), ...u16(central.length), ...u32(centralSize), ...u32(centralStart), ...u16(0)]);
+    return new Blob(chunks, { type: 'application/zip' });
+  }
+
   function exportExcel() {
     const data = makeExportData();
-    const html = `
-      <html><head><meta charset="UTF-8"></head><body>
-      ${tableHtml('KPI', [
-        { metric: 'Макс. комплектів', value: data.kpi.maxKits },
-        { metric: 'Найкраща дальність', value: data.kpi.bestRange },
-        { metric: 'Обмежувальний елемент', value: data.kpi.bottleneck },
-        { metric: 'Залишок складу', value: data.kpi.stockRemain }
-      ], [{ key: 'metric', label: 'Показник' }, { key: 'value', label: 'Значення' }])}
-      ${tableHtml('Розподіл', data.distribution, [
-        { key: 'unit', label: 'Підрозділ' },
-        { key: 'combination', label: 'Комбінація' },
-        { key: 'quantity', label: 'Кількість' }
-      ])}
-      ${tableHtml('Залишки', data.remains, [
-        { key: 'unit', label: 'Підрозділ' },
-        { key: 'element', label: 'Елемент' },
-        { key: 'used', label: 'Використано' },
-        { key: 'remain', label: 'Залишок' }
-      ])}
-      </body></html>`;
-    downloadBlob('bastion-analysis.xls', html, 'application/vnd.ms-excel;charset=utf-8');
+    const sheets = [
+      {
+        name: 'KPI',
+        rows: [
+          { metric: 'Макс. комплектів', value: data.kpi.maxKits },
+          { metric: 'Найкраща дальність', value: data.kpi.bestRange },
+          { metric: 'Обмежувальний елемент', value: data.kpi.bottleneck },
+          { metric: 'Залишок складу', value: data.kpi.stockRemain }
+        ],
+        headers: [{ key: 'metric', label: 'Показник' }, { key: 'value', label: 'Значення' }]
+      },
+      {
+        name: 'Distribution',
+        rows: data.distribution,
+        headers: [
+          { key: 'unit', label: 'Підрозділ' },
+          { key: 'combination', label: 'Комбінація' },
+          { key: 'quantity', label: 'Кількість' }
+        ]
+      },
+      {
+        name: 'Remains',
+        rows: data.remains,
+        headers: [
+          { key: 'unit', label: 'Підрозділ' },
+          { key: 'element', label: 'Елемент' },
+          { key: 'used', label: 'Використано' },
+          { key: 'remain', label: 'Залишок' }
+        ]
+      }
+    ];
+
+    const workbookSheets = sheets.map((s, i) => `<sheet name="${xmlEscape(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('');
+    const workbookRels = sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('') +
+      `<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
+    const overrides = sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('');
+
+    const entries = [
+      { name: '[Content_Types].xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${overrides}</Types>` },
+      { name: '_rels/.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+      { name: 'xl/workbook.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${workbookSheets}</sheets></workbook>` },
+      { name: 'xl/_rels/workbook.xml.rels', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${workbookRels}</Relationships>` },
+      { name: 'xl/styles.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><color rgb="FFFF4F55"/><name val="Arial"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>` }
+    ];
+    sheets.forEach((sheet, index) => entries.push({ name: `xl/worksheets/sheet${index + 1}.xml`, data: makeWorksheetXml(sheet.rows, sheet.headers) }));
+    downloadBlob('bastion-analysis.xlsx', createZip(entries), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  }
+
+  function splitTextForCanvas(ctx, text, maxWidth) {
+    const words = String(text ?? '').split(/\s+/);
+    const lines = [];
+    let line = '';
+    words.forEach(word => {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function renderPdfPages(data) {
+    const pageW = 1240;
+    const pageH = 1754;
+    const margin = 70;
+    const pages = [];
+    let canvas = document.createElement('canvas');
+    canvas.width = pageW;
+    canvas.height = pageH;
+    let ctx = canvas.getContext('2d');
+    let y = margin;
+
+    function newPage() {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, pageW, pageH);
+      ctx.fillStyle = '#d9232e';
+      ctx.font = 'bold 34px Arial';
+      ctx.fillText('BASTION — АНАЛІЗ', margin, y);
+      y += 58;
+    }
+    function finishPage() {
+      pages.push(canvas.toDataURL('image/jpeg', 0.92));
+      canvas = document.createElement('canvas');
+      canvas.width = pageW;
+      canvas.height = pageH;
+      ctx = canvas.getContext('2d');
+      y = margin;
+      newPage();
+    }
+    function ensure(h) { if (y + h > pageH - margin) finishPage(); }
+    function title(text) { ensure(54); ctx.fillStyle = '#d9232e'; ctx.font = 'bold 24px Arial'; ctx.fillText(text, margin, y); y += 34; }
+    function row(cols, widths, bold = false) {
+      const lineH = 28;
+      const wrapped = cols.map((c, i) => splitTextForCanvas(ctx, c, widths[i] - 18));
+      const h = Math.max(38, Math.max(...wrapped.map(a => a.length)) * lineH + 12);
+      ensure(h + 4);
+      let x = margin;
+      ctx.strokeStyle = '#d7d7d7';
+      ctx.fillStyle = bold ? '#f4f4f4' : '#ffffff';
+      ctx.fillRect(margin, y, widths.reduce((a,b)=>a+b,0), h);
+      ctx.strokeRect(margin, y, widths.reduce((a,b)=>a+b,0), h);
+      cols.forEach((c, i) => {
+        ctx.strokeRect(x, y, widths[i], h);
+        ctx.fillStyle = bold ? '#d9232e' : '#111111';
+        ctx.font = `${bold ? 'bold ' : ''}20px Arial`;
+        wrapped[i].forEach((line, idx) => ctx.fillText(line, x + 9, y + 25 + idx * lineH));
+        x += widths[i];
+      });
+      y += h;
+    }
+
+    newPage();
+    title('KPI');
+    row(['Показник', 'Значення'], [420, 620], true);
+    [
+      ['Макс. комплектів', data.kpi.maxKits],
+      ['Найкраща дальність', data.kpi.bestRange],
+      ['Обмежувальний елемент', data.kpi.bottleneck],
+      ['Залишок складу', data.kpi.stockRemain]
+    ].forEach(r => row(r, [420, 620]));
+
+    title('Хто що отримує');
+    row(['Підрозділ', 'Комбінація', 'Кількість'], [230, 620, 190], true);
+    data.distribution.forEach(r => row([r.unit, r.combination, r.quantity], [230, 620, 190]));
+
+    title('Залишки');
+    row(['Підрозділ', 'Елемент', 'Використано', 'Залишок'], [210, 450, 190, 190], true);
+    data.remains.forEach(r => row([r.unit, r.element, r.used, r.remain], [210, 450, 190, 190]));
+
+    pages.push(canvas.toDataURL('image/jpeg', 0.92));
+    return pages;
+  }
+
+  function makePdfFromJpegs(dataUrls) {
+    const enc = new TextEncoder();
+    const objects = [];
+    const pageKids = [];
+    const images = dataUrls.map(url => Uint8Array.from(atob(url.split(',')[1]), c => c.charCodeAt(0)));
+    let objId = 3;
+    images.forEach((img, idx) => {
+      const pageId = objId++;
+      const imageId = objId++;
+      const contentId = objId++;
+      pageKids.push(`${pageId} 0 R`);
+      objects[pageId] = enc.encode(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im${idx} ${imageId} 0 R >> >> /Contents ${contentId} 0 R >>`);
+      const imgHeader = enc.encode(`<< /Type /XObject /Subtype /Image /Width 1240 /Height 1754 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.length} >>\nstream\n`);
+      const imgFooter = enc.encode(`\nendstream`);
+      const imgObj = new Uint8Array(imgHeader.length + img.length + imgFooter.length);
+      imgObj.set(imgHeader, 0); imgObj.set(img, imgHeader.length); imgObj.set(imgFooter, imgHeader.length + img.length);
+      objects[imageId] = imgObj;
+      const content = `q\n595 0 0 842 0 0 cm\n/Im${idx} Do\nQ`;
+      objects[contentId] = enc.encode(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+    });
+    objects[1] = enc.encode('<< /Type /Catalog /Pages 2 0 R >>');
+    objects[2] = enc.encode(`<< /Type /Pages /Kids [${pageKids.join(' ')}] /Count ${images.length} >>`);
+
+    const chunks = [enc.encode('%PDF-1.4\n')];
+    const offsets = [0];
+    let pos = chunks[0].length;
+    for (let i = 1; i < objects.length; i++) {
+      if (!objects[i]) continue;
+      offsets[i] = pos;
+      const head = enc.encode(`${i} 0 obj\n`);
+      const foot = enc.encode('\nendobj\n');
+      chunks.push(head, objects[i], foot);
+      pos += head.length + objects[i].length + foot.length;
+    }
+    const xrefStart = pos;
+    let xref = `xref\n0 ${objects.length}\n0000000000 65535 f \n`;
+    for (let i = 1; i < objects.length; i++) xref += `${String(offsets[i] || 0).padStart(10, '0')} 00000 n \n`;
+    xref += `trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+    chunks.push(enc.encode(xref));
+    return new Blob(chunks, { type: 'application/pdf' });
   }
 
   function exportPdf() {
     const data = makeExportData();
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    const html = `<!doctype html><html lang="uk"><head><meta charset="UTF-8"><title>BASTION Analysis</title>
-      <style>
-        body{font-family:Arial,sans-serif;padding:28px;color:#111}h1{margin:0 0 18px;color:#d9232e;letter-spacing:.08em}h2{margin:22px 0 8px;color:#222}table{width:100%;border-collapse:collapse;margin-bottom:18px}th,td{border:1px solid #ccc;padding:8px;text-align:left}th{background:#f4f4f4;color:#d9232e;text-transform:uppercase;font-size:12px}.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 24px}.card{border:1px solid #d9232e;padding:12px;border-radius:8px}.card b{display:block;font-size:24px}
-      </style></head><body>
-      <h1>BASTION — ANALYSIS EXPORT</h1>
-      <div class="kpi">
-        <div class="card">Макс. комплектів<b>${escapeHtml(data.kpi.maxKits)}</b></div>
-        <div class="card">Найкраща дальність<b>${escapeHtml(data.kpi.bestRange)}</b></div>
-        <div class="card">Обмежувальний елемент<b>${escapeHtml(data.kpi.bottleneck)}</b></div>
-        <div class="card">Залишок складу<b>${escapeHtml(data.kpi.stockRemain)}</b></div>
-      </div>
-      ${tableHtml('Хто що отримує', data.distribution, [
-        { key: 'unit', label: 'Підрозділ' },
-        { key: 'combination', label: 'Комбінація' },
-        { key: 'quantity', label: 'Кількість' }
-      ])}
-      ${tableHtml('Залишки', data.remains, [
-        { key: 'unit', label: 'Підрозділ' },
-        { key: 'element', label: 'Елемент' },
-        { key: 'used', label: 'Використано' },
-        { key: 'remain', label: 'Залишок' }
-      ])}
-      <script>window.onload=()=>{window.print();};<\/script></body></html>`;
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
+    const pages = renderPdfPages(data);
+    const pdf = makePdfFromJpegs(pages);
+    downloadBlob('bastion-analysis.pdf', pdf, 'application/pdf');
   }
 
   function openExportModal() {
