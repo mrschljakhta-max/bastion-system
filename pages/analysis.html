@@ -6,7 +6,7 @@
   <title>BASTION — Аналіз</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
-  <link rel="stylesheet" href="../styles/analysis-core.css?v=308" />
+  <link rel="stylesheet" href="../styles/analysis-core.css?v=304" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -135,7 +135,7 @@
 
       <footer class="analysis-actions">
         <a class="analysis-action analysis-action--ghost" href="./calculator.html">← До калькулятора</a>
-        <button id="analysisExport" class="analysis-action analysis-action--ghost" type="button">Експорт XLSX</button>
+        <button id="analysisExport" class="analysis-action analysis-action--ghost" type="button">Експорт</button>
         <a class="analysis-action analysis-action--primary" href="./command.html">До висновків →</a>
       </footer>
     </section>
@@ -166,6 +166,41 @@
       <button class="map-dot" data-target="command" data-page-title="06 — Висновки" aria-label="Висновки"></button>
     </div>
   </nav>
+
+
+  <div id="analysisExportModal" class="analysis-export-modal" aria-hidden="true">
+    <div class="analysis-export-backdrop" data-close-export></div>
+    <section class="analysis-export-card" role="dialog" aria-modal="true" aria-labelledby="analysisExportTitle">
+      <button class="analysis-export-close" type="button" data-close-export aria-label="Закрити">×</button>
+      <div class="analysis-export-head">
+        <p>BASTION EXPORT</p>
+        <h2 id="analysisExportTitle">Експорт аналізу</h2>
+        <span>До файлів потрапляють тільки KPI-картки та дві таблиці: розподіл і залишки.</span>
+      </div>
+      <div class="analysis-export-meta">
+        <span>Дані сторінки</span>
+        <b>KPI · Розподіл · Залишки</b>
+      </div>
+      <div class="analysis-export-format-grid" aria-label="Формати експорту">
+        <button class="analysis-export-format" type="button" data-export-format="json">
+          <span class="analysis-export-hex"><i>{ }</i></span>
+          <strong>JSON</strong>
+        </button>
+        <button class="analysis-export-format" type="button" data-export-format="xlsx">
+          <span class="analysis-export-hex"><i>▦</i></span>
+          <strong>EXCEL</strong>
+        </button>
+        <button class="analysis-export-format" type="button" data-export-format="pdf">
+          <span class="analysis-export-hex"><i>⌁</i></span>
+          <strong>PDF</strong>
+        </button>
+        <button class="analysis-export-format" type="button" data-export-format="csv">
+          <span class="analysis-export-hex"><i>≡</i></span>
+          <strong>CSV</strong>
+        </button>
+      </div>
+    </section>
+  </div>
 
   <aside id="floatingDetail" class="floating-detail" aria-hidden="true"></aside>
   <div id="profileModal" class="profile-modal bastion-profile-modal" aria-hidden="true">
@@ -282,6 +317,6 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
-  <script src="../scripts/analysis-core.js?v=308"></script>
+  <script src="../scripts/analysis-core.js?v=304"></script>
 </body>
 </html>

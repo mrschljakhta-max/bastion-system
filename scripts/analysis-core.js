@@ -84,6 +84,9 @@
     ]
   };
 
+  let currentAnalysisData = null;
+
+
   function readStoredResult() {
     const keys = [
       'bastion.analysis.result',
@@ -232,8 +235,9 @@
     return { cls: 'item', label: 'Елемент', glyph: '•' };
   }
 
-  function categoryIcon() {
-    return '';
+  function categoryIcon(name, mode = 'item') {
+    const cat = mode === 'combo' ? { cls: 'combo', label: 'Комбінація', glyph: '◇' } : getElementCategory(name);
+    return `<i class="analysis-row-icon analysis-row-icon--${cat.cls}" title="${escapeHtml(cat.label)}" aria-hidden="true">${cat.glyph}</i>`;
   }
 
   function renderGroupedBlocks(hostId, groups, options = {}) {
@@ -274,7 +278,7 @@
         if (isRemain) {
           return `
               <div class="result-line result-line--remain">
-                <span class="analysis-row-name"><span>${escapeHtml(item.name)}</span></span>
+                <span class="analysis-row-name">${categoryIcon(item.name)}<span>${escapeHtml(item.name)}</span></span>
                 <em>${used}</em>
                 <b>${qty}</b>
               </div>
@@ -282,7 +286,7 @@
         }
         return `
               <div class="result-line">
-                <span class="analysis-row-name"><span>${escapeHtml(item.name)}</span></span>
+                <span class="analysis-row-name">${categoryIcon(item.name, 'combo')}<span>${escapeHtml(item.name)}</span></span>
                 <b>${qty}</b>
               </div>
             `;
@@ -475,19 +479,188 @@
     });
   }
 
-  function bindActions() {
+  function makeExportData() {
+    const kpi = {
+      maxKits: document.getElementById('kpiKits')?.textContent?.trim() || '',
+      bestRange: document.getElementById('kpiRange')?.textContent?.trim() || '',
+      bottleneck: document.getElementById('kpiBottleneck')?.textContent?.trim() || '',
+      stockRemain: document.getElementById('kpiRemain')?.textContent?.trim() || ''
+    };
 
+    const allocation = currentAnalysisData?.allocations || [];
+    const remains = currentAnalysisData?.remains || [];
+
+    return {
+      kpi,
+      distribution: allocation.flatMap(group => (group.items || []).map(item => ({
+        unit: group.unit,
+        combination: item.name,
+        quantity: Number(item.qty ?? 0)
+      }))),
+      remains: remains.flatMap(group => (group.items || []).map(item => ({
+        unit: group.unit,
+        element: item.name,
+        used: Number(item.used ?? item.consumed ?? item.spent ?? item.issued ?? 0),
+        remain: Number(item.qty ?? 0)
+      })))
+    };
+  }
+
+  function downloadBlob(filename, content, type) {
+    const blob = content instanceof Blob ? content : new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 500);
+  }
+
+  function csvEscape(value) {
+    const text = String(value ?? '');
+    return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }
+
+  function toCsv(rows, headers) {
+    return [
+      headers.map(h => csvEscape(h.label)).join(';'),
+      ...rows.map(row => headers.map(h => csvEscape(row[h.key])).join(';'))
+    ].join('\n');
+  }
+
+  function exportJson() {
+    downloadBlob('bastion-analysis.json', JSON.stringify(makeExportData(), null, 2), 'application/json;charset=utf-8');
+  }
+
+  function exportCsv() {
+    const data = makeExportData();
+    const parts = [];
+    parts.push('KPI');
+    parts.push(toCsv([
+      { metric: 'Макс. комплектів', value: data.kpi.maxKits },
+      { metric: 'Найкраща дальність', value: data.kpi.bestRange },
+      { metric: 'Обмежувальний елемент', value: data.kpi.bottleneck },
+      { metric: 'Залишок складу', value: data.kpi.stockRemain }
+    ], [{ key: 'metric', label: 'Показник' }, { key: 'value', label: 'Значення' }]));
+    parts.push('\nРозподіл');
+    parts.push(toCsv(data.distribution, [
+      { key: 'unit', label: 'Підрозділ' },
+      { key: 'combination', label: 'Комбінація' },
+      { key: 'quantity', label: 'Кількість' }
+    ]));
+    parts.push('\nЗалишки');
+    parts.push(toCsv(data.remains, [
+      { key: 'unit', label: 'Підрозділ' },
+      { key: 'element', label: 'Елемент' },
+      { key: 'used', label: 'Використано' },
+      { key: 'remain', label: 'Залишок' }
+    ]));
+    downloadBlob('bastion-analysis.csv', '\ufeff' + parts.join('\n\n'), 'text/csv;charset=utf-8');
+  }
+
+  function tableHtml(title, rows, headers) {
+    const head = headers.map(h => `<th>${escapeHtml(h.label)}</th>`).join('');
+    const body = rows.map(row => `<tr>${headers.map(h => `<td>${escapeHtml(row[h.key])}</td>`).join('')}</tr>`).join('');
+    return `<h2>${escapeHtml(title)}</h2><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  }
+
+  function exportExcel() {
+    const data = makeExportData();
+    const html = `
+      <html><head><meta charset="UTF-8"></head><body>
+      ${tableHtml('KPI', [
+        { metric: 'Макс. комплектів', value: data.kpi.maxKits },
+        { metric: 'Найкраща дальність', value: data.kpi.bestRange },
+        { metric: 'Обмежувальний елемент', value: data.kpi.bottleneck },
+        { metric: 'Залишок складу', value: data.kpi.stockRemain }
+      ], [{ key: 'metric', label: 'Показник' }, { key: 'value', label: 'Значення' }])}
+      ${tableHtml('Розподіл', data.distribution, [
+        { key: 'unit', label: 'Підрозділ' },
+        { key: 'combination', label: 'Комбінація' },
+        { key: 'quantity', label: 'Кількість' }
+      ])}
+      ${tableHtml('Залишки', data.remains, [
+        { key: 'unit', label: 'Підрозділ' },
+        { key: 'element', label: 'Елемент' },
+        { key: 'used', label: 'Використано' },
+        { key: 'remain', label: 'Залишок' }
+      ])}
+      </body></html>`;
+    downloadBlob('bastion-analysis.xls', html, 'application/vnd.ms-excel;charset=utf-8');
+  }
+
+  function exportPdf() {
+    const data = makeExportData();
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    const html = `<!doctype html><html lang="uk"><head><meta charset="UTF-8"><title>BASTION Analysis</title>
+      <style>
+        body{font-family:Arial,sans-serif;padding:28px;color:#111}h1{margin:0 0 18px;color:#d9232e;letter-spacing:.08em}h2{margin:22px 0 8px;color:#222}table{width:100%;border-collapse:collapse;margin-bottom:18px}th,td{border:1px solid #ccc;padding:8px;text-align:left}th{background:#f4f4f4;color:#d9232e;text-transform:uppercase;font-size:12px}.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 24px}.card{border:1px solid #d9232e;padding:12px;border-radius:8px}.card b{display:block;font-size:24px}
+      </style></head><body>
+      <h1>BASTION — ANALYSIS EXPORT</h1>
+      <div class="kpi">
+        <div class="card">Макс. комплектів<b>${escapeHtml(data.kpi.maxKits)}</b></div>
+        <div class="card">Найкраща дальність<b>${escapeHtml(data.kpi.bestRange)}</b></div>
+        <div class="card">Обмежувальний елемент<b>${escapeHtml(data.kpi.bottleneck)}</b></div>
+        <div class="card">Залишок складу<b>${escapeHtml(data.kpi.stockRemain)}</b></div>
+      </div>
+      ${tableHtml('Хто що отримує', data.distribution, [
+        { key: 'unit', label: 'Підрозділ' },
+        { key: 'combination', label: 'Комбінація' },
+        { key: 'quantity', label: 'Кількість' }
+      ])}
+      ${tableHtml('Залишки', data.remains, [
+        { key: 'unit', label: 'Підрозділ' },
+        { key: 'element', label: 'Елемент' },
+        { key: 'used', label: 'Використано' },
+        { key: 'remain', label: 'Залишок' }
+      ])}
+      <script>window.onload=()=>{window.print();};<\/script></body></html>`;
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+  }
+
+  function openExportModal() {
+    const modal = document.getElementById('analysisExportModal');
+    if (!modal) return;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeExportModal() {
+    const modal = document.getElementById('analysisExportModal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  function bindActions() {
     const exportBtn = document.getElementById('analysisExport');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        exportBtn.textContent = 'Експорт підготовлено';
-        setTimeout(() => { exportBtn.textContent = 'Експорт XLSX'; }, 1400);
+    if (exportBtn) exportBtn.addEventListener('click', openExportModal);
+
+    document.querySelectorAll('[data-close-export]').forEach(btn => btn.addEventListener('click', closeExportModal));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeExportModal();
+    });
+
+    document.querySelectorAll('[data-export-format]').forEach(button => {
+      button.addEventListener('click', () => {
+        const format = button.dataset.exportFormat;
+        if (format === 'json') exportJson();
+        if (format === 'csv') exportCsv();
+        if (format === 'xlsx') exportExcel();
+        if (format === 'pdf') exportPdf();
+        closeExportModal();
       });
-    }
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     const data = readStoredResult();
+    currentAnalysisData = data;
     renderKpis(data);
     renderGroupedBlocks('allocationBlocks', data.allocations, { unitLabel: 'Підрозділ', rowName: 'Комбінація', rowQty: 'Кількість' });
     renderGroupedBlocks('remainBlocks', data.remains, { type: 'remain', unitLabel: 'Залишки', rowName: 'Елемент', rowUsed: 'Викор.', rowQty: 'Залишок' });
