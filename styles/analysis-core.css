@@ -1249,3 +1249,92 @@ html.theme-light body .analysis-scroll-thumb {
     0 0 20px rgba(255, 54, 62, .30),
     0 8px 22px rgba(96, 110, 128, .20);
 }
+
+/* v306-from63 — hard fix for REMAIN table three-column grid */
+.result-line--remain,
+.result-line.result-line--remain {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 76px 86px !important;
+  align-items: center !important;
+  column-gap: 12px !important;
+}
+
+.result-line--remain span,
+.result-line.result-line--remain span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  grid-column: 1 !important;
+}
+
+.result-line--remain em,
+.result-line.result-line--remain em {
+  grid-column: 2 !important;
+  justify-self: end !important;
+  min-width: 60px !important;
+  text-align: right !important;
+  color: #ffce6c !important;
+  font: 900 16px/.95 "Rajdhani", "Arial", sans-serif !important;
+  font-style: normal !important;
+  letter-spacing: .02em !important;
+}
+
+.result-line--remain b,
+.result-line.result-line--remain b {
+  grid-column: 3 !important;
+  justify-self: end !important;
+  min-width: 66px !important;
+  text-align: right !important;
+}
+
+.result-line--head.result-line--remain,
+.result-line.result-line--head.result-line--remain {
+  grid-template-columns: minmax(0, 1fr) 76px 86px !important;
+}
+
+.result-line--head.result-line--remain em,
+.result-line.result-line--head.result-line--remain em {
+  color: rgba(255, 120, 126, .92) !important;
+  font: 900 10px/1 "Rajdhani", "Arial", sans-serif !important;
+  font-style: normal !important;
+  letter-spacing: .16em !important;
+  text-transform: uppercase !important;
+}
+
+body.light-theme .result-line--remain em,
+body.theme-light .result-line--remain em,
+body[data-theme="light"] .result-line--remain em,
+html.light-theme body .result-line--remain em,
+html.theme-light body .result-line--remain em {
+  color: #d78a22 !important;
+}
+
+body.light-theme .result-line--head.result-line--remain em,
+body.theme-light .result-line--head.result-line--remain em,
+body[data-theme="light"] .result-line--head.result-line--remain em,
+html.light-theme body .result-line--head.result-line--remain em,
+html.theme-light body .result-line--head.result-line--remain em {
+  color: #ff3741 !important;
+}
+
+@media (max-width: 760px) {
+  .result-line--remain,
+  .result-line.result-line--remain,
+  .result-line--head.result-line--remain,
+  .result-line.result-line--head.result-line--remain {
+    grid-template-columns: minmax(0, 1fr) 58px 66px !important;
+    column-gap: 8px !important;
+  }
+
+  .result-line--remain em,
+  .result-line.result-line--remain em {
+    min-width: 50px !important;
+    font-size: 14px !important;
+  }
+
+  .result-line--remain b,
+  .result-line.result-line--remain b {
+    min-width: 56px !important;
+  }
+}
