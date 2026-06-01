@@ -721,75 +721,290 @@
   function renderPdfPages(data) {
     const pageW = 1240;
     const pageH = 1754;
-    const margin = 70;
+    const marginX = 58;
+    const topY = 54;
+    const bottomY = pageH - 78;
+    const contentW = pageW - marginX * 2;
     const pages = [];
     let canvas = document.createElement('canvas');
     canvas.width = pageW;
     canvas.height = pageH;
     let ctx = canvas.getContext('2d');
-    let y = margin;
+    let y = 0;
+    let pageNo = 0;
 
-    function newPage() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('uk-UA');
+    const timeStr = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    function text(value) {
+      return String(value ?? '').trim();
+    }
+
+    function groupRows(rows, key) {
+      const map = new Map();
+      (rows || []).forEach(row => {
+        const unit = text(row[key]) || 'Без підрозділу';
+        if (!map.has(unit)) map.set(unit, []);
+        map.get(unit).push(row);
+      });
+      return [...map.entries()].map(([unit, items]) => ({ unit, items }));
+    }
+
+    function sum(rows, field) {
+      return (rows || []).reduce((acc, item) => acc + (Number(item[field]) || 0), 0);
+    }
+
+    function drawRoundRect(x, y0, w, h, r = 14, fill = true, stroke = true) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y0);
+      ctx.lineTo(x + w - r, y0);
+      ctx.quadraticCurveTo(x + w, y0, x + w, y0 + r);
+      ctx.lineTo(x + w, y0 + h - r);
+      ctx.quadraticCurveTo(x + w, y0 + h, x + w - r, y0 + h);
+      ctx.lineTo(x + r, y0 + h);
+      ctx.quadraticCurveTo(x, y0 + h, x, y0 + h - r);
+      ctx.lineTo(x, y0 + r);
+      ctx.quadraticCurveTo(x, y0, x + r, y0);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    function drawHeader() {
+      pageNo += 1;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, pageW, pageH);
-      ctx.fillStyle = '#d9232e';
-      ctx.font = 'bold 34px Arial';
-      ctx.fillText('BASTION — АНАЛІЗ', margin, y);
-      y += 58;
+
+      ctx.fillStyle = '#f5f6f8';
+      ctx.fillRect(0, 0, pageW, 112);
+
+      ctx.fillStyle = '#d8232f';
+      ctx.fillRect(marginX, 96, contentW, 3);
+
+      ctx.fillStyle = '#d8232f';
+      ctx.font = '700 42px Arial';
+      ctx.fillText('BASTION', marginX, 58);
+
+      ctx.fillStyle = '#111923';
+      ctx.font = '700 24px Arial';
+      ctx.fillText('АНАЛІТИЧНИЙ ЗВІТ', marginX + 220, 58);
+
+      ctx.fillStyle = '#111923';
+      ctx.font = '700 34px Arial';
+      ctx.textAlign = 'right';
+      ctx.fillText('АНАЛІЗ РОЗРАХУНКУ', pageW - marginX, 58);
+      ctx.textAlign = 'left';
+
+      ctx.globalAlpha = 0.035;
+      ctx.fillStyle = '#d8232f';
+      ctx.font = '900 150px Arial';
+      ctx.fillText('BASTION', 170, 930);
+      ctx.globalAlpha = 1;
+
+      y = 142;
     }
-    function finishPage() {
-      pages.push(canvas.toDataURL('image/jpeg', 0.92));
+
+    function drawFooter() {
+      ctx.strokeStyle = '#d8232f';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(marginX, pageH - 58);
+      ctx.lineTo(pageW - marginX, pageH - 58);
+      ctx.stroke();
+
+      ctx.fillStyle = '#111923';
+      ctx.font = '16px Arial';
+      ctx.fillText('bastion-system.com', marginX, pageH - 30);
+      ctx.fillText(`Дата: ${dateStr}`, marginX + 260, pageH - 30);
+      ctx.fillText(`Час: ${timeStr}`, marginX + 455, pageH - 30);
+      ctx.fillText('BASTION SYSTEM', pageW - marginX - 210, pageH - 30);
+
+      ctx.textAlign = 'center';
+      ctx.fillText(`Сторінка ${pageNo}`, pageW / 2, pageH - 30);
+      ctx.textAlign = 'left';
+    }
+
+    function pushPage() {
+      drawFooter();
+      pages.push(canvas.toDataURL('image/jpeg', 0.94));
       canvas = document.createElement('canvas');
       canvas.width = pageW;
       canvas.height = pageH;
       ctx = canvas.getContext('2d');
-      y = margin;
-      newPage();
+      drawHeader();
     }
-    function ensure(h) { if (y + h > pageH - margin) finishPage(); }
-    function title(text) { ensure(54); ctx.fillStyle = '#d9232e'; ctx.font = 'bold 24px Arial'; ctx.fillText(text, margin, y); y += 34; }
-    function row(cols, widths, bold = false) {
-      const lineH = 28;
-      const wrapped = cols.map((c, i) => splitTextForCanvas(ctx, c, widths[i] - 18));
-      const h = Math.max(38, Math.max(...wrapped.map(a => a.length)) * lineH + 12);
-      ensure(h + 4);
-      let x = margin;
-      ctx.strokeStyle = '#d7d7d7';
-      ctx.fillStyle = bold ? '#f4f4f4' : '#ffffff';
-      ctx.fillRect(margin, y, widths.reduce((a,b)=>a+b,0), h);
-      ctx.strokeRect(margin, y, widths.reduce((a,b)=>a+b,0), h);
+
+    function ensure(height) {
+      if (y + height > bottomY) pushPage();
+    }
+
+    function sectionTitle(label, title) {
+      ensure(78);
+      ctx.fillStyle = '#d8232f';
+      ctx.font = '700 18px Arial';
+      ctx.fillText(label.toUpperCase(), marginX, y);
+      y += 30;
+
+      ctx.fillStyle = '#111923';
+      ctx.font = '900 38px Arial';
+      ctx.fillText(title.toUpperCase(), marginX, y);
+      y += 28;
+
+      ctx.strokeStyle = '#e3e5e8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(marginX, y);
+      ctx.lineTo(pageW - marginX, y);
+      ctx.stroke();
+      y += 26;
+    }
+
+    function drawKpiCards() {
+      const cards = [
+        ['МАКС. КОМПЛЕКТІВ', data.kpi.maxKits, 'згенеровано комплектів'],
+        ['НАЙКРАЩА ДАЛЬНІСТЬ', data.kpi.bestRange, 'активний рецепт'],
+        ['ОБМЕЖУВАЛЬНИЙ ЕЛЕМЕНТ', data.kpi.bottleneck, 'вузьке місце'],
+        ['ЗАЛИШОК СКЛАДУ', data.kpi.stockRemain, 'після розрахунку']
+      ];
+
+      const gap = 18;
+      const w = (contentW - gap * 3) / 4;
+      const h = 128;
+      ensure(h + 28);
+
+      cards.forEach((card, idx) => {
+        const x = marginX + idx * (w + gap);
+
+        ctx.fillStyle = '#111923';
+        ctx.strokeStyle = '#d8232f';
+        ctx.lineWidth = 2;
+        drawRoundRect(x, y, w, h, 16, true, true);
+
+        ctx.fillStyle = '#d8232f';
+        ctx.font = '700 17px Arial';
+        ctx.fillText(card[0], x + 20, y + 32);
+
+        ctx.fillStyle = idx === 2 ? '#f2bb4f' : '#ffffff';
+        ctx.font = '900 42px Arial';
+        ctx.fillText(text(card[1]) || '—', x + 20, y + 78);
+
+        ctx.fillStyle = 'rgba(255,255,255,.72)';
+        ctx.font = '700 15px Arial';
+        ctx.fillText(card[2], x + 20, y + 104);
+      });
+
+      y += h + 34;
+    }
+
+    function tableHeader(cols, widths) {
+      ensure(42);
+      let x = marginX;
+      ctx.fillStyle = '#111923';
+      ctx.strokeStyle = '#cfd4da';
+      ctx.lineWidth = 1.2;
+      ctx.fillRect(marginX, y, contentW, 42);
+      cols.forEach((c, i) => {
+        ctx.strokeRect(x, y, widths[i], 42);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 16px Arial';
+        ctx.fillText(c, x + 12, y + 27);
+        x += widths[i];
+      });
+      y += 42;
+    }
+
+    function wrapLines(str, width, font = '18px Arial') {
+      ctx.font = font;
+      return splitTextForCanvas(ctx, text(str), width);
+    }
+
+    function tableRow(cols, widths, opts = {}) {
+      const lineH = 24;
+      const font = opts.bold ? '700 18px Arial' : '18px Arial';
+      const wrapped = cols.map((c, i) => wrapLines(c, widths[i] - 22, font));
+      const h = Math.max(36, Math.max(...wrapped.map(v => v.length)) * lineH + 16);
+      ensure(h);
+      let x = marginX;
+      ctx.fillStyle = opts.fill || '#ffffff';
+      ctx.strokeStyle = '#dfe2e6';
+      ctx.lineWidth = 1;
+      ctx.fillRect(marginX, y, contentW, h);
       cols.forEach((c, i) => {
         ctx.strokeRect(x, y, widths[i], h);
-        ctx.fillStyle = bold ? '#d9232e' : '#111111';
-        ctx.font = `${bold ? 'bold ' : ''}20px Arial`;
-        wrapped[i].forEach((line, idx) => ctx.fillText(line, x + 9, y + 25 + idx * lineH));
+        ctx.fillStyle = opts.color || '#111923';
+        ctx.font = font;
+        wrapped[i].forEach((line, idx) => ctx.fillText(line, x + 12, y + 24 + idx * lineH));
         x += widths[i];
       });
       y += h;
     }
 
-    newPage();
-    title('KPI');
-    row(['Показник', 'Значення'], [420, 620], true);
-    [
-      ['Макс. комплектів', data.kpi.maxKits],
-      ['Найкраща дальність', data.kpi.bestRange],
-      ['Обмежувальний елемент', data.kpi.bottleneck],
-      ['Залишок складу', data.kpi.stockRemain]
-    ].forEach(r => row(r, [420, 620]));
+    function groupTitle(name, total, label = 'усього') {
+      ensure(62);
+      ctx.fillStyle = '#f7f7f8';
+      ctx.strokeStyle = '#d8232f';
+      ctx.lineWidth = 1.8;
+      drawRoundRect(marginX, y, contentW, 52, 10, true, true);
 
-    title('Хто що отримує');
-    row(['Підрозділ', 'Комбінація', 'Кількість'], [230, 620, 190], true);
-    data.distribution.forEach(r => row([r.unit, r.combination, r.quantity], [230, 620, 190]));
+      ctx.fillStyle = '#d8232f';
+      ctx.font = '700 14px Arial';
+      ctx.fillText(label.toUpperCase(), marginX + 16, y + 20);
 
-    title('Залишки');
-    row(['Підрозділ', 'Елемент', 'Використано', 'Залишок'], [210, 450, 190, 190], true);
-    data.remains.forEach(r => row([r.unit, r.element, r.used, r.remain], [210, 450, 190, 190]));
+      ctx.fillStyle = '#111923';
+      ctx.font = '900 24px Arial';
+      ctx.fillText(name, marginX + 16, y + 43);
 
-    pages.push(canvas.toDataURL('image/jpeg', 0.92));
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#111923';
+      ctx.font = '900 28px Arial';
+      ctx.fillText(String(total ?? 0), pageW - marginX - 18, y + 36);
+      ctx.textAlign = 'left';
+
+      y += 66;
+    }
+
+    function drawDistribution() {
+      sectionTitle('distribution', 'Хто що отримує');
+      const groups = groupRows(data.distribution, 'unit');
+      groups.forEach(group => {
+        const total = sum(group.items, 'quantity');
+        groupTitle(group.unit, total, 'Підрозділ');
+        tableHeader(['Комбінація', 'Кількість'], [contentW - 190, 190]);
+        group.items.forEach((row, index) => {
+          tableRow([row.combination, row.quantity], [contentW - 190, 190], {
+            fill: index % 2 ? '#ffffff' : '#fafafa'
+          });
+        });
+        y += 18;
+      });
+    }
+
+    function drawRemains() {
+      sectionTitle('remain', 'Залишки');
+      const groups = groupRows(data.remains, 'unit');
+      groups.forEach(group => {
+        const total = sum(group.items, 'remain');
+        groupTitle(group.unit, total, 'Залишки');
+        tableHeader(['Елемент', 'Використано', 'Залишок'], [contentW - 380, 190, 190]);
+        group.items.forEach((row, index) => {
+          const remain = Number(row.remain || 0);
+          const fill = remain <= 10 ? '#fff2f2' : (index % 2 ? '#ffffff' : '#fafafa');
+          tableRow([row.element, row.used, row.remain], [contentW - 380, 190, 190], { fill });
+        });
+        y += 18;
+      });
+    }
+
+    drawHeader();
+    drawKpiCards();
+    drawDistribution();
+    drawRemains();
+
+    drawFooter();
+    pages.push(canvas.toDataURL('image/jpeg', 0.94));
     return pages;
   }
-
   function makePdfFromJpegs(dataUrls) {
     const enc = new TextEncoder();
     const objects = [];
