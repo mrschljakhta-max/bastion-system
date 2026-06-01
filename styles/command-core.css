@@ -525,3 +525,177 @@ body[data-theme="light"] .command-output-panel {
   .command-status-row,
   .command-report-list { grid-template-columns: 1fr !important; }
 }
+
+/* ==========================================================
+   BASTION COMMAND — dark modal restyle v318
+   Темна тема: центральна модалка стає чорним tactical-glass
+   з червоним контуром, без світло-сірої «молочної» заливки.
+   ========================================================== */
+
+:root:not([data-theme="light"]) .command-hex-stage,
+body:not([data-theme="light"]) .command-hex-stage,
+body[data-theme="dark"] .command-hex-stage,
+html[data-theme="dark"] .command-hex-stage {
+  border: 1px solid rgba(255, 34, 42, .72) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 45, 48, .115), rgba(255, 45, 48, .025) 42%, rgba(0, 0, 0, .24)),
+    radial-gradient(circle at 50% -18%, rgba(255, 28, 34, .28), transparent 45%),
+    radial-gradient(circle at 50% 112%, rgba(255, 28, 34, .14), transparent 50%),
+    rgba(8, 8, 10, .74) !important;
+  box-shadow:
+    0 0 42px rgba(255, 18, 25, .30),
+    0 0 120px rgba(255, 18, 25, .10),
+    inset 0 0 0 1px rgba(255, 255, 255, .035),
+    inset 0 0 38px rgba(255, 22, 30, .105),
+    inset 0 -28px 60px rgba(0, 0, 0, .44) !important;
+  backdrop-filter: blur(10px) saturate(1.28) contrast(1.08) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.28) contrast(1.08) !important;
+}
+
+:root:not([data-theme="light"]) .command-hex-stage::before,
+body:not([data-theme="light"]) .command-hex-stage::before,
+body[data-theme="dark"] .command-hex-stage::before,
+html[data-theme="dark"] .command-hex-stage::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 10px !important;
+  pointer-events: none !important;
+  border: 1px solid rgba(255, 42, 48, .24) !important;
+  clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 22px, 100% calc(100% - 22px), calc(100% - 22px) 100%, 22px 100%, 0 calc(100% - 22px), 0 22px) !important;
+  box-shadow: inset 0 0 22px rgba(255, 32, 38, .12) !important;
+}
+
+:root:not([data-theme="light"]) .command-hex-stage::after,
+body:not([data-theme="light"]) .command-hex-stage::after,
+body[data-theme="dark"] .command-hex-stage::after,
+html[data-theme="dark"] .command-hex-stage::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  opacity: .36 !important;
+  background:
+    linear-gradient(90deg, transparent 0 49%, rgba(255, 36, 40, .13) 50%, transparent 51% 100%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 7px) !important;
+  mix-blend-mode: screen !important;
+}
+
+:root:not([data-theme="light"]) .command-hex-title span,
+body:not([data-theme="light"]) .command-hex-title span,
+body[data-theme="dark"] .command-hex-title span,
+html[data-theme="dark"] .command-hex-title span {
+  color: #ff2730 !important;
+  text-shadow: 0 0 12px rgba(255, 20, 28, .88), 0 0 26px rgba(255, 20, 28, .34) !important;
+}
+
+:root:not([data-theme="light"]) .command-hex-title h1,
+body:not([data-theme="light"]) .command-hex-title h1,
+body[data-theme="dark"] .command-hex-title h1,
+html[data-theme="dark"] .command-hex-title h1 {
+  color: rgba(255,255,255,.96) !important;
+  text-shadow: 0 0 18px rgba(255, 32, 38, .52), 0 2px 0 rgba(0,0,0,.35) !important;
+}
+
+:root:not([data-theme="light"]) .command-hex-title p,
+body:not([data-theme="light"]) .command-hex-title p,
+body[data-theme="dark"] .command-hex-title p,
+html[data-theme="dark"] .command-hex-title p {
+  color: rgba(255,255,255,.70) !important;
+}
+
+:root:not([data-theme="light"]) .command-hex,
+body:not([data-theme="light"]) .command-hex,
+body[data-theme="dark"] .command-hex,
+html[data-theme="dark"] .command-hex {
+  border-color: rgba(255, 48, 54, .48) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 54, 58, .145), rgba(255, 255, 255, .035) 48%, rgba(0,0,0,.28)),
+    rgba(12, 12, 15, .64) !important;
+  box-shadow:
+    inset 0 0 22px rgba(255, 30, 36, .08),
+    inset 0 -14px 28px rgba(0,0,0,.28),
+    0 0 18px rgba(255, 30, 36, .10) !important;
+}
+
+:root:not([data-theme="light"]) .command-hex.is-active,
+:root:not([data-theme="light"]) .command-hex:hover,
+body:not([data-theme="light"]) .command-hex.is-active,
+body:not([data-theme="light"]) .command-hex:hover,
+body[data-theme="dark"] .command-hex.is-active,
+body[data-theme="dark"] .command-hex:hover,
+html[data-theme="dark"] .command-hex.is-active,
+html[data-theme="dark"] .command-hex:hover {
+  border-color: rgba(255, 28, 36, .95) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 34, 40, .30), rgba(255,255,255,.055) 46%, rgba(0,0,0,.25)),
+    rgba(20, 8, 10, .74) !important;
+  box-shadow:
+    inset 0 0 26px rgba(255, 38, 44, .18),
+    0 0 28px rgba(255, 25, 32, .34),
+    0 0 58px rgba(255, 25, 32, .10) !important;
+}
+
+:root:not([data-theme="light"]) .command-hex__index,
+body:not([data-theme="light"]) .command-hex__index,
+body[data-theme="dark"] .command-hex__index,
+html[data-theme="dark"] .command-hex__index {
+  color: #ff2a32 !important;
+  border-color: rgba(255, 37, 44, .86) !important;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, .92), rgba(255, 255, 255, .72) 58%, rgba(255, 30, 38, .16)) !important;
+  box-shadow: 0 0 18px rgba(255, 25, 32, .34), inset 0 0 12px rgba(255, 20, 28, .14) !important;
+}
+
+:root:not([data-theme="light"]) .command-output-panel,
+body:not([data-theme="light"]) .command-output-panel,
+body[data-theme="dark"] .command-output-panel,
+html[data-theme="dark"] .command-output-panel {
+  border-color: rgba(255, 42, 48, .46) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 38, 44, .10), rgba(255,255,255,.025) 46%, rgba(0,0,0,.30)),
+    rgba(10, 10, 13, .66) !important;
+  box-shadow:
+    inset 0 0 28px rgba(255, 36, 42, .095),
+    inset 0 -18px 36px rgba(0,0,0,.28),
+    0 0 22px rgba(255, 25, 32, .10) !important;
+}
+
+:root:not([data-theme="light"]) .command-brief-card,
+:root:not([data-theme="light"]) .command-report-card,
+:root:not([data-theme="light"]) .command-status-chip,
+body:not([data-theme="light"]) .command-brief-card,
+body:not([data-theme="light"]) .command-report-card,
+body:not([data-theme="light"]) .command-status-chip,
+body[data-theme="dark"] .command-brief-card,
+body[data-theme="dark"] .command-report-card,
+body[data-theme="dark"] .command-status-chip,
+html[data-theme="dark"] .command-brief-card,
+html[data-theme="dark"] .command-report-card,
+html[data-theme="dark"] .command-status-chip {
+  border-color: rgba(255, 45, 52, .34) !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.045), rgba(255, 28, 36, .07)),
+    rgba(13, 13, 16, .58) !important;
+  box-shadow: inset 0 0 18px rgba(255, 35, 42, .075), 0 0 14px rgba(255, 30, 36, .065) !important;
+}
+
+:root:not([data-theme="light"]) .command-action,
+body:not([data-theme="light"]) .command-action,
+body[data-theme="dark"] .command-action,
+html[data-theme="dark"] .command-action {
+  border-color: rgba(255, 45, 52, .58) !important;
+  background: linear-gradient(135deg, rgba(255, 40, 47, .22), rgba(20, 20, 23, .78)) !important;
+  box-shadow: inset 0 0 14px rgba(255, 34, 40, .11), 0 0 16px rgba(255, 30, 36, .12) !important;
+}
+
+:root:not([data-theme="light"]) .command-action--hot,
+:root:not([data-theme="light"]) .command-action:hover,
+body:not([data-theme="light"]) .command-action--hot,
+body:not([data-theme="light"]) .command-action:hover,
+body[data-theme="dark"] .command-action--hot,
+body[data-theme="dark"] .command-action:hover,
+html[data-theme="dark"] .command-action--hot,
+html[data-theme="dark"] .command-action:hover {
+  background: linear-gradient(135deg, rgba(255, 42, 48, .44), rgba(72, 10, 14, .78)) !important;
+  box-shadow: 0 0 24px rgba(255, 25, 32, .28), inset 0 0 18px rgba(255, 255, 255, .05) !important;
+}
