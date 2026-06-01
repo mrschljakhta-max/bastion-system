@@ -1000,3 +1000,18 @@ html[data-theme="light"] .command-orbit-hex__label {
   .command-orbit-hex__index { top: 25.5% !important; }
   .command-orbit-hex__label { top: 60.5% !important; }
 }
+
+
+/* v321b fixes */
+.command-hex-title span,.command-hex-title p{display:none!important;}
+.command-hex-title h1{font-size:clamp(52px,4vw,78px)!important;text-align:center}
+.command-orbit-hex__label{
+position:absolute!important;left:50%!important;top:62%!important;transform:translate(-50%,-50%)!important;
+width:80%!important;text-align:center!important;font-size:clamp(16px,1vw,24px)!important;
+}
+.command-orbit-hex__meta{display:none!important;}
+.command-orbit-hex__icon{position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);width:54px;height:54px;filter:drop-shadow(0 0 12px #ff3b3b)}
+.command-output-content::-webkit-scrollbar{width:10px}
+.command-output-content::-webkit-scrollbar-track{background:#120506;border-left:1px solid #451010}
+.command-output-content::-webkit-scrollbar-thumb{background:linear-gradient(#ff2b2b,#5d0000);border-radius:10px;box-shadow:0 0 12px #f00}
+.export-modal button .label-pdf,.export-modal button .label-word{display:inline!important}
