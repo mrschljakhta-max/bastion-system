@@ -961,78 +961,291 @@ body.theme-light .analysis-scroll-thumb {
   z-index: 20;
 }
 
-/* v304 — fixed three-column layout for REMAIN table: element | used | remaining */
-#remainBlocks .result-line--remain,
-.analysis-panel--remain .result-line--remain {
-  grid-template-columns: minmax(0, 1fr) 72px 82px !important;
-  column-gap: 12px;
-  align-items: center;
+/* v305 — dedicated Arctic HUD styling for Analysis light theme */
+body.light-theme,
+body.theme-light,
+body[data-theme="light"],
+html.light-theme body,
+html.theme-light body {
+  --analysis-red: #ff3f46;
+  --analysis-red-strong: #ff202b;
+  --analysis-panel: rgba(255, 255, 255, .74);
+  --analysis-panel-strong: rgba(255, 255, 255, .90);
+  --analysis-line: rgba(255, 56, 64, .30);
+  --analysis-text: rgba(22, 25, 32, .95);
+  --analysis-muted: rgba(42, 47, 58, .68);
+  --analysis-soft: rgba(255, 58, 66, .08);
 }
 
-#remainBlocks .result-line--remain span,
-.analysis-panel--remain .result-line--remain span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+body.light-theme .analysis-screen,
+body.theme-light .analysis-screen,
+body[data-theme="light"] .analysis-screen,
+html.light-theme body .analysis-screen,
+html.theme-light body .analysis-screen {
+  color: var(--analysis-text);
 }
 
-#remainBlocks .result-line--remain em,
-.analysis-panel--remain .result-line--remain em {
-  min-width: 72px;
-  text-align: right;
-  color: #ffce6c;
-  font: 900 16px/.9 "Rajdhani", "Arial", sans-serif;
-  letter-spacing: .03em;
-  font-style: normal;
-  text-shadow: 0 0 14px rgba(255,206,108,.18);
+body.light-theme .analysis-kpi,
+body.light-theme .analysis-panel,
+body.theme-light .analysis-kpi,
+body.theme-light .analysis-panel,
+body[data-theme="light"] .analysis-kpi,
+body[data-theme="light"] .analysis-panel,
+html.light-theme body .analysis-kpi,
+html.light-theme body .analysis-panel,
+html.theme-light body .analysis-kpi,
+html.theme-light body .analysis-panel {
+  border-color: rgba(255, 60, 68, .34);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.72) 46%, rgba(255,54,62,.10)),
+    radial-gradient(circle at 18% 0%, rgba(255,255,255,.92), transparent 38%),
+    rgba(247, 250, 255, .72);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.78) inset,
+    0 18px 44px rgba(110, 122, 140, .22),
+    0 0 30px rgba(255, 54, 62, .08);
+  backdrop-filter: blur(16px) saturate(1.18);
 }
 
-#remainBlocks .result-line--remain b,
-.analysis-panel--remain .result-line--remain b {
-  min-width: 82px;
-  text-align: right;
+body.light-theme .analysis-kpi::before,
+body.light-theme .analysis-panel::before,
+body.theme-light .analysis-kpi::before,
+body.theme-light .analysis-panel::before,
+body[data-theme="light"] .analysis-kpi::before,
+body[data-theme="light"] .analysis-panel::before,
+html.light-theme body .analysis-kpi::before,
+html.light-theme body .analysis-panel::before,
+html.theme-light body .analysis-kpi::before,
+html.theme-light body .analysis-panel::before {
+  background:
+    linear-gradient(90deg, transparent 0, rgba(255, 48, 58, .10) 44%, transparent 72%),
+    repeating-linear-gradient(0deg, rgba(20, 24, 32, .028) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(90deg, rgba(255, 48, 58, .032) 0 1px, transparent 1px 42px);
+  opacity: .34;
 }
 
-#remainBlocks .result-line--head.result-line--remain em,
-.analysis-panel--remain .result-line--head.result-line--remain em,
-#remainBlocks .result-line--head.result-line--remain b,
-.analysis-panel--remain .result-line--head.result-line--remain b {
-  color: rgba(255, 120, 126, .92);
-  font-size: 10px;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  text-shadow: none;
+body.light-theme .analysis-kpi::after,
+body.light-theme .analysis-panel::after,
+body.theme-light .analysis-kpi::after,
+body.theme-light .analysis-panel::after,
+body[data-theme="light"] .analysis-kpi::after,
+body[data-theme="light"] .analysis-panel::after,
+html.light-theme body .analysis-kpi::after,
+html.light-theme body .analysis-panel::after,
+html.theme-light body .analysis-kpi::after,
+html.theme-light body .analysis-panel::after {
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 54, 62, .16), transparent 32%);
 }
 
-body.light-theme #remainBlocks .result-line--remain em,
-body.theme-light #remainBlocks .result-line--remain em,
-body.light-theme .analysis-panel--remain .result-line--remain em,
-body.theme-light .analysis-panel--remain .result-line--remain em {
-  color: #b96a12;
-  text-shadow: none;
+body.light-theme .analysis-kpi span,
+body.light-theme .analysis-panel__head p,
+body.theme-light .analysis-kpi span,
+body.theme-light .analysis-panel__head p,
+body[data-theme="light"] .analysis-kpi span,
+body[data-theme="light"] .analysis-panel__head p,
+html.light-theme body .analysis-kpi span,
+html.light-theme body .analysis-panel__head p,
+html.theme-light body .analysis-kpi span,
+html.theme-light body .analysis-panel__head p {
+  color: #ff3841;
+  text-shadow: 0 0 12px rgba(255, 55, 65, .18);
 }
 
-body.light-theme #remainBlocks .result-line--head.result-line--remain em,
-body.theme-light #remainBlocks .result-line--head.result-line--remain em,
-body.light-theme .analysis-panel--remain .result-line--head.result-line--remain em,
-body.theme-light .analysis-panel--remain .result-line--head.result-line--remain em {
-  color: rgba(255, 70, 76, .90);
+body.light-theme .analysis-kpi strong,
+body.light-theme .analysis-panel__head h2,
+body.theme-light .analysis-kpi strong,
+body.theme-light .analysis-panel__head h2,
+body[data-theme="light"] .analysis-kpi strong,
+body[data-theme="light"] .analysis-panel__head h2,
+html.light-theme body .analysis-kpi strong,
+html.light-theme body .analysis-panel__head h2,
+html.theme-light body .analysis-kpi strong,
+html.theme-light body .analysis-panel__head h2 {
+  color: rgba(18, 21, 28, .96);
+  text-shadow: 0 1px 0 rgba(255,255,255,.72);
 }
 
-@media (max-width: 760px) {
-  #remainBlocks .result-line--remain,
-  .analysis-panel--remain .result-line--remain {
-    grid-template-columns: minmax(0, 1fr) 58px 66px !important;
-    column-gap: 8px;
-  }
-  #remainBlocks .result-line--remain em,
-  .analysis-panel--remain .result-line--remain em {
-    min-width: 58px;
-    font-size: 14px;
-  }
-  #remainBlocks .result-line--remain b,
-  .analysis-panel--remain .result-line--remain b {
-    min-width: 66px;
-  }
+body.light-theme .analysis-kpi small,
+body.theme-light .analysis-kpi small,
+body[data-theme="light"] .analysis-kpi small,
+html.light-theme body .analysis-kpi small,
+html.theme-light body .analysis-kpi small {
+  color: rgba(30, 35, 44, .66);
+}
+
+body.light-theme .analysis-kpi--warn strong,
+body.theme-light .analysis-kpi--warn strong,
+body[data-theme="light"] .analysis-kpi--warn strong,
+html.light-theme body .analysis-kpi--warn strong,
+html.theme-light body .analysis-kpi--warn strong {
+  color: #d78a22;
+  text-shadow: 0 0 16px rgba(255, 172, 63, .22), 0 1px 0 rgba(255,255,255,.7);
+}
+
+body.light-theme .analysis-chip,
+body.theme-light .analysis-chip,
+body[data-theme="light"] .analysis-chip,
+html.light-theme body .analysis-chip,
+html.theme-light body .analysis-chip {
+  color: rgba(28, 32, 40, .78);
+  border-color: rgba(255, 62, 70, .22);
+  background: rgba(255,255,255,.58);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.70) inset;
+}
+
+body.light-theme .result-unit-block,
+body.theme-light .result-unit-block,
+body[data-theme="light"] .result-unit-block,
+html.light-theme body .result-unit-block,
+html.theme-light body .result-unit-block {
+  border-color: rgba(22, 28, 38, .12);
+  border-left-color: rgba(255, 58, 66, .70);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.76), rgba(255,255,255,.48)),
+    rgba(246, 249, 255, .60);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.72) inset,
+    0 10px 26px rgba(96, 110, 128, .14);
+}
+
+body.light-theme .result-unit-block::before,
+body.theme-light .result-unit-block::before,
+body[data-theme="light"] .result-unit-block::before,
+html.light-theme body .result-unit-block::before,
+html.theme-light body .result-unit-block::before {
+  background: radial-gradient(circle at 0% 50%, rgba(255, 58, 66, .16), transparent 36%);
+  opacity: .52;
+}
+
+body.light-theme .result-unit-head,
+body.theme-light .result-unit-head,
+body[data-theme="light"] .result-unit-head,
+html.light-theme body .result-unit-head,
+html.theme-light body .result-unit-head {
+  color: rgba(18, 22, 30, .94);
+}
+
+body.light-theme .result-unit-title strong,
+body.theme-light .result-unit-title strong,
+body[data-theme="light"] .result-unit-title strong,
+html.light-theme body .result-unit-title strong,
+html.theme-light body .result-unit-title strong {
+  color: rgba(18, 22, 30, .96);
+}
+
+body.light-theme .result-unit-head > b,
+body.theme-light .result-unit-head > b,
+body[data-theme="light"] .result-unit-head > b,
+html.light-theme body .result-unit-head > b,
+html.theme-light body .result-unit-head > b {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.82), rgba(255,255,255,.58)),
+    rgba(255,255,255,.62);
+  border-color: rgba(255, 58, 66, .28);
+  color: rgba(18, 22, 30, .95);
+  text-shadow: 0 1px 0 rgba(255,255,255,.72);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.82) inset,
+    0 0 18px rgba(255, 58, 66, .10);
+}
+
+body.light-theme .result-line,
+body.theme-light .result-line,
+body[data-theme="light"] .result-line,
+html.light-theme body .result-line,
+html.theme-light body .result-line {
+  background: rgba(255,255,255,.56);
+  border-color: rgba(20, 26, 36, .085);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.58) inset;
+}
+
+body.light-theme .result-line--head,
+body.theme-light .result-line--head,
+body[data-theme="light"] .result-line--head,
+html.light-theme body .result-line--head,
+html.theme-light body .result-line--head {
+  background: rgba(255, 62, 70, .095);
+  border-color: rgba(255, 62, 70, .18);
+}
+
+body.light-theme .result-line span,
+body.light-theme .result-line b,
+body.theme-light .result-line span,
+body.theme-light .result-line b,
+body[data-theme="light"] .result-line span,
+body[data-theme="light"] .result-line b,
+html.light-theme body .result-line span,
+html.light-theme body .result-line b,
+html.theme-light body .result-line span,
+html.theme-light body .result-line b {
+  color: rgba(18, 22, 30, .90);
+}
+
+body.light-theme .result-line--head span,
+body.light-theme .result-line--head b,
+body.theme-light .result-line--head span,
+body.theme-light .result-line--head b,
+body[data-theme="light"] .result-line--head span,
+body[data-theme="light"] .result-line--head b,
+html.light-theme body .result-line--head span,
+html.light-theme body .result-line--head b,
+html.theme-light body .result-line--head span,
+html.theme-light body .result-line--head b {
+  color: #ff3741;
+}
+
+body.light-theme .analysis-action,
+body.theme-light .analysis-action,
+body[data-theme="light"] .analysis-action,
+html.light-theme body .analysis-action,
+html.theme-light body .analysis-action {
+  color: rgba(20, 24, 32, .88);
+  border-color: rgba(255, 58, 66, .26);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.72), rgba(255,255,255,.50)),
+    rgba(255,255,255,.60);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.72) inset,
+    0 10px 24px rgba(96, 110, 128, .18);
+}
+
+body.light-theme .analysis-action--primary,
+body.theme-light .analysis-action--primary,
+body[data-theme="light"] .analysis-action--primary,
+html.light-theme body .analysis-action--primary,
+html.theme-light body .analysis-action--primary {
+  color: #fff;
+  border-color: rgba(255, 40, 48, .70);
+  background: linear-gradient(135deg, rgba(255,70,76,.96), rgba(208,26,35,.86));
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.28) inset,
+    0 12px 26px rgba(255,40,48,.22),
+    0 0 20px rgba(255,40,48,.16);
+}
+
+body.light-theme .analysis-panel.has-bastion-scrollbar .analysis-scrollbar::before,
+body.theme-light .analysis-panel.has-bastion-scrollbar .analysis-scrollbar::before,
+body[data-theme="light"] .analysis-panel.has-bastion-scrollbar .analysis-scrollbar::before,
+html.light-theme body .analysis-panel.has-bastion-scrollbar .analysis-scrollbar::before,
+html.theme-light body .analysis-panel.has-bastion-scrollbar .analysis-scrollbar::before {
+  background: linear-gradient(180deg,
+    rgba(255, 64, 70, 0),
+    rgba(255, 64, 70, .22) 18%,
+    rgba(255, 64, 70, .42) 50%,
+    rgba(255, 64, 70, .22) 82%,
+    rgba(255, 64, 70, 0)
+  );
+}
+
+body.light-theme .analysis-scroll-thumb,
+body.theme-light .analysis-scroll-thumb,
+body[data-theme="light"] .analysis-scroll-thumb,
+html.light-theme body .analysis-scroll-thumb,
+html.theme-light body .analysis-scroll-thumb {
+  border-color: rgba(255, 54, 62, .52);
+  background: linear-gradient(180deg, rgba(255, 86, 92, .96), rgba(230, 28, 38, .82));
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.66) inset,
+    0 0 20px rgba(255, 54, 62, .30),
+    0 8px 22px rgba(96, 110, 128, .20);
 }
