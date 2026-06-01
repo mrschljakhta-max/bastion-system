@@ -1238,3 +1238,176 @@ body[data-theme="light"] .command-orbit-hex__icon{
   .command-orbit-hex__icon{width:36px!important;height:36px!important;}
   .command-orbit-hex__label{top:59%!important;width:96px!important;max-width:96px!important;font-size:10px!important;}
 }
+
+/* ==========================================================
+   BASTION COMMAND — conclusions result mode v325
+   Режим «Висновки»: тільки сухий результат без рекомендацій.
+   ========================================================== */
+
+.command-output-panel__label{
+  display:none!important;
+}
+
+.command-output-content{
+  min-height:100%!important;
+}
+
+.command-conclusions{
+  min-height:100%!important;
+  display:grid!important;
+  grid-template-columns:minmax(240px, .92fr) minmax(240px, .88fr)!important;
+  grid-template-rows:minmax(178px, .9fr) minmax(190px, 1fr)!important;
+  gap:14px!important;
+}
+
+.command-conclusion-card{
+  position:relative!important;
+  overflow:hidden!important;
+  padding:22px 22px 20px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  text-align:center!important;
+  border:1px solid rgba(255,45,52,.38)!important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.045), rgba(255,30,38,.075)),
+    rgba(12,12,15,.62)!important;
+  box-shadow:
+    inset 0 0 24px rgba(255,35,42,.085),
+    0 0 20px rgba(255,25,32,.08)!important;
+  clip-path:polygon(18px 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px), 0 18px)!important;
+}
+
+.command-conclusion-card::before{
+  content:""!important;
+  position:absolute!important;
+  inset:9px!important;
+  pointer-events:none!important;
+  border:1px solid rgba(255,45,52,.18)!important;
+  clip-path:polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px)!important;
+}
+
+.command-conclusion-card::after{
+  content:""!important;
+  position:absolute!important;
+  inset:auto 18px 13px 18px!important;
+  height:1px!important;
+  background:linear-gradient(90deg, transparent, rgba(255,35,42,.74), transparent)!important;
+  box-shadow:0 0 12px rgba(255,35,42,.62)!important;
+}
+
+.command-conclusion-card--primary{
+  grid-row:span 2!important;
+  padding-top:30px!important;
+  padding-bottom:30px!important;
+  background:
+    radial-gradient(circle at 50% 36%, rgba(255,32,38,.22), transparent 56%),
+    linear-gradient(135deg, rgba(255,255,255,.055), rgba(255,30,38,.09)),
+    rgba(10,10,13,.70)!important;
+}
+
+.command-conclusion-card--units{
+  justify-content:flex-start!important;
+  padding-top:24px!important;
+}
+
+.command-conclusion-card__label{
+  position:relative!important;
+  z-index:2!important;
+  display:block!important;
+  width:100%!important;
+  color:rgba(255,255,255,.68)!important;
+  font:900 clamp(12px,.88vw,15px)/1.18 Orbitron,Rajdhani,Arial,sans-serif!important;
+  letter-spacing:.12em!important;
+  text-transform:uppercase!important;
+  text-shadow:0 0 10px rgba(255,30,38,.30)!important;
+}
+
+.command-conclusion-card__number{
+  position:relative!important;
+  z-index:2!important;
+  margin-top:24px!important;
+  color:#ff242c!important;
+  font:900 clamp(78px,7.8vw,132px)/.88 Orbitron,Rajdhani,Arial,sans-serif!important;
+  letter-spacing:.02em!important;
+  text-shadow:0 0 16px rgba(255,32,38,.82), 0 0 46px rgba(255,0,0,.26)!important;
+}
+
+.command-conclusion-card__value{
+  position:relative!important;
+  z-index:2!important;
+  margin-top:18px!important;
+  color:#fff!important;
+  font:900 clamp(38px,3.4vw,62px)/.95 Orbitron,Rajdhani,Arial,sans-serif!important;
+  letter-spacing:.04em!important;
+  text-shadow:0 0 18px rgba(255,32,38,.52)!important;
+}
+
+.command-unit-chip-grid{
+  position:relative!important;
+  z-index:2!important;
+  width:100%!important;
+  margin-top:18px!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  justify-content:center!important;
+  align-content:flex-start!important;
+  gap:10px!important;
+}
+
+.command-unit-chip{
+  min-height:34px!important;
+  padding:9px 14px 8px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  color:#fff!important;
+  border:1px solid rgba(255,48,54,.46)!important;
+  background:linear-gradient(135deg, rgba(255,34,40,.18), rgba(255,255,255,.035)), rgba(13,13,16,.76)!important;
+  box-shadow:inset 0 0 14px rgba(255,35,42,.10), 0 0 12px rgba(255,25,32,.12)!important;
+  font:900 clamp(12px,.88vw,15px)/1 Orbitron,Rajdhani,Arial,sans-serif!important;
+  letter-spacing:.04em!important;
+  text-transform:uppercase!important;
+  clip-path:polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px)!important;
+}
+
+:root[data-theme="light"] .command-conclusion-card,
+body[data-theme="light"] .command-conclusion-card,
+html[data-theme="light"] .command-conclusion-card{
+  background:linear-gradient(135deg, rgba(255,255,255,.82), rgba(255,235,236,.58))!important;
+  border-color:rgba(255,42,48,.42)!important;
+  box-shadow:inset 0 0 22px rgba(255,35,42,.08), 0 0 20px rgba(255,25,32,.10)!important;
+}
+
+:root[data-theme="light"] .command-conclusion-card__label,
+body[data-theme="light"] .command-conclusion-card__label,
+html[data-theme="light"] .command-conclusion-card__label{
+  color:#8a1119!important;
+}
+
+:root[data-theme="light"] .command-conclusion-card__value,
+body[data-theme="light"] .command-conclusion-card__value,
+html[data-theme="light"] .command-conclusion-card__value{
+  color:#c90014!important;
+}
+
+:root[data-theme="light"] .command-unit-chip,
+body[data-theme="light"] .command-unit-chip,
+html[data-theme="light"] .command-unit-chip{
+  color:#c90014!important;
+  background:linear-gradient(135deg, rgba(255,255,255,.85), rgba(255,226,228,.70))!important;
+}
+
+@media (max-width:1500px){
+  .command-conclusions{gap:12px!important;grid-template-rows:minmax(148px,.86fr) minmax(170px,1fr)!important;}
+  .command-conclusion-card{padding:18px!important;}
+  .command-conclusion-card__number{font-size:clamp(62px,6.5vw,104px)!important;margin-top:18px!important;}
+  .command-conclusion-card__value{font-size:clamp(32px,3vw,52px)!important;}
+  .command-unit-chip{min-height:30px!important;padding:8px 11px!important;font-size:clamp(10.5px,.8vw,13px)!important;}
+}
+
+@media (max-width:760px){
+  .command-conclusions{grid-template-columns:1fr!important;grid-template-rows:auto!important;}
+  .command-conclusion-card--primary{grid-row:auto!important;}
+}

@@ -1,8 +1,26 @@
 (() => {
   const fallback = {
-    mode: 'Загальний режим', kits: 1694, bestRange: 27400, bottleneck: 'Заряд-1', remainTotal: 1008, remainPercent: 37,
-    allocations: [{ unit: '1 САДн', total: 1020 }, { unit: '2 АДн', total: 674 }],
-    remains: [{ unit: '1 САДн', total: 504 }, { unit: '2 АДн', total: 504 }]
+    mode: 'Загальний режим',
+    kits: 1694,
+    bestRange: 27400,
+    bottleneck: 'Заряд-1',
+    remainTotal: 1008,
+    remainPercent: 37,
+    units: ['1 САДн', '2 САДн', '1 АДн', '2 АДн', 'РЕАБАТР'],
+    allocations: [
+      { unit: '1 САДн', total: 420 },
+      { unit: '2 САДн', total: 384 },
+      { unit: '1 АДн', total: 330 },
+      { unit: '2 АДн', total: 310 },
+      { unit: 'РЕАБАТР', total: 250 }
+    ],
+    remains: [
+      { unit: '1 САДн', total: 504 },
+      { unit: '2 САДн', total: 504 },
+      { unit: '1 АДн', total: 504 },
+      { unit: '2 АДн', total: 504 },
+      { unit: 'РЕАБАТР', total: 504 }
+    ]
   };
 
   function readResult(){
@@ -15,7 +33,7 @@
         if (parsed && typeof parsed === 'object') return normalize(parsed);
       } catch(_) {}
     }
-    return fallback;
+    return normalize(fallback);
   }
 
   function normalize(input){
@@ -27,6 +45,7 @@
     data.remainPercent = Number(input.remainPercent ?? fallback.remainPercent);
     data.allocations = normalizeGroups(input.allocations || input.distribution || fallback.allocations);
     data.remains = normalizeGroups(input.remains || input.remaining || fallback.remains);
+    data.units = normalizeUnits(input.units || input.divisions || input.includedUnits || input.subunits, data.allocations, data.remains);
     return data;
   }
 
@@ -36,6 +55,27 @@
       const total = Number(g.total ?? g.qty ?? g.count ?? items.reduce((s,i)=>s+Number(i.qty||i.count||i.total||i.remaining||0),0));
       return { unit: g.unit || g.name || `Підрозділ ${idx+1}`, total, items };
     });
+  }
+
+  function normalizeUnits(source, allocations, remains){
+    const sourceUnits = Array.isArray(source) ? source : [];
+    const pooled = [
+      ...sourceUnits.map(u => typeof u === 'string' ? u : (u.unit || u.name || '')),
+      ...allocations.map(g => g.unit),
+      ...remains.map(g => g.unit)
+    ]
+      .map(v => String(v || '').trim())
+      .filter(Boolean);
+
+    const seen = new Set();
+    const units = [];
+    for (const unit of pooled){
+      const key = unit.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      units.push(unit);
+    }
+    return units.length ? units : [...fallback.units];
   }
 
   const data = readResult();
@@ -61,41 +101,29 @@
     return total ? Math.round((kits / total) * 100) : 0;
   }
 
-  function conclusionsView(){
-    const top = maxUnit();
-    const weak = minRemain();
-    const ready = readiness();
-    const risk = ready >= 75 ? 'НИЗЬКИЙ' : ready >= 55 ? 'СЕРЕДНІЙ' : 'ВИСОКИЙ';
-    const riskClass = ready >= 75 ? 'command-risk-low' : ready >= 55 ? 'command-risk-mid' : 'command-risk-high';
-    content.innerHTML = `
-      <div class="command-brief-grid">
-        <article class="command-brief-card">
-          <h3>Ключовий висновок</h3>
-          <span class="command-big-number">${data.kits}</span>
-          <p>Поточний розрахунок дозволяє сформувати <strong>${data.kits}</strong> комплектів. Основне обмеження — <strong>${data.bottleneck}</strong>. Найбільше отримує <strong>${top.unit}</strong>: ${top.total}.</p>
-        </article>
-        <article class="command-brief-card">
-          <h3>Оцінка ризику</h3>
-          <p>Найнижчий залишок по підрозділах: <strong>${weak.unit}</strong> — ${weak.total}. Рівень ризику: <strong class="${riskClass}">${risk}</strong>.</p>
-          <p>Рекомендований пріоритет дій: поповнення / контроль ресурсу <strong>${data.bottleneck}</strong>.</p>
-        </article>
-      </div>
-      <div class="command-status-row">
-        <div class="command-status-chip"><span>Готовність</span><strong>${ready}%</strong></div>
-        <div class="command-status-chip"><span>Дальність</span><strong>${fmtRange(data.bestRange)}</strong></div>
-        <div class="command-status-chip"><span>Обмеження</span><strong class="command-risk-mid">${data.bottleneck}</strong></div>
-        <div class="command-status-chip"><span>Пріоритет</span><strong>РЕСУРСИ</strong></div>
-      </div>
-      <article class="command-brief-card">
-        <h3>Рекомендації</h3>
-        <ul>
-          <li>Перевірити запас критичного елемента: <strong>${data.bottleneck}</strong>.</li>
-          <li>Порівняти навантаження підрозділів та залишки перед наступним циклом розрахунку.</li>
-          <li>За необхідності повернутись на сторінку аналізу й уточнити розподіл.</li>
-        </ul>
-      </article>`;
+  function unitChips(){
+    return data.units.map(unit => `<span class="command-unit-chip">${escapeHtml(unit)}</span>`).join('');
   }
 
+  function conclusionsView(){
+    content.innerHTML = `
+      <section class="command-conclusions" aria-label="Короткі висновки розрахунку">
+        <article class="command-conclusion-card command-conclusion-card--primary">
+          <span class="command-conclusion-card__label">СФОРМОВАНО КОМПЛЕКТІВ</span>
+          <strong class="command-conclusion-card__number">${data.kits}</strong>
+        </article>
+
+        <article class="command-conclusion-card command-conclusion-card--range">
+          <span class="command-conclusion-card__label">МАКСИМАЛЬНА ДАЛЬНІСТЬ</span>
+          <strong class="command-conclusion-card__value">${fmtRange(data.bestRange)}</strong>
+        </article>
+
+        <article class="command-conclusion-card command-conclusion-card--units">
+          <span class="command-conclusion-card__label">ВРАХОВАНО ПІДРОЗДІЛІВ</span>
+          <div class="command-unit-chip-grid">${unitChips()}</div>
+        </article>
+      </section>`;
+  }
 
   function recommendationsView(){
     const weak = minRemain();
@@ -105,12 +133,12 @@
       <div class="command-recommendation-stack">
         <article class="command-brief-card command-recommendation-card command-recommendation-card--main">
           <h3>Пріоритет дій</h3>
-          <span class="command-big-number">${data.bottleneck}</span>
+          <span class="command-big-number">${escapeHtml(data.bottleneck)}</span>
           <p>${priority}</p>
         </article>
         <article class="command-brief-card command-recommendation-card">
           <h3>Контроль залишків</h3>
-          <p>Найнижчий залишок: <strong>${weak.unit}</strong> — ${weak.total}. Доцільно перевірити фактичну наявність і підтвердити дані перед наступним циклом планування.</p>
+          <p>Найнижчий залишок: <strong>${escapeHtml(weak.unit)}</strong> — ${weak.total}. Доцільно перевірити фактичну наявність і підтвердити дані перед наступним циклом планування.</p>
         </article>
         <article class="command-brief-card command-recommendation-card">
           <h3>Наступний крок</h3>
@@ -124,16 +152,16 @@
   }
 
   function reportView(){
-    const totalUnits = data.allocations.length || data.remains.length || 0;
+    const totalUnits = data.units.length || data.allocations.length || data.remains.length || 0;
     const remainUnits = data.remains.map(g => `${g.unit}: ${g.total}`).join(' · ');
     content.innerHTML = `
       <div class="command-report-list">
         <div class="command-report-card"><span>KPI</span><strong>${data.kits}</strong><small>згенеровано комплектів</small></div>
         <div class="command-report-card"><span>ДАЛЬНІСТЬ</span><strong>${fmtRange(data.bestRange)}</strong><small>найкращий активний рецепт</small></div>
-        <div class="command-report-card"><span>ОБМЕЖЕННЯ</span><strong>${data.bottleneck}</strong><small>критичний ресурс</small></div>
+        <div class="command-report-card"><span>ОБМЕЖЕННЯ</span><strong>${escapeHtml(data.bottleneck)}</strong><small>критичний ресурс</small></div>
         <div class="command-report-card"><span>ПІДРОЗДІЛИ</span><strong>${totalUnits}</strong><small>враховано у звіті</small></div>
         <div class="command-report-card"><span>ЗАЛИШОК</span><strong>${data.remainTotal}</strong><small>${data.remainPercent || 0}% після розрахунку</small></div>
-        <div class="command-report-card"><span>ДЕТАЛІ</span><strong>ANALYSIS</strong><small>${remainUnits || 'дані доступні на сторінці аналізу'}</small></div>
+        <div class="command-report-card"><span>ДЕТАЛІ</span><strong>ANALYSIS</strong><small>${escapeHtml(remainUnits || 'дані доступні на сторінці аналізу')}</small></div>
       </div>`;
   }
 
@@ -148,18 +176,9 @@
     const lines = [];
     lines.push('BASTION — ВИСНОВКИ');
     lines.push('');
-    lines.push(`Комплектів: ${data.kits}`);
-    lines.push(`Дальність: ${fmtRange(data.bestRange)}`);
-    lines.push(`Обмежувальний елемент: ${data.bottleneck}`);
-    lines.push(`Залишок складу: ${data.remainTotal}`);
-    lines.push('');
-    lines.push('Ключовий висновок:');
-    lines.push(`Поточний розрахунок дозволяє сформувати ${data.kits} комплектів. Основне обмеження — ${data.bottleneck}.`);
-    lines.push('');
-    lines.push('Рекомендації:');
-    lines.push(`1. Перевірити запас ресурсу ${data.bottleneck}.`);
-    lines.push('2. Контролювати залишки по підрозділах перед наступним циклом.');
-    lines.push('3. За необхідності повернутись на сторінку аналізу для уточнення розподілу.');
+    lines.push(`Сформовано комплектів: ${data.kits}`);
+    lines.push(`Максимальна дальність: ${fmtRange(data.bestRange)}`);
+    lines.push(`Враховано підрозділів: ${data.units.join(', ')}`);
     return lines.join('\n');
   }
 
@@ -177,13 +196,16 @@
     const html = `<!doctype html><html><head><meta charset="utf-8"><title>BASTION — Висновки</title></head><body><pre style="font-family:Arial,sans-serif;white-space:pre-wrap;font-size:14pt;line-height:1.45">${escapeHtml(reportText())}</pre></body></html>`;
     downloadBlob('bastion-command-report.doc', html, 'application/msword;charset=utf-8');
   }
+
   function exportPdf(){
     const text = reportText();
     const html = `<!doctype html><html><head><meta charset="utf-8"><title>BASTION — Висновки</title><style>body{font-family:Arial,sans-serif;padding:42px;color:#121923}h1{color:#d7262d;letter-spacing:2px}.box{border-top:3px solid #d7262d;padding-top:20px;white-space:pre-wrap;font-size:14px;line-height:1.45}</style></head><body><h1>BASTION — ВИСНОВКИ</h1><div class="box">${escapeHtml(text)}</div><script>window.onload=()=>setTimeout(()=>window.print(),200)<\/script></body></html>`;
-    // Browser-safe fallback: downloadable HTML report with print-ready PDF layout.
     downloadBlob('bastion-command-report-pdf.html', html, 'text/html;charset=utf-8');
   }
-  function escapeHtml(str){ return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+  }
 
   function openModal(){ const modal = el('commandExportModal'); if (modal) { modal.classList.add('is-open'); modal.setAttribute('aria-hidden','false'); } }
   function closeModal(){ const modal = el('commandExportModal'); if (modal) { modal.classList.remove('is-open'); modal.setAttribute('aria-hidden','true'); } }
