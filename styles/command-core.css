@@ -193,3 +193,335 @@
     max-width: min(92vw, 900px) !important;
   }
 }
+
+/* ==========================================================
+   BASTION COMMAND — restore visible central panel v317
+   Причина: сторінка command.html використовує нові класи
+   command-hex-*, для яких у файлі не було стилів. Через це
+   центральний блок залишався без власного шару над HUD-фоном.
+   ========================================================== */
+
+.command-hex-page {
+  position: relative !important;
+  z-index: 9 !important;
+  min-height: 100vh !important;
+  width: 100vw !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 128px 320px 112px !important;
+  box-sizing: border-box !important;
+  color: rgba(255, 255, 255, .94) !important;
+  pointer-events: auto !important;
+}
+
+.command-hex-stage {
+  position: relative !important;
+  z-index: 10 !important;
+  width: min(920px, calc(100vw - 700px)) !important;
+  max-height: calc(100vh - 230px) !important;
+  display: grid !important;
+  gap: 18px !important;
+  padding: 24px 26px 22px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255, 60, 55, .44) !important;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.045)),
+    radial-gradient(circle at 50% 0%, rgba(255, 52, 48, .18), transparent 58%),
+    rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 0 34px rgba(255, 35, 35, .23),
+    inset 0 0 34px rgba(255, 255, 255, .22) !important;
+  backdrop-filter: blur(14px) saturate(1.18) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.18) !important;
+  clip-path: polygon(28px 0, calc(100% - 28px) 0, 100% 28px, 100% calc(100% - 28px), calc(100% - 28px) 100%, 28px 100%, 0 calc(100% - 28px), 0 28px) !important;
+}
+
+.command-hex-title {
+  text-align: center !important;
+  text-transform: uppercase !important;
+}
+
+.command-hex-title span {
+  display: block !important;
+  color: #ff262d !important;
+  font: 800 14px/1.1 Orbitron, Rajdhani, Arial, sans-serif !important;
+  letter-spacing: .22em !important;
+  text-shadow: 0 0 14px rgba(255, 35, 35, .75) !important;
+}
+
+.command-hex-title h1 {
+  margin: 6px 0 5px !important;
+  color: #fff !important;
+  font: 800 clamp(28px, 2.2vw, 46px)/.96 Orbitron, Rajdhani, Arial, sans-serif !important;
+  letter-spacing: .08em !important;
+  text-shadow: 0 0 20px rgba(255, 35, 35, .58) !important;
+}
+
+.command-hex-title p {
+  margin: 0 auto !important;
+  max-width: 620px !important;
+  color: rgba(255,255,255,.74) !important;
+  font: 600 13px/1.35 Rajdhani, Arial, sans-serif !important;
+}
+
+.command-hex-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.command-hex {
+  position: relative !important;
+  min-height: 92px !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 14px 14px 12px !important;
+  display: grid !important;
+  grid-template-columns: 42px 1fr !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border: 1px solid rgba(255, 55, 55, .42) !important;
+  color: rgba(255,255,255,.9) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,.20), rgba(255,255,255,.06)) !important;
+  box-shadow: inset 0 0 22px rgba(255,255,255,.12), 0 0 20px rgba(255, 40, 40, .14) !important;
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px) !important;
+  cursor: pointer !important;
+}
+
+.command-hex.is-active,
+.command-hex:hover {
+  border-color: rgba(255, 35, 35, .9) !important;
+  background: linear-gradient(135deg, rgba(255, 51, 56, .28), rgba(255,255,255,.11)) !important;
+  box-shadow: inset 0 0 24px rgba(255,255,255,.18), 0 0 28px rgba(255, 35, 35, .32) !important;
+}
+
+.command-hex__index {
+  display: grid !important;
+  place-items: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  border: 1px solid rgba(255, 35, 35, .75) !important;
+  border-radius: 50% !important;
+  color: #ff2028 !important;
+  background: rgba(255,255,255,.68) !important;
+  font: 900 14px/1 Orbitron, Arial, sans-serif !important;
+  text-shadow: 0 0 10px rgba(255, 35, 35, .45) !important;
+}
+
+.command-hex__core strong {
+  display: block !important;
+  color: #fff !important;
+  font: 900 16px/1.1 Orbitron, Rajdhani, Arial, sans-serif !important;
+  letter-spacing: .08em !important;
+}
+
+.command-hex__core small {
+  display: block !important;
+  margin-top: 5px !important;
+  color: rgba(255,255,255,.68) !important;
+  font: 600 12px/1.25 Rajdhani, Arial, sans-serif !important;
+}
+
+.command-output-panel {
+  position: relative !important;
+  min-height: 210px !important;
+  max-height: min(310px, calc(100vh - 560px)) !important;
+  overflow: auto !important;
+  padding: 16px !important;
+  border: 1px solid rgba(255, 55, 55, .34) !important;
+  background: rgba(255,255,255,.13) !important;
+  box-shadow: inset 0 0 26px rgba(255,255,255,.12) !important;
+  clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px), 0 18px) !important;
+}
+
+.command-output-panel__label {
+  margin-bottom: 12px !important;
+  color: #ff252b !important;
+  font: 900 12px/1 Orbitron, Arial, sans-serif !important;
+  letter-spacing: .18em !important;
+}
+
+.command-brief-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.command-brief-card,
+.command-report-card,
+.command-status-chip {
+  border: 1px solid rgba(255, 55, 55, .28) !important;
+  background: rgba(255,255,255,.12) !important;
+  box-shadow: inset 0 0 18px rgba(255,255,255,.10) !important;
+}
+
+.command-brief-card {
+  padding: 14px !important;
+  color: rgba(255,255,255,.82) !important;
+}
+
+.command-brief-card h3 {
+  margin: 0 0 9px !important;
+  color: #fff !important;
+  font: 900 14px/1.15 Orbitron, Rajdhani, Arial, sans-serif !important;
+}
+
+.command-brief-card p,
+.command-brief-card li {
+  font: 600 13px/1.42 Rajdhani, Arial, sans-serif !important;
+}
+
+.command-big-number {
+  display: block !important;
+  color: #ff2229 !important;
+  font: 900 42px/.9 Orbitron, Arial, sans-serif !important;
+  text-shadow: 0 0 18px rgba(255, 35, 35, .5) !important;
+}
+
+.command-status-row,
+.command-report-list {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin: 12px 0 !important;
+}
+
+.command-report-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  margin: 0 !important;
+}
+
+.command-status-chip,
+.command-report-card {
+  padding: 11px 12px !important;
+  color: rgba(255,255,255,.78) !important;
+}
+
+.command-status-chip span,
+.command-report-card span,
+.command-report-card small {
+  display: block !important;
+  color: rgba(255,255,255,.58) !important;
+  font: 700 11px/1.15 Rajdhani, Arial, sans-serif !important;
+  text-transform: uppercase !important;
+}
+
+.command-status-chip strong,
+.command-report-card strong {
+  display: block !important;
+  margin-top: 5px !important;
+  color: #fff !important;
+  font: 900 16px/1.1 Orbitron, Arial, sans-serif !important;
+}
+
+.command-risk-low { color: #ffffff !important; }
+.command-risk-mid { color: #ff464b !important; }
+.command-risk-high { color: #ff111a !important; text-shadow: 0 0 14px rgba(255, 30, 30, .65) !important; }
+
+.command-page-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.command-action {
+  min-height: 38px !important;
+  padding: 10px 15px !important;
+  border: 1px solid rgba(255, 55, 55, .42) !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  background: rgba(255,255,255,.11) !important;
+  font: 800 12px/1 Orbitron, Rajdhani, Arial, sans-serif !important;
+  letter-spacing: .08em !important;
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px) !important;
+}
+
+.command-action--hot,
+.command-action:hover {
+  background: rgba(255, 43, 47, .28) !important;
+  box-shadow: 0 0 18px rgba(255, 35, 35, .25) !important;
+}
+
+.command-export-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 120 !important;
+  display: none !important;
+  place-items: center !important;
+}
+
+.command-export-modal.is-open { display: grid !important; }
+.command-export-backdrop { position: absolute !important; inset: 0 !important; background: rgba(0,0,0,.55) !important; backdrop-filter: blur(8px) !important; }
+.command-export-card {
+  position: relative !important;
+  width: min(520px, 92vw) !important;
+  padding: 24px !important;
+  border: 1px solid rgba(255, 55, 55, .55) !important;
+  background: rgba(20, 5, 8, .88) !important;
+  color: #fff !important;
+  box-shadow: 0 0 42px rgba(255, 35, 35, .32) !important;
+}
+.command-export-close { position: absolute !important; top: 10px !important; right: 12px !important; }
+.command-export-grid { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+.command-export-format { padding: 18px !important; color: #fff !important; background: rgba(255,255,255,.10) !important; border: 1px solid rgba(255,55,55,.38) !important; cursor: pointer !important; }
+
+:root[data-theme="light"] .command-hex-page,
+body[data-theme="light"] .command-hex-page {
+  color: #761018 !important;
+}
+
+:root[data-theme="light"] .command-hex-stage,
+body[data-theme="light"] .command-hex-stage {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.78), rgba(255,255,255,.42)),
+    radial-gradient(circle at 50% 0%, rgba(255, 45, 48, .22), transparent 60%) !important;
+  border-color: rgba(255, 48, 52, .48) !important;
+}
+
+:root[data-theme="light"] .command-hex-title h1,
+:root[data-theme="light"] .command-hex__core strong,
+:root[data-theme="light"] .command-status-chip strong,
+:root[data-theme="light"] .command-report-card strong,
+:root[data-theme="light"] .command-brief-card h3,
+body[data-theme="light"] .command-hex-title h1,
+body[data-theme="light"] .command-hex__core strong,
+body[data-theme="light"] .command-status-chip strong,
+body[data-theme="light"] .command-report-card strong,
+body[data-theme="light"] .command-brief-card h3 {
+  color: #d60012 !important;
+}
+
+:root[data-theme="light"] .command-brief-card,
+:root[data-theme="light"] .command-status-chip,
+:root[data-theme="light"] .command-report-card,
+:root[data-theme="light"] .command-output-panel,
+body[data-theme="light"] .command-brief-card,
+body[data-theme="light"] .command-status-chip,
+body[data-theme="light"] .command-report-card,
+body[data-theme="light"] .command-output-panel {
+  color: #671018 !important;
+  background: rgba(255,255,255,.62) !important;
+}
+
+@media (max-width: 1500px) {
+  .command-hex-page { padding-left: 280px !important; padding-right: 280px !important; }
+  .command-hex-stage { width: min(820px, calc(100vw - 600px)) !important; gap: 14px !important; }
+  .command-output-panel { max-height: min(270px, calc(100vh - 510px)) !important; }
+}
+
+@media (max-width: 1180px) {
+  body.bastion-core-page { overflow: auto !important; }
+  .command-hex-page { width: 100% !important; padding: 120px 24px 112px !important; }
+  .command-hex-stage { width: min(920px, 94vw) !important; max-height: none !important; overflow: visible !important; }
+}
+
+@media (max-width: 760px) {
+  .command-hex-grid,
+  .command-brief-grid,
+  .command-status-row,
+  .command-report-list { grid-template-columns: 1fr !important; }
+}
