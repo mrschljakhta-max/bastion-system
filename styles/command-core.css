@@ -699,3 +699,179 @@ html[data-theme="dark"] .command-action:hover {
   background: linear-gradient(135deg, rgba(255, 42, 48, .44), rgba(72, 10, 14, .78)) !important;
   box-shadow: 0 0 24px rgba(255, 25, 32, .28), inset 0 0 18px rgba(255, 255, 255, .05) !important;
 }
+
+/* ==========================================================
+   BASTION COMMAND — external hex action nodes v319
+   Винос дій зі скла центральної модалки на окремі гексаграми.
+   ========================================================== */
+
+.command-orbit-actions {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 11 !important;
+  pointer-events: none !important;
+}
+
+.command-orbit-hex {
+  --hex-size: clamp(178px, 13.2vw, 238px);
+  position: absolute !important;
+  width: var(--hex-size) !important;
+  height: var(--hex-size) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  outline: none !important;
+  display: grid !important;
+  place-items: center !important;
+  color: rgba(255,255,255,.92) !important;
+  background-color: transparent !important;
+  background-image: url('../assets/ui/command-hex-dark-v319.png') !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: contain !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  filter: drop-shadow(0 0 16px rgba(255, 22, 28, .28)) drop-shadow(0 0 36px rgba(255, 22, 28, .14)) !important;
+  transform: translate3d(0,0,0) scale(.94) !important;
+  transition: transform .22s ease, filter .22s ease, opacity .22s ease !important;
+}
+
+.command-orbit-hex::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 18% !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, rgba(255, 28, 35, .20), transparent 62%) !important;
+  opacity: .25 !important;
+  pointer-events: none !important;
+}
+
+.command-orbit-hex::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 31% !important;
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%) !important;
+  border: 1px solid rgba(255, 34, 42, .42) !important;
+  opacity: .35 !important;
+  filter: drop-shadow(0 0 10px rgba(255, 34, 42, .45)) !important;
+  pointer-events: none !important;
+}
+
+.command-orbit-hex:hover,
+.command-orbit-hex.is-active {
+  transform: translate3d(0,0,0) scale(1.02) !important;
+  filter: drop-shadow(0 0 18px rgba(255, 24, 30, .55)) drop-shadow(0 0 54px rgba(255, 24, 30, .25)) !important;
+}
+
+.command-orbit-hex.is-active::before,
+.command-orbit-hex:hover::before {
+  opacity: .58 !important;
+}
+
+.command-orbit-hex__index,
+.command-orbit-hex__label {
+  position: relative !important;
+  z-index: 2 !important;
+  display: block !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+  pointer-events: none !important;
+}
+
+.command-orbit-hex__index {
+  margin-top: 6px !important;
+  color: #ff2630 !important;
+  font: 900 clamp(13px, 1vw, 17px)/1 Orbitron, Rajdhani, Arial, sans-serif !important;
+  letter-spacing: .14em !important;
+  text-shadow: 0 0 12px rgba(255, 24, 30, .95), 0 0 28px rgba(255, 24, 30, .38) !important;
+}
+
+.command-orbit-hex__label {
+  max-width: 118px !important;
+  margin-top: 8px !important;
+  color: rgba(255,255,255,.94) !important;
+  font: 900 clamp(13px, 1.05vw, 18px)/1.08 Orbitron, Rajdhani, Arial, sans-serif !important;
+  letter-spacing: .08em !important;
+  text-shadow: 0 0 12px rgba(255, 38, 42, .48), 0 2px 0 rgba(0,0,0,.40) !important;
+}
+
+.command-orbit-hex--left-top {
+  left: clamp(36px, 4.6vw, 96px) !important;
+  top: clamp(214px, 28vh, 294px) !important;
+}
+
+.command-orbit-hex--left-bottom {
+  left: clamp(18px, 3.1vw, 70px) !important;
+  top: clamp(520px, 62vh, 640px) !important;
+}
+
+.command-orbit-hex--right-top {
+  right: clamp(36px, 4.6vw, 96px) !important;
+  top: clamp(190px, 25vh, 270px) !important;
+}
+
+.command-orbit-hex--right-bottom {
+  right: clamp(28px, 4.1vw, 84px) !important;
+  top: clamp(500px, 60vh, 625px) !important;
+}
+
+.command-recommendation-stack {
+  display: grid !important;
+  grid-template-columns: 1.05fr .95fr !important;
+  gap: 12px !important;
+}
+
+.command-recommendation-card--main {
+  grid-row: span 2 !important;
+}
+
+:root[data-theme="light"] .command-orbit-hex,
+body[data-theme="light"] .command-orbit-hex,
+html[data-theme="light"] .command-orbit-hex {
+  color: #c80014 !important;
+  background-image: url('../assets/ui/command-hex-light-v319.png') !important;
+  filter: drop-shadow(0 0 16px rgba(255, 34, 42, .22)) drop-shadow(0 0 40px rgba(255, 34, 42, .13)) !important;
+}
+
+:root[data-theme="light"] .command-orbit-hex__label,
+body[data-theme="light"] .command-orbit-hex__label,
+html[data-theme="light"] .command-orbit-hex__label {
+  color: #d00015 !important;
+  text-shadow: 0 0 12px rgba(255, 32, 38, .36), 0 1px 0 rgba(255,255,255,.7) !important;
+}
+
+@media (max-width: 1500px) {
+  .command-orbit-hex { --hex-size: clamp(150px, 12vw, 198px); }
+  .command-orbit-hex__label { max-width: 96px !important; font-size: clamp(11px, .92vw, 15px) !important; }
+}
+
+@media (max-width: 1180px) {
+  .command-orbit-actions {
+    position: relative !important;
+    inset: auto !important;
+    width: min(920px, 94vw) !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin: 0 auto 14px !important;
+  }
+
+  .command-orbit-hex,
+  .command-orbit-hex--left-top,
+  .command-orbit-hex--left-bottom,
+  .command-orbit-hex--right-top,
+  .command-orbit-hex--right-bottom {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    --hex-size: min(22vw, 142px) !important;
+    justify-self: center !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .command-orbit-actions { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .command-orbit-hex { --hex-size: min(40vw, 150px) !important; }
+  .command-recommendation-stack { grid-template-columns: 1fr !important; }
+  .command-recommendation-card--main { grid-row: auto !important; }
+}

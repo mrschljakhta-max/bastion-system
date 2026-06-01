@@ -96,6 +96,33 @@
       </article>`;
   }
 
+
+  function recommendationsView(){
+    const weak = minRemain();
+    const ready = readiness();
+    const priority = ready >= 75 ? 'Підтримувати поточний темп контролю та не допустити просідання критичного ресурсу.' : ready >= 55 ? 'Першочергово вирівняти залишки та перевірити ресурс, який обмежує формування комплектів.' : 'Негайно зосередити поповнення на критичному елементі та повторити розрахунок після оновлення даних.';
+    content.innerHTML = `
+      <div class="command-recommendation-stack">
+        <article class="command-brief-card command-recommendation-card command-recommendation-card--main">
+          <h3>Пріоритет дій</h3>
+          <span class="command-big-number">${data.bottleneck}</span>
+          <p>${priority}</p>
+        </article>
+        <article class="command-brief-card command-recommendation-card">
+          <h3>Контроль залишків</h3>
+          <p>Найнижчий залишок: <strong>${weak.unit}</strong> — ${weak.total}. Доцільно перевірити фактичну наявність і підтвердити дані перед наступним циклом планування.</p>
+        </article>
+        <article class="command-brief-card command-recommendation-card">
+          <h3>Наступний крок</h3>
+          <ul>
+            <li>Оновити вихідні дані по підрозділах.</li>
+            <li>Повторити аналіз після коригування критичного ресурсу.</li>
+            <li>Після підтвердження — сформувати повний звіт або експорт.</li>
+          </ul>
+        </article>
+      </div>`;
+  }
+
   function reportView(){
     const totalUnits = data.allocations.length || data.remains.length || 0;
     const remainUnits = data.remains.map(g => `${g.unit}: ${g.total}`).join(' · ');
@@ -113,6 +140,7 @@
   function setView(view){
     document.querySelectorAll('[data-command-view]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.commandView === view));
     if (view === 'report') reportView();
+    else if (view === 'recommendations') recommendationsView();
     else conclusionsView();
   }
 
