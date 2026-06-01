@@ -6,6 +6,7 @@
   <title>BASTION — Висновки</title>
   <link rel="icon" type="image/svg+xml" href="../assets/logo/bastion-favicon.svg?v=117" />
   <link rel="stylesheet" href="../styles/app-home-v118.css?v=213" />
+  <link rel="stylesheet" href="../styles/command-core.css?v=1" />
 </head>
 <body class="bastion-core-page" data-active-module="">
   <div class="core-background" aria-hidden="true">
@@ -83,19 +84,74 @@
 
 
 
-  <main class="bastion-module-screen" data-module="command">
-    <section class="bastion-module-card">
-      <div class="bastion-module-kicker">06 — Висновки</div>
-      <h1>Висновки</h1>
-      <p>Стислі висновки, ризики, пріоритети та рекомендації на основі аналітики.</p>
-      <ul>
-          <li>AI-рекомендації</li>
-          <li>Оцінка ризиків</li>
-          <li>Critical alerts</li>
-      </ul>
-      <a class="bastion-module-back" href="./app.html">← Повернутися до основного меню</a>
+  <main class="command-hex-page" data-module="command">
+    <section class="command-hex-stage" aria-label="Висновки BASTION">
+      <header class="command-hex-title">
+        <span>06 — ВИСНОВКИ</span>
+        <h1>КОМАНДНИЙ ВУЗОЛ</h1>
+        <p>Короткий висновок, повний звіт та експорт без перевантаження сторінки.</p>
+      </header>
+
+      <div class="command-hex-grid" aria-label="Основні дії сторінки висновків">
+        <button class="command-hex command-hex--primary is-active" type="button" data-command-view="conclusions">
+          <span class="command-hex__index">01</span>
+          <span class="command-hex__core">
+            <strong>ВИСНОВКИ</strong>
+            <small>ризики · пріоритети · рекомендації</small>
+          </span>
+        </button>
+
+        <button class="command-hex command-hex--report" type="button" data-command-view="report">
+          <span class="command-hex__index">02</span>
+          <span class="command-hex__core">
+            <strong>ВЕСЬ ЗВІТ</strong>
+            <small>KPI · розподіл · залишки · аналітика</small>
+          </span>
+        </button>
+
+        <button class="command-hex command-hex--export" type="button" data-command-export-open>
+          <span class="command-hex__index">03</span>
+          <span class="command-hex__core">
+            <strong>ЕКСПОРТ</strong>
+            <small>PDF · WORD</small>
+          </span>
+        </button>
+      </div>
+
+      <section id="commandPanel" class="command-output-panel" aria-live="polite">
+        <div class="command-output-panel__label">BASTION DECISION BRIEF</div>
+        <div id="commandContent" class="command-output-content"></div>
+      </section>
+
+      <nav class="command-page-actions" aria-label="Навігація сторінки висновків">
+        <a class="command-action command-action--ghost" href="./analysis.html">← До аналізу</a>
+        <a class="command-action command-action--ghost" href="./app.html">До меню</a>
+        <button class="command-action command-action--hot" type="button" data-command-export-open>Експорт звіту</button>
+      </nav>
     </section>
   </main>
+
+  <div id="commandExportModal" class="command-export-modal" aria-hidden="true">
+    <div class="command-export-backdrop" data-command-export-close></div>
+    <section class="command-export-card" role="dialog" aria-modal="true" aria-labelledby="commandExportTitle">
+      <button class="command-export-close" type="button" data-command-export-close aria-label="Закрити">×</button>
+      <div class="command-export-head">
+        <span>BASTION EXPORT</span>
+        <h2 id="commandExportTitle">ЕКСПОРТ ВИСНОВКІВ</h2>
+        <p>До файлу потрапляє виключно текстовий звіт сторінки «Висновки».</p>
+      </div>
+      <div class="command-export-grid">
+        <button class="command-export-format" type="button" data-command-export="pdf">
+          <span class="command-export-hex">PDF</span>
+          <strong>PDF</strong>
+        </button>
+        <button class="command-export-format" type="button" data-command-export="docx">
+          <span class="command-export-hex">DOC</span>
+          <strong>WORD</strong>
+        </button>
+      </div>
+    </section>
+  </div>
 
   <footer class="bottom-contact hud-bottom-panel hud-bottom-left" aria-hidden="true">
     <div class="bottom-contact-panel" aria-hidden="true"></div>
@@ -238,5 +294,6 @@
   <script src="../scripts/app-auth-guard.js?v=107"></script>
   <script src="../scripts/app-home-v118.js?v=118"></script>
   <script src="../scripts/profile-panel.js?v=213"></script>
+  <script src="../scripts/command-core.js?v=1"></script>
 </body>
 </html>
