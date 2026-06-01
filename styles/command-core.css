@@ -875,3 +875,128 @@ html[data-theme="light"] .command-orbit-hex__label {
   .command-recommendation-stack { grid-template-columns: 1fr !important; }
   .command-recommendation-card--main { grid-row: auto !important; }
 }
+
+
+/* ==========================================================
+   BASTION COMMAND — hex positioning/fitting fix v320
+   1) рівне центрування гексограм по краях;
+   2) підписи не виходять за межі гексаграм;
+   3) нижня навігація модалки прибрана в HTML;
+   4) центральна модалка трохи вища.
+   ========================================================== */
+
+.command-hex-page {
+  padding: 112px 330px 92px !important;
+}
+
+.command-hex-stage {
+  width: min(980px, calc(100vw - 720px)) !important;
+  min-height: min(610px, calc(100vh - 190px)) !important;
+  max-height: calc(100vh - 170px) !important;
+  grid-template-rows: auto 1fr !important;
+  gap: 22px !important;
+  padding: 28px 30px 30px !important;
+}
+
+.command-output-panel {
+  min-height: 350px !important;
+  max-height: none !important;
+}
+
+.command-page-actions {
+  display: none !important;
+}
+
+.command-orbit-hex {
+  --hex-size: clamp(190px, 12.8vw, 230px) !important;
+  display: block !important;
+  transform: translate3d(0,0,0) scale(.96) !important;
+}
+
+.command-orbit-hex:hover,
+.command-orbit-hex.is-active {
+  transform: translate3d(0,0,0) scale(1.03) !important;
+}
+
+.command-orbit-hex__index {
+  position: absolute !important;
+  left: 50% !important;
+  top: 25.5% !important;
+  transform: translateX(-50%) !important;
+  width: 72px !important;
+  margin: 0 !important;
+  font-size: clamp(13px, .98vw, 16px) !important;
+  line-height: 1 !important;
+}
+
+.command-orbit-hex__label {
+  position: absolute !important;
+  left: 50% !important;
+  top: 60.5% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 116px !important;
+  max-width: 116px !important;
+  margin: 0 !important;
+  padding: 0 2px !important;
+  font-size: clamp(12px, .84vw, 15px) !important;
+  line-height: 1.04 !important;
+  letter-spacing: .035em !important;
+  white-space: normal !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  hyphens: none !important;
+}
+
+.command-orbit-hex--left-top,
+.command-orbit-hex--left-bottom {
+  left: clamp(44px, 5.2vw, 106px) !important;
+}
+
+.command-orbit-hex--right-top,
+.command-orbit-hex--right-bottom {
+  right: clamp(44px, 5.2vw, 106px) !important;
+}
+
+.command-orbit-hex--left-top,
+.command-orbit-hex--right-top {
+  top: calc(50% - var(--hex-size) - 32px) !important;
+}
+
+.command-orbit-hex--left-bottom,
+.command-orbit-hex--right-bottom {
+  top: calc(50% + 32px) !important;
+}
+
+.command-orbit-hex--left-bottom .command-orbit-hex__label {
+  font-size: clamp(10.5px, .72vw, 13px) !important;
+  letter-spacing: .012em !important;
+  width: 124px !important;
+  max-width: 124px !important;
+}
+
+.command-orbit-hex--right-top .command-orbit-hex__label {
+  font-size: clamp(11px, .78vw, 14px) !important;
+  width: 112px !important;
+  max-width: 112px !important;
+}
+
+@media (max-width: 1500px) {
+  .command-hex-page { padding-left: 260px !important; padding-right: 260px !important; }
+  .command-hex-stage { width: min(900px, calc(100vw - 560px)) !important; min-height: min(570px, calc(100vh - 175px)) !important; }
+  .command-output-panel { min-height: 318px !important; }
+  .command-orbit-hex { --hex-size: clamp(158px, 12vw, 194px) !important; }
+  .command-orbit-hex--left-top,
+  .command-orbit-hex--left-bottom { left: clamp(24px, 3.8vw, 62px) !important; }
+  .command-orbit-hex--right-top,
+  .command-orbit-hex--right-bottom { right: clamp(24px, 3.8vw, 62px) !important; }
+  .command-orbit-hex__label { width: 102px !important; max-width: 102px !important; font-size: clamp(10.8px, .82vw, 13.5px) !important; }
+  .command-orbit-hex--left-bottom .command-orbit-hex__label { width: 112px !important; max-width: 112px !important; font-size: clamp(9.6px, .66vw, 11.8px) !important; }
+}
+
+@media (max-width: 1180px) {
+  .command-hex-page { padding: 112px 24px 92px !important; }
+  .command-hex-stage { min-height: auto !important; max-height: none !important; grid-template-rows: auto auto !important; }
+  .command-output-panel { min-height: 280px !important; }
+  .command-orbit-hex__index { top: 25.5% !important; }
+  .command-orbit-hex__label { top: 60.5% !important; }
+}
