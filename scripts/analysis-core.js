@@ -222,6 +222,21 @@
     if (remain) remain.closest('.analysis-kpi')?.querySelector('small')?.replaceChildren(document.createTextNode(`${data.remainPercent ?? fallback.remainPercent}% після розрахунку`));
   }
 
+  function getElementCategory(name) {
+    const raw = String(name || '').toLowerCase();
+    if (/снар|sn|офс|he|smk/.test(raw)) return { cls: 'shell', label: 'Снаряд', glyph: '◉' };
+    if (/зар|za|charge/.test(raw)) return { cls: 'charge', label: 'Заряд', glyph: '▤' };
+    if (/підрив|підр|pid|fuze|fuse/.test(raw)) return { cls: 'fuze', label: 'Підривник', glyph: '✶' };
+    if (/прайм|primer|pr\d|pr-/.test(raw)) return { cls: 'primer', label: 'Праймер', glyph: '⬡' };
+    if (/\+/.test(raw)) return { cls: 'combo', label: 'Комбінація', glyph: '◇' };
+    return { cls: 'item', label: 'Елемент', glyph: '•' };
+  }
+
+  function categoryIcon(name, mode = 'item') {
+    const cat = mode === 'combo' ? { cls: 'combo', label: 'Комбінація', glyph: '◇' } : getElementCategory(name);
+    return `<i class="analysis-row-icon analysis-row-icon--${cat.cls}" title="${escapeHtml(cat.label)}" aria-hidden="true">${cat.glyph}</i>`;
+  }
+
   function renderGroupedBlocks(hostId, groups, options = {}) {
     const host = document.getElementById(hostId);
     if (!host) return;
@@ -260,7 +275,7 @@
         if (isRemain) {
           return `
               <div class="result-line result-line--remain">
-                <span>${escapeHtml(item.name)}</span>
+                <span class="analysis-row-name">${categoryIcon(item.name)}<span>${escapeHtml(item.name)}</span></span>
                 <em>${used}</em>
                 <b>${qty}</b>
               </div>
@@ -268,7 +283,7 @@
         }
         return `
               <div class="result-line">
-                <span>${escapeHtml(item.name)}</span>
+                <span class="analysis-row-name">${categoryIcon(item.name, 'combo')}<span>${escapeHtml(item.name)}</span></span>
                 <b>${qty}</b>
               </div>
             `;

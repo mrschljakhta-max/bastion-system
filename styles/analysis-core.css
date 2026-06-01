@@ -1338,3 +1338,175 @@ html.theme-light body .result-line--head.result-line--remain em {
     min-width: 56px !important;
   }
 }
+
+/* v307 — tactical icon visual upgrade for Analysis dashboard */
+.analysis-kpi { padding-left: 56px; }
+.analysis-kpi-icon {
+  position: absolute;
+  z-index: 2;
+  left: 14px;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255,78,84,.45);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(255,78,84,.20), rgba(255,255,255,.04)),
+    rgba(0,0,0,.24);
+  box-shadow: 0 0 18px rgba(255,50,55,.14), inset 0 0 14px rgba(255,70,76,.08);
+}
+.analysis-kpi-icon::before,
+.analysis-kpi-icon::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(255,255,255,.72);
+  opacity: .88;
+}
+.analysis-kpi-icon--kits::before {
+  border-radius: 3px;
+  box-shadow:
+    8px 0 0 -1px rgba(255,255,255,.72),
+    0 8px 0 -1px rgba(255,255,255,.72),
+    8px 8px 0 -1px rgba(255,255,255,.72);
+}
+.analysis-kpi-icon--kits::after { inset: auto 6px 5px 6px; height: 2px; border: 0; background: rgba(255,78,84,.9); }
+.analysis-kpi-icon--range::before { border-radius: 50%; }
+.analysis-kpi-icon--range::after {
+  inset: 13px 5px auto 5px;
+  height: 1px;
+  border: 0;
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 -7px 0 rgba(255,78,84,.65), 0 7px 0 rgba(255,78,84,.65);
+}
+.analysis-kpi-icon--bottleneck::before {
+  inset: 7px 5px;
+  border: 0;
+  clip-path: polygon(0 0, 36% 0, 50% 50%, 36% 100%, 0 100%, 16% 50%);
+  background: rgba(255,206,108,.95);
+}
+.analysis-kpi-icon--bottleneck::after {
+  inset: 7px 5px;
+  border: 0;
+  clip-path: polygon(100% 0, 64% 0, 50% 50%, 64% 100%, 100% 100%, 84% 50%);
+  background: rgba(255,78,84,.95);
+}
+.analysis-kpi-icon--remain::before {
+  inset: 6px 9px;
+  border-radius: 999px;
+  background: linear-gradient(to top, rgba(255,78,84,.9) 0 62%, transparent 62% 100%);
+}
+.analysis-kpi-icon--remain::after { inset: 5px; border-radius: 50%; border-color: rgba(255,78,84,.45); animation: analysisIconPulse 4s ease-in-out infinite; }
+
+.result-unit-chevron {
+  font-size: 0 !important;
+  position: relative;
+}
+.result-unit-chevron::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border: 1px solid currentColor;
+  border-left: 0;
+  border-bottom: 0;
+  transform: rotate(45deg);
+  transition: transform .22s ease, box-shadow .22s ease;
+}
+.result-unit-block.is-open .result-unit-chevron::before {
+  transform: rotate(135deg);
+  box-shadow: 0 0 10px rgba(255,78,84,.55);
+}
+.result-unit-head::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,78,84,.55), transparent);
+  opacity: .0;
+  transition: opacity .22s ease;
+}
+.result-unit-block.is-open .result-unit-head::after { opacity: .8; }
+
+.analysis-row-name {
+  display: inline-flex !important;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+.analysis-row-name > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.analysis-row-icon {
+  flex: 0 0 21px;
+  width: 21px;
+  height: 21px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid rgba(255,78,84,.30);
+  color: rgba(255,255,255,.88);
+  background: rgba(255,78,84,.08);
+  box-shadow: inset 0 0 10px rgba(255,78,84,.08), 0 0 10px rgba(255,78,84,.08);
+  font: 900 12px/1 "Rajdhani", Arial, sans-serif;
+}
+.analysis-row-icon--combo { color: #ff6f76; border-color: rgba(255,78,84,.48); }
+.analysis-row-icon--shell { color: #ffb0b4; }
+.analysis-row-icon--charge { color: #ffd38b; border-color: rgba(255,195,95,.42); background: rgba(255,195,95,.09); }
+.analysis-row-icon--fuze { color: #ff6f76; }
+.analysis-row-icon--primer { color: #bfefff; border-color: rgba(145,220,255,.35); background: rgba(145,220,255,.08); }
+.result-line:hover .analysis-row-icon { transform: translateY(-1px) scale(1.04); box-shadow: 0 0 14px rgba(255,78,84,.18); }
+
+.analysis-kpi-icon,
+.analysis-row-icon,
+.result-unit-chevron {
+  transition: transform .22s ease, border-color .22s ease, background .22s ease, box-shadow .22s ease;
+}
+.analysis-kpi:hover .analysis-kpi-icon { transform: translateY(-50%) scale(1.06); border-color: rgba(255,100,105,.75); }
+
+@keyframes analysisIconPulse {
+  0%, 100% { opacity: .35; transform: scale(.92); }
+  50% { opacity: .85; transform: scale(1.08); }
+}
+
+body.light-theme .analysis-kpi,
+body.theme-light .analysis-kpi,
+body[data-theme="light"] .analysis-kpi { padding-left: 56px; }
+body.light-theme .analysis-kpi-icon,
+body.theme-light .analysis-kpi-icon,
+body[data-theme="light"] .analysis-kpi-icon,
+html.light-theme body .analysis-kpi-icon,
+html.theme-light body .analysis-kpi-icon {
+  background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(255,236,236,.72));
+  border-color: rgba(190,28,42,.42);
+  box-shadow: 0 8px 18px rgba(100,25,35,.10), inset 0 0 14px rgba(255,64,74,.08);
+}
+body.light-theme .analysis-kpi-icon::before,
+body.light-theme .analysis-kpi-icon::after,
+body.theme-light .analysis-kpi-icon::before,
+body.theme-light .analysis-kpi-icon::after,
+body[data-theme="light"] .analysis-kpi-icon::before,
+body[data-theme="light"] .analysis-kpi-icon::after {
+  border-color: rgba(120,18,28,.70);
+}
+body.light-theme .analysis-row-icon,
+body.theme-light .analysis-row-icon,
+body[data-theme="light"] .analysis-row-icon,
+html.light-theme body .analysis-row-icon,
+html.theme-light body .analysis-row-icon {
+  color: #8a1020;
+  background: rgba(255,255,255,.82);
+  border-color: rgba(190,28,42,.32);
+  box-shadow: inset 0 0 10px rgba(190,28,42,.05), 0 5px 12px rgba(90,20,28,.08);
+}
+body.light-theme .analysis-row-icon--charge,
+body.theme-light .analysis-row-icon--charge,
+body[data-theme="light"] .analysis-row-icon--charge { color: #9c5c00; border-color: rgba(180,120,0,.34); }
+body.light-theme .analysis-row-icon--primer,
+body.theme-light .analysis-row-icon--primer,
+body[data-theme="light"] .analysis-row-icon--primer { color: #13576c; border-color: rgba(20,100,130,.28); }
