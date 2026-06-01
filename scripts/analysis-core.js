@@ -232,9 +232,8 @@
     return { cls: 'item', label: 'Елемент', glyph: '•' };
   }
 
-  function categoryIcon(name, mode = 'item') {
-    const cat = mode === 'combo' ? { cls: 'combo', label: 'Комбінація', glyph: '◇' } : getElementCategory(name);
-    return `<i class="analysis-row-icon analysis-row-icon--${cat.cls}" title="${escapeHtml(cat.label)}" aria-hidden="true">${cat.glyph}</i>`;
+  function categoryIcon() {
+    return '';
   }
 
   function renderGroupedBlocks(hostId, groups, options = {}) {
@@ -275,7 +274,7 @@
         if (isRemain) {
           return `
               <div class="result-line result-line--remain">
-                <span class="analysis-row-name">${categoryIcon(item.name)}<span>${escapeHtml(item.name)}</span></span>
+                <span class="analysis-row-name"><span>${escapeHtml(item.name)}</span></span>
                 <em>${used}</em>
                 <b>${qty}</b>
               </div>
@@ -283,7 +282,7 @@
         }
         return `
               <div class="result-line">
-                <span class="analysis-row-name">${categoryIcon(item.name, 'combo')}<span>${escapeHtml(item.name)}</span></span>
+                <span class="analysis-row-name"><span>${escapeHtml(item.name)}</span></span>
                 <b>${qty}</b>
               </div>
             `;

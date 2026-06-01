@@ -1510,3 +1510,118 @@ body[data-theme="light"] .analysis-row-icon--charge { color: #9c5c00; border-col
 body.light-theme .analysis-row-icon--primer,
 body.theme-light .analysis-row-icon--primer,
 body[data-theme="light"] .analysis-row-icon--primer { color: #13576c; border-color: rgba(20,100,130,.28); }
+
+/* v308-from65-2 — user SVG icons + clean table dots */
+.analysis-kpi-icon {
+  display: inline-grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  color: rgba(255, 84, 88, .96) !important;
+}
+.analysis-kpi-icon::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 5px !important;
+  border: 0 !important;
+  opacity: .96 !important;
+  background: currentColor !important;
+  -webkit-mask: var(--analysis-kpi-svg) center / contain no-repeat !important;
+  mask: var(--analysis-kpi-svg) center / contain no-repeat !important;
+  box-shadow: none !important;
+}
+.analysis-kpi-icon::after {
+  display: none !important;
+}
+.analysis-kpi-icon--kits { --analysis-kpi-svg: url("../assets/icons/components.svg"); }
+.analysis-kpi-icon--range { --analysis-kpi-svg: url("../assets/icons/ruler-measure-2.svg"); }
+.analysis-kpi-icon--bottleneck { --analysis-kpi-svg: url("../assets/icons/components.svg"); color: rgba(255, 206, 108, .98) !important; }
+.analysis-kpi-icon--remain { --analysis-kpi-svg: url("../assets/icons/math-max-min.svg"); }
+
+.result-unit-chevron {
+  color: rgba(255, 92, 96, .96) !important;
+}
+.result-unit-chevron::before {
+  content: "" !important;
+  width: 17px !important;
+  height: 17px !important;
+  border: 0 !important;
+  background: currentColor !important;
+  -webkit-mask: url("../assets/icons/square-rounded-chevrons-right.svg") center / contain no-repeat !important;
+  mask: url("../assets/icons/square-rounded-chevrons-right.svg") center / contain no-repeat !important;
+  transform: rotate(0deg) !important;
+  transition: transform .24s ease, filter .24s ease !important;
+}
+.result-unit-block.is-open .result-unit-chevron::before {
+  transform: rotate(90deg) !important;
+  filter: drop-shadow(0 0 8px rgba(255, 76, 82, .62));
+}
+
+.analysis-row-icon { display: none !important; }
+.analysis-row-name {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+}
+.analysis-row-name > span {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.result-line > span::before,
+.result-line .analysis-row-name::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 6px !important;
+  height: 6px !important;
+  margin-right: 9px !important;
+  border-radius: 50% !important;
+  background: rgba(255,82,88,.95) !important;
+  box-shadow: 0 0 10px rgba(255,82,88,.45) !important;
+  vertical-align: 1px !important;
+  flex: 0 0 6px !important;
+}
+.result-line .analysis-row-name > span::before,
+.result-line--head > span::before,
+.result-line--head .analysis-row-name::before {
+  display: none !important;
+  content: none !important;
+}
+
+body.light-theme .analysis-kpi-icon,
+body.theme-light .analysis-kpi-icon,
+body[data-theme="light"] .analysis-kpi-icon,
+html.light-theme body .analysis-kpi-icon,
+html.theme-light body .analysis-kpi-icon {
+  color: rgba(230, 40, 48, .95) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,88,94,.12)) !important;
+  border-color: rgba(255, 67, 73, .34) !important;
+  box-shadow: 0 0 22px rgba(255, 70, 76, .18), inset 0 0 12px rgba(255,255,255,.78) !important;
+}
+body.light-theme .analysis-kpi-icon--bottleneck,
+body.theme-light .analysis-kpi-icon--bottleneck,
+body[data-theme="light"] .analysis-kpi-icon--bottleneck,
+html.light-theme body .analysis-kpi-icon--bottleneck,
+html.theme-light body .analysis-kpi-icon--bottleneck {
+  color: #d88921 !important;
+}
+body.light-theme .result-unit-chevron,
+body.theme-light .result-unit-chevron,
+body[data-theme="light"] .result-unit-chevron,
+html.light-theme body .result-unit-chevron,
+html.theme-light body .result-unit-chevron {
+  color: rgba(230, 44, 52, .94) !important;
+  background: rgba(255,255,255,.66) !important;
+  border-color: rgba(255, 70, 76, .30) !important;
+}
+body.light-theme .result-line > span::before,
+body.light-theme .result-line .analysis-row-name::before,
+body.theme-light .result-line > span::before,
+body.theme-light .result-line .analysis-row-name::before,
+body[data-theme="light"] .result-line > span::before,
+body[data-theme="light"] .result-line .analysis-row-name::before {
+  background: rgba(255,65,70,.92) !important;
+  box-shadow: 0 0 9px rgba(255,65,70,.24) !important;
+}
+
