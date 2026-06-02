@@ -2117,3 +2117,250 @@ html[data-theme="light"] .command-final-card small{
   .command-report-chart-grid{grid-template-columns:1fr!important;}
   .command-chart-card{min-height:auto!important;}
 }
+
+/* v338 — light theme readability fix for command/report panels */
+:root[data-theme="light"] .command-hex-stage,
+html[data-theme="light"] .command-hex-stage,
+body[data-theme="light"] .command-hex-stage{
+  --command-light-text:#39070d;
+  --command-light-muted:#6d3439;
+  --command-light-red:#e00013;
+  --command-light-card:rgba(255,255,255,.72);
+  --command-light-card-strong:rgba(255,245,246,.86);
+}
+
+:root[data-theme="light"] .command-output-panel,
+html[data-theme="light"] .command-output-panel,
+body[data-theme="light"] .command-output-panel{
+  color:var(--command-light-text)!important;
+}
+
+/* Висновки: у світлій темі ніякого білого тексту на світлих плашках */
+:root[data-theme="light"] .command-final-card,
+html[data-theme="light"] .command-final-card,
+body[data-theme="light"] .command-final-card,
+:root[data-theme="light"] .command-reco-hero,
+html[data-theme="light"] .command-reco-hero,
+body[data-theme="light"] .command-reco-hero,
+:root[data-theme="light"] .command-forecast-card,
+html[data-theme="light"] .command-forecast-card,
+body[data-theme="light"] .command-forecast-card,
+:root[data-theme="light"] .command-impact-panel,
+html[data-theme="light"] .command-impact-panel,
+body[data-theme="light"] .command-impact-panel,
+:root[data-theme="light"] .command-reco-best,
+html[data-theme="light"] .command-reco-best,
+body[data-theme="light"] .command-reco-best,
+:root[data-theme="light"] .command-reco-side article,
+html[data-theme="light"] .command-reco-side article,
+body[data-theme="light"] .command-reco-side article{
+  background:linear-gradient(135deg,rgba(255,255,255,.84),rgba(255,230,232,.62))!important;
+  color:var(--command-light-text)!important;
+  border-color:rgba(224,0,19,.34)!important;
+  box-shadow:inset 0 0 20px rgba(224,0,19,.06),0 0 18px rgba(224,0,19,.08)!important;
+}
+
+:root[data-theme="light"] .command-final-card__label,
+html[data-theme="light"] .command-final-card__label,
+body[data-theme="light"] .command-final-card__label,
+:root[data-theme="light"] .command-reco-eyebrow,
+html[data-theme="light"] .command-reco-eyebrow,
+body[data-theme="light"] .command-reco-eyebrow,
+:root[data-theme="light"] .command-forecast-card__label,
+html[data-theme="light"] .command-forecast-card__label,
+body[data-theme="light"] .command-forecast-card__label,
+:root[data-theme="light"] .command-reco-side span,
+html[data-theme="light"] .command-reco-side span,
+body[data-theme="light"] .command-reco-side span,
+:root[data-theme="light"] .command-reco-best span,
+html[data-theme="light"] .command-reco-best span,
+body[data-theme="light"] .command-reco-best span{
+  color:#7b1119!important;
+  text-shadow:none!important;
+}
+
+:root[data-theme="light"] .command-final-card strong,
+html[data-theme="light"] .command-final-card strong,
+body[data-theme="light"] .command-final-card strong,
+:root[data-theme="light"] .command-reco-side strong,
+html[data-theme="light"] .command-reco-side strong,
+body[data-theme="light"] .command-reco-side strong,
+:root[data-theme="light"] .command-reco-hero p,
+html[data-theme="light"] .command-reco-hero p,
+body[data-theme="light"] .command-reco-hero p,
+:root[data-theme="light"] .command-reco-hero p strong,
+html[data-theme="light"] .command-reco-hero p strong,
+body[data-theme="light"] .command-reco-hero p strong,
+:root[data-theme="light"] .command-reco-best small,
+html[data-theme="light"] .command-reco-best small,
+body[data-theme="light"] .command-reco-best small,
+:root[data-theme="light"] .command-forecast-card small,
+html[data-theme="light"] .command-forecast-card small,
+body[data-theme="light"] .command-forecast-card small,
+:root[data-theme="light"] .command-reco-side small,
+html[data-theme="light"] .command-reco-side small,
+body[data-theme="light"] .command-reco-side small{
+  color:var(--command-light-text)!important;
+  text-shadow:none!important;
+}
+
+:root[data-theme="light"] .command-final-card__main,
+html[data-theme="light"] .command-final-card__main,
+body[data-theme="light"] .command-final-card__main,
+:root[data-theme="light"] .command-forecast-card strong,
+html[data-theme="light"] .command-forecast-card strong,
+body[data-theme="light"] .command-forecast-card strong,
+:root[data-theme="light"] .command-reco-best strong,
+html[data-theme="light"] .command-reco-best strong,
+body[data-theme="light"] .command-reco-best strong{
+  color:var(--command-light-red)!important;
+  text-shadow:0 0 16px rgba(224,0,19,.22)!important;
+}
+
+:root[data-theme="light"] .command-final-card--bottleneck strong,
+html[data-theme="light"] .command-final-card--bottleneck strong,
+body[data-theme="light"] .command-final-card--bottleneck strong,
+:root[data-theme="light"] .command-reco-hero h2,
+html[data-theme="light"] .command-reco-hero h2,
+body[data-theme="light"] .command-reco-hero h2{
+  color:#d69b28!important;
+  text-shadow:0 0 14px rgba(214,155,40,.22)!important;
+}
+
+:root[data-theme="light"] .command-unit-chip,
+html[data-theme="light"] .command-unit-chip,
+body[data-theme="light"] .command-unit-chip{
+  color:#9b0010!important;
+  background:rgba(255,255,255,.8)!important;
+  border-color:rgba(224,0,19,.34)!important;
+  text-shadow:none!important;
+}
+
+/* Весь звіт: світлий режим читається як світлий документ, не як темна HUD-карта */
+:root[data-theme="light"] .command-full-report,
+html[data-theme="light"] .command-full-report,
+body[data-theme="light"] .command-full-report{
+  color:var(--command-light-text)!important;
+}
+:root[data-theme="light"] .command-report-section,
+html[data-theme="light"] .command-report-section,
+body[data-theme="light"] .command-report-section,
+:root[data-theme="light"] .command-report-kpis article,
+html[data-theme="light"] .command-report-kpis article,
+body[data-theme="light"] .command-report-kpis article,
+:root[data-theme="light"] .command-report-conclusion-grid article,
+html[data-theme="light"] .command-report-conclusion-grid article,
+body[data-theme="light"] .command-report-conclusion-grid article,
+:root[data-theme="light"] .command-report-scenario,
+html[data-theme="light"] .command-report-scenario,
+body[data-theme="light"] .command-report-scenario,
+:root[data-theme="light"] .command-report-audit-grid article,
+html[data-theme="light"] .command-report-audit-grid article,
+body[data-theme="light"] .command-report-audit-grid article,
+:root[data-theme="light"] .command-report-impact-panel,
+html[data-theme="light"] .command-report-impact-panel,
+body[data-theme="light"] .command-report-impact-panel,
+:root[data-theme="light"] .command-report-row,
+html[data-theme="light"] .command-report-row,
+body[data-theme="light"] .command-report-row,
+:root[data-theme="light"] .command-chart-card,
+html[data-theme="light"] .command-chart-card,
+body[data-theme="light"] .command-chart-card{
+  background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(255,232,234,.62))!important;
+  color:var(--command-light-text)!important;
+  border-color:rgba(224,0,19,.3)!important;
+  box-shadow:inset 0 0 18px rgba(224,0,19,.055)!important;
+}
+
+:root[data-theme="light"] .command-report-section h3,
+html[data-theme="light"] .command-report-section h3,
+body[data-theme="light"] .command-report-section h3,
+:root[data-theme="light"] .command-report-kpis strong,
+html[data-theme="light"] .command-report-kpis strong,
+body[data-theme="light"] .command-report-kpis strong,
+:root[data-theme="light"] .command-report-conclusion-grid strong,
+html[data-theme="light"] .command-report-conclusion-grid strong,
+body[data-theme="light"] .command-report-conclusion-grid strong,
+:root[data-theme="light"] .command-report-scenario strong,
+html[data-theme="light"] .command-report-scenario strong,
+body[data-theme="light"] .command-report-scenario strong,
+:root[data-theme="light"] .command-report-audit-grid strong,
+html[data-theme="light"] .command-report-audit-grid strong,
+body[data-theme="light"] .command-report-audit-grid strong,
+:root[data-theme="light"] .command-report-impact-row span,
+html[data-theme="light"] .command-report-impact-row span,
+body[data-theme="light"] .command-report-impact-row span,
+:root[data-theme="light"] .command-report-impact-row strong,
+html[data-theme="light"] .command-report-impact-row strong,
+body[data-theme="light"] .command-report-impact-row strong,
+:root[data-theme="light"] .command-mini-line,
+html[data-theme="light"] .command-mini-line,
+body[data-theme="light"] .command-mini-line,
+:root[data-theme="light"] .command-mini-line b,
+html[data-theme="light"] .command-mini-line b,
+body[data-theme="light"] .command-mini-line b,
+:root[data-theme="light"] .command-mini-line em,
+html[data-theme="light"] .command-mini-line em,
+body[data-theme="light"] .command-mini-line em,
+:root[data-theme="light"] .command-chart-row__name,
+html[data-theme="light"] .command-chart-row__name,
+body[data-theme="light"] .command-chart-row__name,
+:root[data-theme="light"] .command-chart-row strong,
+html[data-theme="light"] .command-chart-row strong,
+body[data-theme="light"] .command-chart-row strong,
+:root[data-theme="light"] .command-line-chart__labels b,
+html[data-theme="light"] .command-line-chart__labels b,
+body[data-theme="light"] .command-line-chart__labels b{
+  color:var(--command-light-text)!important;
+  text-shadow:none!important;
+}
+
+:root[data-theme="light"] .command-report-kpis span,
+html[data-theme="light"] .command-report-kpis span,
+body[data-theme="light"] .command-report-kpis span,
+:root[data-theme="light"] .command-report-conclusion-grid span,
+html[data-theme="light"] .command-report-conclusion-grid span,
+body[data-theme="light"] .command-report-conclusion-grid span,
+:root[data-theme="light"] .command-report-scenario span,
+html[data-theme="light"] .command-report-scenario span,
+body[data-theme="light"] .command-report-scenario span,
+:root[data-theme="light"] .command-report-audit-grid span,
+html[data-theme="light"] .command-report-audit-grid span,
+body[data-theme="light"] .command-report-audit-grid span,
+:root[data-theme="light"] .command-report-row__head span,
+html[data-theme="light"] .command-report-row__head span,
+body[data-theme="light"] .command-report-row__head span,
+:root[data-theme="light"] .command-report-kpis small,
+html[data-theme="light"] .command-report-kpis small,
+body[data-theme="light"] .command-report-kpis small,
+:root[data-theme="light"] .command-report-conclusion-grid small,
+html[data-theme="light"] .command-report-conclusion-grid small,
+body[data-theme="light"] .command-report-conclusion-grid small,
+:root[data-theme="light"] .command-report-scenario small,
+html[data-theme="light"] .command-report-scenario small,
+body[data-theme="light"] .command-report-scenario small,
+:root[data-theme="light"] .command-line-chart__labels span,
+html[data-theme="light"] .command-line-chart__labels span,
+body[data-theme="light"] .command-line-chart__labels span{
+  color:var(--command-light-muted)!important;
+  text-shadow:none!important;
+}
+
+:root[data-theme="light"] .command-report-section header span,
+html[data-theme="light"] .command-report-section header span,
+body[data-theme="light"] .command-report-section header span,
+:root[data-theme="light"] .command-report-impact-title,
+html[data-theme="light"] .command-report-impact-title,
+body[data-theme="light"] .command-report-impact-title,
+:root[data-theme="light"] .command-report-dual h4,
+html[data-theme="light"] .command-report-dual h4,
+body[data-theme="light"] .command-report-dual h4,
+:root[data-theme="light"] .command-chart-card h4,
+html[data-theme="light"] .command-chart-card h4,
+body[data-theme="light"] .command-chart-card h4,
+:root[data-theme="light"] .command-report-row__head strong,
+html[data-theme="light"] .command-report-row__head strong,
+body[data-theme="light"] .command-report-row__head strong{
+  color:var(--command-light-red)!important;
+  text-shadow:0 0 10px rgba(224,0,19,.16)!important;
+}
