@@ -12727,35 +12727,28 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 
 
 
-/* v355 — ORBI avatar optical zoom.
-   Only the internal ORBI avatar artwork is scaled; frame, panel, text and Lavash stay untouched.
-   This compensates for transparent padding inside the ORBI avatar asset. */
-.assistant-card .avatar-orbi.avatar-ring-frame,
-.avatar-orbi.avatar-ring-frame {
+/* v356 — REAL top-left ORBI avatar tuning.
+   The visible ORBI avatar in the corner panel uses .b116-panel__avatar,
+   not .avatar-orbi. This patch targets ONLY the left ORBI panel.
+   Lavash/right panel, panel frames, text and geometry stay untouched. */
+
+.b116-panel--left .b116-panel__avatar-wrap {
   overflow: hidden !important;
 }
 
-.assistant-card .avatar-orbi.avatar-ring-frame > img,
-.avatar-orbi.avatar-ring-frame > img {
+.b116-panel--left .b116-panel__avatar {
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
   object-fit: cover !important;
   object-position: center center !important;
   transform-origin: center center !important;
-  transform: translateX(1px) translateY(0px) scale(1.42) !important;
-  border-radius: 50% !important;
+  transform: translateX(1px) translateY(0px) scale(1.28) !important;
+  filter: drop-shadow(0 0 10px rgba(255, 42, 35, .92)) !important;
 }
 
-/* If browser keeps an older nested avatar rule, force the ORBI image above it. */
-.assistant-card .avatar-orbi img,
-.avatar-orbi img {
-  width: 100% !important;
-  height: 100% !important;
-  padding: 0 !important;
-  object-fit: cover !important;
-  transform: translateX(1px) translateY(0px) scale(1.42) !important;
+/* If an inner soft ring around ORBI visually limits the avatar, make it less dominant only in the left panel. */
+.b116-panel--left .b116-panel__avatar-wrap::after {
+  opacity: .55 !important;
 }
