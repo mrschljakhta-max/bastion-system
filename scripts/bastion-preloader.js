@@ -1,4 +1,3 @@
-
 (function () {
   "use strict";
 
@@ -9,10 +8,12 @@
     ["upload.html", "ІНІЦІАЛІЗАЦІЯ ІМПОРТУ"],
   ]);
 
-  const MIN_VISIBLE_MS = 2000;
+  const MIN_VISIBLE_MS = 3000;
+  const START_PROGRESS = 20;
   const startTime = performance.now();
   let progressTimer = null;
-  let currentProgress = 0;
+  let currentProgress = START_PROGRESS;
+  let targetProgress = START_PROGRESS;
 
   function pageKeyFromUrl(url) {
     try {
@@ -43,10 +44,15 @@
       overlay.setAttribute("aria-live", "polite");
       overlay.innerHTML = [
         '<div class="bastion-preloader__stage">',
-        '  <img class="bastion-preloader__image" src="../assets/preloaders/bastion-fingerprint-preloader.png" alt="Ініціалізація BASTION" decoding="async" />',
-        '  <div class="bastion-preloader__percent" data-preloader-percent>0%</div>',
-        '  <div class="bastion-preloader__bar" aria-hidden="true"><span class="bastion-preloader__bar-fill" data-preloader-fill></span></div>',
+        '  <div class="bastion-preloader__fingerprint">',
+        '    <img class="bastion-preloader__image" src="../assets/preloaders/bastion-fingerprint-preloader.png" alt="Ініціалізація BASTION" decoding="async" />',
+        '  </div>',
+        '  <div class="bastion-preloader__title">ІНІЦІАЛІЗАЦІЯ</div>',
         '  <div class="bastion-preloader__status" data-preloader-status>ІНІЦІАЛІЗАЦІЯ МОДУЛЯ</div>',
+        '  <div class="bastion-preloader__bar-shell">',
+        '    <div class="bastion-preloader__bar" aria-hidden="true"><span class="bastion-preloader__bar-fill" data-preloader-fill></span></div>',
+        '    <div class="bastion-preloader__percent" data-preloader-percent>20%</div>',
+        '  </div>',
         '</div>'
       ].join("");
       document.body.prepend(overlay);
@@ -55,12 +61,16 @@
   }
 
   function setProgress(value) {
-    currentProgress = Math.max(0, Math.min(100, Math.round(value)));
+    currentProgress = Math.max(START_PROGRESS, Math.min(100, Math.round(value)));
     const overlay = getOverlay();
     const fill = overlay.querySelector("[data-preloader-fill]");
     const percent = overlay.querySelector("[data-preloader-percent]");
     if (fill) fill.style.width = currentProgress + "%";
     if (percent) percent.textContent = currentProgress + "%";
+  }
+
+  function setTarget(value) {
+    targetProgress = Math.max(targetProgress, Math.min(96, Math.round(value)));
   }
 
   function setStatus(text) {
@@ -73,7 +83,9 @@
     overlay.classList.remove("is-hidden");
     document.body.classList.add("bastion-preloader-lock");
     setStatus(status || getStatusForCurrentPage());
-    setProgress(Math.max(currentProgress, 6));
+    currentProgress = START_PROGRESS;
+    targetProgress = START_PROGRESS;
+    setProgress(START_PROGRESS);
   }
 
   function hidePreloader() {
@@ -84,7 +96,7 @@
       document.body.classList.remove("bastion-preloader-lock");
       window.setTimeout(() => overlay.remove(), 520);
       document.dispatchEvent(new CustomEvent("bastion:preloader:done"));
-    }, 180);
+    }, 260);
   }
 
   function waitWindowLoad() {
@@ -96,7 +108,7 @@
     if (!document.fonts || !document.fonts.ready) return Promise.resolve();
     return Promise.race([
       document.fonts.ready.catch(() => undefined),
-      new Promise((resolve) => setTimeout(resolve, 3000))
+      new Promise((resolve) => setTimeout(resolve, 3500))
     ]);
   }
 
@@ -115,7 +127,7 @@
     });
     return Promise.race([
       Promise.all(jobs),
-      new Promise((resolve) => setTimeout(resolve, 6500))
+      new Promise((resolve) => setTimeout(resolve, 7000))
     ]);
   }
 
@@ -133,19 +145,24 @@
   function animateProgress() {
     clearInterval(progressTimer);
     progressTimer = setInterval(() => {
-      if (currentProgress < 88) setProgress(currentProgress + Math.max(1, Math.round((90 - currentProgress) * 0.08)));
-      else if (currentProgress < 94) setProgress(currentProgress + 1);
-    }, 155);
+      if (currentProgress < targetProgress) {
+        const step = Math.max(1, Math.ceil((targetProgress - currentProgress) * 0.10));
+        setProgress(currentProgress + step);
+      } else if (currentProgress < 94 && targetProgress >= 92) {
+        setProgress(currentProgress + 1);
+      }
+    }, 135);
   }
 
   function initPreloader() {
     showPreloader(getStatusForCurrentPage());
     animateProgress();
+
     Promise.all([
-      waitWindowLoad().then(() => setProgress(Math.max(currentProgress, 42))),
-      waitImages().then(() => setProgress(Math.max(currentProgress, 72))),
-      waitFonts().then(() => setProgress(Math.max(currentProgress, 84))),
-      waitCriticalUi().then(() => setProgress(Math.max(currentProgress, 90))),
+      waitWindowLoad().then(() => setTarget(54)),
+      waitImages().then(() => setTarget(76)),
+      waitFonts().then(() => setTarget(86)),
+      waitCriticalUi().then(() => setTarget(92)),
       minDelay()
     ]).then(() => {
       clearInterval(progressTimer);
@@ -163,8 +180,9 @@
     event.preventDefault();
     const key = pageKeyFromUrl(href);
     showPreloader(TARGET_PAGES.get(key));
-    setProgress(12);
-    setTimeout(() => { window.location.href = link.href; }, 150);
+    animateProgress();
+    setTarget(34);
+    setTimeout(() => { window.location.href = link.href; }, 220);
   }, true);
 
   if (document.readyState === "loading") {

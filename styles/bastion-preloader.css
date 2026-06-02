@@ -1,9 +1,9 @@
-
 /* BASTION page preloader: 00–03 modules */
 :root {
-  --bastion-preloader-blur: 20px;
+  --bastion-preloader-blur: 22px;
   --bastion-preloader-red: #ff1717;
-  --bastion-preloader-soft-red: rgba(255, 30, 30, .34);
+  --bastion-preloader-dark: rgba(0, 0, 0, .68);
+  --bastion-preloader-light: rgba(255, 255, 255, .62);
 }
 
 .bastion-preloader {
@@ -15,17 +15,19 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  background: rgba(0, 0, 0, .66);
-  backdrop-filter: blur(var(--bastion-preloader-blur)) saturate(115%);
-  -webkit-backdrop-filter: blur(var(--bastion-preloader-blur)) saturate(115%);
+  background: var(--bastion-preloader-dark);
+  backdrop-filter: blur(var(--bastion-preloader-blur)) saturate(118%);
+  -webkit-backdrop-filter: blur(var(--bastion-preloader-blur)) saturate(118%);
   transition: opacity .42s ease, visibility .42s ease, backdrop-filter .42s ease;
 }
 
 :root[data-theme="light"] .bastion-preloader,
-body[data-theme="light"] .bastion-preloader {
-  background: rgba(255, 255, 255, .58);
-  backdrop-filter: blur(24px) saturate(115%);
-  -webkit-backdrop-filter: blur(24px) saturate(115%);
+body[data-theme="light"] .bastion-preloader,
+html.light .bastion-preloader,
+body.light .bastion-preloader {
+  background: var(--bastion-preloader-light);
+  backdrop-filter: blur(26px) saturate(116%);
+  -webkit-backdrop-filter: blur(26px) saturate(116%);
 }
 
 .bastion-preloader.is-hidden {
@@ -38,12 +40,26 @@ body[data-theme="light"] .bastion-preloader {
 
 .bastion-preloader__stage {
   position: relative;
-  width: min(560px, 62vw, 72vh);
+  width: min(560px, 68vw, 76vh);
+  min-height: min(720px, 82vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 2vh, 24px);
+  transform: translateY(-1vh);
+  filter: drop-shadow(0 0 24px rgba(255, 0, 0, .36));
+}
+
+.bastion-preloader__fingerprint {
+  position: relative;
+  width: min(390px, 42vw, 45vh);
   aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
-  transform: translateY(-1.5vh);
-  filter: drop-shadow(0 0 22px rgba(255, 0, 0, .44));
+  overflow: hidden;
+  border-radius: 50%;
+  animation: bastionPreloaderPulse 1.9s ease-in-out infinite;
 }
 
 .bastion-preloader__image {
@@ -52,89 +68,139 @@ body[data-theme="light"] .bastion-preloader {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-  animation: bastionPreloaderPulse 1.9s ease-in-out infinite;
+  filter: drop-shadow(0 0 18px rgba(255, 0, 0, .42));
+}
+
+.bastion-preloader__fingerprint::before {
+  content: "";
+  position: absolute;
+  inset: 7%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 0, 0, .22);
+  box-shadow: inset 0 0 28px rgba(255, 0, 0, .08);
+  pointer-events: none;
+}
+
+.bastion-preloader__fingerprint::after {
+  content: "";
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  top: 12%;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255, 40, 20, .35), #ff1b10, rgba(255, 110, 70, .74), transparent);
+  box-shadow: 0 0 14px rgba(255, 30, 20, .92), 0 0 32px rgba(255, 0, 0, .42);
+  mix-blend-mode: screen;
+  animation: bastionFingerprintScan 2.05s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.bastion-preloader__title {
+  margin-top: clamp(-8px, -1vh, 0px);
+  color: var(--bastion-preloader-red);
+  font: 900 clamp(30px, 4.2vw, 58px)/.95 Orbitron, Rajdhani, Arial, sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(255, 0, 0, .55);
+}
+
+.bastion-preloader__status {
+  margin-top: -6px;
+  width: min(78vw, 620px);
+  color: var(--bastion-preloader-red);
+  font: 800 clamp(12px, 1.2vw, 18px)/1.15 Orbitron, Rajdhani, Arial, sans-serif;
+  letter-spacing: .20em;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(255, 0, 0, .58);
+}
+
+.bastion-preloader__bar-shell {
+  width: min(78vw, 640px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
 }
 
 .bastion-preloader__bar {
-  position: absolute;
-  left: 13.7%;
-  right: 13.7%;
-  bottom: 17.2%;
-  height: clamp(13px, 1.35vw, 20px);
+  height: clamp(16px, 1.55vw, 24px);
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(20, 0, 0, .50);
+  background: rgba(20, 0, 0, .48);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 25, 25, .55),
+    inset 0 0 0 1px rgba(255, 25, 25, .72),
     0 0 18px rgba(255, 20, 20, .28);
 }
 
 :root[data-theme="light"] .bastion-preloader__bar,
-body[data-theme="light"] .bastion-preloader__bar {
-  background: rgba(255, 255, 255, .40);
+body[data-theme="light"] .bastion-preloader__bar,
+html.light .bastion-preloader__bar,
+body.light .bastion-preloader__bar {
+  background: rgba(255, 255, 255, .46);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 0, 0, .58),
-    0 0 18px rgba(255, 35, 35, .24);
+    inset 0 0 0 1px rgba(255, 0, 0, .62),
+    0 0 18px rgba(255, 35, 35, .22);
 }
 
 .bastion-preloader__bar-fill {
   display: block;
-  width: 0%;
+  width: 20%;
   height: 100%;
   border-radius: inherit;
   background:
-    repeating-linear-gradient(110deg, rgba(255,255,255,.16) 0 8px, transparent 8px 18px),
-    linear-gradient(90deg, #ff1212 0%, #ff2f22 60%, #ffb08a 100%);
-  box-shadow: 0 0 20px rgba(255, 20, 20, .75);
-  transition: width .26s ease;
+    repeating-linear-gradient(110deg, rgba(255,255,255,.18) 0 8px, transparent 8px 18px),
+    linear-gradient(90deg, #ff1010 0%, #ff2f22 68%, #ffb08a 100%);
+  box-shadow: 0 0 20px rgba(255, 20, 20, .72);
+  transition: width .34s cubic-bezier(.18,.78,.28,1);
 }
 
 .bastion-preloader__percent {
-  position: absolute;
-  right: 15.4%;
-  bottom: calc(17.2% + clamp(16px, 1.75vw, 26px));
+  min-width: 4.2ch;
   color: #ff1d1d;
-  font: 800 clamp(12px, 1.25vw, 18px)/1 Orbitron, Rajdhani, Arial, sans-serif;
+  font: 900 clamp(16px, 1.7vw, 26px)/1 Orbitron, Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
-  text-shadow: 0 0 10px rgba(255, 0, 0, .75);
+  text-shadow: 0 0 10px rgba(255, 0, 0, .72);
+  text-align: right;
 }
 
-.bastion-preloader__status {
-  position: absolute;
-  top: calc(100% - 10.8%);
-  left: 50%;
-  width: min(78vw, 620px);
-  transform: translateX(-50%);
-  text-align: center;
-  color: var(--bastion-preloader-red);
-  font: 800 clamp(12px, 1.2vw, 18px)/1.1 Orbitron, Rajdhani, Arial, sans-serif;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  text-shadow: 0 0 14px rgba(255, 0, 0, .65);
-}
-
+:root[data-theme="light"] .bastion-preloader__title,
+body[data-theme="light"] .bastion-preloader__title,
+html.light .bastion-preloader__title,
+body.light .bastion-preloader__title,
 :root[data-theme="light"] .bastion-preloader__status,
 body[data-theme="light"] .bastion-preloader__status,
+html.light .bastion-preloader__status,
+body.light .bastion-preloader__status,
 :root[data-theme="light"] .bastion-preloader__percent,
-body[data-theme="light"] .bastion-preloader__percent {
+body[data-theme="light"] .bastion-preloader__percent,
+html.light .bastion-preloader__percent,
+body.light .bastion-preloader__percent {
   color: #d80012;
-  text-shadow: 0 0 14px rgba(255, 0, 0, .24);
+  text-shadow: 0 0 16px rgba(255, 0, 0, .26);
 }
 
-body.bastion-preloader-lock {
-  overflow: hidden !important;
-}
+body.bastion-preloader-lock { overflow: hidden !important; }
 
 @keyframes bastionPreloaderPulse {
-  0%, 100% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 0 rgba(255, 0, 0, 0)); }
-  50% { transform: scale(1.012); filter: brightness(1.13) drop-shadow(0 0 14px rgba(255, 0, 0, .38)); }
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.018); filter: brightness(1.16); }
+}
+
+@keyframes bastionFingerprintScan {
+  0% { transform: translateY(0); opacity: 0; }
+  12% { opacity: 1; }
+  50% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { transform: translateY(285px); opacity: 0; }
 }
 
 @media (max-width: 760px) {
-  .bastion-preloader__stage {
-    width: min(88vw, 70vh);
-  }
-  .bastion-preloader__status {
-    letter-spacing: .13em;
-  }
+  .bastion-preloader__stage { width: min(90vw, 76vh); }
+  .bastion-preloader__fingerprint { width: min(66vw, 42vh); }
+  .bastion-preloader__title { letter-spacing: .04em; }
+  .bastion-preloader__status { letter-spacing: .11em; }
+  .bastion-preloader__bar-shell { width: min(86vw, 560px); gap: 10px; }
 }
