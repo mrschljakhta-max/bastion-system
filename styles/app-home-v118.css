@@ -12725,17 +12725,19 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 }
 
 
-/* v353 — ORBI avatar fine tuning only.
-   Lavash/user avatar is untouched. */
+
+
+/* v354 — ORBI avatar scale increase only.
+   Lavash/user avatar, hex frame, panels and text are untouched. */
 .assistant-card .avatar-orbi.avatar-ring-frame img,
 .avatar-orbi.avatar-ring-frame img {
-  width: 54px !important;
-  height: 54px !important;
-  max-width: 54px !important;
-  max-height: 54px !important;
+  width: 62px !important;
+  height: 62px !important;
+  max-width: 62px !important;
+  max-height: 62px !important;
   padding: 0 !important;
   object-fit: cover !important;
   object-position: center center !important;
-  transform: translateX(1px) translateY(0) scale(1.03) !important;
+  transform: translateX(1px) translateY(0) scale(1.15) !important;
   border-radius: 50% !important;
 }
