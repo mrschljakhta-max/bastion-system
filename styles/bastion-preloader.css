@@ -40,20 +40,20 @@ body.light .bastion-preloader {
 
 .bastion-preloader__stage {
   position: relative;
-  width: min(560px, 68vw, 76vh);
-  min-height: min(720px, 82vh);
+  width: min(460px, 46vw, 58vh);
+  min-height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(14px, 2vh, 24px);
+  gap: clamp(8px, 1.2vh, 16px);
   transform: translateY(-1vh);
   filter: drop-shadow(0 0 24px rgba(255, 0, 0, .36));
 }
 
 .bastion-preloader__fingerprint {
   position: relative;
-  width: min(390px, 42vw, 45vh);
+  width: clamp(180px, 18vw, 260px);
   aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
@@ -99,7 +99,7 @@ body.light .bastion-preloader {
 .bastion-preloader__title {
   margin-top: clamp(-8px, -1vh, 0px);
   color: var(--bastion-preloader-red);
-  font: 900 clamp(30px, 4.2vw, 58px)/.95 Orbitron, Rajdhani, Arial, sans-serif;
+  font: 900 clamp(22px, 2.6vw, 38px)/.95 Orbitron, Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-transform: uppercase;
   text-align: center;
@@ -108,9 +108,9 @@ body.light .bastion-preloader {
 
 .bastion-preloader__status {
   margin-top: -6px;
-  width: min(78vw, 620px);
+  width: min(46vw, 460px);
   color: var(--bastion-preloader-red);
-  font: 800 clamp(12px, 1.2vw, 18px)/1.15 Orbitron, Rajdhani, Arial, sans-serif;
+  font: 800 clamp(10px, .95vw, 14px)/1.15 Orbitron, Rajdhani, Arial, sans-serif;
   letter-spacing: .20em;
   text-transform: uppercase;
   text-align: center;
@@ -118,7 +118,7 @@ body.light .bastion-preloader {
 }
 
 .bastion-preloader__bar-shell {
-  width: min(78vw, 640px);
+  width: min(46vw, 460px);
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 16px;
@@ -126,7 +126,7 @@ body.light .bastion-preloader {
 }
 
 .bastion-preloader__bar {
-  height: clamp(16px, 1.55vw, 24px);
+  height: clamp(10px, .9vw, 16px);
   border-radius: 999px;
   overflow: hidden;
   background: rgba(20, 0, 0, .48);
@@ -160,7 +160,7 @@ body.light .bastion-preloader__bar {
 .bastion-preloader__percent {
   min-width: 4.2ch;
   color: #ff1d1d;
-  font: 900 clamp(16px, 1.7vw, 26px)/1 Orbitron, Rajdhani, Arial, sans-serif;
+  font: 900 clamp(12px, 1.1vw, 18px)/1 Orbitron, Rajdhani, Arial, sans-serif;
   letter-spacing: .08em;
   text-shadow: 0 0 10px rgba(255, 0, 0, .72);
   text-align: right;
@@ -194,13 +194,20 @@ body.bastion-preloader-lock { overflow: hidden !important; }
   12% { opacity: 1; }
   50% { opacity: 1; }
   88% { opacity: 1; }
-  100% { transform: translateY(285px); opacity: 0; }
+  100% { transform: translateY(190px); opacity: 0; }
 }
 
 @media (max-width: 760px) {
   .bastion-preloader__stage { width: min(90vw, 76vh); }
-  .bastion-preloader__fingerprint { width: min(66vw, 42vh); }
+  .bastion-preloader__fingerprint { width: min(56vw, 32vh, 230px); }
   .bastion-preloader__title { letter-spacing: .04em; }
   .bastion-preloader__status { letter-spacing: .11em; }
-  .bastion-preloader__bar-shell { width: min(86vw, 560px); gap: 10px; }
+  .bastion-preloader__bar-shell { width: min(78vw, 420px); gap: 10px; }
+}
+
+
+@media (min-width: 1200px) {
+  .bastion-preloader__fingerprint { width: 250px; }
+  .bastion-preloader__bar-shell,
+  .bastion-preloader__status { width: 430px; }
 }
