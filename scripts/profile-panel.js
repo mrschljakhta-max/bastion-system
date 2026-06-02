@@ -40,6 +40,131 @@
   const userAvatarModal = byId("userAvatarModal");
   const plateAvatarUser = document.querySelector(".plate-avatar-user");
 
+  /* BASTION Tooltip Toolkit v1
+     Universal profile-modal hover/focus hints for any element with data-tooltip.
+     Uses one floating layer to avoid clipping inside clipped/hex UI elements.
+  */
+  let tooltipLayer = null;
+  let tooltipTarget = null;
+
+  const profileTooltipMap = [
+    ["userMenuButton", "Профіль користувача"],
+    ["profileAvatarEditButton", "Змінити аватар"],
+    ["profileLoginInlineToggle", "Редагувати логін"],
+    ["profileThemeSwitch", "Змінити тему інтерфейсу"],
+    ["profileAccessToggle", "Подати заявку на зміну рівня доступу"],
+    ["logoutButton", "Вийти з акаунту"]
+  ];
+
+  const profileTooltipSelectors = [
+    ["#profileModal .profile-close", "Закрити вікно"],
+    ["#profileModal .profile-avatar-shell", "Аватар користувача"],
+    ["#profileModal .profile-login-card", "Логін користувача"],
+    ["#profileModal .profile-email-card", "Електронна пошта користувача"],
+    ["#profileModal .profile-access-card", "Поточний рівень доступу"],
+    ["#profileModal .profile-action-icon[data-profile-panel='login']", "Редагувати логін"],
+    ["#profileModal .profile-action-icon[data-profile-panel='access']", "Змінити рівень доступу"],
+    ["#profileModal [data-profile-panel-close]", "Закрити панель"],
+    ["#profileModal #profileSubmitAccessButton", "Надіслати заявку"],
+    ["#profileModal #profileSaveLoginButton", "Зберегти логін"]
+  ];
+
+  function ensureTooltipLayer() {
+    if (tooltipLayer) return tooltipLayer;
+    tooltipLayer = document.createElement("div");
+    tooltipLayer.className = "bastion-tooltip-layer";
+    tooltipLayer.setAttribute("role", "tooltip");
+    tooltipLayer.setAttribute("aria-hidden", "true");
+    document.body.appendChild(tooltipLayer);
+    return tooltipLayer;
+  }
+
+  function installProfileTooltips() {
+    profileTooltipMap.forEach(([id, label]) => {
+      const el = byId(id);
+      if (el && !el.dataset.tooltip) el.dataset.tooltip = label;
+    });
+
+    profileTooltipSelectors.forEach(([selector, label]) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        if (!el.dataset.tooltip) el.dataset.tooltip = label;
+      });
+    });
+  }
+
+  function positionTooltip(target) {
+    if (!tooltipLayer || !target) return;
+    const rect = target.getBoundingClientRect();
+    const gap = 12;
+    const viewportPadding = 10;
+
+    tooltipLayer.style.left = "0px";
+    tooltipLayer.style.top = "0px";
+    tooltipLayer.classList.add("is-measuring");
+
+    const tipRect = tooltipLayer.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - tipRect.width / 2;
+    let top = rect.top - tipRect.height - gap;
+    let placement = "top";
+
+    if (top < viewportPadding) {
+      top = rect.bottom + gap;
+      placement = "bottom";
+    }
+
+    left = Math.max(viewportPadding, Math.min(left, window.innerWidth - tipRect.width - viewportPadding));
+    top = Math.max(viewportPadding, Math.min(top, window.innerHeight - tipRect.height - viewportPadding));
+
+    tooltipLayer.dataset.placement = placement;
+    tooltipLayer.style.left = `${left}px`;
+    tooltipLayer.style.top = `${top}px`;
+    tooltipLayer.classList.remove("is-measuring");
+  }
+
+  function showTooltip(target) {
+    const label = safeText(target?.dataset?.tooltip || "");
+    if (!label) return;
+    tooltipTarget = target;
+    const layer = ensureTooltipLayer();
+    layer.textContent = label;
+    layer.setAttribute("aria-hidden", "false");
+    layer.classList.add("is-visible");
+    positionTooltip(target);
+  }
+
+  function hideTooltip() {
+    tooltipTarget = null;
+    if (!tooltipLayer) return;
+    tooltipLayer.classList.remove("is-visible");
+    tooltipLayer.setAttribute("aria-hidden", "true");
+  }
+
+  function bindTooltipToolkit() {
+    installProfileTooltips();
+
+    document.addEventListener("pointerover", (event) => {
+      const target = event.target?.closest?.("#profileModal [data-tooltip], #userMenuButton[data-tooltip]");
+      if (target) showTooltip(target);
+    }, true);
+
+    document.addEventListener("pointerout", (event) => {
+      const target = event.target?.closest?.("#profileModal [data-tooltip], #userMenuButton[data-tooltip]");
+      if (target && (!event.relatedTarget || !target.contains(event.relatedTarget))) hideTooltip();
+    }, true);
+
+    document.addEventListener("focusin", (event) => {
+      const target = event.target?.closest?.("#profileModal [data-tooltip], #userMenuButton[data-tooltip]");
+      if (target) showTooltip(target);
+    });
+
+    document.addEventListener("focusout", (event) => {
+      if (event.target?.closest?.("#profileModal [data-tooltip], #userMenuButton[data-tooltip]")) hideTooltip();
+    });
+
+    window.addEventListener("scroll", () => { if (tooltipTarget) positionTooltip(tooltipTarget); }, true);
+    window.addEventListener("resize", () => { if (tooltipTarget) positionTooltip(tooltipTarget); }, { passive: true });
+  }
+
   function safeText(value, fallback = "") {
     return String(value ?? fallback).replace(/[<>]/g, "").trim();
   }
@@ -485,6 +610,7 @@
     }
 
     ensureProfileInBody();
+    installProfileTooltips();
     profileModal.classList.add("is-open");
     profileModal.setAttribute("aria-hidden", "false");
     userMenuButton?.setAttribute("aria-expanded", "true");
@@ -675,6 +801,7 @@
   initThemeControls();
   loadProfile();
   bind();
+  bindTooltipToolkit();
 
   window.BastionProfilePanel = {
     open: openProfile,
