@@ -245,17 +245,129 @@
   }
 
 
+  function safeText(value, fallbackValue = '—') {
+    const text = String(value ?? '').trim();
+    return escapeHtml(text || fallbackValue);
+  }
+
+  function itemRows(items, limit = 4){
+    const source = Array.isArray(items) ? items : [];
+    if (!source.length) return '<span class="command-mini-muted">без деталізації</span>';
+    return source.slice(0, limit).map(item => {
+      const name = item.name || item.element || item.resource || item.title || item.type || 'Елемент';
+      const qty = item.qty ?? item.count ?? item.total ?? item.remaining ?? item.remain ?? 0;
+      return `<span class="command-mini-line"><b>${safeText(name)}</b><em>${safeText(qty)}</em></span>`;
+    }).join('');
+  }
+
+  function allocationRows(){
+    const groups = Array.isArray(data.allocations) && data.allocations.length ? data.allocations : fallback.allocations;
+    return groups.map(group => `
+      <article class="command-report-row">
+        <div class="command-report-row__head">
+          <span>${safeText(group.unit)}</span>
+          <strong>${Number(group.total || 0)}</strong>
+        </div>
+        <div class="command-report-row__items">${itemRows(group.items, 3)}</div>
+      </article>`).join('');
+  }
+
+  function remainRows(){
+    const groups = Array.isArray(data.remains) && data.remains.length ? data.remains : fallback.remains;
+    return groups.map(group => {
+      const items = Array.isArray(group.items) ? [...group.items] : [];
+      const min = items.length ? items.sort((a,b)=>Number(a.qty ?? a.remaining ?? a.total ?? 0)-Number(b.qty ?? b.remaining ?? b.total ?? 0))[0] : null;
+      const minName = min ? (min.name || min.element || min.resource || 'Елемент') : '—';
+      const minQty = min ? (min.qty ?? min.remaining ?? min.total ?? 0) : '—';
+      return `
+        <article class="command-report-row">
+          <div class="command-report-row__head">
+            <span>${safeText(group.unit)}</span>
+            <strong>${Number(group.total || 0)}</strong>
+          </div>
+          <div class="command-report-row__items">
+            <span class="command-mini-line"><b>мін. елемент</b><em>${safeText(minName)} · ${safeText(minQty)}</em></span>
+            ${itemRows(group.items, 2)}
+          </div>
+        </article>`;
+    }).join('');
+  }
+
+  function reportScenarioRows(){
+    return forecastScenarios().map(item => `
+      <article class="command-report-scenario">
+        <span>+${item.add} ${safeText(item.element)}</span>
+        <strong>${item.projected}</strong>
+        <small>комплектів · приріст +${item.gain}</small>
+      </article>`).join('');
+  }
+
+  function reportImpactRows(){
+    return recommendationRows().map(row => `
+      <div class="command-report-impact-row">
+        <span>${safeText(row.name)}</span>
+        <strong>${safeText(row.value)}</strong>
+      </div>`).join('');
+  }
+
   function reportView(){
-    const totalUnits = data.allocations.length || data.remains.length || 0;
-    const remainUnits = data.remains.map(g => `${g.unit}: ${g.total}`).join(' · ');
+    const top = maxUnit();
+    const weak = minRemain();
+    const minEl = minElement();
+    const generated = new Date().toLocaleString('uk-UA', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
     content.innerHTML = `
-      <div class="command-report-list">
-        <div class="command-report-card"><span>KPI</span><strong>${data.kits}</strong><small>згенеровано комплектів</small></div>
-        <div class="command-report-card"><span>ДАЛЬНІСТЬ</span><strong>${fmtRange(data.bestRange)}</strong><small>найкращий активний рецепт</small></div>
-        <div class="command-report-card"><span>ОБМЕЖЕННЯ</span><strong>${data.bottleneck}</strong><small>критичний ресурс</small></div>
-        <div class="command-report-card"><span>ПІДРОЗДІЛИ</span><strong>${totalUnits}</strong><small>враховано у звіті</small></div>
-        <div class="command-report-card"><span>ЗАЛИШОК</span><strong>${data.remainTotal}</strong><small>${data.remainPercent || 0}% після розрахунку</small></div>
-        <div class="command-report-card"><span>ДЕТАЛІ</span><strong>ANALYSIS</strong><small>${remainUnits || 'дані доступні на сторінці аналізу'}</small></div>
+      <div class="command-full-report">
+        <section class="command-report-section command-report-section--summary">
+          <div class="command-report-kpis">
+            <article><span>Сформовано</span><strong>${data.kits}</strong><small>комплектів</small></article>
+            <article><span>Дальність</span><strong>${fmtRange(data.bestRange)}</strong><small>максимум</small></article>
+            <article><span>Обмеження</span><strong>${safeText(data.bottleneck)}</strong><small>вузьке місце</small></article>
+            <article><span>Залишок</span><strong>${data.remainTotal}</strong><small>${data.remainPercent || 0}% після розрахунку</small></article>
+          </div>
+        </section>
+
+        <section class="command-report-section">
+          <header><span>01</span><h3>Висновки</h3></header>
+          <div class="command-report-conclusion-grid">
+            <article><span>Найбільше отримав</span><strong>${safeText(top.unit)}</strong><small>${top.total} комплектів</small></article>
+            <article><span>Найменший запас</span><strong>${safeText(minEl.name)}</strong><small>${safeText(minEl.unit)} · ${safeText(minEl.qty)} од.</small></article>
+            <article><span>Найменший залишок</span><strong>${safeText(weak.unit)}</strong><small>${weak.total} од.</small></article>
+            <article><span>Підрозділи</span><div class="command-unit-chip-grid command-unit-chip-grid--report">${unitsChips()}</div></article>
+          </div>
+        </section>
+
+        <section class="command-report-section">
+          <header><span>02</span><h3>Рекомендації / прогноз</h3></header>
+          <div class="command-report-scenario-grid">${reportScenarioRows()}</div>
+          <div class="command-report-impact-panel">
+            <div class="command-report-impact-title">Ефективність поповнення</div>
+            ${reportImpactRows()}
+          </div>
+        </section>
+
+        <section class="command-report-section command-report-section--analysis">
+          <header><span>03</span><h3>Дані зі сторінки аналіз</h3></header>
+          <div class="command-report-dual">
+            <div>
+              <h4>Розподіл боєкомплектів</h4>
+              <div class="command-report-rows">${allocationRows()}</div>
+            </div>
+            <div>
+              <h4>Залишки по підрозділах</h4>
+              <div class="command-report-rows">${remainRows()}</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="command-report-section command-report-section--audit">
+          <header><span>04</span><h3>Службова інформація</h3></header>
+          <div class="command-report-audit-grid">
+            <article><span>Дата формування</span><strong>${generated}</strong></article>
+            <article><span>Джерело</span><strong>localStorage / analysis result</strong></article>
+            <article><span>Сценарії</span><strong>+100 / +250 / +500</strong></article>
+            <article><span>Алгоритм</span><strong>BASTION command forecast</strong></article>
+          </div>
+        </section>
       </div>`;
   }
 
@@ -273,16 +385,31 @@
     const weak = minRemain();
     const minEl = minElement();
     const lines = [];
-    lines.push('BASTION — ВИСНОВКИ');
+    lines.push('BASTION — ПОВНИЙ ЗВІТ');
     lines.push('');
+    lines.push('ЗАГАЛЬНІ KPI');
     lines.push(`Сформовано комплектів: ${data.kits}`);
     lines.push(`Максимальна дальність: ${fmtRange(data.bestRange)}`);
     lines.push(`Залишок складу: ${data.remainTotal} (${data.remainPercent || 0}% після розрахунку)`);
     lines.push(`Обмежувальний елемент: ${data.bottleneck}`);
+    lines.push('');
+    lines.push('ВИСНОВКИ');
     lines.push(`Найбільше отримав: ${top.unit} — ${top.total} комплектів`);
     lines.push(`Найменший запас: ${minEl.name} — ${minEl.qty} од. (${minEl.unit})`);
     lines.push(`Найменший залишок по підрозділах: ${weak.unit} — ${weak.total} од.`);
     lines.push(`Враховано підрозділів: ${allUnits().join(', ')}`);
+    lines.push('');
+    lines.push('РЕКОМЕНДАЦІЇ / ПРОГНОЗ');
+    forecastScenarios().forEach(item => lines.push(`+${item.add} ${item.element}: ${item.projected} комплектів (приріст +${item.gain})`));
+    lines.push('');
+    lines.push('ЕФЕКТИВНІСТЬ ПОПОВНЕННЯ');
+    recommendationRows().forEach(row => lines.push(`${row.name}: ${row.value}`));
+    lines.push('');
+    lines.push('РОЗПОДІЛ БОЄКОМПЛЕКТІВ');
+    (data.allocations || []).forEach(group => lines.push(`${group.unit}: ${group.total}`));
+    lines.push('');
+    lines.push('ЗАЛИШКИ ПО ПІДРОЗДІЛАХ');
+    (data.remains || []).forEach(group => lines.push(`${group.unit}: ${group.total}`));
     return lines.join('\n');
   }
 
