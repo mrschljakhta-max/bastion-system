@@ -12725,9 +12725,17 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 }
 
 
-/* ORBI avatar correction */
-.avatar-orbi img{
-  width:82% !important;
-  height:82% !important;
-  transform:translateX(1px) translateY(0);
+/* v353 — ORBI avatar fine tuning only.
+   Lavash/user avatar is untouched. */
+.assistant-card .avatar-orbi.avatar-ring-frame img,
+.avatar-orbi.avatar-ring-frame img {
+  width: 54px !important;
+  height: 54px !important;
+  max-width: 54px !important;
+  max-height: 54px !important;
+  padding: 0 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  transform: translateX(1px) translateY(0) scale(1.03) !important;
+  border-radius: 50% !important;
 }
