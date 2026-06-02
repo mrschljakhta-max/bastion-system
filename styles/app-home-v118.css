@@ -12723,3 +12723,11 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
   opacity: 1 !important;
   visibility: visible !important;
 }
+
+
+/* ORBI avatar correction */
+.avatar-orbi img{
+  width:82% !important;
+  height:82% !important;
+  transform:translateX(1px) translateY(0);
+}
