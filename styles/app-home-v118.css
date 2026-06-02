@@ -9602,12 +9602,20 @@ body.dict-modal-open {
   overflow: hidden !important;
 }
 
-body.profile-modal-open > *:not(#profileModal),
+body.profile-modal-open > *:not(#profileModal):not(.bastion-floating-tooltip),
 body.profile-modal-open > .b116-top-panels,
-body.dict-modal-open > *:not(.dict-modal):not(#profileModal),
+body.dict-modal-open > *:not(.dict-modal):not(#profileModal):not(.bastion-floating-tooltip),
 body.dict-modal-open > .b116-top-panels {
   filter: blur(8px) brightness(.48) saturate(.78) !important;
   transition: filter .18s ease !important;
+  pointer-events: none !important;
+}
+
+body.profile-modal-open > .bastion-floating-tooltip,
+body.dict-modal-open > .bastion-floating-tooltip {
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   pointer-events: none !important;
 }
 
@@ -12353,9 +12361,15 @@ body.dict-modal-open .dict-modal.is-open {
 }
 
 /* Light modal glass and white blur atmosphere */
-:root[data-theme="light"] body.profile-modal-open > *:not(#profileModal),
+:root[data-theme="light"] body.profile-modal-open > *:not(#profileModal):not(.bastion-floating-tooltip),
 :root[data-theme="light"] body.profile-modal-open > .b116-top-panels{
   filter:blur(10px) brightness(1.08) saturate(.82) !important;
+}
+
+:root[data-theme="light"] body.profile-modal-open > .bastion-floating-tooltip{
+  filter:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
 }
 
 :root[data-theme="light"] #profileModal.bastion-profile-modal > .profile-backdrop,
@@ -12704,4 +12718,22 @@ body > .bastion-floating-tooltip[data-theme="light"] {
   color: #8f0010 !important;
   border-color: rgba(255, 34, 48, .92) !important;
   box-shadow: 0 0 0 1px rgba(255,34,48,.08) inset, 0 0 24px rgba(255,0,20,.22), 0 14px 34px rgba(80,0,20,.16) !important;
+}
+
+
+/* v351 — tooltip must stay clear above profile-modal blur */
+body.profile-modal-open > .bastion-floating-tooltip,
+body.dict-modal-open > .bastion-floating-tooltip,
+html > body > .bastion-floating-tooltip {
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: none !important;
+  opacity: 1;
+}
+
+body.profile-modal-open > .bastion-floating-tooltip.is-visible,
+body.dict-modal-open > .bastion-floating-tooltip.is-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
