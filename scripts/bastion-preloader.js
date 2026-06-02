@@ -51,7 +51,6 @@
         '  <div class="bastion-preloader__status" data-preloader-status>ІНІЦІАЛІЗАЦІЯ МОДУЛЯ</div>',
         '  <div class="bastion-preloader__bar-shell">',
         '    <div class="bastion-preloader__bar" aria-hidden="true"><span class="bastion-preloader__bar-fill" data-preloader-fill></span></div>',
-        '    <div class="bastion-preloader__percent" data-preloader-percent>20%</div>',
         '  </div>',
         '</div>'
       ].join("");
