@@ -138,31 +138,108 @@
   }
 
 
+  function forecastYield(){
+    const direct = Number(data.impactPerUnit ?? data.forecastYield ?? data.yieldPerUnit ?? data.kitsPerUnit);
+    if (Number.isFinite(direct) && direct > 0) return direct;
+    const kits = Math.max(1, Number(data.kits || 0));
+    const remain = Math.max(0, Number(data.remainTotal || 0));
+    if (remain && kits) return Math.max(.35, Math.min(1.6, kits / Math.max(1, remain + kits) * 1.85));
+    return 1.18;
+  }
+
+  function forecastScenarios(){
+    const source = Array.isArray(data.forecasts) ? data.forecasts : Array.isArray(data.scenarios) ? data.scenarios : [];
+    if (source.length){
+      return source.slice(0,3).map((item, idx) => {
+        const add = Number(item.add ?? item.delta ?? item.qty ?? item.amount ?? [100,250,500][idx]);
+        const projected = Number(item.kits ?? item.projectedKits ?? item.result ?? (data.kits + add * forecastYield()));
+        return {
+          add: Number.isFinite(add) ? add : [100,250,500][idx],
+          element: item.element || item.resource || item.name || data.bottleneck,
+          projected: Math.round(projected),
+          gain: Math.round(projected - Number(data.kits || 0))
+        };
+      });
+    }
+    const yieldRate = forecastYield();
+    return [100,250,500].map(add => ({
+      add,
+      element: data.bottleneck,
+      projected: Math.round(Number(data.kits || 0) + add * yieldRate),
+      gain: Math.round(add * yieldRate)
+    }));
+  }
+
+  function recommendationRows(){
+    const minEl = minElement();
+    const altYield = Math.max(.18, forecastYield() * .36);
+    const rows = [
+      { name: data.bottleneck || 'Критичний елемент', value: `+${forecastYield().toFixed(2).replace('.', ',')} компл. / 1 од.` },
+      { name: minEl.name && minEl.name !== data.bottleneck ? minEl.name : 'Другий ресурс', value: `+${altYield.toFixed(2).replace('.', ',')} компл. / 1 од.` },
+      { name: 'Надлишковий елемент', value: '+0 компл. / 1 од.' }
+    ];
+    return rows;
+  }
+
+  function forecastCards(){
+    return forecastScenarios().map((item, idx) => `
+      <article class="command-forecast-card ${idx === 1 ? 'is-prime' : ''}">
+        <span class="command-forecast-card__label">+${item.add} ${escapeHtml(item.element)}</span>
+        <strong>${item.projected}</strong>
+        <small>комплектів · +${item.gain}</small>
+      </article>`).join('');
+  }
+
+  function impactRows(){
+    return recommendationRows().map(row => `
+      <div class="command-impact-row">
+        <span>${escapeHtml(row.name)}</span>
+        <strong>${escapeHtml(row.value)}</strong>
+      </div>`).join('');
+  }
+
   function recommendationsView(){
+    const scenarios = forecastScenarios();
+    const best = [...scenarios].sort((a,b)=>b.gain-a.gain)[0] || scenarios[0];
+    const top = maxUnit();
     const weak = minRemain();
-    const ready = readiness();
-    const priority = ready >= 75 ? 'Підтримувати поточний темп контролю та не допустити просідання критичного ресурсу.' : ready >= 55 ? 'Першочергово вирівняти залишки та перевірити ресурс, який обмежує формування комплектів.' : 'Негайно зосередити поповнення на критичному елементі та повторити розрахунок після оновлення даних.';
     content.innerHTML = `
-      <div class="command-recommendation-stack">
-        <article class="command-brief-card command-recommendation-card command-recommendation-card--main">
-          <h3>Пріоритет дій</h3>
-          <span class="command-big-number">${data.bottleneck}</span>
-          <p>${priority}</p>
-        </article>
-        <article class="command-brief-card command-recommendation-card">
-          <h3>Контроль залишків</h3>
-          <p>Найнижчий залишок: <strong>${weak.unit}</strong> — ${weak.total}. Доцільно перевірити фактичну наявність і підтвердити дані перед наступним циклом планування.</p>
-        </article>
-        <article class="command-brief-card command-recommendation-card">
-          <h3>Наступний крок</h3>
-          <ul>
-            <li>Оновити вихідні дані по підрозділах.</li>
-            <li>Повторити аналіз після коригування критичного ресурсу.</li>
-            <li>Після підтвердження — сформувати повний звіт або експорт.</li>
-          </ul>
-        </article>
+      <div class="command-reco-layout">
+        <section class="command-reco-hero">
+          <span class="command-reco-eyebrow">Прогноз поповнення</span>
+          <h2>${escapeHtml(data.bottleneck)}</h2>
+          <p>Поточний результат: <strong>${data.kits}</strong> комплектів. Найбільший прогнозований приріст дає поповнення обмежувального елемента.</p>
+          <div class="command-reco-best">
+            <span>Найкращий сценарій</span>
+            <strong>+${best.add}</strong>
+            <small>→ ${best.projected} комплектів · +${best.gain}</small>
+          </div>
+        </section>
+
+        <section class="command-forecast-grid" aria-label="Прогнозні сценарії">
+          ${forecastCards()}
+        </section>
+
+        <section class="command-impact-panel">
+          <div class="command-impact-title">Ефективність поповнення</div>
+          ${impactRows()}
+        </section>
+
+        <section class="command-reco-side">
+          <article>
+            <span>Отримувач приросту</span>
+            <strong>${escapeHtml(top.unit)}</strong>
+            <small>${top.total} комплектів зараз</small>
+          </article>
+          <article>
+            <span>Зона контролю</span>
+            <strong>${escapeHtml(weak.unit)}</strong>
+            <small>${weak.total} од. залишку</small>
+          </article>
+        </section>
       </div>`;
   }
+
 
   function reportView(){
     const totalUnits = data.allocations.length || data.remains.length || 0;
