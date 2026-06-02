@@ -41,6 +41,8 @@
   const data = readResult();
   const el = (id) => document.getElementById(id);
   const content = el('commandContent');
+  const pageTitle = document.querySelector('.command-hex-title h1');
+  const stage = document.querySelector('.command-hex-stage');
 
   function fmtRange(m){
     const n = Number(m || 0);
@@ -205,37 +207,39 @@
     const weak = minRemain();
     content.innerHTML = `
       <div class="command-reco-layout">
-        <section class="command-reco-hero">
-          <span class="command-reco-eyebrow">Прогноз поповнення</span>
-          <h2>${escapeHtml(data.bottleneck)}</h2>
-          <p>Поточний результат: <strong>${data.kits}</strong> комплектів. Найбільший прогнозований приріст дає поповнення обмежувального елемента.</p>
-          <div class="command-reco-best">
+        <section class="command-reco-left" aria-label="Ключова рекомендація">
+          <article class="command-reco-hero">
+            <span class="command-reco-eyebrow">Обмежувальний елемент</span>
+            <h2>${escapeHtml(data.bottleneck)}</h2>
+            <p>Поточний результат: <strong>${data.kits}</strong> комплектів.</p>
+          </article>
+          <article class="command-reco-best">
             <span>Найкращий сценарій</span>
             <strong>+${best.add}</strong>
-            <small>→ ${best.projected} комплектів · +${best.gain}</small>
-          </div>
-        </section>
-
-        <section class="command-forecast-grid" aria-label="Прогнозні сценарії">
-          ${forecastCards()}
-        </section>
-
-        <section class="command-impact-panel">
-          <div class="command-impact-title">Ефективність поповнення</div>
-          ${impactRows()}
-        </section>
-
-        <section class="command-reco-side">
-          <article>
-            <span>Отримувач приросту</span>
-            <strong>${escapeHtml(top.unit)}</strong>
-            <small>${top.total} комплектів зараз</small>
+            <small>→ ${best.projected} компл. · +${best.gain}</small>
           </article>
-          <article>
-            <span>Зона контролю</span>
-            <strong>${escapeHtml(weak.unit)}</strong>
-            <small>${weak.total} од. залишку</small>
-          </article>
+        </section>
+
+        <section class="command-reco-right" aria-label="Прогнозні показники">
+          <div class="command-forecast-grid">${forecastCards()}</div>
+
+          <section class="command-impact-panel">
+            <div class="command-impact-title">Ефективність поповнення</div>
+            ${impactRows()}
+          </section>
+
+          <section class="command-reco-side">
+            <article>
+              <span>Отримувач приросту</span>
+              <strong>${escapeHtml(top.unit)}</strong>
+              <small>${top.total} комплектів зараз</small>
+            </article>
+            <article>
+              <span>Зона контролю</span>
+              <strong>${escapeHtml(weak.unit)}</strong>
+              <small>${weak.total} од. залишку</small>
+            </article>
+          </section>
         </section>
       </div>`;
   }
@@ -257,6 +261,8 @@
 
   function setView(view){
     document.querySelectorAll('[data-command-view]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.commandView === view));
+    if (stage) stage.dataset.commandView = view;
+    if (pageTitle) pageTitle.textContent = view === 'recommendations' ? 'РЕКОМЕНДАЦІЇ' : view === 'report' ? 'ВЕСЬ ЗВІТ' : 'ВИСНОВКИ';
     if (view === 'report') reportView();
     else if (view === 'recommendations') recommendationsView();
     else conclusionsView();
