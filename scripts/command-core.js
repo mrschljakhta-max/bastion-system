@@ -310,6 +310,85 @@
       </div>`).join('');
   }
 
+
+  function chartRows(groups, valueKey = 'total'){
+    const source = (Array.isArray(groups) && groups.length ? groups : []).map(g => ({
+      label: g.unit || g.name || '—',
+      value: Number(g[valueKey] ?? g.total ?? g.qty ?? g.count ?? 0)
+    }));
+    const max = Math.max(1, ...source.map(x => x.value));
+    return source.map(row => {
+      const width = Math.max(4, Math.round((row.value / max) * 100));
+      return `<div class="command-chart-row">
+        <span class="command-chart-row__name">${safeText(row.label)}</span>
+        <div class="command-chart-row__track"><i style="width:${width}%"></i></div>
+        <strong>${row.value}</strong>
+      </div>`;
+    }).join('') || '<span class="command-mini-muted">немає даних</span>';
+  }
+
+  function forecastLineChart(){
+    const points = [{ label:'Поточний', value:Number(data.kits||0) }, ...forecastScenarios().map(x => ({ label:`+${x.add}`, value:x.projected }))];
+    const max = Math.max(...points.map(p=>p.value), 1);
+    const min = Math.min(...points.map(p=>p.value), 0);
+    const span = Math.max(1, max - min);
+    const coords = points.map((p, idx) => {
+      const x = 8 + idx * (84 / Math.max(1, points.length - 1));
+      const y = 86 - ((p.value - min) / span) * 68;
+      return { ...p, x, y };
+    });
+    const poly = coords.map(p => `${p.x},${p.y}`).join(' ');
+    return `<div class="command-line-chart">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M8 86 H96 M8 18 H96 M8 52 H96" class="grid"></path>
+        <polyline points="${poly}" class="line"></polyline>
+        ${coords.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="2.5" class="dot"></circle>`).join('')}
+      </svg>
+      <div class="command-line-chart__labels">${coords.map(p=>`<span>${safeText(p.label)}<b>${p.value}</b></span>`).join('')}</div>
+    </div>`;
+  }
+
+  function impactChartRows(){
+    const rows = recommendationRows().map(row => {
+      const number = Number(String(row.value).replace(',', '.').match(/[-+]?\d+(?:\.\d+)?/)?.[0] || 0);
+      return { name: row.name, value: number, label: row.value };
+    });
+    const max = Math.max(1, ...rows.map(r=>r.value));
+    return rows.map(row => {
+      const width = Math.max(3, Math.round((row.value / max) * 100));
+      return `<div class="command-chart-row command-chart-row--impact">
+        <span class="command-chart-row__name">${safeText(row.name)}</span>
+        <div class="command-chart-row__track"><i style="width:${width}%"></i></div>
+        <strong>${safeText(row.label)}</strong>
+      </div>`;
+    }).join('');
+  }
+
+  function reportCharts(){
+    return `
+      <section class="command-report-section command-report-section--charts">
+        <header><span>03</span><h3>Графіки та діаграми</h3></header>
+        <div class="command-report-chart-grid">
+          <article class="command-chart-card command-chart-card--wide">
+            <h4>Розподіл боєкомплектів</h4>
+            <div class="command-chart-bars">${chartRows(data.allocations || fallback.allocations)}</div>
+          </article>
+          <article class="command-chart-card command-chart-card--wide">
+            <h4>Залишки по підрозділах</h4>
+            <div class="command-chart-bars">${chartRows(data.remains || fallback.remains)}</div>
+          </article>
+          <article class="command-chart-card">
+            <h4>Прогноз приросту</h4>
+            ${forecastLineChart()}
+          </article>
+          <article class="command-chart-card">
+            <h4>Ефективність поповнення</h4>
+            <div class="command-chart-bars command-chart-bars--compact">${impactChartRows()}</div>
+          </article>
+        </div>
+      </section>`;
+  }
+
   function reportView(){
     const top = maxUnit();
     const weak = minRemain();
@@ -345,8 +424,10 @@
           </div>
         </section>
 
+        ${reportCharts()}
+
         <section class="command-report-section command-report-section--analysis">
-          <header><span>03</span><h3>Дані зі сторінки аналіз</h3></header>
+          <header><span>04</span><h3>Дані зі сторінки аналіз</h3></header>
           <div class="command-report-dual">
             <div>
               <h4>Розподіл боєкомплектів</h4>
@@ -360,7 +441,7 @@
         </section>
 
         <section class="command-report-section command-report-section--audit">
-          <header><span>04</span><h3>Службова інформація</h3></header>
+          <header><span>05</span><h3>Службова інформація</h3></header>
           <div class="command-report-audit-grid">
             <article><span>Дата формування</span><strong>${generated}</strong></article>
             <article><span>Джерело</span><strong>localStorage / analysis result</strong></article>
@@ -404,6 +485,12 @@
     lines.push('');
     lines.push('ЕФЕКТИВНІСТЬ ПОПОВНЕННЯ');
     recommendationRows().forEach(row => lines.push(`${row.name}: ${row.value}`));
+    lines.push('');
+    lines.push('ГРАФІКИ / ДІАГРАМИ');
+    lines.push('1. Розподіл боєкомплектів по підрозділах');
+    lines.push('2. Прогноз приросту від поповнення');
+    lines.push('3. Ефективність поповнення ресурсів');
+    lines.push('4. Залишки по підрозділах');
     lines.push('');
     lines.push('РОЗПОДІЛ БОЄКОМПЛЕКТІВ');
     (data.allocations || []).forEach(group => lines.push(`${group.unit}: ${group.total}`));

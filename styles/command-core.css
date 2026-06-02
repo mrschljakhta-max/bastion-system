@@ -1994,3 +1994,126 @@ html[data-theme="light"] .command-final-card small{
 @media (max-width: 900px){
   .command-report-kpis,.command-report-conclusion-grid,.command-report-scenario-grid,.command-report-audit-grid{grid-template-columns:1fr!important;}
 }
+
+/* v332 — full report charts and visual diagnostics */
+.command-report-section--charts{
+  overflow:hidden!important;
+}
+.command-report-chart-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.command-chart-card{
+  min-width:0!important;
+  border:1px solid rgba(255,45,54,.28)!important;
+  background:linear-gradient(135deg,rgba(24,10,12,.86),rgba(10,8,10,.88))!important;
+  padding:10px 12px!important;
+  min-height:150px!important;
+  clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px)!important;
+  box-shadow:inset 0 0 18px rgba(255,35,45,.09)!important;
+}
+.command-chart-card h4{
+  margin:0 0 10px!important;
+  color:#ff2833!important;
+  font:900 clamp(10px,.76vw,13px)/1 Orbitron,Rajdhani,Arial,sans-serif!important;
+  text-transform:uppercase!important;
+  letter-spacing:.13em!important;
+}
+.command-chart-bars{
+  display:grid!important;
+  gap:8px!important;
+}
+.command-chart-bars--compact{gap:10px!important;}
+.command-chart-row{
+  display:grid!important;
+  grid-template-columns:minmax(70px,.42fr) minmax(80px,1fr) minmax(46px,.28fr)!important;
+  align-items:center!important;
+  gap:8px!important;
+  min-width:0!important;
+}
+.command-chart-row__name{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:#fff!important;
+  font:900 clamp(10px,.75vw,13px)/1 Rajdhani,Arial,sans-serif!important;
+}
+.command-chart-row__track{
+  height:10px!important;
+  border:1px solid rgba(255,45,54,.28)!important;
+  background:rgba(50,8,12,.72)!important;
+  box-shadow:inset 0 0 10px rgba(0,0,0,.45)!important;
+  overflow:hidden!important;
+  clip-path:polygon(6px 0,100% 0,100% 100%,0 100%,0 6px)!important;
+}
+.command-chart-row__track i{
+  display:block!important;
+  height:100%!important;
+  background:linear-gradient(90deg,#7d0b14,#ff2732,#ff8288)!important;
+  box-shadow:0 0 13px rgba(255,35,45,.8)!important;
+}
+.command-chart-row strong{
+  text-align:right!important;
+  color:#fff!important;
+  font:900 clamp(10px,.75vw,13px)/1 Rajdhani,Arial,sans-serif!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.command-chart-row--impact{
+  grid-template-columns:minmax(92px,.42fr) minmax(90px,1fr) minmax(110px,.42fr)!important;
+}
+.command-line-chart{
+  position:relative!important;
+  min-height:120px!important;
+}
+.command-line-chart svg{
+  display:block!important;
+  width:100%!important;
+  height:96px!important;
+  overflow:visible!important;
+}
+.command-line-chart .grid{
+  stroke:rgba(255,45,54,.16)!important;
+  stroke-width:.7!important;
+  fill:none!important;
+}
+.command-line-chart .line{
+  fill:none!important;
+  stroke:#ff2732!important;
+  stroke-width:2.6!important;
+  filter:drop-shadow(0 0 5px rgba(255,35,45,.95))!important;
+}
+.command-line-chart .dot{
+  fill:#fff!important;
+  stroke:#ff2732!important;
+  stroke-width:1.4!important;
+  filter:drop-shadow(0 0 5px rgba(255,35,45,.85))!important;
+}
+.command-line-chart__labels{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:5px!important;
+  margin-top:5px!important;
+}
+.command-line-chart__labels span{
+  min-width:0!important;
+  color:rgba(255,255,255,.62)!important;
+  font:900 clamp(8px,.58vw,10px)/1 Rajdhani,Arial,sans-serif!important;
+  text-transform:uppercase!important;
+  text-align:center!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.command-line-chart__labels b{
+  display:block!important;
+  margin-top:3px!important;
+  color:#fff!important;
+  font-size:clamp(10px,.72vw,13px)!important;
+}
+@media (max-width:1320px){
+  .command-report-chart-grid{grid-template-columns:1fr!important;}
+  .command-chart-card{min-height:auto!important;}
+}
