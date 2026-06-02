@@ -1,4 +1,4 @@
-/* BASTION Profile Panel v209
+/* BASTION Profile Panel v352
    Opens profile command modal from the right HUD plate and performs logout.
    Fix: robust delegated click handler for HUD layers with pointer-events overrides.
 */
@@ -474,6 +474,7 @@
   }
 
   function openProfile(event) {
+    decorateProfileTooltipTargets(document);
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -673,6 +674,39 @@
   }
 
 
+
+  function decorateProfileTooltipTargets(rootNode = document) {
+    const scope = rootNode?.querySelectorAll ? rootNode : document;
+    const items = [
+      ["#userMenuButton", "Відкрити профіль користувача"],
+      [".b116-panel--right", "Профіль користувача"],
+      ["#profileModal .profile-close", "Закрити вікно профілю"],
+      ["#profileThemeSwitch", "Змінити тему інтерфейсу"],
+      ["#profileAvatarEditButton", "Змінити аватарку"],
+      ["#userAvatarModal", "Аватар користувача"],
+      ["#profileLoginValue", "Поточний логін"],
+      ["#profileLoginInlineToggle", "Редагувати логін"],
+      ["#profileModal .profile-login-card", "Логін користувача"],
+      ["#profileModal .profile-email-card", "Електронна пошта користувача"],
+      ["#profileEmail", "Електронна пошта користувача"],
+      ["#profileAccessCard", "Поточний рівень доступу"],
+      ["#profileAccessToggle", "Подати заявку на зміну рівня доступу"],
+      ["#profileRole", "Рівень доступу користувача"],
+      ["#logoutButton", "Вийти із сайту"],
+      ["#profileSubmitAccessButton", "Подати заявку"],
+      ["#profileAccessComment", "Коментар до заявки"],
+      ["#profileModal [data-profile-panel-close]", "Закрити панель"]
+    ];
+
+    items.forEach(([selector, label]) => {
+      scope.querySelectorAll?.(selector).forEach((element) => {
+        if (!element || element.dataset.bastionTooltip) return;
+        element.setAttribute("data-bastion-tooltip", label);
+        element.setAttribute("title", label);
+      });
+    });
+  }
+
   function initBastionFloatingTooltips() {
     const legacySelector = "[data-tooltip]";
     const selector = "[data-bastion-tooltip]";
@@ -706,13 +740,14 @@
       });
     }
 
+    decorateProfileTooltipTargets(document);
     normalizeTargets(document);
     ensureTooltip();
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
-          if (node?.nodeType === 1) normalizeTargets(node);
+          if (node?.nodeType === 1) { decorateProfileTooltipTargets(node); normalizeTargets(node); }
         });
         if (mutation.type === "attributes" && mutation.target?.nodeType === 1) {
           normalizeTargets(mutation.target.parentElement || document);

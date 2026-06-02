@@ -9611,14 +9611,6 @@ body.dict-modal-open > .b116-top-panels {
   pointer-events: none !important;
 }
 
-body.profile-modal-open > .bastion-floating-tooltip,
-body.dict-modal-open > .bastion-floating-tooltip {
-  filter: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  pointer-events: none !important;
-}
-
 body.profile-modal-open #profileModal,
 body.dict-modal-open .dict-modal.is-open {
   filter: none !important;
@@ -12366,12 +12358,6 @@ body.dict-modal-open .dict-modal.is-open {
   filter:blur(10px) brightness(1.08) saturate(.82) !important;
 }
 
-:root[data-theme="light"] body.profile-modal-open > .bastion-floating-tooltip{
-  filter:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-}
-
 :root[data-theme="light"] #profileModal.bastion-profile-modal > .profile-backdrop,
 :root[data-theme="light"] .profile-modal .profile-backdrop{
   background:
@@ -12721,7 +12707,7 @@ body > .bastion-floating-tooltip[data-theme="light"] {
 }
 
 
-/* v351 — tooltip must stay clear above profile-modal blur */
+/* v352 — tooltip must stay clear above profile-modal blur */
 body.profile-modal-open > .bastion-floating-tooltip,
 body.dict-modal-open > .bastion-floating-tooltip,
 html > body > .bastion-floating-tooltip {
