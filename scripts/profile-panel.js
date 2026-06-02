@@ -675,7 +675,7 @@
 
   function initBastionFloatingTooltips() {
     const selector = "[data-tooltip]";
-    let tooltip = document.querySelector(".bastion-floating-tooltip");
+    let tooltip = document.querySelector("body > .bastion-floating-tooltip");
     let activeTarget = null;
     let raf = 0;
 
@@ -686,6 +686,21 @@
       tooltip.setAttribute("aria-hidden", "true");
       document.body.appendChild(tooltip);
     }
+
+    function forcePortalStyle() {
+      tooltip.style.position = "fixed";
+      tooltip.style.zIndex = "2147483647";
+      tooltip.style.pointerEvents = "none";
+      tooltip.style.filter = "none";
+      tooltip.style.webkitFilter = "none";
+      tooltip.style.backdropFilter = "none";
+      tooltip.style.webkitBackdropFilter = "none";
+      tooltip.style.textShadow = "none";
+      tooltip.style.mixBlendMode = "normal";
+      tooltip.style.willChange = "transform, opacity";
+    }
+
+    forcePortalStyle();
 
     function getTarget(node) {
       return node?.closest?.(selector) || null;
@@ -707,14 +722,16 @@
       x = clamp(x, 10, window.innerWidth - tipRect.width - 10);
       y = clamp(y, 10, window.innerHeight - tipRect.height - 10);
 
-      tooltip.style.left = `${Math.round(x)}px`;
-      tooltip.style.top = `${Math.round(y)}px`;
+      tooltip.style.left = "0px";
+      tooltip.style.top = "0px";
+      tooltip.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`;
     }
 
     function show(target) {
       const text = target?.getAttribute("data-tooltip") || target?.getAttribute("aria-label") || "";
       if (!text.trim()) return;
       activeTarget = target;
+      forcePortalStyle();
       tooltip.textContent = text.trim();
       tooltip.dataset.theme = document.documentElement.getAttribute("data-theme") || document.body?.getAttribute("data-theme") || "dark";
       tooltip.setAttribute("aria-hidden", "false");
@@ -727,6 +744,7 @@
       activeTarget = null;
       tooltip.classList.remove("is-visible");
       tooltip.setAttribute("aria-hidden", "true");
+      tooltip.style.transform = "translate3d(-9999px, -9999px, 0)";
     }
 
     document.addEventListener("pointerover", (event) => {

@@ -12603,3 +12603,79 @@ body[data-theme="light"] .bastion-floating-tooltip,
   border-color: rgba(255, 34, 48, 0.9);
   box-shadow: 0 0 0 1px rgba(255,34,48,.08) inset, 0 0 24px rgba(255,0,20,.22), 0 14px 34px rgba(80,0,20,.16);
 }
+
+
+/* v349 — hard fix: tooltip portal must be crisp and never rendered by blurred pseudo-elements */
+[data-tooltip]::before,
+[data-tooltip]::after,
+#profileModal [data-tooltip]::before,
+#profileModal [data-tooltip]::after,
+#profileModal.bastion-profile-modal [data-tooltip]::before,
+#profileModal.bastion-profile-modal [data-tooltip]::after,
+.profile-avatar-edit[data-tooltip]::before,
+.profile-avatar-edit[data-tooltip]::after,
+.profile-power-button[data-tooltip]::before,
+.profile-power-button[data-tooltip]::after,
+.profile-action-icon[data-tooltip]::before,
+.profile-action-icon[data-tooltip]::after {
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+html body > .bastion-floating-tooltip {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  left: 0 !important;
+  top: 0 !important;
+  max-width: min(340px, calc(100vw - 28px)) !important;
+  padding: 10px 16px !important;
+  border: 1px solid rgba(255, 48, 62, 0.88) !important;
+  border-radius: 999px !important;
+  background: rgba(8, 10, 16, 0.985) !important;
+  color: #fff !important;
+  font-family: "Orbitron", "Rajdhani", Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translate3d(-9999px, -9999px, 0) !important;
+  transition: opacity .14s ease, visibility .14s ease !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset, 0 0 24px rgba(255,0,24,.35), 0 16px 36px rgba(0,0,0,.44) !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: none !important;
+  mix-blend-mode: normal !important;
+  isolation: isolate !important;
+  contain: layout style paint !important;
+}
+
+html body > .bastion-floating-tooltip.is-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+html body > .bastion-floating-tooltip::before,
+html body > .bastion-floating-tooltip::after {
+  content: none !important;
+  display: none !important;
+}
+
+:root[data-theme="light"] body > .bastion-floating-tooltip,
+body[data-theme="light"] > .bastion-floating-tooltip,
+body > .bastion-floating-tooltip[data-theme="light"] {
+  background: rgba(255,255,255,.99) !important;
+  color: #9d0013 !important;
+  border-color: rgba(255,34,48,.92) !important;
+  box-shadow: 0 0 0 1px rgba(255,34,48,.10) inset, 0 0 24px rgba(255,0,24,.22), 0 16px 36px rgba(80,0,20,.18) !important;
+}
