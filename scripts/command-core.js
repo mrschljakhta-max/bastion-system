@@ -641,7 +641,7 @@
       </section>`;
   }
 
-  function buildRichReportHtml({ forDocx = false } = {}){
+  function buildRichReportHtml({ forDocx = false, autoPrint = true } = {}){
     const top = maxUnit();
     const weak = minRemain();
     const minEl = minElement();
@@ -722,7 +722,7 @@
       <section class="report-section page-break"><h2>07. Деталі по елементах</h2><table class="report-table"><thead><tr><th>Елемент</th><th>Залишок</th><th>Статус</th></tr></thead><tbody>${tableRows(elements.map(r=>[r[0],r[1],`<b class="${r[2] === 'Критичний' ? 'bad' : ''}">${r[2]}</b>`]))}</tbody></table></section>
       <section class="report-section page-break"><h2>08. Сценарний аналіз</h2><table class="report-table"><thead><tr><th>Сценарій</th><th>Комплекти</th><th>Дальність</th><th>Коментар</th></tr></thead><tbody>${tableRows(forecasts.map(x=>[`+${x.add} ${safeText(x.element)}`, x.projected, fmtRange(data.bestRange), `Приріст +${x.gain}`]))}</tbody></table></section>
       <section class="report-section page-break"><h2>09. Службова інформація</h2><table class="report-table"><tbody>${tableRows([['Дата формування', escapeHtml(meta.generated)], ['Користувач', escapeHtml(meta.user)], ['Режим розрахунку', escapeHtml(meta.mode)], ['Версія алгоритму', escapeHtml(meta.version)], ['Джерело даних', 'localStorage / analysis result'], ['Формати експорту', 'PDF / DOCX']])}</tbody></table></section>
-      <script>${forDocx ? '' : 'window.onload=()=>setTimeout(()=>window.print(),350);'}<\/script>
+      <script>${(forDocx || !autoPrint) ? '' : 'window.onload=()=>setTimeout(()=>window.print(),350);'}<\/script>
     </body></html>`;
   }
 
@@ -736,15 +736,65 @@
     const html = buildRichReportHtml({ forDocx:true });
     downloadBlob('bastion-command-report.docx', html, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document;charset=utf-8');
   }
-  function exportPdf(){
-    const html = buildRichReportHtml({ forDocx:false });
-    const win = window.open('', '_blank');
-    if (win){
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
-    } else {
-      downloadBlob('bastion-command-report.pdf.html', html, 'text/html;charset=utf-8');
+  function loadExternalScript(src){
+    return new Promise((resolve, reject) => {
+      const exists = [...document.scripts].find(script => script.src === src);
+      if (exists){
+        if (window.html2pdf) resolve();
+        else exists.addEventListener('load', resolve, { once:true });
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function exportPdf(){
+    const html = buildRichReportHtml({ forDocx:false, autoPrint:false });
+
+    try {
+      if (!window.html2pdf){
+        await loadExternalScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js');
+      }
+
+      const frame = document.createElement('iframe');
+      frame.setAttribute('title', 'BASTION PDF export');
+      frame.style.position = 'fixed';
+      frame.style.left = '-12000px';
+      frame.style.top = '0';
+      frame.style.width = '794px';
+      frame.style.height = '1123px';
+      frame.style.opacity = '0';
+      frame.style.pointerEvents = 'none';
+      document.body.appendChild(frame);
+
+      const frameDoc = frame.contentDocument || frame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(html);
+      frameDoc.close();
+
+      await new Promise(resolve => setTimeout(resolve, 450));
+
+      await window.html2pdf()
+        .set({
+          margin: 0,
+          filename: 'bastion-command-report.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] }
+        })
+        .from(frameDoc.body)
+        .save();
+
+      setTimeout(() => frame.remove(), 600);
+    } catch (error) {
+      console.warn('[BASTION] PDF direct download failed, fallback HTML report saved.', error);
+      downloadBlob('bastion-command-report.html', html, 'text/html;charset=utf-8');
     }
   }
   function escapeHtml(str){ return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
