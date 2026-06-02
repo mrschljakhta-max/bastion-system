@@ -2364,3 +2364,30 @@ body[data-theme="light"] .command-report-row__head strong{
   color:var(--command-light-red)!important;
   text-shadow:0 0 10px rgba(224,0,19,.16)!important;
 }
+
+/* v340 — PATCH ONLY: recommendation efficiency block readability in light theme */
+:root[data-theme="light"] .command-impact-title,
+html[data-theme="light"] .command-impact-title,
+body[data-theme="light"] .command-impact-title{
+  color:#e00013!important;
+  text-shadow:0 0 10px rgba(224,0,19,.16)!important;
+}
+:root[data-theme="light"] .command-impact-row,
+html[data-theme="light"] .command-impact-row,
+body[data-theme="light"] .command-impact-row{
+  border-top-color:rgba(224,0,19,.24)!important;
+}
+:root[data-theme="light"] .command-impact-row span,
+html[data-theme="light"] .command-impact-row span,
+body[data-theme="light"] .command-impact-row span{
+  color:#39070d!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+:root[data-theme="light"] .command-impact-row strong,
+html[data-theme="light"] .command-impact-row strong,
+body[data-theme="light"] .command-impact-row strong{
+  color:#b90012!important;
+  opacity:1!important;
+  text-shadow:0 0 8px rgba(224,0,19,.12)!important;
+}
