@@ -564,88 +564,6 @@
     profileLoginValue.classList.remove("is-editing");
   }
 
-
-
-  function initFloatingTooltips() {
-    let tooltip = document.querySelector(".bastion-floating-tooltip");
-    if (!tooltip) {
-      tooltip = document.createElement("div");
-      tooltip.className = "bastion-floating-tooltip";
-      tooltip.setAttribute("role", "tooltip");
-      document.body.appendChild(tooltip);
-    }
-
-    let activeTarget = null;
-    let raf = 0;
-
-    function textFrom(target) {
-      return safeText(target?.getAttribute?.("data-tooltip") || target?.getAttribute?.("aria-label") || target?.getAttribute?.("title") || "");
-    }
-
-    function position(target) {
-      if (!target || !tooltip) return;
-      const rect = target.getBoundingClientRect();
-      const margin = 12;
-      const gap = 14;
-      const tipRect = tooltip.getBoundingClientRect();
-      let left = rect.left + rect.width / 2;
-      let top = rect.top - tipRect.height - gap;
-      let placement = "top";
-
-      if (top < margin) {
-        top = rect.bottom + gap;
-        placement = "bottom";
-      }
-
-      left = Math.max(margin + tipRect.width / 2, Math.min(window.innerWidth - margin - tipRect.width / 2, left));
-      top = Math.max(margin, Math.min(window.innerHeight - margin - tipRect.height, top));
-
-      tooltip.dataset.placement = placement;
-      tooltip.style.left = `${left}px`;
-      tooltip.style.top = `${top}px`;
-    }
-
-    function show(target) {
-      const text = textFrom(target);
-      if (!text) return;
-      activeTarget = target;
-      tooltip.textContent = text;
-      tooltip.classList.add("is-visible");
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => position(target));
-    }
-
-    function hide() {
-      activeTarget = null;
-      tooltip.classList.remove("is-visible");
-    }
-
-    document.addEventListener("pointerover", (event) => {
-      const target = event.target?.closest?.("#profileModal [data-tooltip], .bastion-profile-modal [data-tooltip]");
-      if (target) show(target);
-    }, true);
-
-    document.addEventListener("pointerout", (event) => {
-      const target = event.target?.closest?.("#profileModal [data-tooltip], .bastion-profile-modal [data-tooltip]");
-      if (!target) return;
-      if (event.relatedTarget && target.contains(event.relatedTarget)) return;
-      hide();
-    }, true);
-
-    document.addEventListener("focusin", (event) => {
-      const target = event.target?.closest?.("#profileModal [data-tooltip], .bastion-profile-modal [data-tooltip]");
-      if (target) show(target);
-    }, true);
-
-    document.addEventListener("focusout", (event) => {
-      const target = event.target?.closest?.("#profileModal [data-tooltip], .bastion-profile-modal [data-tooltip]");
-      if (target) hide();
-    }, true);
-
-    window.addEventListener("scroll", () => activeTarget ? position(activeTarget) : null, true);
-    window.addEventListener("resize", () => activeTarget ? position(activeTarget) : null, { passive: true });
-  }
-
   function bind() {
     if (!userMenuButton) {
       console.warn("[BASTION profile-panel] #userMenuButton not found");
@@ -754,10 +672,98 @@
     window.addEventListener("resize", fitProfileText, { passive: true });
   }
 
+
+  function initBastionFloatingTooltips() {
+    const selector = "[data-tooltip]";
+    let tooltip = document.querySelector(".bastion-floating-tooltip");
+    let activeTarget = null;
+    let raf = 0;
+
+    if (!tooltip) {
+      tooltip = document.createElement("div");
+      tooltip.className = "bastion-floating-tooltip";
+      tooltip.setAttribute("role", "tooltip");
+      tooltip.setAttribute("aria-hidden", "true");
+      document.body.appendChild(tooltip);
+    }
+
+    function getTarget(node) {
+      return node?.closest?.(selector) || null;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function place() {
+      if (!activeTarget || !tooltip.classList.contains("is-visible")) return;
+      const rect = activeTarget.getBoundingClientRect();
+      const tipRect = tooltip.getBoundingClientRect();
+      const gap = 14;
+      let x = rect.left + rect.width / 2 - tipRect.width / 2;
+      let y = rect.top - tipRect.height - gap;
+
+      if (y < 10) y = rect.bottom + gap;
+      x = clamp(x, 10, window.innerWidth - tipRect.width - 10);
+      y = clamp(y, 10, window.innerHeight - tipRect.height - 10);
+
+      tooltip.style.left = `${Math.round(x)}px`;
+      tooltip.style.top = `${Math.round(y)}px`;
+    }
+
+    function show(target) {
+      const text = target?.getAttribute("data-tooltip") || target?.getAttribute("aria-label") || "";
+      if (!text.trim()) return;
+      activeTarget = target;
+      tooltip.textContent = text.trim();
+      tooltip.dataset.theme = document.documentElement.getAttribute("data-theme") || document.body?.getAttribute("data-theme") || "dark";
+      tooltip.setAttribute("aria-hidden", "false");
+      tooltip.classList.add("is-visible");
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(place);
+    }
+
+    function hide() {
+      activeTarget = null;
+      tooltip.classList.remove("is-visible");
+      tooltip.setAttribute("aria-hidden", "true");
+    }
+
+    document.addEventListener("pointerover", (event) => {
+      const target = getTarget(event.target);
+      if (!target || target === activeTarget) return;
+      show(target);
+    }, true);
+
+    document.addEventListener("pointerout", (event) => {
+      if (!activeTarget) return;
+      const related = event.relatedTarget;
+      if (related && activeTarget.contains(related)) return;
+      const leaving = getTarget(event.target);
+      if (leaving === activeTarget) hide();
+    }, true);
+
+    document.addEventListener("focusin", (event) => {
+      const target = getTarget(event.target);
+      if (target) show(target);
+    }, true);
+
+    document.addEventListener("focusout", (event) => {
+      const target = getTarget(event.target);
+      if (target === activeTarget) hide();
+    }, true);
+
+    window.addEventListener("scroll", () => activeTarget ? place() : null, true);
+    window.addEventListener("resize", () => activeTarget ? place() : null, { passive: true });
+    window.addEventListener("bastion:theme-change", () => {
+      if (activeTarget) show(activeTarget);
+    });
+  }
+
   initThemeControls();
-  initFloatingTooltips();
   loadProfile();
   bind();
+  initBastionFloatingTooltips();
 
   window.BastionProfilePanel = {
     open: openProfile,
