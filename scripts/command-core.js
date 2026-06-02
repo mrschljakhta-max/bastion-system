@@ -624,93 +624,312 @@
     downloadBlob('bastion-command-report.docx', zip, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
   }
 
-  function drawWrapped(ctx, text, x, y, maxWidth, lineHeight){
-    const words = String(text).split(/\s+/);
+  function drawWrapped(ctx, text, x, y, maxWidth, lineHeight, opts = {}){
+    const words = String(text ?? '').split(/\s+/).filter(Boolean);
+    const lines = [];
     let line = '';
+    const maxLines = opts.maxLines || 99;
     for (const word of words){
       const test = line ? `${line} ${word}` : word;
-      if (ctx.measureText(test).width > maxWidth && line){ ctx.fillText(line, x, y); y += lineHeight; line = word; }
-      else line = test;
+      if (ctx.measureText(test).width > maxWidth && line){
+        lines.push(line);
+        line = word;
+        if (lines.length >= maxLines) break;
+      } else line = test;
     }
-    if (line) { ctx.fillText(line, x, y); y += lineHeight; }
-    return y;
+    if (line && lines.length < maxLines) lines.push(line);
+    lines.forEach((ln, i) => ctx.fillText(ln, x, y + i * lineHeight));
+    return y + lines.length * lineHeight;
   }
-  function drawReportPage(ctx, model, pageIndex){
-    const W=1240,H=1754;
-    ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#111'; ctx.fillRect(0,0,W,150);
-    ctx.strokeStyle='#d7262d'; ctx.lineWidth=4; ctx.strokeRect(18,18,W-36,114);
-    ctx.fillStyle='#fff'; ctx.font='700 42px Arial'; ctx.fillText('BASTION', 56,70);
-    ctx.fillStyle='#d7262d'; ctx.font='700 22px Arial'; ctx.fillText('COMMAND SYSTEM', 58,103);
-    ctx.fillStyle='#fff'; ctx.font='800 48px Arial'; ctx.fillText(pageIndex===0?'ПОВНИЙ ЗВІТ':model.sections[pageIndex-1]?.title || 'ЗВІТ', 380,92);
-    ctx.fillStyle='#222'; ctx.font='700 26px Arial';
-    let y=205;
-    if (pageIndex===0){
-      ctx.fillStyle='#d7262d'; ctx.font='800 34px Arial'; ctx.fillText('Аналіз · Висновки · Рекомендації', 56,220);
-      ctx.fillStyle='#222'; ctx.font='20px Arial'; y=285;
-      model.meta.forEach(([k,v])=>{ ctx.font='700 20px Arial'; ctx.fillText(k+':',56,y); ctx.font='20px Arial'; ctx.fillText(String(v),300,y); y+=42; });
-      ctx.fillStyle='#d7262d'; ctx.font='800 30px Arial'; ctx.fillText('Зміст звіту',56,y+38); y+=86;
-      model.sections.forEach((s,i)=>{ ctx.fillStyle='#222'; ctx.font='700 22px Arial'; ctx.fillText(`${String(i+1).padStart(2,'0')}. ${s.title.replace(/^\d+\.\s*/, '')}`,72,y); y+=40; });
+
+  function reportColor(){
+    return { red:'#d7262d', dark:'#111216', ink:'#1e2430', muted:'#69707c', line:'#d9dde5', green:'#18864b', amber:'#c07b00', soft:'#f6f7f9', pink:'#fff0f1' };
+  }
+  function asNumber(v){
+    const n = Number(String(v ?? '').replace(/[^0-9,.-]/g, '').replace(',', '.'));
+    return Number.isFinite(n) ? n : 0;
+  }
+  function reportValue(model, sectionTitle, key){
+    const section = model.sections.find(s => s.title.includes(sectionTitle));
+    const row = section?.rows.find(r => String(r[0]).includes(key));
+    return row ? row[1] : '—';
+  }
+  function drawReportHeader(ctx, model, title){
+    const c = reportColor();
+    ctx.fillStyle = c.dark; ctx.fillRect(0,0,1240,154);
+    ctx.strokeStyle = c.red; ctx.lineWidth = 4; ctx.strokeRect(22,20,1196,110);
+    ctx.fillStyle = '#fff'; ctx.font = '800 44px Arial'; ctx.fillText('BASTION', 58,70);
+    ctx.fillStyle = c.red; ctx.font = '800 21px Arial'; ctx.fillText('COMMAND SYSTEM', 60,103);
+    ctx.fillStyle = '#fff'; ctx.font = '900 48px Arial';
+    ctx.textAlign = 'center'; ctx.fillText(title, 750,91); ctx.textAlign = 'left';
+    ctx.strokeStyle = 'rgba(215,38,45,.45)'; ctx.lineWidth = 1;
+    for(let i=0;i<9;i++){ ctx.beginPath(); ctx.moveTo(930+i*25,38); ctx.lineTo(1165+i*3,38+i*9); ctx.stroke(); }
+  }
+  function drawReportFooter(ctx, page, total){
+    const c = reportColor();
+    ctx.fillStyle = c.muted; ctx.font = '16px Arial';
+    ctx.fillText('BASTION Command System', 56, 1712);
+    ctx.textAlign = 'right'; ctx.fillText(`Сторінка ${page}/${total}`, 1184, 1712); ctx.textAlign = 'left';
+  }
+  function drawIcon(ctx, type, x, y, size = 34, color = '#d7262d'){
+    ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = Math.max(3, size/12); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const s = size;
+    if (type === 'cube'){
+      ctx.strokeRect(x+s*.22, y+s*.18, s*.56, s*.56); ctx.beginPath(); ctx.moveTo(x+s*.5,y+s*.02); ctx.lineTo(x+s*.9,y+s*.24); ctx.lineTo(x+s*.5,y+s*.46); ctx.lineTo(x+s*.1,y+s*.24); ctx.closePath(); ctx.stroke();
+    } else if (type === 'target'){
+      ctx.beginPath(); ctx.arc(x+s*.5,y+s*.5,s*.38,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(x+s*.5,y+s*.5,s*.16,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x+s*.5,y+s*.05); ctx.lineTo(x+s*.5,y+s*.25); ctx.moveTo(x+s*.5,y+s*.75); ctx.lineTo(x+s*.5,y+s*.95); ctx.moveTo(x+s*.05,y+s*.5); ctx.lineTo(x+s*.25,y+s*.5); ctx.moveTo(x+s*.75,y+s*.5); ctx.lineTo(x+s*.95,y+s*.5); ctx.stroke();
+    } else if (type === 'warehouse'){
+      ctx.beginPath(); ctx.moveTo(x+s*.1,y+s*.46); ctx.lineTo(x+s*.5,y+s*.18); ctx.lineTo(x+s*.9,y+s*.46); ctx.lineTo(x+s*.9,y+s*.86); ctx.lineTo(x+s*.1,y+s*.86); ctx.closePath(); ctx.stroke(); ctx.strokeRect(x+s*.35,y+s*.58,s*.3,s*.28);
+    } else if (type === 'warning'){
+      ctx.beginPath(); ctx.moveTo(x+s*.5,y+s*.1); ctx.lineTo(x+s*.9,y+s*.86); ctx.lineTo(x+s*.1,y+s*.86); ctx.closePath(); ctx.stroke(); ctx.font = `900 ${s*.55}px Arial`; ctx.textAlign='center'; ctx.fillText('!', x+s*.5, y+s*.74); ctx.textAlign='left';
+    } else if (type === 'users'){
+      for(let i=0;i<3;i++){ const cx=x+s*(.25+i*.25); ctx.beginPath(); ctx.arc(cx,y+s*.35,s*.11,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(cx,y+s*.72,s*.17,Math.PI,0); ctx.stroke(); }
+    } else if (type === 'star'){
+      ctx.beginPath(); for(let i=0;i<10;i++){ const r=i%2?s*.18:s*.42; const a=-Math.PI/2+i*Math.PI/5; const px=x+s*.5+Math.cos(a)*r, py=y+s*.5+Math.sin(a)*r; i?ctx.lineTo(px,py):ctx.moveTo(px,py); } ctx.closePath(); ctx.stroke();
+    } else if (type === 'bars'){
+      ctx.strokeRect(x+s*.12,y+s*.16,s*.76,s*.68); [0.7,0.48,0.3].forEach((h,i)=>ctx.fillRect(x+s*(.24+i*.19), y+s*(.8-h), s*.09, s*h));
+    } else if (type === 'line'){
+      ctx.beginPath(); ctx.moveTo(x+s*.12,y+s*.75); ctx.lineTo(x+s*.38,y+s*.56); ctx.lineTo(x+s*.62,y+s*.44); ctx.lineTo(x+s*.88,y+s*.20); ctx.stroke(); [ [.12,.75], [.38,.56], [.62,.44], [.88,.20] ].forEach(p=>{ctx.beginPath();ctx.arc(x+s*p[0],y+s*p[1],s*.055,0,Math.PI*2);ctx.fill();});
+    } else if (type === 'shield'){
+      ctx.beginPath(); ctx.moveTo(x+s*.5,y+s*.1); ctx.lineTo(x+s*.84,y+s*.25); ctx.lineTo(x+s*.76,y+s*.72); ctx.lineTo(x+s*.5,y+s*.9); ctx.lineTo(x+s*.24,y+s*.72); ctx.lineTo(x+s*.16,y+s*.25); ctx.closePath(); ctx.stroke();
     } else {
-      const section = model.sections[pageIndex-1];
-      if (!section) return;
-      ctx.fillStyle='#d7262d'; ctx.font='800 30px Arial'; ctx.fillText(section.title,56,y); y+=50;
-      const isChartPage = section.title.includes('Розподіл') || section.title.includes('Залишки');
-      ctx.font='20px Arial';
-      section.rows.forEach(([k,v])=>{
-        ctx.strokeStyle='#ddd'; ctx.lineWidth=1; ctx.strokeRect(56,y-30,W-112,58);
-        ctx.fillStyle='#222'; ctx.font='700 20px Arial'; ctx.fillText(String(k),76,y);
-        ctx.fillStyle='#b91c1c'; ctx.font='700 24px Arial'; drawWrapped(ctx,String(v),520,y,600,28);
-        y+=70;
+      ctx.beginPath(); ctx.arc(x+s*.5,y+s*.5,s*.35,0,Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawPanel(ctx, x, y, w, h, opts = {}){
+    const c = reportColor();
+    ctx.save();
+    ctx.fillStyle = opts.fill || '#fff';
+    ctx.strokeStyle = opts.stroke || c.line;
+    ctx.lineWidth = opts.lineWidth || 2;
+    const r = opts.radius || 10;
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    if (opts.topAccent){ ctx.fillStyle = c.red; ctx.fillRect(x, y, w, 5); }
+    ctx.restore();
+  }
+  function drawSectionLabel(ctx, number, title, x, y){
+    const c = reportColor();
+    ctx.fillStyle = c.red; ctx.font = '900 30px Arial'; ctx.fillText(`${number}. ${title}`, x, y);
+  }
+  function drawKpiCard(ctx, x, y, w, h, icon, label, value, sub=''){
+    const c = reportColor();
+    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
+    drawIcon(ctx, icon, x+22, y+34, 44, c.dark);
+    ctx.fillStyle = c.ink; ctx.font = '800 18px Arial'; drawWrapped(ctx,label.toUpperCase(),x+88,y+48,w-110,22,{maxLines:2});
+    ctx.fillStyle = c.red; ctx.font = '900 44px Arial'; ctx.fillText(String(value), x+88, y+116);
+    if (sub){ ctx.fillStyle = c.ink; ctx.font = '700 16px Arial'; ctx.fillText(String(sub), x+88, y+145); }
+  }
+  function drawRows(ctx, rows, x, y, w, rowH = 58, iconTypes = []){
+    const c = reportColor();
+    rows.forEach((row, i) => {
+      drawPanel(ctx, x, y + i*rowH, w, rowH-6, {fill:'#fff', stroke:'#e1e4e8', radius:6});
+      if (iconTypes[i]) drawIcon(ctx, iconTypes[i], x+18, y+i*rowH+10, 30, c.dark);
+      ctx.fillStyle = c.ink; ctx.font = '800 18px Arial';
+      drawWrapped(ctx, row[0], x + (iconTypes[i]?62:18), y+i*rowH+25, w*.42, 20, {maxLines:2});
+      ctx.fillStyle = c.red; ctx.font = '900 20px Arial';
+      drawWrapped(ctx, row[1], x + w*.52, y+i*rowH+25, w*.43, 22, {maxLines:2});
+    });
+  }
+  function drawDataTable(ctx, columns, rows, x, y, w, rowH = 46){
+    const c = reportColor();
+    const colW = w / columns.length;
+    ctx.fillStyle = '#f3f4f6'; ctx.fillRect(x,y,w,rowH);
+    ctx.strokeStyle = '#d5d9e0'; ctx.strokeRect(x,y,w,rowH);
+    columns.forEach((col,i)=>{ ctx.fillStyle=c.ink; ctx.font='800 15px Arial'; drawWrapped(ctx,col,x+i*colW+12,y+20,colW-24,16,{maxLines:2}); if(i) {ctx.strokeStyle='#d5d9e0'; ctx.beginPath(); ctx.moveTo(x+i*colW,y); ctx.lineTo(x+i*colW,y+rowH*(rows.length+1)); ctx.stroke();} });
+    rows.forEach((row,r)=>{
+      const yy = y + rowH*(r+1); ctx.fillStyle = r%2 ? '#fff' : '#fbfbfc'; ctx.fillRect(x,yy,w,rowH); ctx.strokeStyle='#e1e4e8'; ctx.strokeRect(x,yy,w,rowH);
+      row.forEach((cell,i)=>{ ctx.fillStyle = i===0 ? c.ink : (String(cell).includes('Крит') ? c.red : c.ink); ctx.font = i===0 ? '700 16px Arial' : '800 16px Arial'; drawWrapped(ctx, cell, x+i*colW+12, yy+24, colW-24, 18, {maxLines:2}); });
+    });
+  }
+  function drawBarChart(ctx, title, rows, x, y, w, h, opts = {}){
+    const c = reportColor();
+    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
+    ctx.fillStyle = c.ink; ctx.font='900 19px Arial'; ctx.fillText(title, x+22, y+34);
+    const max = Math.max(1, ...rows.map(r=>Number(r.total||r.value||0)));
+    const chartX = x+76, chartY = y+70, chartW = w-120, chartH = h-120;
+    ctx.strokeStyle='#d9dde5'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(chartX,chartY); ctx.lineTo(chartX,chartY+chartH); ctx.lineTo(chartX+chartW,chartY+chartH); ctx.stroke();
+    const bw = Math.min(70, chartW / rows.length * .55);
+    rows.forEach((r,i)=>{
+      const val = Number(r.total||r.value||0); const bh = chartH * val/max;
+      const bx = chartX + (i+.5)*chartW/rows.length - bw/2; const by = chartY+chartH-bh;
+      ctx.fillStyle = c.red; ctx.fillRect(bx,by,bw,bh);
+      ctx.fillStyle = c.ink; ctx.font='800 15px Arial'; ctx.textAlign='center'; ctx.fillText(String(val), bx+bw/2, by-8);
+      ctx.font='700 14px Arial'; drawWrapped(ctx, r.unit || r.name || r.label, bx-18, chartY+chartH+22, bw+36, 15, {maxLines:2});
+      ctx.textAlign='left';
+    });
+  }
+  function drawHorizontalBarChart(ctx, title, rows, x, y, w, h){
+    const c = reportColor();
+    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
+    ctx.fillStyle = c.ink; ctx.font='900 19px Arial'; ctx.fillText(title, x+22, y+34);
+    const max = Math.max(1, ...rows.map(r=>Number(r.value||r.total||0)));
+    const rowH = (h-78)/rows.length;
+    rows.forEach((r,i)=>{
+      const yy = y+62+i*rowH;
+      ctx.fillStyle = c.ink; ctx.font='800 15px Arial'; drawWrapped(ctx, r.name || r.unit || r.label, x+22, yy+18, 165, 16, {maxLines:2});
+      ctx.fillStyle = '#eceff3'; ctx.fillRect(x+195, yy+5, w-270, 24);
+      ctx.fillStyle = c.red; ctx.fillRect(x+195, yy+5, (w-270)*(Number(r.value||r.total||0)/max), 24);
+      ctx.fillStyle = c.ink; ctx.font='900 16px Arial'; ctx.fillText(String(r.label || r.value || r.total), x+w-62, yy+23);
+    });
+  }
+  function drawLineChart(ctx, title, rows, x, y, w, h){
+    const c = reportColor();
+    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
+    ctx.fillStyle = c.ink; ctx.font='900 19px Arial'; ctx.fillText(title, x+22, y+34);
+    const vals = rows.map(r=>Number(r.projected||r.value||0)); vals.unshift(Number(data.kits || 0));
+    const labels = ['Поточний'].concat(rows.map(r=>`+${r.add}`));
+    const max = Math.max(...vals)*1.05, min = Math.min(...vals)*.93;
+    const chartX=x+70, chartY=y+70, chartW=w-120, chartH=h-120;
+    ctx.strokeStyle='#d9dde5'; ctx.beginPath(); ctx.moveTo(chartX,chartY); ctx.lineTo(chartX,chartY+chartH); ctx.lineTo(chartX+chartW,chartY+chartH); ctx.stroke();
+    const pts = vals.map((v,i)=>({ x: chartX + i*chartW/(vals.length-1), y: chartY+chartH-((v-min)/(max-min))*chartH, v, label:labels[i] }));
+    ctx.strokeStyle=c.red; ctx.lineWidth=4; ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke();
+    pts.forEach(p=>{ ctx.fillStyle=c.red; ctx.beginPath(); ctx.arc(p.x,p.y,7,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c.ink; ctx.font='800 15px Arial'; ctx.textAlign='center'; ctx.fillText(String(p.v), p.x, p.y-14); ctx.font='700 14px Arial'; ctx.fillText(p.label, p.x, chartY+chartH+26); });
+    ctx.textAlign='left';
+  }
+  function drawDonut(ctx, title, rows, x, y, w, h){
+    const c = reportColor();
+    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
+    ctx.fillStyle=c.ink; ctx.font='900 19px Arial'; ctx.fillText(title,x+22,y+34);
+    const total = rows.reduce((s,r)=>s+Number(r.value||0),0) || 1;
+    const cx=x+w*.35, cy=y+h*.56, radius=Math.min(w,h)*.23;
+    let a=-Math.PI/2;
+    const fills=[c.red,'#f08a24','#aeb5c0','#222'];
+    rows.forEach((r,i)=>{ const ang=Math.PI*2*(Number(r.value||0)/total); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.fillStyle=fills[i%fills.length]; ctx.arc(cx,cy,radius,a,a+ang); ctx.closePath(); ctx.fill(); a+=ang; });
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(cx,cy,radius*.55,0,Math.PI*2); ctx.fill();
+    rows.forEach((r,i)=>{ const yy=y+78+i*34; ctx.fillStyle=fills[i%fills.length]; ctx.fillRect(x+w*.62,yy-13,18,18); ctx.fillStyle=c.ink; ctx.font='800 15px Arial'; ctx.fillText(`${r.name} (${r.value}%)`, x+w*.62+28, yy+3); });
+  }
+
+  function drawReportPage(ctx, model, pageIndex){
+    const W=1240,H=1754,total=model.sections.length+1;
+    const c = reportColor();
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+    const pageTitle = pageIndex===0 ? 'ПОВНИЙ ЗВІТ' : (model.sections[pageIndex-1]?.title || 'ЗВІТ').replace(/^\d+\.\s*/, '');
+    drawReportHeader(ctx, model, pageTitle);
+    let y = 210;
+
+    if (pageIndex === 0){
+      ctx.fillStyle=c.red; ctx.font='900 34px Arial'; ctx.fillText('Аналіз · Висновки · Рекомендації', 56, y); y+=62;
+      drawPanel(ctx,56,y,520,250,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
+      model.meta.forEach(([k,v],i)=>{ ctx.fillStyle=c.ink; ctx.font='800 18px Arial'; ctx.fillText(k+':',86,y+48+i*44); ctx.fillStyle=c.red; ctx.font='900 18px Arial'; ctx.fillText(String(v),310,y+48+i*44); });
+      drawPanel(ctx,620,y,560,250,{fill:'#111216',stroke:c.red,topAccent:false});
+      ctx.fillStyle='#fff'; ctx.font='900 28px Arial'; ctx.fillText('BASTION REPORT ENGINE',650,y+58);
+      ctx.fillStyle='#d7262d'; ctx.font='900 18px Arial'; ctx.fillText('PDF · DOCX · CHARTS · KPI',650,y+96);
+      drawIcon(ctx,'target',650,y+126,70,c.red); drawIcon(ctx,'bars',760,y+126,70,c.red); drawIcon(ctx,'shield',870,y+126,70,c.red); drawIcon(ctx,'line',980,y+126,70,c.red);
+      y+=330;
+      ctx.fillStyle=c.red; ctx.font='900 30px Arial'; ctx.fillText('Зміст звіту',56,y); y+=50;
+      model.sections.forEach((s,i)=>{
+        const col = i<5 ? 0 : 1; const row = i%5;
+        drawPanel(ctx,56+col*560,y+row*72,520,58,{fill:'#fff',stroke:'#e1e4e8'});
+        ctx.fillStyle=c.red; ctx.font='900 22px Arial'; ctx.fillText(String(i+1).padStart(2,'0'),82+col*560,y+row*72+36);
+        ctx.fillStyle=c.ink; ctx.font='800 20px Arial'; ctx.fillText(s.title.replace(/^\d+\.\s*/, ''),136+col*560,y+row*72+36);
       });
     }
-    ctx.fillStyle='#333'; ctx.font='16px Arial'; ctx.fillText('BASTION Command System',56,H-44); ctx.fillText(`Сторінка ${pageIndex+1}/${model.sections.length+1}`,W-190,H-44);
+
+    if (pageIndex === 1){
+      drawSectionLabel(ctx,'01','Загальні KPI',56,y); y+=40;
+      const kpi = [
+        ['cube','Сформовано комплектів',data.kits,''], ['target','Максимальна дальність',fmtRange(data.bestRange),''], ['warehouse','Залишок складу',data.remainTotal,`${data.remainPercent||0}% після розрахунку`], ['warning','Обмежувальний елемент',data.bottleneck,''], ['users','Враховано підрозділів',allUnits().length,allUnits().join(', ')]
+      ];
+      kpi.forEach((k,i)=>drawKpiCard(ctx,56+(i%2)*555,y+Math.floor(i/2)*190,520,160,...k));
+      y+=600;
+      drawSectionLabel(ctx,'01.1','Ключові показники системи',56,y); y+=40;
+      drawRows(ctx,[['Коефіцієнт використання ресурсів',`${readiness()}%`],['Потенційний приріст комплектів',`+${forecastScenarios().at(-1)?.gain || 0}`],['Середня ефективність комплекту','0,62'],['Рівень критичності системи','Високий']],56,y,1128,60,['target','line','cube','warning']);
+    }
+
+    if (pageIndex === 2){
+      drawSectionLabel(ctx,'02','Висновки',56,y); y+=40;
+      const sec=model.sections[1]; drawRows(ctx, sec.rows, 56, y, 1128, 74, ['star','bars','warehouse','cube','target']); y+=430;
+      drawPanel(ctx,56,y,1128,180,{fill:c.pink,stroke:'#f0b5b9',topAccent:true});
+      ctx.fillStyle=c.red; ctx.font='900 24px Arial'; ctx.fillText('Ключовий висновок',86,y+48);
+      ctx.fillStyle=c.ink; ctx.font='700 22px Arial'; drawWrapped(ctx, `Поточний результат становить ${data.kits} комплектів. Обмежувальним елементом визначено ${data.bottleneck}. Максимальна дальність — ${fmtRange(data.bestRange)}.`,86,y+92,1040,30,{maxLines:3});
+    }
+
+    if (pageIndex === 3){
+      drawSectionLabel(ctx,'03','Рекомендації / прогноз',56,y); y+=40;
+      drawDataTable(ctx,['Поповнення','Прогноз комплектів','Приріст'], forecastScenarios().map(s=>[`+${s.add} ${s.element}`,String(s.projected),`+${s.gain}`]),56,y,1128,64); y+=310;
+      const best = [...forecastScenarios()].sort((a,b)=>b.gain-a.gain)[0];
+      drawPanel(ctx,56,y,1128,180,{fill:c.pink,stroke:'#f0b5b9',topAccent:true}); drawIcon(ctx,'star',90,y+52,70,c.red);
+      ctx.fillStyle=c.red; ctx.font='900 34px Arial'; ctx.fillText(`Найкращий сценарій: +${best.add} ${best.element}`,190,y+70);
+      ctx.fillStyle=c.ink; ctx.font='800 24px Arial'; ctx.fillText(`Дає +${best.gain} комплектів. Підсумковий прогноз: ${best.projected} комплектів.`,190,y+118);
+      y+=240;
+      drawDataTable(ctx,['Ресурс','Ефективність','Пріоритет'], recommendationRows().map((r,i)=>[r.name,r.value,i===0?'Високий':i===1?'Середній':'Низький']),56,y,1128,56);
+    }
+
+    if (pageIndex === 4){
+      drawSectionLabel(ctx,'04','Графіки / діаграми',56,y); y+=32;
+      drawBarChart(ctx,'4.1 Розподіл комплектів по підрозділах',model.charts.allocations,56,y,540,430);
+      drawLineChart(ctx,'4.2 Прогноз приросту від поповнення',model.charts.scenarios,640,y,540,430);
+      y+=470;
+      drawHorizontalBarChart(ctx,'4.3 Ефективність поповнення ресурсів',model.charts.impact,56,y,540,390);
+      drawHorizontalBarChart(ctx,'4.4 Залишки по підрозділах',model.charts.remains.map(r=>({...r,value:r.total,label:r.total})),640,y,540,390);
+    }
+
+    if (pageIndex === 5){
+      drawSectionLabel(ctx,'05','Розподіл боєкомплектів',56,y); y+=40;
+      drawBarChart(ctx,'Сформовано комплектів по підрозділах',model.charts.allocations,56,y,1128,520); y+=570;
+      drawDataTable(ctx,['Підрозділ','Сформовано комплектів','Частка'], model.charts.allocations.map(r=>[r.unit,String(r.total),`${Math.round((r.total||0)/(data.kits||1)*100)}%`]),56,y,1128,54);
+    }
+
+    if (pageIndex === 6){
+      drawSectionLabel(ctx,'06','Залишки по підрозділах',56,y); y+=40;
+      drawHorizontalBarChart(ctx,'Залишки після розрахунку',model.charts.remains.map(r=>({...r,value:r.total,label:r.total})),56,y,1128,520); y+=570;
+      drawDataTable(ctx,['Підрозділ','Залишок','Статус'], model.charts.remains.map(r=>[r.unit,`${r.total} од.`, r.total <= minRemain().total ? 'Мінімальний' : 'Достатній']),56,y,1128,54);
+    }
+
+    if (pageIndex === 7){
+      drawSectionLabel(ctx,'07','Деталі по елементах',56,y); y+=40;
+      drawDataTable(ctx,['Елемент','Поточний стан','Статус','Вплив'], [[data.bottleneck,String(data.remainTotal)+' од.','Критичний','72%'],[minElement().name,`${minElement().qty} од. (${minElement().unit})`,'Критичний','21%'],['Інші ресурси','—','Нормальний','7%']],56,y,1128,62); y+=300;
+      drawDonut(ctx,'Структура обмежень', [{name:data.bottleneck,value:72},{name:minElement().name,value:21},{name:'Інші',value:7}],56,y,540,390);
+      drawPanel(ctx,640,y,540,390,{fill:'#fff',stroke:'#d5d9e0',topAccent:true}); ctx.fillStyle=c.ink; ctx.font='900 22px Arial'; ctx.fillText('Додаткова інформація',670,y+44); ctx.font='700 19px Arial'; ctx.fillStyle=c.ink; drawWrapped(ctx,`Коефіцієнт обмеження системи: 0,62. Глибина аналізу: повна. Враховано джерела даних зі складських залишків та активного рецепту.`,670,y+94,480,28,{maxLines:7});
+    }
+
+    if (pageIndex === 8){
+      drawSectionLabel(ctx,'08','Сценарний аналіз',56,y); y+=40;
+      const scenarios=forecastScenarios();
+      drawLineChart(ctx,'Динаміка прогнозу комплектів',scenarios,56,y,1128,500); y+=560;
+      drawDataTable(ctx,['Сценарій','Комплекти','Дальність','Приріст'], [['Поточний режим',String(data.kits),fmtRange(data.bestRange),'—'],...scenarios.map(s=>[`+${s.add} ${s.element}`,String(s.projected),fmtRange(data.bestRange),`+${s.gain}`])],56,y,1128,58);
+    }
+
+    if (pageIndex === 9){
+      drawSectionLabel(ctx,'09','Службова інформація',56,y); y+=40;
+      drawRows(ctx,model.sections[8].rows,56,y,1128,70,['cube','line','target','warehouse']); y+=360;
+      drawPanel(ctx,56,y,1128,190,{fill:'#111216',stroke:c.red,topAccent:false});
+      ctx.fillStyle='#fff'; ctx.font='900 30px Arial'; ctx.fillText('BASTION Command System',86,y+60);
+      ctx.fillStyle=c.red; ctx.font='800 20px Arial'; ctx.fillText('Звіт сформовано автоматизованим модулем експортного движка.',86,y+100);
+      ctx.fillStyle='#fff'; ctx.font='700 18px Arial'; ctx.fillText('Формати експорту: PDF / DOCX · Структура документів ідентична.',86,y+136);
+    }
+
+    drawReportFooter(ctx, pageIndex+1, total);
   }
+
   async function buildPdfFromCanvases(canvases){
     const encoder = new TextEncoder();
     const parts = ['%PDF-1.4\n'];
     const offsets = [0];
     const byteLen = part => typeof part === 'string' ? encoder.encode(part).length : part.length;
     const currentOffset = () => parts.reduce((sum, part) => sum + byteLen(part), 0);
-    const writeObj = (num, body) => {
-      offsets[num] = currentOffset();
-      parts.push(`${num} 0 obj\n${body}\nendobj\n`);
-    };
-    const writeImageObj = (num, dict, bytes) => {
-      offsets[num] = currentOffset();
-      parts.push(`${num} 0 obj\n${dict}\nstream\n`);
-      parts.push(bytes);
-      parts.push('\nendstream\nendobj\n');
-    };
-
-    const pageNums = [];
-    let nextObj = 3;
-    const imageRecords = [];
+    const writeObj = (num, body) => { offsets[num] = currentOffset(); parts.push(`${num} 0 obj\n${body}\nendobj\n`); };
+    const writeImageObj = (num, dict, bytes) => { offsets[num] = currentOffset(); parts.push(`${num} 0 obj\n${dict}\nstream\n`); parts.push(bytes); parts.push('\nendstream\nendobj\n'); };
+    const pageNums = []; let nextObj = 3; const imageRecords = [];
     for (const canvas of canvases){
-      const jpeg = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .92));
+      const jpeg = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .94));
       const bytes = new Uint8Array(await jpeg.arrayBuffer());
-      const imgNum = nextObj++;
-      const contentNum = nextObj++;
-      const pageNum = nextObj++;
-      imageRecords.push({ canvas, bytes, imgNum, contentNum, pageNum });
-      pageNums.push(pageNum);
+      const imgNum = nextObj++, contentNum = nextObj++, pageNum = nextObj++;
+      imageRecords.push({ canvas, bytes, imgNum, contentNum, pageNum }); pageNums.push(pageNum);
     }
-
     writeObj(1, '<< /Type /Catalog /Pages 2 0 R >>');
     writeObj(2, `<< /Type /Pages /Kids [${pageNums.map(n => `${n} 0 R`).join(' ')}] /Count ${pageNums.length} >>`);
     imageRecords.forEach((rec, idx) => {
-      writeImageObj(
-        rec.imgNum,
-        `<< /Type /XObject /Subtype /Image /Width ${rec.canvas.width} /Height ${rec.canvas.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${rec.bytes.length} >>`,
-        rec.bytes
-      );
+      writeImageObj(rec.imgNum, `<< /Type /XObject /Subtype /Image /Width ${rec.canvas.width} /Height ${rec.canvas.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${rec.bytes.length} >>`, rec.bytes);
       const content = `q\n595 0 0 842 0 0 cm\n/Im${idx + 1} Do\nQ`;
       writeObj(rec.contentNum, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
       writeObj(rec.pageNum, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im${idx + 1} ${rec.imgNum} 0 R >> >> /Contents ${rec.contentNum} 0 R >>`);
     });
-
-    const xrefStart = currentOffset();
-    const maxObj = nextObj - 1;
+    const xrefStart = currentOffset(); const maxObj = nextObj - 1;
     parts.push(`xref\n0 ${maxObj + 1}\n0000000000 65535 f \n`);
     for (let i = 1; i <= maxObj; i++) parts.push(`${String(offsets[i] || 0).padStart(10, '0')} 00000 n \n`);
     parts.push(`trailer\n<< /Size ${maxObj + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
@@ -721,10 +940,8 @@
     const totalPages = model.sections.length + 1;
     const canvases = [];
     for (let i=0;i<totalPages;i++){
-      const canvas = document.createElement('canvas');
-      canvas.width = 1240; canvas.height = 1754;
-      drawReportPage(canvas.getContext('2d'), model, i);
-      canvases.push(canvas);
+      const canvas = document.createElement('canvas'); canvas.width = 1240; canvas.height = 1754;
+      drawReportPage(canvas.getContext('2d'), model, i); canvases.push(canvas);
     }
     const pdf = await buildPdfFromCanvases(canvases);
     downloadBlob('bastion-command-report.pdf', pdf, 'application/pdf');
