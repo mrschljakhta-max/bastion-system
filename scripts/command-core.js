@@ -461,83 +461,45 @@
     else conclusionsView();
   }
 
-  function reportModel(){
+  function reportText(){
     const top = maxUnit();
     const weak = minRemain();
     const minEl = minElement();
-    const scenarios = forecastScenarios();
-    const best = [...scenarios].sort((a,b)=>b.gain-a.gain)[0] || scenarios[0];
-    const generated = new Date().toLocaleString('uk-UA', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-    const allocations = (data.allocations && data.allocations.length ? data.allocations : fallback.allocations);
-    const remains = (data.remains && data.remains.length ? data.remains : fallback.remains);
-    return {
-      title: 'BASTION — ПОВНИЙ ЗВІТ',
-      subtitle: 'Аналіз · Висновки · Рекомендації',
-      meta: [
-        ['Дата формування', generated],
-        ['Користувач', 'Командир'],
-        ['Режим розрахунку', data.mode || 'Оптимальний'],
-        ['Версія алгоритму', 'v1.4.0']
-      ],
-      sections: [
-        { title:'01. Загальні KPI', rows:[
-          ['Сформовано комплектів', String(data.kits)],
-          ['Максимальна дальність', fmtRange(data.bestRange)],
-          ['Залишок складу', `${data.remainTotal} (${data.remainPercent || 0}% після розрахунку)`],
-          ['Обмежувальний елемент', data.bottleneck],
-          ['Враховано підрозділів', allUnits().join(', ')]
-        ]},
-        { title:'02. Висновки', rows:[
-          ['Найбільше отримав', `${top.unit} — ${top.total} комплектів`],
-          ['Найменший запас', `${minEl.name} — ${minEl.qty} од. (${minEl.unit})`],
-          ['Найменший залишок по підрозділах', `${weak.unit} — ${weak.total} од.`],
-          ['Загальний результат', `${data.kits} комплектів`],
-          ['Максимальна дальність', fmtRange(data.bestRange)]
-        ]},
-        { title:'03. Рекомендації / прогноз', rows: scenarios.map(x => [`+${x.add} ${x.element}`, `${x.projected} комплектів · приріст +${x.gain}`]).concat([
-          ['Найкращий сценарій', best ? `+${best.add} ${best.element} → ${best.projected} комплектів · +${best.gain}` : '—']
-        ])},
-        { title:'04. Ефективність поповнення', rows: recommendationRows().map(x => [x.name, x.value])},
-        { title:'05. Розподіл боєкомплектів', rows: allocations.map(x => [x.unit, `${x.total} комплектів`])},
-        { title:'06. Залишки по підрозділах', rows: remains.map(x => [x.unit, `${x.total} од.`])},
-        { title:'07. Деталі по елементах', rows: [
-          ['Обмежувальний елемент', data.bottleneck],
-          ['Мінімальний запас', `${minEl.name} — ${minEl.qty} од. (${minEl.unit})`],
-          ['Коефіцієнт ефективності ресурсу', recommendationRows()[0]?.value || '—'],
-          ['Рівень готовності', `${readiness()}%`]
-        ]},
-        { title:'08. Сценарний аналіз', rows: [
-          ['Поточний режим', `${data.kits} комплектів · ${fmtRange(data.bestRange)}`],
-          ['Прогноз +100', `${scenarios[0]?.projected || '—'} комплектів`],
-          ['Прогноз +250', `${scenarios[1]?.projected || '—'} комплектів`],
-          ['Прогноз +500', `${scenarios[2]?.projected || '—'} комплектів`]
-        ]},
-        { title:'09. Службова інформація', rows:[
-          ['Джерело даних', 'localStorage / analysis result'],
-          ['Сценарії', '+100 / +250 / +500'],
-          ['Алгоритм', 'BASTION command forecast'],
-          ['Формати експорту', 'PDF / DOCX']
-        ]}
-      ],
-      charts: {
-        allocations,
-        remains,
-        scenarios,
-        impact: recommendationRows().map(row => ({ name: row.name, value: Number(String(row.value).replace(',', '.').match(/[-+]?\d+(?:\.\d+)?/)?.[0] || 0), label: row.value }))
-      }
-    };
-  }
-
-  function reportText(){
-    const model = reportModel();
-    const lines = [model.title, model.subtitle, ''];
-    model.meta.forEach(([k,v]) => lines.push(`${k}: ${v}`));
-    model.sections.forEach(section => {
-      lines.push('', section.title);
-      section.rows.forEach(([k,v]) => lines.push(`${k}: ${v}`));
-    });
+    const lines = [];
+    lines.push('BASTION — ПОВНИЙ ЗВІТ');
+    lines.push('');
+    lines.push('ЗАГАЛЬНІ KPI');
+    lines.push(`Сформовано комплектів: ${data.kits}`);
+    lines.push(`Максимальна дальність: ${fmtRange(data.bestRange)}`);
+    lines.push(`Залишок складу: ${data.remainTotal} (${data.remainPercent || 0}% після розрахунку)`);
+    lines.push(`Обмежувальний елемент: ${data.bottleneck}`);
+    lines.push('');
+    lines.push('ВИСНОВКИ');
+    lines.push(`Найбільше отримав: ${top.unit} — ${top.total} комплектів`);
+    lines.push(`Найменший запас: ${minEl.name} — ${minEl.qty} од. (${minEl.unit})`);
+    lines.push(`Найменший залишок по підрозділах: ${weak.unit} — ${weak.total} од.`);
+    lines.push(`Враховано підрозділів: ${allUnits().join(', ')}`);
+    lines.push('');
+    lines.push('РЕКОМЕНДАЦІЇ / ПРОГНОЗ');
+    forecastScenarios().forEach(item => lines.push(`+${item.add} ${item.element}: ${item.projected} комплектів (приріст +${item.gain})`));
+    lines.push('');
+    lines.push('ЕФЕКТИВНІСТЬ ПОПОВНЕННЯ');
+    recommendationRows().forEach(row => lines.push(`${row.name}: ${row.value}`));
+    lines.push('');
+    lines.push('ГРАФІКИ / ДІАГРАМИ');
+    lines.push('1. Розподіл боєкомплектів по підрозділах');
+    lines.push('2. Прогноз приросту від поповнення');
+    lines.push('3. Ефективність поповнення ресурсів');
+    lines.push('4. Залишки по підрозділах');
+    lines.push('');
+    lines.push('РОЗПОДІЛ БОЄКОМПЛЕКТІВ');
+    (data.allocations || []).forEach(group => lines.push(`${group.unit}: ${group.total}`));
+    lines.push('');
+    lines.push('ЗАЛИШКИ ПО ПІДРОЗДІЛАХ');
+    (data.remains || []).forEach(group => lines.push(`${group.unit}: ${group.total}`));
     return lines.join('\n');
   }
+
 
   function downloadBlob(name, content, type){
     const blob = content instanceof Blob ? content : new Blob([content], { type });
@@ -549,402 +511,241 @@
     setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
 
-  function crc32(str){
-    const table = crc32.table || (crc32.table = (() => {
-      const t = new Uint32Array(256);
-      for (let i=0;i<256;i++){
-        let c=i;
-        for (let k=0;k<8;k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
-        t[i]=c>>>0;
+  function reportMeta(){
+    return {
+      generated: new Date().toLocaleString('uk-UA', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+      user: document.getElementById('operatorName')?.textContent?.trim() || 'Командир',
+      mode: data.mode || 'Загальний розрахунок',
+      version: 'v1.4.0'
+    };
+  }
+
+  function clampNumber(n, fallbackValue = 0){
+    const num = Number(n);
+    return Number.isFinite(num) ? num : fallbackValue;
+  }
+
+  function reportLogoSvg(){
+    return `<svg class="report-logo-mark" viewBox="0 0 120 120" role="img" aria-label="BASTION">
+      <defs><linearGradient id="bastionMarkGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff1717"/><stop offset="1" stop-color="#980000"/></linearGradient></defs>
+      <path fill="url(#bastionMarkGrad)" d="M60 7 104 32 79 46 60 36 41 46 16 32 60 7Zm44 41v28L60 102 16 76V48l44 26 19-11-44-26 25-14 44 25ZM16 88l44 25 44-25V77L60 103 16 77v11Z"/>
+    </svg>`;
+  }
+
+  function reportIcon(name){
+    const icons = {
+      kpi: '<path d="M12 4v16M5 11l7-7 7 7M7 20h10"/>',
+      conclusion: '<path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Zm-2 2H3a3 3 0 0 0 3 3m12-3h2a3 3 0 0 1-3 3"/>',
+      forecast: '<path d="M4 18 9 9l4 5 7-10M4 20h16"/>',
+      chart: '<path d="M4 20V4m0 16h16M8 17V9m5 8V5m5 12v-6"/>',
+      ammo: '<path d="M8 4h8l2 4v10l-2 2H8l-2-2V8l2-4Zm0 4h10"/>',
+      stock: '<path d="M4 7 12 3l8 4-8 4-8-4Zm0 5 8 4 8-4M4 17l8 4 8-4"/>',
+      element: '<path d="M12 2 4 6v6c0 5 3 8 8 10 5-2 8-5 8-10V6l-8-4Zm0 6v7"/>',
+      scenario: '<path d="M5 5h6v6H5V5Zm8 0h6v6h-6V5ZM5 13h6v6H5v-6Zm8 3h6m-3-3v6"/>',
+      service: '<path d="M12 9v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>'
+    };
+    return `<svg class="report-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.kpi}</svg>`;
+  }
+
+  function tocRow(icon, title, page){
+    return `<div class="report-toc-row">${reportIcon(icon)}<span>${escapeHtml(title)}</span><b>${page}</b></div>`;
+  }
+
+  function tableRows(rows){
+    return rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('');
+  }
+
+  function kpiCard(icon, label, value, sub = ''){
+    return `<article class="report-kpi-card">${reportIcon(icon)}<div><span>${escapeHtml(label)}</span><strong>${value}</strong>${sub ? `<small>${sub}</small>` : ''}</div></article>`;
+  }
+
+  function barsChart(title, groups, xLabel, yLabel, horizontal = False){
+    return '';
+  }
+
+  function reportBarChart(title, rows, xLabel, yLabel, opts = {}){
+    const max = Math.max(1, ...rows.map(r => clampNumber(r.value)));
+    const isHorizontal = !!opts.horizontal;
+    const bars = rows.map(row => {
+      const value = clampNumber(row.value);
+      const pct = Math.max(2, Math.round((value / max) * 100));
+      if (isHorizontal){
+        return `<div class="report-hbar-row"><span>${escapeHtml(row.label)}</span><i><b style="width:${pct}%"></b></i><strong>${value}</strong></div>`;
       }
-      return t;
-    })());
-    const bytes = typeof str === 'string' ? new TextEncoder().encode(str) : str;
-    let c = 0xffffffff;
-    for (let i=0;i<bytes.length;i++) c = table[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
-    return (c ^ 0xffffffff) >>> 0;
+      return `<div class="report-vbar"><strong>${value}</strong><i style="height:${pct}%"></i><span>${escapeHtml(row.label)}</span></div>`;
+    }).join('');
+    return `<article class="report-chart-card ${isHorizontal ? 'is-horizontal' : ''}">
+      <h4>${escapeHtml(title)}</h4>
+      <div class="report-axis-y">Вісь Y: ${escapeHtml(yLabel)}</div>
+      <div class="${isHorizontal ? 'report-hbar-chart' : 'report-vbar-chart'}">${bars}</div>
+      <div class="report-axis-x">Вісь X: ${escapeHtml(xLabel)}</div>
+    </article>`;
   }
 
-  function makeZip(files){
-    const enc = new TextEncoder();
-    const chunks = [];
-    const central = [];
-    let offset = 0;
-    const u16 = n => { const b = new Uint8Array(2); new DataView(b.buffer).setUint16(0,n,true); return b; };
-    const u32 = n => { const b = new Uint8Array(4); new DataView(b.buffer).setUint32(0,n,true); return b; };
-    const push = (arr, part) => { arr.push(part); };
-    for (const file of files){
-      const name = enc.encode(file.name);
-      const dataBytes = typeof file.data === 'string' ? enc.encode(file.data) : file.data;
-      const crc = crc32(dataBytes);
-      const local = [];
-      [0x04034b50,20,0,0,0,0,crc,dataBytes.length,dataBytes.length,name.length,0].forEach((v,i)=>push(local, i===0||i>=6&&i<=8 ? u32(v) : u16(v)));
-      push(local, name); push(local, dataBytes);
-      const localBlob = new Blob(local);
-      chunks.push(localBlob);
-      const cent = [];
-      [0x02014b50,20,20,0,0,0,0,crc,dataBytes.length,dataBytes.length,name.length,0,0,0,0,0,offset].forEach((v,i)=>push(cent, [0,7,8,9,16].includes(i) ? u32(v) : u16(v)));
-      push(cent, name);
-      const centBlob = new Blob(cent);
-      central.push(centBlob);
-      offset += localBlob.size;
-    }
-    const centralSize = central.reduce((s,b)=>s+b.size,0);
-    const end = [];
-    [0x06054b50,0,0,files.length,files.length,centralSize,offset,0].forEach((v,i)=>push(end, [0,5,6].includes(i) ? u32(v) : u16(v)));
-    return new Blob([...chunks, ...central, ...end], { type:'application/zip' });
+  function reportLineChart(title, points, xLabel, yLabel){
+    const max = Math.max(...points.map(p => clampNumber(p.value)), 1);
+    const min = Math.min(...points.map(p => clampNumber(p.value)), 0);
+    const span = Math.max(1, max - min);
+    const coords = points.map((p, idx) => {
+      const x = 8 + idx * (84 / Math.max(1, points.length - 1));
+      const y = 84 - ((clampNumber(p.value) - min) / span) * 66;
+      return { ...p, x, y };
+    });
+    const poly = coords.map(p => `${p.x},${p.y}`).join(' ');
+    return `<article class="report-chart-card">
+      <h4>${escapeHtml(title)}</h4>
+      <div class="report-axis-y">Вісь Y: ${escapeHtml(yLabel)}</div>
+      <svg class="report-line-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="M8 84 H96 M8 51 H96 M8 18 H96" class="grid"/>
+        <polyline points="${poly}" class="line"/>
+        ${coords.map(p => `<circle cx="${p.x}" cy="${p.y}" r="2.3" class="dot"/>`).join('')}
+      </svg>
+      <div class="report-line-labels">${coords.map(p => `<span>${escapeHtml(p.label)}<b>${p.value}</b></span>`).join('')}</div>
+      <div class="report-axis-x">Вісь X: ${escapeHtml(xLabel)}</div>
+    </article>`;
   }
 
-  function xmlEscape(s){ return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch])); }
-  function docParagraph(text, style=''){
-    return `<w:p>${style ? `<w:pPr><w:pStyle w:val="${style}"/></w:pPr>` : ''}<w:r><w:t xml:space="preserve">${xmlEscape(text)}</w:t></w:r></w:p>`;
+  function reportDonutChart(title, rows){
+    const total = Math.max(1, rows.reduce((s,r)=>s+clampNumber(r.value),0));
+    let acc = 0;
+    const segments = rows.map((r, idx) => {
+      const v = clampNumber(r.value);
+      const start = acc / total * 100;
+      acc += v;
+      const end = acc / total * 100;
+      return `${idx % 2 ? '#ff7b7b' : '#d71920'} ${start}% ${end}%`;
+    }).join(', ');
+    return `<article class="report-chart-card report-donut-card"><h4>${escapeHtml(title)}</h4>
+      <div class="report-donut" style="background: conic-gradient(${segments});"><span>${total}</span></div>
+      <div class="report-legend">${rows.map(r => `<span><i></i>${escapeHtml(r.label)} — ${r.value}</span>`).join('')}</div>
+    </article>`;
   }
-  function docTable(rows){
-    return `<w:tbl><w:tblPr><w:tblStyle w:val="TableGrid"/><w:tblW w:w="0" w:type="auto"/></w:tblPr>${rows.map(row=>`<w:tr>${row.map(cell=>`<w:tc><w:tcPr><w:tcW w:w="4800" w:type="dxa"/></w:tcPr>${docParagraph(cell)}</w:tc>`).join('')}</w:tr>`).join('')}</w:tbl>`;
+
+  function reportChartBlocks(){
+    const allocations = (data.allocations || fallback.allocations).map(g => ({ label:g.unit, value:g.total }));
+    const remainsRows = (data.remains || fallback.remains).map(g => ({ label:g.unit, value:g.total }));
+    const forecastPoints = [{label:'Поточний', value:data.kits}, ...forecastScenarios().map(x => ({ label:`+${x.add}`, value:x.projected }))];
+    const impactRows = recommendationRows().map(row => {
+      const value = Number(String(row.value).replace(',', '.').match(/[-+]?\d+(?:\.\d+)?/)?.[0] || 0);
+      return { label: row.name, value };
+    });
+    return `
+      <section class="report-section page-break">
+        <h2>04. Графіки / діаграми</h2>
+        <div class="report-chart-grid">
+          ${reportBarChart('4.1 Розподіл комплектів по підрозділах', allocations, 'Підрозділи', 'Комплекти (од.)')}
+          ${reportLineChart('4.2 Прогноз приросту від поповнення', forecastPoints, 'Поповнення (од.)', 'Комплекти (од.)')}
+          ${reportBarChart('4.3 Ефективність поповнення ресурсів', impactRows, 'Комплекти на 1 одиницю ресурсу', 'Ресурси', { horizontal:true })}
+          ${reportBarChart('4.4 Залишки по підрозділах', remainsRows, 'Залишок (од.)', 'Підрозділи', { horizontal:true })}
+        </div>
+      </section>`;
   }
+
+  function buildRichReportHtml({ forDocx = false } = {}){
+    const top = maxUnit();
+    const weak = minRemain();
+    const minEl = minElement();
+    const meta = reportMeta();
+    const forecasts = forecastScenarios();
+    const best = [...forecasts].sort((a,b)=>b.gain-a.gain)[0] || forecasts[0];
+    const allocations = data.allocations || fallback.allocations;
+    const remains = data.remains || fallback.remains;
+    const unitRows = allocations.map(group => {
+      const share = data.kits ? Math.round((Number(group.total || 0) / Number(data.kits || 1)) * 1000) / 10 : 0;
+      const remain = remains.find(r => r.unit === group.unit)?.total ?? '—';
+      return [escapeHtml(group.unit), Number(group.total||0), `${share}%`, remain];
+    });
+    const elements = [
+      [escapeHtml(data.bottleneck), data.remainTotal, 'Критичний'],
+      [escapeHtml(minEl.name), minEl.qty, 'Критичний'],
+      ['Інші ресурси', '—', 'Контроль']
+    ];
+    return `<!doctype html><html><head><meta charset="utf-8"><title>BASTION — Висновки</title>${reportCss(forDocx)}</head><body>
+      <header class="report-header">
+        <div class="report-brand">${reportLogoSvg()}<div><strong>BASTION</strong><span>ВИСНОВКИ</span></div></div>
+        <div class="report-header-meta"><span>Дата формування: ${escapeHtml(meta.generated)}</span><span>Користувач: ${escapeHtml(meta.user)}</span></div>
+      </header>
+
+      <section class="report-page report-cover">
+        <h1>Зміст звіту</h1>
+        <div class="report-toc">
+          ${tocRow('kpi','01. Загальні KPI',2)}
+          ${tocRow('conclusion','02. Висновки',3)}
+          ${tocRow('forecast','03. Рекомендації / прогноз',4)}
+          ${tocRow('chart','04. Графіки / діаграми',5)}
+          ${tocRow('ammo','05. Розподіл боєкомплектів',6)}
+          ${tocRow('stock','06. Залишки по підрозділах',7)}
+          ${tocRow('element','07. Деталі по елементах',8)}
+          ${tocRow('scenario','08. Сценарний аналіз',9)}
+          ${tocRow('service','09. Службова інформація',10)}
+        </div>
+        <footer>BASTION Command System · ${escapeHtml(meta.mode)} · ${escapeHtml(meta.version)}</footer>
+      </section>
+
+      <section class="report-section page-break">
+        <h2>01. Загальні KPI</h2>
+        <div class="report-kpi-grid">
+          ${kpiCard('ammo','Сформовано комплектів', data.kits)}
+          ${kpiCard('forecast','Максимальна дальність', fmtRange(data.bestRange))}
+          ${kpiCard('stock','Залишок складу', data.remainTotal, `${data.remainPercent || 0}% після розрахунку`)}
+          ${kpiCard('element','Обмежувальний ресурс', safeText(data.bottleneck))}
+          ${kpiCard('service','Враховано підрозділів', allUnits().length)}
+        </div>
+      </section>
+
+      <section class="report-section page-break">
+        <h2>02. Висновки</h2>
+        <table class="report-table report-table--icon"><tbody>
+          ${tableRows([
+            [`${reportIcon('conclusion')} Найбільше отримав`, `<b>${safeText(top.unit)} — ${top.total} комплектів</b>`],
+            [`${reportIcon('element')} Найменший запас`, `<b>${safeText(minEl.name)} — ${safeText(minEl.qty)} од. (${safeText(minEl.unit)})</b>`],
+            [`${reportIcon('stock')} Найменший залишок по підрозділах`, `<b>${safeText(weak.unit)} — ${weak.total} од.</b>`],
+            [`${reportIcon('element')} Обмежувальний ресурс`, `<b>${safeText(data.bottleneck)} (критичний)</b>`],
+            [`${reportIcon('forecast')} Максимальна дальність`, `<b>${fmtRange(data.bestRange)}</b>`],
+            [`${reportIcon('kpi')} Загальний результат`, `<b>${data.kits} комплектів</b>`]
+          ])}
+        </tbody></table>
+      </section>
+
+      <section class="report-section page-break">
+        <h2>03. Рекомендації / прогноз</h2>
+        <table class="report-table"><thead><tr><th>Поповнення ${safeText(data.bottleneck)}</th><th>Прогноз комплектів</th><th>Приріст</th><th>Приріст %</th></tr></thead><tbody>
+          ${forecasts.map(x => `<tr><td>+${x.add} од.</td><td><b>${x.projected}</b></td><td class="good">+${x.gain}</td><td class="good">+${data.kits ? Math.round((x.gain / data.kits) * 10000)/100 : 0}%</td></tr>`).join('')}
+        </tbody></table>
+        <div class="report-callout">${reportIcon('forecast')}<div><span>Найкращий сценарій</span><strong>+${best.add} ${safeText(best.element)}</strong><p>Дає +${best.gain} комплектів при прогнозному результаті ${best.projected}.</p></div></div>
+      </section>
+
+      ${reportChartBlocks()}
+
+      <section class="report-section page-break"><h2>05. Розподіл боєкомплектів</h2><table class="report-table"><thead><tr><th>Підрозділ</th><th>Сформовано</th><th>Частка</th><th>Залишок</th></tr></thead><tbody>${tableRows(unitRows)}</tbody></table>${reportDonutChart('Структура розподілу комплектів', allocations.map(g=>({label:g.unit,value:g.total})))}</section>
+      <section class="report-section page-break"><h2>06. Залишки по підрозділах</h2><table class="report-table"><thead><tr><th>Підрозділ</th><th>Залишок</th><th>Оцінка</th></tr></thead><tbody>${tableRows(remains.map(g=>[safeText(g.unit), g.total, Number(g.total) <= 300 ? '<b class="bad">Низький</b>' : '<b>Контроль</b>']))}</tbody></table></section>
+      <section class="report-section page-break"><h2>07. Деталі по елементах</h2><table class="report-table"><thead><tr><th>Елемент</th><th>Залишок</th><th>Статус</th></tr></thead><tbody>${tableRows(elements.map(r=>[r[0],r[1],`<b class="${r[2] === 'Критичний' ? 'bad' : ''}">${r[2]}</b>`]))}</tbody></table></section>
+      <section class="report-section page-break"><h2>08. Сценарний аналіз</h2><table class="report-table"><thead><tr><th>Сценарій</th><th>Комплекти</th><th>Дальність</th><th>Коментар</th></tr></thead><tbody>${tableRows(forecasts.map(x=>[`+${x.add} ${safeText(x.element)}`, x.projected, fmtRange(data.bestRange), `Приріст +${x.gain}`]))}</tbody></table></section>
+      <section class="report-section page-break"><h2>09. Службова інформація</h2><table class="report-table"><tbody>${tableRows([['Дата формування', escapeHtml(meta.generated)], ['Користувач', escapeHtml(meta.user)], ['Режим розрахунку', escapeHtml(meta.mode)], ['Версія алгоритму', escapeHtml(meta.version)], ['Джерело даних', 'localStorage / analysis result'], ['Формати експорту', 'PDF / DOCX']])}</tbody></table></section>
+      <script>${forDocx ? '' : 'window.onload=()=>setTimeout(()=>window.print(),350);'}<\/script>
+    </body></html>`;
+  }
+
+  function reportCss(forDocx){
+    return `<style>
+      @page{size:A4;margin:12mm}*{box-sizing:border-box}body{margin:0;background:#fff;color:#151515;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.35}.report-header{height:84px;background:#0b0d12;color:#fff;border:2px solid #d71920;margin:0 0 18px 0;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;page-break-inside:avoid}.report-brand{display:flex;align-items:center;gap:16px}.report-logo-mark{width:48px;height:48px}.report-brand strong{display:block;font-size:30px;letter-spacing:2px}.report-brand span{display:block;color:#ed1c24;font-size:20px;font-weight:900;letter-spacing:1px}.report-header-meta{display:flex;flex-direction:column;gap:4px;color:#e8e8e8;font-size:11px}.report-page,.report-section{padding:0 8px 14px 8px;page-break-inside:avoid}.page-break{break-before:page;page-break-before:always}h1,h2{color:#d71920;text-transform:uppercase;letter-spacing:.6px;margin:0 0 16px 0}h1{font-size:26px}h2{font-size:22px}.report-toc{display:grid;gap:12px;max-width:520px;margin-top:22px}.report-toc-row{display:grid;grid-template-columns:30px 1fr 28px;align-items:center;gap:12px;padding:9px 10px;border-bottom:1px solid #e5e5e5}.report-toc-row b{color:#d71920}.report-icon{width:22px;height:22px;color:#111}.report-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.report-kpi-card{border:1px solid #d8d8d8;border-radius:8px;padding:15px;display:flex;gap:14px;align-items:center;min-height:92px}.report-kpi-card .report-icon{width:34px;height:34px}.report-kpi-card span{display:block;font-size:11px;font-weight:900;text-transform:uppercase}.report-kpi-card strong{display:block;color:#d71920;font-size:28px;margin-top:4px}.report-kpi-card small{display:block;font-weight:700}.report-table{width:100%;border-collapse:collapse;margin:6px 0 16px 0}.report-table th,.report-table td{border:1px solid #ddd;padding:10px 12px;vertical-align:middle}.report-table th{background:#f3f3f3;text-transform:uppercase;font-size:11px}.report-table b{color:#b71920}.report-table--icon td:first-child{width:48%;font-weight:800}.good{color:#168338!important;font-weight:900}.bad{color:#d71920!important}.report-callout{border:1px solid #f0a0a0;background:#fff4f4;border-radius:8px;padding:16px;display:flex;gap:14px;align-items:center;margin-top:16px}.report-callout .report-icon{width:42px;height:42px;color:#d71920}.report-callout span{display:block;text-transform:uppercase;font-size:11px;font-weight:900;color:#d71920}.report-callout strong{display:block;font-size:24px;color:#d71920}.report-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.report-chart-card{border:1px solid #d7d7d7;border-radius:8px;padding:12px;min-height:245px;page-break-inside:avoid}.report-chart-card h4{margin:0 0 8px 0;font-size:13px}.report-axis-y,.report-axis-x{font-size:10px;font-weight:800;color:#444}.report-axis-x{text-align:center;margin-top:6px}.report-vbar-chart{height:170px;display:flex;align-items:end;gap:22px;border-left:1px solid #bbb;border-bottom:1px solid #bbb;padding:8px 12px 0 18px}.report-vbar{height:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;gap:4px}.report-vbar i{display:block;width:28px;background:linear-gradient(#ed1c24,#ba1118);min-height:4px}.report-vbar strong{font-size:11px}.report-vbar span{font-size:10px;text-align:center}.report-hbar-chart{display:grid;gap:14px;margin-top:16px}.report-hbar-row{display:grid;grid-template-columns:120px 1fr 90px;align-items:center;gap:10px;font-size:11px;font-weight:800}.report-hbar-row i{height:18px;background:#edf0f3;display:block}.report-hbar-row i b{height:100%;background:linear-gradient(90deg,#ed1c24,#b60f16);display:block}.report-line-svg{width:100%;height:155px;border-left:1px solid #bbb;border-bottom:1px solid #bbb}.report-line-svg .grid{stroke:#eee;stroke-width:.8}.report-line-svg .line{fill:none;stroke:#d71920;stroke-width:2.2}.report-line-svg .dot{fill:#d71920}.report-line-labels{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:10px;text-align:center}.report-line-labels b{display:block;color:#d71920}.report-donut-card{max-width:420px;margin-top:16px}.report-donut{width:150px;height:150px;border-radius:50%;margin:12px auto;display:flex;align-items:center;justify-content:center}.report-donut:after{content:"";position:absolute}.report-donut span{background:#fff;border-radius:50%;width:78px;height:78px;display:flex;align-items:center;justify-content:center;font-weight:900}.report-legend{display:grid;gap:6px}.report-legend span{font-size:11px}.report-legend i{display:inline-block;width:10px;height:10px;background:#d71920;margin-right:6px}.report-cover footer{margin-top:320px;color:#555;font-size:11px}@media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact}.report-header{position:relative}.page-break{break-before:page;page-break-before:always}}${forDocx ? 'svg{display:none}.report-header{background:#111;color:#fff}.page-break{page-break-before:always}' : ''}
+    </style>`;
+  }
+
   function exportDoc(){
-    const model = reportModel();
-    const body = [];
-    body.push(docParagraph(model.title, 'Title'));
-    body.push(docParagraph(model.subtitle, 'Subtitle'));
-    body.push(docTable(model.meta));
-    model.sections.forEach(section => {
-      body.push(docParagraph(section.title, 'Heading1'));
-      body.push(docTable(section.rows));
-    });
-    const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body.join('')}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="850" w:right="720" w:bottom="850" w:left="720"/></w:sectPr></w:body></w:document>`;
-    const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:rPr><w:b/><w:sz w:val="44"/><w:color w:val="B91C1C"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Subtitle"><w:name w:val="Subtitle"/><w:rPr><w:sz w:val="22"/><w:color w:val="333333"/></w:rPr></w:style><w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:rPr><w:b/><w:sz w:val="28"/><w:color w:val="D7262D"/></w:rPr></w:style><w:style w:type="table" w:styleId="TableGrid"><w:name w:val="Table Grid"/><w:tblPr><w:tblBorders><w:top w:val="single" w:sz="4"/><w:left w:val="single" w:sz="4"/><w:bottom w:val="single" w:sz="4"/><w:right w:val="single" w:sz="4"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders></w:tblPr></w:style></w:styles>`;
-    const zip = makeZip([
-      { name:'[Content_Types].xml', data:'<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>' },
-      { name:'_rels/.rels', data:'<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>' },
-      { name:'word/_rels/document.xml.rels', data:'<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
-      { name:'word/document.xml', data: documentXml },
-      { name:'word/styles.xml', data: styles }
-    ]);
-    downloadBlob('bastion-command-report.docx', zip, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    const html = buildRichReportHtml({ forDocx:true });
+    downloadBlob('bastion-command-report.docx', html, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document;charset=utf-8');
   }
-
-  function drawWrapped(ctx, text, x, y, maxWidth, lineHeight, opts = {}){
-    const words = String(text ?? '').split(/\s+/).filter(Boolean);
-    const lines = [];
-    let line = '';
-    const maxLines = opts.maxLines || 99;
-    for (const word of words){
-      const test = line ? `${line} ${word}` : word;
-      if (ctx.measureText(test).width > maxWidth && line){
-        lines.push(line);
-        line = word;
-        if (lines.length >= maxLines) break;
-      } else line = test;
-    }
-    if (line && lines.length < maxLines) lines.push(line);
-    lines.forEach((ln, i) => ctx.fillText(ln, x, y + i * lineHeight));
-    return y + lines.length * lineHeight;
-  }
-
-  function reportColor(){
-    return { red:'#d7262d', dark:'#111216', ink:'#1e2430', muted:'#69707c', line:'#d9dde5', green:'#18864b', amber:'#c07b00', soft:'#f6f7f9', pink:'#fff0f1' };
-  }
-  function asNumber(v){
-    const n = Number(String(v ?? '').replace(/[^0-9,.-]/g, '').replace(',', '.'));
-    return Number.isFinite(n) ? n : 0;
-  }
-  function reportValue(model, sectionTitle, key){
-    const section = model.sections.find(s => s.title.includes(sectionTitle));
-    const row = section?.rows.find(r => String(r[0]).includes(key));
-    return row ? row[1] : '—';
-  }
-  function drawReportHeader(ctx, model, title){
-    const c = reportColor();
-    ctx.fillStyle = c.dark; ctx.fillRect(0,0,1240,154);
-    ctx.strokeStyle = c.red; ctx.lineWidth = 4; ctx.strokeRect(22,20,1196,110);
-    ctx.fillStyle = '#fff'; ctx.font = '800 44px Arial'; ctx.fillText('BASTION', 58,70);
-    ctx.fillStyle = c.red; ctx.font = '800 21px Arial'; ctx.fillText('COMMAND SYSTEM', 60,103);
-    ctx.fillStyle = '#fff'; ctx.font = '900 48px Arial';
-    ctx.textAlign = 'center'; ctx.fillText(title, 750,91); ctx.textAlign = 'left';
-    ctx.strokeStyle = 'rgba(215,38,45,.45)'; ctx.lineWidth = 1;
-    for(let i=0;i<9;i++){ ctx.beginPath(); ctx.moveTo(930+i*25,38); ctx.lineTo(1165+i*3,38+i*9); ctx.stroke(); }
-  }
-  function drawReportFooter(ctx, page, total){
-    const c = reportColor();
-    ctx.fillStyle = c.muted; ctx.font = '16px Arial';
-    ctx.fillText('BASTION Command System', 56, 1712);
-    ctx.textAlign = 'right'; ctx.fillText(`Сторінка ${page}/${total}`, 1184, 1712); ctx.textAlign = 'left';
-  }
-  function drawIcon(ctx, type, x, y, size = 34, color = '#d7262d'){
-    ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = Math.max(3, size/12); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    const s = size;
-    if (type === 'cube'){
-      ctx.strokeRect(x+s*.22, y+s*.18, s*.56, s*.56); ctx.beginPath(); ctx.moveTo(x+s*.5,y+s*.02); ctx.lineTo(x+s*.9,y+s*.24); ctx.lineTo(x+s*.5,y+s*.46); ctx.lineTo(x+s*.1,y+s*.24); ctx.closePath(); ctx.stroke();
-    } else if (type === 'target'){
-      ctx.beginPath(); ctx.arc(x+s*.5,y+s*.5,s*.38,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(x+s*.5,y+s*.5,s*.16,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x+s*.5,y+s*.05); ctx.lineTo(x+s*.5,y+s*.25); ctx.moveTo(x+s*.5,y+s*.75); ctx.lineTo(x+s*.5,y+s*.95); ctx.moveTo(x+s*.05,y+s*.5); ctx.lineTo(x+s*.25,y+s*.5); ctx.moveTo(x+s*.75,y+s*.5); ctx.lineTo(x+s*.95,y+s*.5); ctx.stroke();
-    } else if (type === 'warehouse'){
-      ctx.beginPath(); ctx.moveTo(x+s*.1,y+s*.46); ctx.lineTo(x+s*.5,y+s*.18); ctx.lineTo(x+s*.9,y+s*.46); ctx.lineTo(x+s*.9,y+s*.86); ctx.lineTo(x+s*.1,y+s*.86); ctx.closePath(); ctx.stroke(); ctx.strokeRect(x+s*.35,y+s*.58,s*.3,s*.28);
-    } else if (type === 'warning'){
-      ctx.beginPath(); ctx.moveTo(x+s*.5,y+s*.1); ctx.lineTo(x+s*.9,y+s*.86); ctx.lineTo(x+s*.1,y+s*.86); ctx.closePath(); ctx.stroke(); ctx.font = `900 ${s*.55}px Arial`; ctx.textAlign='center'; ctx.fillText('!', x+s*.5, y+s*.74); ctx.textAlign='left';
-    } else if (type === 'users'){
-      for(let i=0;i<3;i++){ const cx=x+s*(.25+i*.25); ctx.beginPath(); ctx.arc(cx,y+s*.35,s*.11,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(cx,y+s*.72,s*.17,Math.PI,0); ctx.stroke(); }
-    } else if (type === 'star'){
-      ctx.beginPath(); for(let i=0;i<10;i++){ const r=i%2?s*.18:s*.42; const a=-Math.PI/2+i*Math.PI/5; const px=x+s*.5+Math.cos(a)*r, py=y+s*.5+Math.sin(a)*r; i?ctx.lineTo(px,py):ctx.moveTo(px,py); } ctx.closePath(); ctx.stroke();
-    } else if (type === 'bars'){
-      ctx.strokeRect(x+s*.12,y+s*.16,s*.76,s*.68); [0.7,0.48,0.3].forEach((h,i)=>ctx.fillRect(x+s*(.24+i*.19), y+s*(.8-h), s*.09, s*h));
-    } else if (type === 'line'){
-      ctx.beginPath(); ctx.moveTo(x+s*.12,y+s*.75); ctx.lineTo(x+s*.38,y+s*.56); ctx.lineTo(x+s*.62,y+s*.44); ctx.lineTo(x+s*.88,y+s*.20); ctx.stroke(); [ [.12,.75], [.38,.56], [.62,.44], [.88,.20] ].forEach(p=>{ctx.beginPath();ctx.arc(x+s*p[0],y+s*p[1],s*.055,0,Math.PI*2);ctx.fill();});
-    } else if (type === 'shield'){
-      ctx.beginPath(); ctx.moveTo(x+s*.5,y+s*.1); ctx.lineTo(x+s*.84,y+s*.25); ctx.lineTo(x+s*.76,y+s*.72); ctx.lineTo(x+s*.5,y+s*.9); ctx.lineTo(x+s*.24,y+s*.72); ctx.lineTo(x+s*.16,y+s*.25); ctx.closePath(); ctx.stroke();
+  function exportPdf(){
+    const html = buildRichReportHtml({ forDocx:false });
+    const win = window.open('', '_blank');
+    if (win){
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
     } else {
-      ctx.beginPath(); ctx.arc(x+s*.5,y+s*.5,s*.35,0,Math.PI*2); ctx.stroke();
+      downloadBlob('bastion-command-report.pdf.html', html, 'text/html;charset=utf-8');
     }
-    ctx.restore();
-  }
-  function drawPanel(ctx, x, y, w, h, opts = {}){
-    const c = reportColor();
-    ctx.save();
-    ctx.fillStyle = opts.fill || '#fff';
-    ctx.strokeStyle = opts.stroke || c.line;
-    ctx.lineWidth = opts.lineWidth || 2;
-    const r = opts.radius || 10;
-    ctx.beginPath();
-    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    if (opts.topAccent){ ctx.fillStyle = c.red; ctx.fillRect(x, y, w, 5); }
-    ctx.restore();
-  }
-  function drawSectionLabel(ctx, number, title, x, y){
-    const c = reportColor();
-    ctx.fillStyle = c.red; ctx.font = '900 30px Arial'; ctx.fillText(`${number}. ${title}`, x, y);
-  }
-  function drawKpiCard(ctx, x, y, w, h, icon, label, value, sub=''){
-    const c = reportColor();
-    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
-    drawIcon(ctx, icon, x+22, y+34, 44, c.dark);
-    ctx.fillStyle = c.ink; ctx.font = '800 18px Arial'; drawWrapped(ctx,label.toUpperCase(),x+88,y+48,w-110,22,{maxLines:2});
-    ctx.fillStyle = c.red; ctx.font = '900 44px Arial'; ctx.fillText(String(value), x+88, y+116);
-    if (sub){ ctx.fillStyle = c.ink; ctx.font = '700 16px Arial'; ctx.fillText(String(sub), x+88, y+145); }
-  }
-  function drawRows(ctx, rows, x, y, w, rowH = 58, iconTypes = []){
-    const c = reportColor();
-    rows.forEach((row, i) => {
-      drawPanel(ctx, x, y + i*rowH, w, rowH-6, {fill:'#fff', stroke:'#e1e4e8', radius:6});
-      if (iconTypes[i]) drawIcon(ctx, iconTypes[i], x+18, y+i*rowH+10, 30, c.dark);
-      ctx.fillStyle = c.ink; ctx.font = '800 18px Arial';
-      drawWrapped(ctx, row[0], x + (iconTypes[i]?62:18), y+i*rowH+25, w*.42, 20, {maxLines:2});
-      ctx.fillStyle = c.red; ctx.font = '900 20px Arial';
-      drawWrapped(ctx, row[1], x + w*.52, y+i*rowH+25, w*.43, 22, {maxLines:2});
-    });
-  }
-  function drawDataTable(ctx, columns, rows, x, y, w, rowH = 46){
-    const c = reportColor();
-    const colW = w / columns.length;
-    ctx.fillStyle = '#f3f4f6'; ctx.fillRect(x,y,w,rowH);
-    ctx.strokeStyle = '#d5d9e0'; ctx.strokeRect(x,y,w,rowH);
-    columns.forEach((col,i)=>{ ctx.fillStyle=c.ink; ctx.font='800 15px Arial'; drawWrapped(ctx,col,x+i*colW+12,y+20,colW-24,16,{maxLines:2}); if(i) {ctx.strokeStyle='#d5d9e0'; ctx.beginPath(); ctx.moveTo(x+i*colW,y); ctx.lineTo(x+i*colW,y+rowH*(rows.length+1)); ctx.stroke();} });
-    rows.forEach((row,r)=>{
-      const yy = y + rowH*(r+1); ctx.fillStyle = r%2 ? '#fff' : '#fbfbfc'; ctx.fillRect(x,yy,w,rowH); ctx.strokeStyle='#e1e4e8'; ctx.strokeRect(x,yy,w,rowH);
-      row.forEach((cell,i)=>{ ctx.fillStyle = i===0 ? c.ink : (String(cell).includes('Крит') ? c.red : c.ink); ctx.font = i===0 ? '700 16px Arial' : '800 16px Arial'; drawWrapped(ctx, cell, x+i*colW+12, yy+24, colW-24, 18, {maxLines:2}); });
-    });
-  }
-  function drawBarChart(ctx, title, rows, x, y, w, h, opts = {}){
-    const c = reportColor();
-    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
-    ctx.fillStyle = c.ink; ctx.font='900 19px Arial'; ctx.fillText(title, x+22, y+34);
-    const max = Math.max(1, ...rows.map(r=>Number(r.total||r.value||0)));
-    const chartX = x+76, chartY = y+70, chartW = w-120, chartH = h-120;
-    ctx.strokeStyle='#d9dde5'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(chartX,chartY); ctx.lineTo(chartX,chartY+chartH); ctx.lineTo(chartX+chartW,chartY+chartH); ctx.stroke();
-    const bw = Math.min(70, chartW / rows.length * .55);
-    rows.forEach((r,i)=>{
-      const val = Number(r.total||r.value||0); const bh = chartH * val/max;
-      const bx = chartX + (i+.5)*chartW/rows.length - bw/2; const by = chartY+chartH-bh;
-      ctx.fillStyle = c.red; ctx.fillRect(bx,by,bw,bh);
-      ctx.fillStyle = c.ink; ctx.font='800 15px Arial'; ctx.textAlign='center'; ctx.fillText(String(val), bx+bw/2, by-8);
-      ctx.font='700 14px Arial'; drawWrapped(ctx, r.unit || r.name || r.label, bx-18, chartY+chartH+22, bw+36, 15, {maxLines:2});
-      ctx.textAlign='left';
-    });
-  }
-  function drawHorizontalBarChart(ctx, title, rows, x, y, w, h){
-    const c = reportColor();
-    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
-    ctx.fillStyle = c.ink; ctx.font='900 19px Arial'; ctx.fillText(title, x+22, y+34);
-    const max = Math.max(1, ...rows.map(r=>Number(r.value||r.total||0)));
-    const rowH = (h-78)/rows.length;
-    rows.forEach((r,i)=>{
-      const yy = y+62+i*rowH;
-      ctx.fillStyle = c.ink; ctx.font='800 15px Arial'; drawWrapped(ctx, r.name || r.unit || r.label, x+22, yy+18, 165, 16, {maxLines:2});
-      ctx.fillStyle = '#eceff3'; ctx.fillRect(x+195, yy+5, w-270, 24);
-      ctx.fillStyle = c.red; ctx.fillRect(x+195, yy+5, (w-270)*(Number(r.value||r.total||0)/max), 24);
-      ctx.fillStyle = c.ink; ctx.font='900 16px Arial'; ctx.fillText(String(r.label || r.value || r.total), x+w-62, yy+23);
-    });
-  }
-  function drawLineChart(ctx, title, rows, x, y, w, h){
-    const c = reportColor();
-    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
-    ctx.fillStyle = c.ink; ctx.font='900 19px Arial'; ctx.fillText(title, x+22, y+34);
-    const vals = rows.map(r=>Number(r.projected||r.value||0)); vals.unshift(Number(data.kits || 0));
-    const labels = ['Поточний'].concat(rows.map(r=>`+${r.add}`));
-    const max = Math.max(...vals)*1.05, min = Math.min(...vals)*.93;
-    const chartX=x+70, chartY=y+70, chartW=w-120, chartH=h-120;
-    ctx.strokeStyle='#d9dde5'; ctx.beginPath(); ctx.moveTo(chartX,chartY); ctx.lineTo(chartX,chartY+chartH); ctx.lineTo(chartX+chartW,chartY+chartH); ctx.stroke();
-    const pts = vals.map((v,i)=>({ x: chartX + i*chartW/(vals.length-1), y: chartY+chartH-((v-min)/(max-min))*chartH, v, label:labels[i] }));
-    ctx.strokeStyle=c.red; ctx.lineWidth=4; ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.stroke();
-    pts.forEach(p=>{ ctx.fillStyle=c.red; ctx.beginPath(); ctx.arc(p.x,p.y,7,0,Math.PI*2); ctx.fill(); ctx.fillStyle=c.ink; ctx.font='800 15px Arial'; ctx.textAlign='center'; ctx.fillText(String(p.v), p.x, p.y-14); ctx.font='700 14px Arial'; ctx.fillText(p.label, p.x, chartY+chartH+26); });
-    ctx.textAlign='left';
-  }
-  function drawDonut(ctx, title, rows, x, y, w, h){
-    const c = reportColor();
-    drawPanel(ctx,x,y,w,h,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
-    ctx.fillStyle=c.ink; ctx.font='900 19px Arial'; ctx.fillText(title,x+22,y+34);
-    const total = rows.reduce((s,r)=>s+Number(r.value||0),0) || 1;
-    const cx=x+w*.35, cy=y+h*.56, radius=Math.min(w,h)*.23;
-    let a=-Math.PI/2;
-    const fills=[c.red,'#f08a24','#aeb5c0','#222'];
-    rows.forEach((r,i)=>{ const ang=Math.PI*2*(Number(r.value||0)/total); ctx.beginPath(); ctx.moveTo(cx,cy); ctx.fillStyle=fills[i%fills.length]; ctx.arc(cx,cy,radius,a,a+ang); ctx.closePath(); ctx.fill(); a+=ang; });
-    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(cx,cy,radius*.55,0,Math.PI*2); ctx.fill();
-    rows.forEach((r,i)=>{ const yy=y+78+i*34; ctx.fillStyle=fills[i%fills.length]; ctx.fillRect(x+w*.62,yy-13,18,18); ctx.fillStyle=c.ink; ctx.font='800 15px Arial'; ctx.fillText(`${r.name} (${r.value}%)`, x+w*.62+28, yy+3); });
-  }
-
-  function drawReportPage(ctx, model, pageIndex){
-    const W=1240,H=1754,total=model.sections.length+1;
-    const c = reportColor();
-    ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
-    const pageTitle = pageIndex===0 ? 'ПОВНИЙ ЗВІТ' : (model.sections[pageIndex-1]?.title || 'ЗВІТ').replace(/^\d+\.\s*/, '');
-    drawReportHeader(ctx, model, pageTitle);
-    let y = 210;
-
-    if (pageIndex === 0){
-      ctx.fillStyle=c.red; ctx.font='900 34px Arial'; ctx.fillText('Аналіз · Висновки · Рекомендації', 56, y); y+=62;
-      drawPanel(ctx,56,y,520,250,{fill:'#fff',stroke:'#d5d9e0',topAccent:true});
-      model.meta.forEach(([k,v],i)=>{ ctx.fillStyle=c.ink; ctx.font='800 18px Arial'; ctx.fillText(k+':',86,y+48+i*44); ctx.fillStyle=c.red; ctx.font='900 18px Arial'; ctx.fillText(String(v),310,y+48+i*44); });
-      drawPanel(ctx,620,y,560,250,{fill:'#111216',stroke:c.red,topAccent:false});
-      ctx.fillStyle='#fff'; ctx.font='900 28px Arial'; ctx.fillText('BASTION REPORT ENGINE',650,y+58);
-      ctx.fillStyle='#d7262d'; ctx.font='900 18px Arial'; ctx.fillText('PDF · DOCX · CHARTS · KPI',650,y+96);
-      drawIcon(ctx,'target',650,y+126,70,c.red); drawIcon(ctx,'bars',760,y+126,70,c.red); drawIcon(ctx,'shield',870,y+126,70,c.red); drawIcon(ctx,'line',980,y+126,70,c.red);
-      y+=330;
-      ctx.fillStyle=c.red; ctx.font='900 30px Arial'; ctx.fillText('Зміст звіту',56,y); y+=50;
-      model.sections.forEach((s,i)=>{
-        const col = i<5 ? 0 : 1; const row = i%5;
-        drawPanel(ctx,56+col*560,y+row*72,520,58,{fill:'#fff',stroke:'#e1e4e8'});
-        ctx.fillStyle=c.red; ctx.font='900 22px Arial'; ctx.fillText(String(i+1).padStart(2,'0'),82+col*560,y+row*72+36);
-        ctx.fillStyle=c.ink; ctx.font='800 20px Arial'; ctx.fillText(s.title.replace(/^\d+\.\s*/, ''),136+col*560,y+row*72+36);
-      });
-    }
-
-    if (pageIndex === 1){
-      drawSectionLabel(ctx,'01','Загальні KPI',56,y); y+=40;
-      const kpi = [
-        ['cube','Сформовано комплектів',data.kits,''], ['target','Максимальна дальність',fmtRange(data.bestRange),''], ['warehouse','Залишок складу',data.remainTotal,`${data.remainPercent||0}% після розрахунку`], ['warning','Обмежувальний елемент',data.bottleneck,''], ['users','Враховано підрозділів',allUnits().length,allUnits().join(', ')]
-      ];
-      kpi.forEach((k,i)=>drawKpiCard(ctx,56+(i%2)*555,y+Math.floor(i/2)*190,520,160,...k));
-      y+=600;
-      drawSectionLabel(ctx,'01.1','Ключові показники системи',56,y); y+=40;
-      drawRows(ctx,[['Коефіцієнт використання ресурсів',`${readiness()}%`],['Потенційний приріст комплектів',`+${forecastScenarios().at(-1)?.gain || 0}`],['Середня ефективність комплекту','0,62'],['Рівень критичності системи','Високий']],56,y,1128,60,['target','line','cube','warning']);
-    }
-
-    if (pageIndex === 2){
-      drawSectionLabel(ctx,'02','Висновки',56,y); y+=40;
-      const sec=model.sections[1]; drawRows(ctx, sec.rows, 56, y, 1128, 74, ['star','bars','warehouse','cube','target']); y+=430;
-      drawPanel(ctx,56,y,1128,180,{fill:c.pink,stroke:'#f0b5b9',topAccent:true});
-      ctx.fillStyle=c.red; ctx.font='900 24px Arial'; ctx.fillText('Ключовий висновок',86,y+48);
-      ctx.fillStyle=c.ink; ctx.font='700 22px Arial'; drawWrapped(ctx, `Поточний результат становить ${data.kits} комплектів. Обмежувальним елементом визначено ${data.bottleneck}. Максимальна дальність — ${fmtRange(data.bestRange)}.`,86,y+92,1040,30,{maxLines:3});
-    }
-
-    if (pageIndex === 3){
-      drawSectionLabel(ctx,'03','Рекомендації / прогноз',56,y); y+=40;
-      drawDataTable(ctx,['Поповнення','Прогноз комплектів','Приріст'], forecastScenarios().map(s=>[`+${s.add} ${s.element}`,String(s.projected),`+${s.gain}`]),56,y,1128,64); y+=310;
-      const best = [...forecastScenarios()].sort((a,b)=>b.gain-a.gain)[0];
-      drawPanel(ctx,56,y,1128,180,{fill:c.pink,stroke:'#f0b5b9',topAccent:true}); drawIcon(ctx,'star',90,y+52,70,c.red);
-      ctx.fillStyle=c.red; ctx.font='900 34px Arial'; ctx.fillText(`Найкращий сценарій: +${best.add} ${best.element}`,190,y+70);
-      ctx.fillStyle=c.ink; ctx.font='800 24px Arial'; ctx.fillText(`Дає +${best.gain} комплектів. Підсумковий прогноз: ${best.projected} комплектів.`,190,y+118);
-      y+=240;
-      drawDataTable(ctx,['Ресурс','Ефективність','Пріоритет'], recommendationRows().map((r,i)=>[r.name,r.value,i===0?'Високий':i===1?'Середній':'Низький']),56,y,1128,56);
-    }
-
-    if (pageIndex === 4){
-      drawSectionLabel(ctx,'04','Графіки / діаграми',56,y); y+=32;
-      drawBarChart(ctx,'4.1 Розподіл комплектів по підрозділах',model.charts.allocations,56,y,540,430);
-      drawLineChart(ctx,'4.2 Прогноз приросту від поповнення',model.charts.scenarios,640,y,540,430);
-      y+=470;
-      drawHorizontalBarChart(ctx,'4.3 Ефективність поповнення ресурсів',model.charts.impact,56,y,540,390);
-      drawHorizontalBarChart(ctx,'4.4 Залишки по підрозділах',model.charts.remains.map(r=>({...r,value:r.total,label:r.total})),640,y,540,390);
-    }
-
-    if (pageIndex === 5){
-      drawSectionLabel(ctx,'05','Розподіл боєкомплектів',56,y); y+=40;
-      drawBarChart(ctx,'Сформовано комплектів по підрозділах',model.charts.allocations,56,y,1128,520); y+=570;
-      drawDataTable(ctx,['Підрозділ','Сформовано комплектів','Частка'], model.charts.allocations.map(r=>[r.unit,String(r.total),`${Math.round((r.total||0)/(data.kits||1)*100)}%`]),56,y,1128,54);
-    }
-
-    if (pageIndex === 6){
-      drawSectionLabel(ctx,'06','Залишки по підрозділах',56,y); y+=40;
-      drawHorizontalBarChart(ctx,'Залишки після розрахунку',model.charts.remains.map(r=>({...r,value:r.total,label:r.total})),56,y,1128,520); y+=570;
-      drawDataTable(ctx,['Підрозділ','Залишок','Статус'], model.charts.remains.map(r=>[r.unit,`${r.total} од.`, r.total <= minRemain().total ? 'Мінімальний' : 'Достатній']),56,y,1128,54);
-    }
-
-    if (pageIndex === 7){
-      drawSectionLabel(ctx,'07','Деталі по елементах',56,y); y+=40;
-      drawDataTable(ctx,['Елемент','Поточний стан','Статус','Вплив'], [[data.bottleneck,String(data.remainTotal)+' од.','Критичний','72%'],[minElement().name,`${minElement().qty} од. (${minElement().unit})`,'Критичний','21%'],['Інші ресурси','—','Нормальний','7%']],56,y,1128,62); y+=300;
-      drawDonut(ctx,'Структура обмежень', [{name:data.bottleneck,value:72},{name:minElement().name,value:21},{name:'Інші',value:7}],56,y,540,390);
-      drawPanel(ctx,640,y,540,390,{fill:'#fff',stroke:'#d5d9e0',topAccent:true}); ctx.fillStyle=c.ink; ctx.font='900 22px Arial'; ctx.fillText('Додаткова інформація',670,y+44); ctx.font='700 19px Arial'; ctx.fillStyle=c.ink; drawWrapped(ctx,`Коефіцієнт обмеження системи: 0,62. Глибина аналізу: повна. Враховано джерела даних зі складських залишків та активного рецепту.`,670,y+94,480,28,{maxLines:7});
-    }
-
-    if (pageIndex === 8){
-      drawSectionLabel(ctx,'08','Сценарний аналіз',56,y); y+=40;
-      const scenarios=forecastScenarios();
-      drawLineChart(ctx,'Динаміка прогнозу комплектів',scenarios,56,y,1128,500); y+=560;
-      drawDataTable(ctx,['Сценарій','Комплекти','Дальність','Приріст'], [['Поточний режим',String(data.kits),fmtRange(data.bestRange),'—'],...scenarios.map(s=>[`+${s.add} ${s.element}`,String(s.projected),fmtRange(data.bestRange),`+${s.gain}`])],56,y,1128,58);
-    }
-
-    if (pageIndex === 9){
-      drawSectionLabel(ctx,'09','Службова інформація',56,y); y+=40;
-      drawRows(ctx,model.sections[8].rows,56,y,1128,70,['cube','line','target','warehouse']); y+=360;
-      drawPanel(ctx,56,y,1128,190,{fill:'#111216',stroke:c.red,topAccent:false});
-      ctx.fillStyle='#fff'; ctx.font='900 30px Arial'; ctx.fillText('BASTION Command System',86,y+60);
-      ctx.fillStyle=c.red; ctx.font='800 20px Arial'; ctx.fillText('Звіт сформовано автоматизованим модулем експортного движка.',86,y+100);
-      ctx.fillStyle='#fff'; ctx.font='700 18px Arial'; ctx.fillText('Формати експорту: PDF / DOCX · Структура документів ідентична.',86,y+136);
-    }
-
-    drawReportFooter(ctx, pageIndex+1, total);
-  }
-
-  async function buildPdfFromCanvases(canvases){
-    const encoder = new TextEncoder();
-    const parts = ['%PDF-1.4\n'];
-    const offsets = [0];
-    const byteLen = part => typeof part === 'string' ? encoder.encode(part).length : part.length;
-    const currentOffset = () => parts.reduce((sum, part) => sum + byteLen(part), 0);
-    const writeObj = (num, body) => { offsets[num] = currentOffset(); parts.push(`${num} 0 obj\n${body}\nendobj\n`); };
-    const writeImageObj = (num, dict, bytes) => { offsets[num] = currentOffset(); parts.push(`${num} 0 obj\n${dict}\nstream\n`); parts.push(bytes); parts.push('\nendstream\nendobj\n'); };
-    const pageNums = []; let nextObj = 3; const imageRecords = [];
-    for (const canvas of canvases){
-      const jpeg = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .94));
-      const bytes = new Uint8Array(await jpeg.arrayBuffer());
-      const imgNum = nextObj++, contentNum = nextObj++, pageNum = nextObj++;
-      imageRecords.push({ canvas, bytes, imgNum, contentNum, pageNum }); pageNums.push(pageNum);
-    }
-    writeObj(1, '<< /Type /Catalog /Pages 2 0 R >>');
-    writeObj(2, `<< /Type /Pages /Kids [${pageNums.map(n => `${n} 0 R`).join(' ')}] /Count ${pageNums.length} >>`);
-    imageRecords.forEach((rec, idx) => {
-      writeImageObj(rec.imgNum, `<< /Type /XObject /Subtype /Image /Width ${rec.canvas.width} /Height ${rec.canvas.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${rec.bytes.length} >>`, rec.bytes);
-      const content = `q\n595 0 0 842 0 0 cm\n/Im${idx + 1} Do\nQ`;
-      writeObj(rec.contentNum, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
-      writeObj(rec.pageNum, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im${idx + 1} ${rec.imgNum} 0 R >> >> /Contents ${rec.contentNum} 0 R >>`);
-    });
-    const xrefStart = currentOffset(); const maxObj = nextObj - 1;
-    parts.push(`xref\n0 ${maxObj + 1}\n0000000000 65535 f \n`);
-    for (let i = 1; i <= maxObj; i++) parts.push(`${String(offsets[i] || 0).padStart(10, '0')} 00000 n \n`);
-    parts.push(`trailer\n<< /Size ${maxObj + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`);
-    return new Blob(parts, { type: 'application/pdf' });
-  }
-  async function exportPdf(){
-    const model = reportModel();
-    const totalPages = model.sections.length + 1;
-    const canvases = [];
-    for (let i=0;i<totalPages;i++){
-      const canvas = document.createElement('canvas'); canvas.width = 1240; canvas.height = 1754;
-      drawReportPage(canvas.getContext('2d'), model, i); canvases.push(canvas);
-    }
-    const pdf = await buildPdfFromCanvases(canvases);
-    downloadBlob('bastion-command-report.pdf', pdf, 'application/pdf');
   }
   function escapeHtml(str){ return String(str).replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
 
