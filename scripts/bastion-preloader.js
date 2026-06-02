@@ -34,6 +34,15 @@
     return TARGET_PAGES.has(key);
   }
 
+  function getResolvedHref(link) {
+    const raw = link.getAttribute("href") || link.getAttribute("xlink:href") || "";
+    try {
+      return new URL(raw, window.location.href).href;
+    } catch (_) {
+      return raw;
+    }
+  }
+
   function getOverlay() {
     let overlay = document.getElementById("bastionPagePreloader");
     if (!overlay) {
@@ -42,20 +51,25 @@
       overlay.className = "bastion-preloader";
       overlay.setAttribute("role", "status");
       overlay.setAttribute("aria-live", "polite");
+      document.body.prepend(overlay);
+    }
+
+    if (overlay.dataset.preloaderVersion !== "345") {
       overlay.innerHTML = [
         '<div class="bastion-preloader__stage">',
         '  <div class="bastion-preloader__fingerprint">',
         '    <img class="bastion-preloader__image" src="../assets/preloaders/bastion-fingerprint-preloader.png" alt="Ініціалізація BASTION" decoding="async" />',
         '  </div>',
-        '  <div class="bastion-preloader__title">ІНІЦІАЛІЗАЦІЯ</div>',
+        '  <div class="bastion-preloader__percent" data-preloader-percent>20%</div>',
         '  <div class="bastion-preloader__status" data-preloader-status>ІНІЦІАЛІЗАЦІЯ МОДУЛЯ</div>',
         '  <div class="bastion-preloader__bar-shell">',
         '    <div class="bastion-preloader__bar" aria-hidden="true"><span class="bastion-preloader__bar-fill" data-preloader-fill></span></div>',
         '  </div>',
         '</div>'
       ].join("");
-      document.body.prepend(overlay);
+      overlay.dataset.preloaderVersion = "345";
     }
+
     return overlay;
   }
 
@@ -173,15 +187,16 @@
     const link = event.target.closest && event.target.closest("a[href]");
     if (!link) return;
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const href = link.getAttribute("href");
+    const href = link.getAttribute("href") || link.getAttribute("xlink:href");
     if (!href || href.startsWith("#") || link.target === "_blank") return;
     if (!isTargetHref(href)) return;
     event.preventDefault();
     const key = pageKeyFromUrl(href);
+    const resolvedHref = getResolvedHref(link);
     showPreloader(TARGET_PAGES.get(key));
     animateProgress();
     setTarget(34);
-    setTimeout(() => { window.location.href = link.href; }, 220);
+    setTimeout(() => { window.location.href = resolvedHref; }, 220);
   }, true);
 
   if (document.readyState === "loading") {

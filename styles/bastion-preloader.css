@@ -211,3 +211,49 @@ body.bastion-preloader-lock { overflow: hidden !important; }
   .bastion-preloader__bar-shell,
   .bastion-preloader__status { width: 430px; }
 }
+
+/* v345: single preloader layout + restored progress line */
+.bastion-preloader__stage {
+  gap: clamp(7px, 1vh, 12px) !important;
+}
+
+.bastion-preloader__bar-shell {
+  width: min(46vw, 430px) !important;
+  display: block !important;
+  margin-top: 2px !important;
+}
+
+.bastion-preloader__bar {
+  width: 100% !important;
+  height: clamp(12px, .95vw, 17px) !important;
+  position: relative !important;
+}
+
+.bastion-preloader__bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.34), transparent);
+  transform: translateX(-110%);
+  animation: bastionPreloaderBarSweep 1.45s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.bastion-preloader__percent {
+  min-width: 0 !important;
+  text-align: center !important;
+  font-size: clamp(13px, 1.05vw, 17px) !important;
+  margin-top: -2px !important;
+}
+
+@keyframes bastionPreloaderBarSweep {
+  0% { transform: translateX(-115%); opacity: 0; }
+  18% { opacity: 1; }
+  72% { opacity: 1; }
+  100% { transform: translateX(115%); opacity: 0; }
+}
+
+@media (max-width: 760px) {
+  .bastion-preloader__bar-shell { width: min(78vw, 420px) !important; }
+}
