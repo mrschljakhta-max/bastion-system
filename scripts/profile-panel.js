@@ -674,33 +674,52 @@
 
 
   function initBastionFloatingTooltips() {
-    const selector = "[data-tooltip]";
-    let tooltip = document.querySelector("body > .bastion-floating-tooltip");
+    const legacySelector = "[data-tooltip]";
+    const selector = "[data-bastion-tooltip]";
+    let tooltip = document.querySelector(".bastion-floating-tooltip");
     let activeTarget = null;
     let raf = 0;
 
-    if (!tooltip) {
+    function ensureTooltip() {
+      if (tooltip && tooltip.parentElement === document.body) return tooltip;
+      if (tooltip && tooltip.parentElement !== document.body) tooltip.remove();
       tooltip = document.createElement("div");
       tooltip.className = "bastion-floating-tooltip";
       tooltip.setAttribute("role", "tooltip");
       tooltip.setAttribute("aria-hidden", "true");
-      document.body.appendChild(tooltip);
-    }
-
-    function forcePortalStyle() {
       tooltip.style.position = "fixed";
       tooltip.style.zIndex = "2147483647";
       tooltip.style.pointerEvents = "none";
       tooltip.style.filter = "none";
-      tooltip.style.webkitFilter = "none";
       tooltip.style.backdropFilter = "none";
       tooltip.style.webkitBackdropFilter = "none";
-      tooltip.style.textShadow = "none";
-      tooltip.style.mixBlendMode = "normal";
-      tooltip.style.willChange = "transform, opacity";
+      document.body.appendChild(tooltip);
+      return tooltip;
     }
 
-    forcePortalStyle();
+    function normalizeTargets(rootNode = document) {
+      rootNode.querySelectorAll?.(legacySelector).forEach((el) => {
+        const text = el.getAttribute("data-tooltip") || el.getAttribute("aria-label") || el.getAttribute("title") || "";
+        if (text.trim()) el.setAttribute("data-bastion-tooltip", text.trim());
+        /* ВАЖЛИВО: прибираємо data-tooltip, щоб старі CSS ::after tooltip-и більше ніколи не спрацьовували. */
+        el.removeAttribute("data-tooltip");
+      });
+    }
+
+    normalizeTargets(document);
+    ensureTooltip();
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node?.nodeType === 1) normalizeTargets(node);
+        });
+        if (mutation.type === "attributes" && mutation.target?.nodeType === 1) {
+          normalizeTargets(mutation.target.parentElement || document);
+        }
+      });
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-tooltip"] });
 
     function getTarget(node) {
       return node?.closest?.(selector) || null;
@@ -717,21 +736,18 @@
       const gap = 14;
       let x = rect.left + rect.width / 2 - tipRect.width / 2;
       let y = rect.top - tipRect.height - gap;
-
       if (y < 10) y = rect.bottom + gap;
-      x = clamp(x, 10, window.innerWidth - tipRect.width - 10);
-      y = clamp(y, 10, window.innerHeight - tipRect.height - 10);
-
-      tooltip.style.left = "0px";
-      tooltip.style.top = "0px";
-      tooltip.style.transform = `translate3d(${Math.round(x)}px, ${Math.round(y)}px, 0)`;
+      x = clamp(x, 12, window.innerWidth - tipRect.width - 12);
+      y = clamp(y, 12, window.innerHeight - tipRect.height - 12);
+      tooltip.style.left = `${Math.round(x)}px`;
+      tooltip.style.top = `${Math.round(y)}px`;
     }
 
     function show(target) {
-      const text = target?.getAttribute("data-tooltip") || target?.getAttribute("aria-label") || "";
+      ensureTooltip();
+      const text = target?.getAttribute("data-bastion-tooltip") || target?.getAttribute("aria-label") || "";
       if (!text.trim()) return;
       activeTarget = target;
-      forcePortalStyle();
       tooltip.textContent = text.trim();
       tooltip.dataset.theme = document.documentElement.getAttribute("data-theme") || document.body?.getAttribute("data-theme") || "dark";
       tooltip.setAttribute("aria-hidden", "false");
@@ -742,9 +758,9 @@
 
     function hide() {
       activeTarget = null;
+      if (!tooltip) return;
       tooltip.classList.remove("is-visible");
       tooltip.setAttribute("aria-hidden", "true");
-      tooltip.style.transform = "translate3d(-9999px, -9999px, 0)";
     }
 
     document.addEventListener("pointerover", (event) => {
