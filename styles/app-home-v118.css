@@ -12751,3 +12751,20 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
   --avatar-top: 76px !important;
   --avatar-edge: 48px !important;
 }
+
+
+/* ORBI hexagram alignment - user adjustment */
+.b116-panel--left{
+  --avatar-size: 92px !important;
+  --avatar-top: 62px !important;   /* was 76 */
+  --avatar-edge: 34px !important;  /* was 48 */
+}
+
+.b116-panel--left .b116-panel__avatar{
+  transform: translateX(-4px) translateY(-6px) scale(1.06) !important;
+  object-position:center center !important;
+}
+
+.b116-panel--left .b116-panel__avatar-box{
+  overflow: visible !important;
+}
