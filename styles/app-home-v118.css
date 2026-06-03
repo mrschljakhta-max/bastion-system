@@ -12770,7 +12770,11 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 }
 
 
-/* v365 - ORBI micro adjust up */
+
+
+/* v366 - ORBI final soft correction */
 .b116-panel--left .b116-panel__avatar{
-    transform: translateX(-4px) translateY(-20px) scale(1.06) !important;
+    transform: translateX(-4px) translateY(-16px) scale(1.06) !important;
+    object-position: center center !important;
+    transform-origin: center center !important;
 }
