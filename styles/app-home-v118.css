@@ -10457,7 +10457,7 @@ body.dict-modal-open .dict-modal.is-open {
   width: 420px !important;
   height: 185px !important;
   --avatar-size: 58px !important;
-  --avatar-top: 62px !important;
+  --avatar-top: 56px !important;
   --avatar-edge: 47px !important;
   --text-top: 71px !important;
   --text-edge: 148px !important;
@@ -10476,7 +10476,7 @@ body.dict-modal-open .dict-modal.is-open {
   width: 420px !important;
   height: 185px !important;
   --avatar-size: 58px !important;
-  --avatar-top: 62px !important;
+  --avatar-top: 56px !important;
   --avatar-edge: 44px !important;
   --text-top: 69px !important;
   --text-edge: 122px !important;
@@ -12756,32 +12756,15 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 /* ORBI hexagram alignment - user adjustment */
 .b116-panel--left{
   --avatar-size: 92px !important;
-  --avatar-top: 62px !important;   /* was 76 */
+  --avatar-top: 56px !important;   /* was 76 */
   --avatar-edge: 34px !important;  /* was 48 */
 }
 
 .b116-panel--left .b116-panel__avatar{
-  transform: translateX(-4px) translateY(-6px) scale(1.06) !important;
+  transform: translateX(-4px) translateY(-12px) scale(1.06) !important;
   object-position:center center !important;
 }
 
 .b116-panel--left .b116-panel__avatar-box{
   overflow: visible !important;
-}
-
-
-/* v363 — ORBI final micro-position.
-   Move only the top-left ORBI avatar container a little more left and up.
-   Lavash/right panel and panel geometry stay untouched. */
-.b116-top-panels > .b116-panel.b116-panel--left,
-.b116-panel--left {
-  --avatar-size: 92px !important;
-  --avatar-top: 52px !important;
-  --avatar-edge: 24px !important;
-}
-
-.b116-top-panels > .b116-panel.b116-panel--left .b116-panel__avatar,
-.b116-panel--left .b116-panel__avatar {
-  transform: translateX(-6px) translateY(-8px) scale(1.06) !important;
-  transform-origin: center center !important;
 }
