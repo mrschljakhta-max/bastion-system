@@ -12761,7 +12761,7 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 }
 
 .b116-panel--left .b116-panel__avatar{
-  transform: translateX(-4px) translateY(-12px) scale(1.06) !important;
+  transform: translateX(-8px) translateY(-20px) scale(1.06) !important;
   object-position:center center !important;
 }
 
