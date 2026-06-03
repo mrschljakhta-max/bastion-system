@@ -12745,9 +12745,9 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 }
 
 
-/* ORBI avatar tuning */
+/* ORBI hexagram alignment - final */
 .b116-panel--left{
-  --avatar-size: 86px !important;
-  --avatar-top: 86px !important;
-  --avatar-edge: 55px !important;
+  --avatar-size: 92px !important;
+  --avatar-top: 76px !important;
+  --avatar-edge: 48px !important;
 }
