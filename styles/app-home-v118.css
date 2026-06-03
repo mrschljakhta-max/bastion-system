@@ -12727,49 +12727,19 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 
 
 
-/* v356 — REAL top-left ORBI avatar tuning.
-   The visible ORBI avatar in the corner panel uses .b116-panel__avatar,
-   not .avatar-orbi. This patch targets ONLY the left ORBI panel.
-   Lavash/right panel, panel frames, text and geometry stay untouched. */
 
-.b116-panel--left .b116-panel__avatar-wrap {
-  overflow: hidden !important;
-}
 
+/* v361 — ORBI avatar final display.
+   Main fix is the updated ORBI PNG asset with reduced inner padding.
+   This CSS only keeps the left ORBI image centered; Lavash/right panel is untouched. */
 .b116-panel--left .b116-panel__avatar {
   width: 100% !important;
   height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
   object-fit: cover !important;
   object-position: center center !important;
-  transform-origin: center center !important;
-  transform: translateX(1px) translateY(0px) scale(1.28) !important;
-  filter: drop-shadow(0 0 10px rgba(255, 42, 35, .92)) !important;
-}
-
-/* If an inner soft ring around ORBI visually limits the avatar, make it less dominant only in the left panel. */
-.b116-panel--left .b116-panel__avatar-wrap::after {
-  opacity: .55 !important;
-}
-
-
-/* v358 — ORBI avatar final asset-fit.
-   The ORBI image asset was cropped to remove internal transparent padding.
-   Only the real top-left ORBI image is adjusted; Lavash/right panel stays untouched. */
-.b116-panel--left .b116-panel__avatar {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  object-position: center center !important;
-  transform: translateX(1px) scale(1.08) !important;
+  transform: translateX(1px) scale(1.04) !important;
   transform-origin: center center !important;
   border-radius: 50% !important;
-}
-
-
-/* v359 ORBI boost */
-.b116-panel--left .b116-panel__avatar{
- transform: translateX(1px) scale(1.18) !important;
- object-position:center center !important;
 }
