@@ -12743,3 +12743,11 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
   transform-origin: center center !important;
   border-radius: 50% !important;
 }
+
+
+/* ORBI avatar tuning */
+.b116-panel--left{
+  --avatar-size: 86px !important;
+  --avatar-top: 86px !important;
+  --avatar-edge: 55px !important;
+}
