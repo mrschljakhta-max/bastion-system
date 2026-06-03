@@ -12766,3 +12766,10 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
   transform-origin: center center !important;
   border-radius: 50% !important;
 }
+
+
+/* v359 ORBI boost */
+.b116-panel--left .b116-panel__avatar{
+ transform: translateX(1px) scale(1.18) !important;
+ object-position:center center !important;
+}
