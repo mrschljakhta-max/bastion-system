@@ -12745,26 +12745,23 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 }
 
 
-/* ORBI hexagram alignment - final */
-.b116-panel--left{
+
+
+/* v364 — ORBI final micro-position.
+   Moves only the left ORBI avatar circle slightly upward.
+   Lavash/right panel stays untouched. */
+.b116-panel--left {
   --avatar-size: 92px !important;
-  --avatar-top: 76px !important;
-  --avatar-edge: 48px !important;
+  --avatar-top: 48px !important;
+  --avatar-edge: 34px !important;
 }
 
-
-/* ORBI hexagram alignment - user adjustment */
-.b116-panel--left{
-  --avatar-size: 92px !important;
-  --avatar-top: 56px !important;   /* was 76 */
-  --avatar-edge: 34px !important;  /* was 48 */
-}
-
-.b116-panel--left .b116-panel__avatar{
-  transform: translateX(-8px) translateY(-20px) scale(1.06) !important;
-  object-position:center center !important;
-}
-
-.b116-panel--left .b116-panel__avatar-box{
+.b116-panel--left .b116-panel__avatar-box {
   overflow: visible !important;
+}
+
+.b116-panel--left .b116-panel__avatar {
+  transform: translateX(-4px) translateY(-14px) scale(1.06) !important;
+  object-position: center center !important;
+  transform-origin: center center !important;
 }
