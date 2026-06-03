@@ -12752,3 +12752,48 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
 .b116-panel--left .b116-panel__avatar-wrap::after {
   opacity: .55 !important;
 }
+
+
+/* v357 — ORBI top panel avatar real visual layer fix.
+   The visible ORBI avatar is in the b116 top-left panel layer, not the older .avatar-orbi class.
+   Panel, frame, text and Lavash/right panel remain untouched. */
+
+.b116-panel--left .b116-panel__avatar-frame,
+.b116-panel--left .b116-panel__avatar-wrap,
+.b116-panel--left .b116-panel__avatarBox,
+.b116-panel--left .b116-avatar,
+.b116-panel--left .b116-panel__avatar-shell {
+  overflow: hidden !important;
+}
+
+.b116-panel--left img.b116-panel__avatar,
+.b116-panel--left .b116-panel__avatar img,
+.b116-panel--left [class*="avatar"] > img,
+.b116-panel--left img[src*="orbi-avatar"] {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  transform-origin: center center !important;
+  transform: translateX(1px) translateY(0px) scale(1.55) !important;
+  border-radius: 50% !important;
+}
+
+/* Overlay only inside the left ORBI avatar slot, to bypass baked inner padding/limiter. */
+.b116-panel--left .b116-panel__avatar-wrap::before,
+.b116-panel--left .b116-panel__avatar-frame::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 8px !important;
+  border-radius: 50% !important;
+  background: url("../assets/ui/orbi-avatar-v116.png?v=357") center center / 155% 155% no-repeat !important;
+  z-index: 6 !important;
+  pointer-events: none !important;
+  filter: drop-shadow(0 0 10px rgba(255, 42, 35, .9)) !important;
+}
