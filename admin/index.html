@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="./styles/admin.css?v=120" />
+  <link rel="stylesheet" href="./styles/admin.css?v=121" />
   <link rel="stylesheet" href="./styles/settings.css?v=115" />
 </head>
 <body class="admin-body">
@@ -79,7 +79,7 @@
     <section class="admin-content">
       <header class="admin-header">
         <div>
-          <p id="adminEyebrow">CONTROL NODE</p>
+          <p id="adminEyebrow" hidden></p>
           <h1 id="adminPageTitle">Керування доступом</h1>
         </div>
         <div class="admin-profile" id="adminProfile">Перевірка admin-сесії…</div>
@@ -87,29 +87,12 @@
 
       <section class="admin-tab is-active" id="tab-invite" data-title="Надати доступ">
         <div class="admin-card admin-card-wide access-card">
-          <div class="access-card-head">
-            <div class="access-title-row">
-              <div class="access-title-icon" aria-hidden="true">♙</div>
-              <div>
-                <h2>Надати доступ користувачу</h2>
-                <p class="admin-muted">Заповніть email, роль і створіть персональне setup-посилання для першого входу.</p>
-              </div>
-            </div>
-            <div class="access-status-pill">admin · secure node</div>
-          </div>
-
-          <div class="admin-mini-links">
-            <a class="admin-link" href="./palette-preview.html?v=2">◉ Палітри UI</a>
-            <a class="admin-link" href="./email-preview.html?v=2">✉ Превʼю листа</a>
-          </div>
-
-          <div class="admin-quick-link-card" aria-label="Швидке посилання на основний сайт BASTION">
-            <div class="admin-quick-link-main">
-              <span class="admin-quick-link-kicker">Швидке посилання</span>
-              <strong>BASTION — основний сайт</strong>
-              <code>https://bastion-system.com/</code>
-            </div>
-            <button type="button" class="admin-quick-copy" id="copyMainSiteUrl" data-copy-default="Копіювати посилання">Копіювати посилання</button>
+          <div class="access-card-head access-card-head-clean">
+            <p class="admin-muted">Заповніть email, роль і створіть персональне setup-посилання для першого входу.</p>
+            <button type="button" class="bastion-link-copy" id="copyMainSiteUrl" data-copy-default="" aria-label="Копіювати посилання на сайт BASTION" title="Копіювати посилання на сайт BASTION">
+              <img src="./assets/bastion-main-link-logo.png" alt="BASTION" />
+              <span class="bastion-link-tooltip">Копіювати посилання на сайт BASTION</span>
+            </button>
           </div>
 
           <form class="admin-form access-form" id="inviteForm">
@@ -133,23 +116,6 @@
               </div>
             </label>
 
-            <label class="field-shell">
-              <span>Логін акаунта</span>
-              <div class="field-control is-readonly">
-                <span class="field-icon">◎</span>
-                <input id="inviteLoginPreview" type="text" value="—" readonly tabindex="-1" />
-                <span class="readonly-badge">авто</span>
-              </div>
-            </label>
-
-            <label class="field-shell">
-              <span>Setup-режим</span>
-              <div class="field-control is-readonly">
-                <span class="field-icon">⌁</span>
-                <input type="text" value="Пароль створить користувач" readonly tabindex="-1" />
-                <span class="readonly-badge">тільки перегляд</span>
-              </div>
-            </label>
 
             <label class="field-shell field-wide">
               <span>Нотатка <em>(необовʼязково)</em></span>
@@ -161,20 +127,10 @@
             </label>
 
             <div class="admin-actions access-actions field-wide">
-              <button type="button" class="admin-secondary" id="clearInviteForm">Скасувати</button>
-              <button type="submit" id="inviteSubmit">Створити доступ →</button>
-              <button type="button" class="admin-secondary" id="sendEmailBtn" disabled>Надіслати лист</button>
+              <button type="submit" id="inviteSubmit">Надіслати запрошення →</button>
             </div>
           </form>
 
-          <div class="invite-result" id="inviteResult" hidden>
-            <span>Setup-посилання</span>
-            <code id="inviteUrl"></code>
-            <div class="admin-actions">
-              <button type="button" id="copyInviteUrl">Скопіювати</button>
-              <a id="mailtoInvite" class="admin-link" href="#">Відкрити лист у пошті</a>
-            </div>
-          </div>
         </div>
       </section>
 

@@ -550,7 +550,7 @@
     if (inviteResult) inviteResult.hidden = true;
     if (sendEmailBtn) sendEmailBtn.disabled = true;
     if (inviteForm) inviteForm.dataset.requestId = '';
-    if (inviteSubmit) inviteSubmit.textContent = 'Створити доступ →';
+    if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
     updateInvitePreview();
   });
 
@@ -584,7 +584,7 @@
   inviteForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     inviteSubmit.disabled = true;
-    inviteSubmit.textContent = 'Створюю…';
+    inviteSubmit.textContent = 'Створюю доступ…';
 
     try {
       const rows = await adminRpc('admin_create_user_invite', {
@@ -604,11 +604,13 @@
         setup_url: makeSetupUrl(row.invite_token)
       };
 
-      inviteUrl.textContent = lastInvite.setup_url;
-      mailtoInvite.href = buildMailto(lastInvite);
-      inviteResult.hidden = false;
-      sendEmailBtn.disabled = false;
-      inviteSubmit.textContent = 'Доступ створено ✓';
+      if (inviteUrl) inviteUrl.textContent = lastInvite.setup_url;
+      if (mailtoInvite) mailtoInvite.href = buildMailto(lastInvite);
+      if (inviteResult) inviteResult.hidden = true;
+
+      inviteSubmit.textContent = 'Надсилаю лист…';
+      await sendInviteEmail(lastInvite);
+      inviteSubmit.textContent = 'Запрошення надіслано ✓';
 
       if (inviteForm?.dataset?.requestId) {
         try {
@@ -625,10 +627,17 @@
       await refreshUsers();
       await refreshRequests();
       await refreshLogs();
+
+      inviteForm?.reset();
+      lastInvite = null;
+      updateInvitePreview();
+      setTimeout(() => {
+        if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
+      }, 1600);
     } catch (error) {
       console.error(error);
-      alert(error.message || 'Не вдалося створити доступ.');
-      inviteSubmit.textContent = 'Створити доступ →';
+      alert(error.message || 'Не вдалося створити або надіслати запрошення.');
+      inviteSubmit.textContent = 'Надіслати запрошення →';
     } finally {
       inviteSubmit.disabled = false;
     }
@@ -654,21 +663,24 @@
 
   function bindCopyButton(button, url) {
     if (!button) return;
+    const hasCopyText = button.dataset.copyDefault !== '';
     const defaultText = button.dataset.copyDefault || button.textContent || 'Копіювати';
 
     button.addEventListener('click', async () => {
       try {
         await copyTextToClipboard(url);
         button.classList.add('is-copied');
-        button.textContent = '✓ Скопійовано';
+        if (hasCopyText) button.textContent = '✓ Скопійовано';
         setTimeout(() => {
           button.classList.remove('is-copied');
-          button.textContent = defaultText;
+          if (hasCopyText) button.textContent = defaultText;
         }, 1600);
       } catch (error) {
         console.error('Copy link failed:', error);
-        button.textContent = 'Не скопійовано';
-        setTimeout(() => (button.textContent = defaultText), 1600);
+        if (hasCopyText) {
+          button.textContent = 'Не скопійовано';
+          setTimeout(() => (button.textContent = defaultText), 1600);
+        }
       }
     });
   }
@@ -756,7 +768,11 @@
     const titleEl = document.getElementById('adminPageTitle');
     const eyebrowEl = document.getElementById('adminEyebrow');
     if (titleEl) titleEl.textContent = title;
-    if (eyebrowEl) eyebrowEl.textContent = 'ADMIN CONTROL NODE';
+    if (eyebrowEl) {
+      eyebrowEl.textContent = '';
+      eyebrowEl.hidden = true;
+    }
+    btn.blur();
 
     if (save) localStorage.setItem(ACTIVE_TAB_KEY, tabName);
   }
