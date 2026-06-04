@@ -99,20 +99,31 @@
             <label class="field-shell">
               <span>Email користувача</span>
               <div class="field-control">
-                <span class="field-icon">✉</span>
+                <span class="field-icon"><img src="./assets/mail-opened.svg" alt="" /></span>
                 <input id="inviteEmail" type="email" placeholder="operator@example.com" required />
               </div>
             </label>
 
             <label class="field-shell">
               <span>Роль користувача</span>
-              <div class="field-control">
-                <span class="field-icon">♙</span>
-                <select id="inviteRole" required>
+              <div class="field-control role-control">
+                <span class="field-icon"><img src="./assets/scan-traces.svg" alt="" /></span>
+                <select id="inviteRole" class="native-select-hidden" required aria-hidden="true" tabindex="-1">
                   <option value="demo">demo — демо-користувач</option>
                   <option value="user">user — користувач</option>
                   <option value="supervisor">supervisor — супервайзер</option>
                 </select>
+                <div class="role-select" id="inviteRoleCustom">
+                  <button type="button" class="role-select-trigger" id="inviteRoleTrigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="role-select-value">demo — демо-користувач</span>
+                    <span class="role-select-caret" aria-hidden="true">⌄</span>
+                  </button>
+                  <div class="role-select-menu" id="inviteRoleMenu" role="listbox" aria-label="Роль користувача">
+                    <button type="button" class="role-select-option is-selected" data-role-value="demo" role="option" aria-selected="true">demo — демо-користувач</button>
+                    <button type="button" class="role-select-option" data-role-value="user" role="option" aria-selected="false">user — користувач</button>
+                    <button type="button" class="role-select-option" data-role-value="supervisor" role="option" aria-selected="false">supervisor — супервайзер</button>
+                  </div>
+                </div>
               </div>
             </label>
 
@@ -120,14 +131,14 @@
             <label class="field-shell field-wide">
               <span>Нотатка <em>(необовʼязково)</em></span>
               <div class="field-control textarea-control">
-                <span class="field-icon">✎</span>
+                <span class="field-icon"><img src="./assets/note.svg" alt="" /></span>
                 <textarea id="inviteNote" maxlength="255" placeholder="За потреби: підрозділ, причина доступу, примітка..."></textarea>
                 <span class="char-counter" id="inviteNoteCounter">0 / 255</span>
               </div>
             </label>
 
             <div class="admin-actions access-actions field-wide">
-              <button type="submit" id="inviteSubmit">Надіслати запрошення →</button>
+              <button type="submit" id="inviteSubmit" class="send-invite-btn">Надіслати запрошення →</button>
             </div>
           </form>
 

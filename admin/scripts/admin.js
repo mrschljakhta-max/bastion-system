@@ -13,6 +13,12 @@
   const inviteForm = document.getElementById('inviteForm');
   const inviteEmail = document.getElementById('inviteEmail');
   const inviteRole = document.getElementById('inviteRole');
+
+  const inviteRoleCustom = document.getElementById('inviteRoleCustom');
+  const inviteRoleTrigger = document.getElementById('inviteRoleTrigger');
+  const inviteRoleMenu = document.getElementById('inviteRoleMenu');
+  const inviteRoleValue = inviteRoleTrigger?.querySelector('.role-select-value');
+  const inviteRoleOptions = Array.from(document.querySelectorAll('[data-role-value]'));
   const inviteNote = document.getElementById('inviteNote');
   const inviteSubmit = document.getElementById('inviteSubmit');
   const sendEmailBtn = document.getElementById('sendEmailBtn');
@@ -537,6 +543,58 @@
       .replace(/^[._-]+|[._-]+$/g, '') || '—';
   }
 
+
+  function syncInviteRoleCustom() {
+    if (!inviteRole || !inviteRoleValue) return;
+    const selectedOption = inviteRole.options[inviteRole.selectedIndex];
+    const label = selectedOption?.textContent || 'demo — демо-користувач';
+    inviteRoleValue.textContent = label;
+    inviteRoleOptions.forEach((option) => {
+      const isSelected = option.dataset.roleValue === inviteRole.value;
+      option.classList.toggle('is-selected', isSelected);
+      option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+    });
+  }
+
+  function closeInviteRoleSelect() {
+    inviteRoleCustom?.classList.remove('is-open');
+    inviteRoleTrigger?.setAttribute('aria-expanded', 'false');
+  }
+
+  function openInviteRoleSelect() {
+    inviteRoleCustom?.classList.add('is-open');
+    inviteRoleTrigger?.setAttribute('aria-expanded', 'true');
+  }
+
+  inviteRoleTrigger?.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (inviteRoleCustom?.classList.contains('is-open')) closeInviteRoleSelect();
+    else openInviteRoleSelect();
+  });
+
+  inviteRoleOptions.forEach((option) => {
+    option.addEventListener('click', (event) => {
+      event.preventDefault();
+      const value = option.dataset.roleValue;
+      if (inviteRole && value) {
+        inviteRole.value = value;
+        inviteRole.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      syncInviteRoleCustom();
+      closeInviteRoleSelect();
+      inviteRoleTrigger?.focus();
+    });
+  });
+
+  inviteRole?.addEventListener('change', syncInviteRoleCustom);
+  document.addEventListener('click', (event) => {
+    if (!inviteRoleCustom?.contains(event.target)) closeInviteRoleSelect();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeInviteRoleSelect();
+  });
+
   function updateInvitePreview() {
     if (inviteLoginPreview) inviteLoginPreview.value = normalizeLoginFromEmail(inviteEmail?.value);
     if (inviteNoteCounter && inviteNote) inviteNoteCounter.textContent = `${inviteNote.value.length} / 255`;
@@ -552,9 +610,11 @@
     if (inviteForm) inviteForm.dataset.requestId = '';
     if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
     updateInvitePreview();
+    syncInviteRoleCustom();
   });
 
   updateInvitePreview();
+  syncInviteRoleCustom();
 
   function makeSetupUrl(token) {
     const root = window.location.href.split('/admin/')[0];
@@ -631,6 +691,7 @@
       inviteForm?.reset();
       lastInvite = null;
       updateInvitePreview();
+      syncInviteRoleCustom();
       setTimeout(() => {
         if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
       }, 1600);

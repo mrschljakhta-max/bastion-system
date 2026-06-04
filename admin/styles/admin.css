@@ -1518,3 +1518,148 @@ body[data-minimal-motion] *::after {
     width: 100%;
   }
 }
+
+/* BASTION Admin — styled invite role selector + uploaded field icons */
+.field-icon img {
+  width: 22px;
+  height: 22px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255,49,88,.35));
+  opacity: .9;
+}
+
+.native-select-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.role-custom-control,
+.field-control:has(.role-select) {
+  overflow: visible;
+}
+
+.role-select {
+  position: relative;
+  min-width: 0;
+  z-index: 20;
+}
+
+.role-select-trigger {
+  width: 100%;
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  padding: 0 16px 0 20px;
+  font: inherit;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.role-select-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-select-caret {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.045);
+  color: rgba(255,255,255,.72);
+  transition: transform .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.role-select.is-open .role-select-caret {
+  transform: rotate(180deg);
+  border-color: rgba(255,49,88,.55);
+  color: #fff;
+}
+
+.role-select-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 10px);
+  padding: 8px;
+  border: 1px solid rgba(255,49,88,.48);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(27,10,16,.98), rgba(10,8,12,.98)),
+    radial-gradient(circle at 15% 0%, rgba(255,49,88,.22), transparent 42%);
+  box-shadow: 0 22px 54px rgba(0,0,0,.48), 0 0 32px rgba(255,49,88,.18);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  transform: translateY(-8px) scale(.98);
+  pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease;
+  z-index: 80;
+}
+
+.role-select.is-open .role-select-menu {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.role-select-option {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255,255,255,.82);
+  padding: 0 14px;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.role-select-option:hover,
+.role-select-option.is-selected {
+  border-color: rgba(255,49,88,.44);
+  background: linear-gradient(90deg, rgba(255,49,88,.20), rgba(255,255,255,.045));
+  color: #fff;
+}
+
+.role-select-option.is-selected::after {
+  content: '✓';
+  color: #ff3158;
+  text-shadow: 0 0 14px rgba(255,49,88,.42);
+}
+
+.send-invite-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.send-invite-btn::before {
+  content: '';
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+  flex: 0 0 22px;
+  background: url('../assets/brand-telegram.svg') center / contain no-repeat;
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,.35));
+  opacity: .95;
+}
+.role-control { overflow: visible; }
