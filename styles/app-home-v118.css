@@ -12778,3 +12778,84 @@ body.dict-modal-open > .bastion-floating-tooltip.is-visible {
     object-position: center center !important;
     transform-origin: center center !important;
 }
+
+
+/* v367 — LIGHT THEME bottom HUD panels restore.
+   Fix: in light theme the bottom panel body disappeared and only dots stayed visible.
+   This block restores the actual panel plate layer above the snowy background. */
+:root[data-theme="light"] .bottom-contact,
+:root[data-theme="light"] .bottom-map,
+:root[data-theme="light"] .hud-bottom-panel {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: fixed !important;
+  bottom: 24px !important;
+  height: 92px !important;
+  min-height: 92px !important;
+  z-index: 2600 !important;
+  isolation: isolate !important;
+  overflow: visible !important;
+  background: transparent !important;
+  filter: none !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
+
+:root[data-theme="light"] .bottom-contact,
+:root[data-theme="light"] .hud-bottom-left {
+  left: 28px !important;
+  right: auto !important;
+  width: 540px !important;
+  padding: 0 52px !important;
+  justify-content: flex-start !important;
+}
+
+:root[data-theme="light"] .bottom-map,
+:root[data-theme="light"] .hud-bottom-right {
+  right: 28px !important;
+  left: auto !important;
+  width: 540px !important;
+  padding: 0 52px !important;
+  justify-content: flex-end !important;
+}
+
+:root[data-theme="light"] .bottom-contact .bottom-contact-panel,
+:root[data-theme="light"] .bottom-map .bottom-map-panel {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background: url("../assets/ui/bottom-panel-light-v199.png?v=367") center / 100% 100% no-repeat !important;
+  filter:
+    brightness(1.04)
+    contrast(1.02)
+    saturate(1.10)
+    drop-shadow(0 12px 18px rgba(92, 102, 112, .18))
+    drop-shadow(0 0 18px rgba(255, 38, 48, .20)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+:root[data-theme="light"] .bottom-contact .bottom-contact-panel {
+  transform: scaleX(-1) !important;
+}
+
+:root[data-theme="light"] .bottom-contact .contact-dot-track,
+:root[data-theme="light"] .bottom-map .sitemap-track {
+  position: relative !important;
+  z-index: 4 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+:root[data-theme="light"] .bottom-contact .contact-dot,
+:root[data-theme="light"] .bottom-map .map-dot {
+  position: relative !important;
+  z-index: 5 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
