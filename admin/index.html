@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
   <link rel="stylesheet" href="./styles/admin.css?v=121" />
-  <link rel="stylesheet" href="./styles/settings.css?v=115" />
+  <link rel="stylesheet" href="./styles/settings.css?v=125" />
 </head>
 <body class="admin-body">
   <main class="admin-shell">
@@ -147,58 +147,34 @@
 
       <section class="admin-tab" id="tab-users" data-title="Користувачі">
         <div class="admin-card admin-card-wide admin-control-card">
-          <div class="admin-card-head users-card-head">
+          <div class="admin-card-head">
             <div>
-              <p class="admin-muted">Перегляд, керування та контроль доступу користувачів системи.</p>
+              <h2>Користувачі</h2>
+              <p class="admin-muted">Центр керування акаунтами: статус, 2FA, доступ, логи та повне видалення.</p>
             </div>
-            <button id="refreshUsers" class="admin-primary-action" type="button"><span class="action-icon">↻</span>Оновити</button>
+            <button id="refreshUsers">Оновити</button>
           </div>
 
-          <div class="admin-metrics-grid users-kpi-grid">
-            <div class="admin-metric user-kpi-card" data-users-kpi-filter="all" role="button" tabindex="0" aria-label="Показати всіх користувачів">
-              <span class="kpi-icon"><img src="./assets/users.svg" alt="" /></span>
-              <div class="kpi-copy"><span>Всього користувачів</span><strong id="usersTotalCount">0</strong></div>
-            </div>
-            <div class="admin-metric user-kpi-card" data-users-kpi-filter="active" role="button" tabindex="0" aria-label="Показати активних користувачів">
-              <span class="kpi-icon"><img src="./assets/user-check.svg" alt="" /></span>
-              <div class="kpi-copy"><span>Активних</span><strong id="usersActiveCount">0</strong></div>
-            </div>
-            <div class="admin-metric user-kpi-card" data-users-kpi-filter="pending" role="button" tabindex="0" aria-label="Показати користувачів на етапі реєстрації">
-              <span class="kpi-icon"><img src="./assets/user-key.svg" alt="" /></span>
-              <div class="kpi-copy"><span>На етапі реєстрації</span><strong id="usersPendingCount">0</strong></div>
-            </div>
+          <div class="admin-metrics-grid">
+            <div class="admin-metric"><span>Усього</span><strong id="usersTotalCount">0</strong></div>
+            <div class="admin-metric"><span>Активні</span><strong id="usersActiveCount">0</strong></div>
+            <div class="admin-metric"><span>2FA</span><strong id="usersMfaCount">0</strong></div>
           </div>
 
           <div class="admin-toolbar">
-            <label class="admin-toolbar-field admin-search-field">
+            <label class="admin-toolbar-field">
               <span>Пошук</span>
-              <div class="admin-search-control">
-                <img src="./assets/user-search.svg" alt="" />
-                <input id="userSearch" type="search" placeholder="Логін, email або роль..." />
-              </div>
+              <input id="userSearch" type="search" placeholder="login, email, роль..." />
             </label>
-            <label class="admin-toolbar-field admin-status-filter-field">
+            <label class="admin-toolbar-field">
               <span>Статус</span>
-              <select id="userStatusFilter" class="visually-hidden-select">
+              <select id="userStatusFilter">
                 <option value="all">Усі користувачі</option>
                 <option value="active">Активні</option>
                 <option value="disabled">Вимкнені</option>
                 <option value="pending">Pending</option>
                 <option value="invited">Invited</option>
               </select>
-              <div class="status-select" id="userStatusCustom">
-                <button type="button" class="status-select-trigger" id="userStatusTrigger" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="status-select-value">Усі користувачі</span>
-                  <span class="status-select-caret"><img src="./assets/arrow-badge-down.svg" alt="" /></span>
-                </button>
-                <div class="status-select-menu" id="userStatusMenu" role="listbox">
-                  <button type="button" class="status-select-option is-selected" data-status-value="all">Усі користувачі</button>
-                  <button type="button" class="status-select-option" data-status-value="active">Активні</button>
-                  <button type="button" class="status-select-option" data-status-value="disabled">Вимкнені</button>
-                  <button type="button" class="status-select-option" data-status-value="pending">Pending</button>
-                  <button type="button" class="status-select-option" data-status-value="invited">Invited</button>
-                </div>
-              </div>
             </label>
           </div>
 
@@ -262,65 +238,95 @@
       </section>
 
       <section class="admin-tab" id="tab-requests" data-title="Заявки">
+        <div class="admin-card admin-card-wide admin-control-card requests-control-card">
+          <div class="admin-card-head requests-card-head">
+            <p class="admin-muted">Перегляд заявок, поданих користувачами через стартову сторінку системи.</p>
+            <button id="refreshRequests" class="bastion-refresh-btn" type="button">
+              <span class="admin-btn-icon"><img src="./assets/sort-ascending-2.svg" alt="" aria-hidden="true" /></span>
+              <span class="refresh-btn-label">Оновити</span>
+            </button>
+          </div>
+
+          <div class="admin-metrics-grid requests-metrics-grid">
+            <button type="button" class="admin-metric admin-kpi-card" data-request-filter="all">
+              <span class="admin-kpi-icon"><img src="./assets/brand-juejin.svg" alt="" aria-hidden="true" /></span>
+              <span class="admin-kpi-label">Всього заявок</span>
+              <strong id="requestsTotalCount">0</strong>
+            </button>
+            <button type="button" class="admin-metric admin-kpi-card" data-request-filter="pending">
+              <span class="admin-kpi-icon"><img src="./assets/user-plus.svg" alt="" aria-hidden="true" /></span>
+              <span class="admin-kpi-label">Нові</span>
+              <strong id="requestsPendingCount">0</strong>
+            </button>
+            <button type="button" class="admin-metric admin-kpi-card" data-request-filter="approved">
+              <span class="admin-kpi-icon"><img src="./assets/user-check.svg" alt="" aria-hidden="true" /></span>
+              <span class="admin-kpi-label">Схвалені</span>
+              <strong id="requestsApprovedCount">0</strong>
+            </button>
+          </div>
+
+          <div class="admin-toolbar requests-toolbar">
+            <label class="admin-toolbar-field requests-search-field">
+              <span>Пошук</span>
+              <div class="admin-search-control">
+                <span class="admin-search-icon"><img src="./assets/user-search.svg" alt="" aria-hidden="true" /></span>
+                <input id="requestSearch" type="search" placeholder="email або текст повідомлення..." />
+              </div>
+            </label>
+            <label class="admin-toolbar-field requests-status-field">
+              <span>Статус</span>
+              <select id="requestStatusFilter" class="native-select-hidden" aria-hidden="true" tabindex="-1">
+                <option value="all">Усі заявки</option>
+                <option value="pending">Нові</option>
+                <option value="approved">Схвалені</option>
+                <option value="rejected">Відхилені</option>
+                <option value="resolved">Опрацьовані</option>
+              </select>
+              <div class="role-select request-status-select" id="requestStatusCustom">
+                <button type="button" class="role-select-trigger request-status-trigger" id="requestStatusTrigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="request-status-icon"><img src="./assets/adjustments-minus.svg" alt="" aria-hidden="true" /></span>
+                  <span class="role-select-value">Усі заявки</span>
+                  <span class="role-select-caret" aria-hidden="true"><img src="./assets/arrow-badge-down.svg" alt="" /></span>
+                </button>
+                <div class="role-select-menu request-status-menu" id="requestStatusMenu" role="listbox">
+                  <button type="button" class="role-select-option" data-request-status-value="all" role="option">Усі заявки</button>
+                  <button type="button" class="role-select-option" data-request-status-value="pending" role="option">Нові</button>
+                  <button type="button" class="role-select-option" data-request-status-value="approved" role="option">Схвалені</button>
+                  <button type="button" class="role-select-option" data-request-status-value="rejected" role="option">Відхилені</button>
+                  <button type="button" class="role-select-option" data-request-status-value="resolved" role="option">Опрацьовані</button>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <div class="admin-table-wrap requests-table-wrap"><table id="requestsTable"></table></div>
+        </div>
+      </section>
+
+      <section class="admin-tab" id="tab-logs" data-title="Логування">
         <div class="admin-card admin-card-wide admin-control-card">
           <div class="admin-card-head">
             <div>
-              <h2>Заявки на доступ</h2>
-              <p class="admin-muted">Заявки, створені користувачами через стартову сторінку. Нові заявки показані першими.</p>
+              <h2>Activity logs</h2>
+              <p class="admin-muted">Останні події access-control системи у читабельному вигляді.</p>
             </div>
-            <button id="refreshRequests">Оновити</button>
+            <button id="refreshLogs">Оновити</button>
           </div>
 
           <div class="admin-metrics-grid">
-            <div class="admin-metric"><span>Усього</span><strong id="requestsTotalCount">0</strong></div>
-            <div class="admin-metric"><span>Нові</span><strong id="requestsPendingCount">0</strong></div>
-            <div class="admin-metric"><span>Схвалені</span><strong id="requestsApprovedCount">0</strong></div>
+            <div class="admin-metric"><span>Подій</span><strong id="logsTotalCount">0</strong></div>
+            <div class="admin-metric"><span>Admin</span><strong id="logsAdminCount">0</strong></div>
+            <div class="admin-metric"><span>MFA</span><strong id="logsMfaCount">0</strong></div>
           </div>
 
           <div class="admin-toolbar">
             <label class="admin-toolbar-field">
               <span>Пошук</span>
-              <input id="requestSearch" type="search" placeholder="email або текст повідомлення..." />
+              <input id="logSearch" type="search" placeholder="email, login, дія, details..." />
             </label>
             <label class="admin-toolbar-field">
-              <span>Статус</span>
-              <select id="requestStatusFilter">
-                <option value="pending">Тільки нові</option>
-                <option value="all">Усі заявки</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-                <option value="resolved">Resolved</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="admin-table-wrap"><table id="requestsTable"></table></div>
-        </div>
-      </section>
-
-      <section class="admin-tab" id="tab-logs" data-title="Логування">
-        <div class="admin-card admin-card-wide admin-control-card logs-control-card">
-          <div class="admin-card-head logs-card-head">
-            <div>
-              <p class="admin-muted">Перегляд журналу подій, дій адміністраторів та системних операцій у BASTION.</p>
-            </div>
-            <button id="refreshLogs" class="admin-primary-action logs-refresh-btn" type="button">
-              <span class="action-icon" aria-hidden="true">↻</span>
-              <span class="action-label">Оновити</span>
-            </button>
-          </div>
-
-          <div class="admin-toolbar logs-toolbar">
-            <label class="admin-toolbar-field admin-search-field has-field-icon">
-              <span>Пошук</span>
-              <div class="admin-input-icon-shell">
-                <span class="admin-input-icon"><img src="./assets/list-search.svg" alt="" aria-hidden="true" /></span>
-                <input id="logSearch" type="search" placeholder="email, login, дія, details..." />
-              </div>
-            </label>
-            <label class="admin-toolbar-field admin-status-filter-field">
               <span>Тип події</span>
-              <select id="logActionFilter" class="admin-native-select" aria-hidden="true" tabindex="-1">
+              <select id="logActionFilter">
                 <option value="all">Усі події</option>
                 <option value="admin">Admin</option>
                 <option value="invite">Invite</option>
@@ -328,190 +334,84 @@
                 <option value="login">Login</option>
                 <option value="delete">Delete</option>
               </select>
-              <div class="status-select" id="logActionCustom">
-                <button type="button" class="status-select-trigger" id="logActionTrigger" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="status-select-leading"><img src="./assets/adjustments-minus.svg" alt="" aria-hidden="true" /></span>
-                  <span class="status-select-value">Усі події</span>
-                  <span class="status-select-caret"><img src="./assets/arrow-badge-down.svg" alt="" aria-hidden="true" /></span>
-                </button>
-                <div class="status-select-menu" id="logActionMenu" role="listbox">
-                  <button type="button" class="status-select-option is-selected" data-log-action-value="all">Усі події</button>
-                  <button type="button" class="status-select-option" data-log-action-value="admin">Admin</button>
-                  <button type="button" class="status-select-option" data-log-action-value="invite">Invite</button>
-                  <button type="button" class="status-select-option" data-log-action-value="mfa">MFA</button>
-                  <button type="button" class="status-select-option" data-log-action-value="login">Login</button>
-                  <button type="button" class="status-select-option" data-log-action-value="delete">Delete</button>
-                </div>
-              </div>
             </label>
           </div>
 
-          <div class="admin-table-wrap logs-table-wrap"><table id="logsTable"></table></div>
+          <div class="admin-table-wrap"><table id="logsTable"></table></div>
         </div>
       </section>
 
-      <div class="admin-date-filter-modal" id="logDateFilterModal" hidden>
-        <div class="admin-date-filter-backdrop" data-log-date-close></div>
-        <section class="admin-date-filter-dialog" role="dialog" aria-modal="true" aria-labelledby="logDateFilterTitle">
-          <header>
-            <div>
-              <h2 id="logDateFilterTitle">Період журналу</h2>
-              <p>Оберіть проміжок часу для відображення подій.</p>
-            </div>
-            <button type="button" class="admin-date-filter-x" data-log-date-close aria-label="Закрити">×</button>
-          </header>
-          <div class="admin-date-filter-grid">
-            <label>
-              <span>Від</span>
-              <input id="logDateFrom" type="date" />
-            </label>
-            <label>
-              <span>До</span>
-              <input id="logDateTo" type="date" />
-            </label>
-          </div>
-          <div class="admin-date-presets">
-            <button type="button" data-date-preset="today">Сьогодні</button>
-            <button type="button" data-date-preset="yesterday">Вчора</button>
-            <button type="button" data-date-preset="7">Останні 7 днів</button>
-            <button type="button" data-date-preset="30">Останні 30 днів</button>
-            <button type="button" data-date-preset="month">Поточний місяць</button>
-            <button type="button" data-date-preset="all">Весь журнал</button>
-          </div>
-          <footer>
-            <button type="button" class="admin-confirm-ghost" id="resetLogDateFilter">Скинути фільтр</button>
-            <button type="button" class="admin-confirm-ghost" data-log-date-close>Відхилити</button>
-            <button type="button" class="admin-confirm-danger" id="applyLogDateFilter">Застосувати</button>
-          </footer>
-        </section>
-      </div>
-
       <section class="admin-tab" id="tab-settings" data-title="Налаштування">
         <div class="bastion-settings-screen admin-settings-screen" data-module="settings">
-          <section class="settings-command-card">
-            <header class="settings-hero">
+          <section class="settings-command-card settings-palette-command-card">
+            <header class="settings-hero settings-hero-minimal">
               <div>
-                <div class="bastion-module-kicker">SYSTEM CONFIG</div>
-                <h1>Налаштування</h1>
-                <p>Персоналізація адмінського інтерфейсу BASTION: тема, інтенсивність ефектів, профіль, продуктивність, безпека та службові інструменти.</p>
-              </div>
-              <div class="settings-status">
-                <span>CONFIG NODE</span>
-                <strong id="settingsSaveState">READY</strong>
+                <p>Оберіть палітру, яка змінить фон, кнопки, KPI-картки, навігацію, форми та таблиці адмін-сайту BASTION.</p>
               </div>
             </header>
 
-            <div class="settings-grid">
-              <section class="settings-panel settings-panel--wide">
-                <div class="settings-panel-head">
-                  <span class="settings-icon">◉</span>
-                  <div>
-                    <h2>Візуальна тема</h2>
-                    <p>Колірна палітра, неон, фон і режим продуктивності.</p>
-                  </div>
-                </div>
-                <div class="palette-grid" id="paletteGrid">
-                  <button type="button" class="palette-card" data-palette="crimson"><i></i><strong>Crimson Core</strong><span>поточна червоно-чорна</span></button>
-                  <button type="button" class="palette-card" data-palette="ice"><i></i><strong>Arctic Ice</strong><span>cyan / blue HUD</span></button>
-                  <button type="button" class="palette-card" data-palette="emerald"><i></i><strong>Emerald Command</strong><span>зелений tactical</span></button>
-                  <button type="button" class="palette-card" data-palette="gold"><i></i><strong>Gold Authority</strong><span>чорний + золото</span></button>
-                  <button type="button" class="palette-card" data-palette="violet"><i></i><strong>Void Purple</strong><span>темний фіолетовий</span></button>
-                </div>
-                <div class="settings-controls settings-controls--quad">
-                  <label><span>Glow strength</span><input id="glowStrength" type="range" min="0" max="100" step="5"></label>
-                  <label><span>Animation level</span><input id="animationLevel" type="range" min="0" max="100" step="5"></label>
-                  <label><span>Particle density</span><input id="particleDensity" type="range" min="0" max="100" step="5"></label>
-                  <label><span>Blur amount</span><input id="blurAmount" type="range" min="0" max="100" step="5"></label>
-                </div>
-                <div class="segmented-control" id="performanceMode">
-                  <button type="button" data-mode="high">High Fidelity</button>
-                  <button type="button" data-mode="balanced">Balanced</button>
-                  <button type="button" data-mode="performance">Performance</button>
-                </div>
-              </section>
+            <section class="settings-panel settings-panel--wide palette-selection-panel">
+              <div class="palette-grid palette-grid-showcase" id="paletteGrid">
+                <button type="button" class="palette-card palette-card-showcase" data-palette="crimson">
+                  <span class="palette-preview palette-preview-crimson"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span>
+                  <strong>Crimson Core</strong>
+                  <span>червоний командний режим</span>
+                </button>
 
-              <section class="settings-panel">
-                <div class="settings-panel-head">
-                  <span class="settings-icon">◎</span>
-                  <div><h2>Профіль</h2><p>Локальна назва оператора та аватар.</p></div>
-                </div>
-                <div class="settings-controls">
-                  <label class="settings-field"><span>Nickname</span><input id="settingsNickname" type="text" maxlength="32" placeholder="admin / operator"></label>
-                  <label class="settings-field"><span>Avatar URL</span><input id="settingsAvatar" type="url" placeholder="https://..."></label>
-                </div>
-                <div class="settings-actions profile-actions--dual">
-                  <button type="button" id="applyProfileSettings">Застосувати профіль</button>
-                  <button type="button" class="settings-ghost" id="clearUiCache">Очистити профіль</button>
-                </div>
-              </section>
+                <button type="button" class="palette-card palette-card-showcase" data-palette="ice">
+                  <span class="palette-preview palette-preview-ice"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span>
+                  <strong>Arctic Ice</strong>
+                  <span>холодна блакитна тема</span>
+                </button>
 
-              <section class="settings-panel">
-                <div class="settings-panel-head">
-                  <span class="settings-icon">▣</span>
-                  <div><h2>Поведінка UI</h2><p>Стартова сторінка, sidebar і motion.</p></div>
-                </div>
-                <div class="settings-controls">
-                  <label class="settings-field"><span>Default landing</span>
-                    <select id="defaultLanding"><option value="app">Main menu</option><option value="upload">Upload</option><option value="dicts">Dicts</option><option value="analysis">Analysis</option></select>
-                  </label>
-                  <label class="settings-field"><span>Sidebar mode</span>
-                    <select id="sidebarMode"><option value="compact">Compact</option><option value="expanded">Expanded</option><option value="auto">Auto-hide</option></select>
-                  </label>
-                  <label class="settings-toggle"><input id="minimalMotion" type="checkbox"> Minimal animation</label>
-                </div>
-              </section>
+                <button type="button" class="palette-card palette-card-showcase" data-palette="emerald">
+                  <span class="palette-preview palette-preview-emerald"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span>
+                  <strong>Emerald Command</strong>
+                  <span>тактична зелена палітра</span>
+                </button>
 
-              <section class="settings-panel">
-                <div class="settings-panel-head">
-                  <span class="settings-icon">⌬</span>
-                  <div><h2>Developer</h2><p>Кеш, діагностика і службова інформація.</p></div>
-                </div>
-                <div class="settings-stack">
-                  <button type="button" class="settings-ghost" id="reloadAssets">Reload assets</button>
-                  <label class="settings-toggle"><input id="debugMode" type="checkbox"> Debug mode</label>
-                  <div class="version-card"><span>Version</span><strong>BASTION Admin v115</strong><small>local settings node</small></div>
-                </div>
-              </section>
+                <button type="button" class="palette-card palette-card-showcase" data-palette="gold">
+                  <span class="palette-preview palette-preview-gold"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span>
+                  <strong>Gold Authority</strong>
+                  <span>жовто-графітовий режим</span>
+                </button>
 
-              <section class="settings-panel settings-panel--danger">
-                <div class="settings-panel-head">
-                  <span class="settings-icon">!</span>
-                  <div><h2>Danger zone</h2><p>Скидання локальних UI-налаштувань.</p></div>
-                </div>
-                <div class="settings-stack">
-                  <button type="button" class="settings-ghost" id="resetSettings">Reset local settings</button>
-                </div>
-              </section>
-            </div>
+                <button type="button" class="palette-card palette-card-showcase" data-palette="violet">
+                  <span class="palette-preview palette-preview-violet"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span>
+                  <strong>Void Purple</strong>
+                  <span>фіолетова технологічна тема</span>
+                </button>
 
-            <div class="settings-footer-actions">
-              <button type="button" class="settings-save" id="saveSettings">Зберегти налаштування</button>
-              <span class="admin-muted">Зміни зберігаються локально в браузері.</span>
-            </div>
+                <button type="button" class="palette-card palette-card-showcase" data-palette="marsala">
+                  <span class="palette-preview palette-preview-marsala"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span>
+                  <strong>Marsala Command</strong>
+                  <span>марсаловий преміум-режим</span>
+                </button>
+
+                <button type="button" class="palette-card palette-card-showcase" data-palette="polar">
+                  <span class="palette-preview palette-preview-polar"><i></i><i></i><i></i><i></i><i></i></span>
+                  <span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span>
+                  <strong>Polar White</strong>
+                  <span>світлий льодовий інтерфейс</span>
+                </button>
+              </div>
+            </section>
           </section>
         </div>
       </section>
     </section>
   </main>
 
-  <div class="admin-confirm-modal" id="userDeleteModal" hidden>
-    <div class="admin-confirm-backdrop" data-delete-cancel></div>
-    <div class="admin-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="userDeleteTitle">
-      <div class="admin-confirm-icon"><img src="./assets/user-x.svg" alt="" /></div>
-      <h2 id="userDeleteTitle">Видалити користувача?</h2>
-      <p>Користувача буде видалено із системи BASTION. Цю дію неможливо скасувати.</p>
-      <strong id="userDeleteTarget" class="admin-confirm-target">—</strong>
-      <div class="admin-confirm-actions">
-        <button type="button" class="admin-confirm-ghost" data-delete-cancel>Відхилити</button>
-        <button type="button" class="admin-confirm-danger" id="confirmUserDelete">Видалити</button>
-      </div>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../scripts/config.js?v=28"></script>
-  <script src="./scripts/settings-runtime.js?v=115"></script>
-  <script src="./scripts/admin.js?v=120"></script>
-  <script src="./scripts/settings.js?v=115"></script>
+  <script src="./scripts/settings-runtime.js?v=125"></script>
+  <script src="./scripts/admin.js?v=125"></script>
+  <script src="./scripts/settings.js?v=125"></script>
 </body>
 </html>

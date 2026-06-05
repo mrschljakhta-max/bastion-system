@@ -1,4 +1,4 @@
-/* BASTION Settings Runtime v115 */
+/* BASTION Settings Runtime v125 */
 (() => {
   const defaults = {
     palette: 'crimson', glowStrength: 75, animationLevel: 70, particleDensity: 70,
@@ -6,29 +6,18 @@
   };
 
   const palettes = {
-    crimson: {
-      accent: '#ff3158', soft: '#ff7980', line: 'rgba(255, 49, 88, 0.42)', glow: 'rgba(255, 49, 88, 0.18)', gold: '#ffc21a'
-    },
-    ice: {
-      accent: '#36dfff', soft: '#95f1ff', line: 'rgba(54, 223, 255, 0.44)', glow: 'rgba(54, 223, 255, 0.17)', gold: '#ff3158'
-    },
-    emerald: {
-      accent: '#23ff9c', soft: '#89ffd0', line: 'rgba(35, 255, 156, 0.42)', glow: 'rgba(35, 255, 156, 0.15)', gold: '#ff3158'
-    },
-    gold: {
-      accent: '#ffc451', soft: '#ffe0a3', line: 'rgba(255, 196, 81, 0.44)', glow: 'rgba(255, 196, 81, 0.16)', gold: '#ffc451'
-    },
-    violet: {
-      accent: '#a36bff', soft: '#d2b4ff', line: 'rgba(163, 107, 255, 0.42)', glow: 'rgba(163, 107, 255, 0.16)', gold: '#ff3158'
-    }
+    crimson: { accent: '#ff3158', soft: '#ff7980', line: 'rgba(255,49,88,.42)', glow: 'rgba(255,49,88,.18)', gold: '#ffc21a' },
+    ice: { accent: '#36dfff', soft: '#95f1ff', line: 'rgba(54,223,255,.44)', glow: 'rgba(54,223,255,.17)', gold: '#95f1ff' },
+    emerald: { accent: '#27e9b5', soft: '#89ffd0', line: 'rgba(39,233,181,.42)', glow: 'rgba(39,233,181,.16)', gold: '#89ffd0' },
+    gold: { accent: '#fde235', soft: '#fff06b', line: 'rgba(253,226,53,.44)', glow: 'rgba(253,226,53,.16)', gold: '#fde235' },
+    violet: { accent: '#a56abd', soft: '#d8a4ff', line: 'rgba(165,106,189,.44)', glow: 'rgba(165,106,189,.18)', gold: '#d8a4ff' },
+    marsala: { accent: '#dc586d', soft: '#ffb894', line: 'rgba(220,88,109,.44)', glow: 'rgba(220,88,109,.18)', gold: '#ffb894' },
+    polar: { accent: '#048db7', soft: '#d0ecf7', line: 'rgba(4,141,183,.44)', glow: 'rgba(4,141,183,.18)', gold: '#0a5f83' }
   };
 
   function read() {
-    try {
-      return { ...defaults, ...JSON.parse(localStorage.getItem('bastion_ui_settings') || '{}') };
-    } catch {
-      return { ...defaults };
-    }
+    try { return { ...defaults, ...JSON.parse(localStorage.getItem('bastion_ui_settings') || '{}') }; }
+    catch { return { ...defaults }; }
   }
 
   function apply() {
@@ -56,8 +45,7 @@
     }
 
     localStorage.setItem('BASTION_ADMIN_PALETTE', paletteKey);
-
-    if (s.debugMode) console.info('[BASTION settings v115]', s);
+    if (s.debugMode) console.info('[BASTION settings v125]', s);
   }
 
   window.BastionSettings = { read, apply };
