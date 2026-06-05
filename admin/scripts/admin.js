@@ -57,6 +57,7 @@
   const logDateFrom = document.getElementById('logDateFrom');
   const logDateTo = document.getElementById('logDateTo');
   const applyLogDateFilter = document.getElementById('applyLogDateFilter');
+  const resetLogDateFilter = document.getElementById('resetLogDateFilter');
 
   const adminAccessForm = document.getElementById('adminAccessForm');
   const adminAccessQuery = document.getElementById('adminAccessQuery');
@@ -157,13 +158,18 @@
     const table = document.getElementById(tableId);
     if (!table) return;
 
+    const header = `<thead><tr>${columns.map((c) => `<th>${c.labelHtml || escapeHtml(c.label)}</th>`).join('')}</tr></thead>`;
+
     if (!rows?.length) {
-      table.innerHTML = `<tr><td class="admin-empty-cell">${escapeHtml(emptyText)}</td></tr>`;
+      table.innerHTML = `
+        ${header}
+        <tbody><tr><td class="admin-empty-cell" colspan="${columns.length}">${escapeHtml(emptyText)}</td></tr></tbody>
+      `;
       return;
     }
 
     table.innerHTML = `
-      <thead><tr>${columns.map((c) => `<th>${c.labelHtml || escapeHtml(c.label)}</th>`).join('')}</tr></thead>
+      ${header}
       <tbody>
         ${rows.map((row) => `
           <tr>${columns.map((c) => `<td>${c.render ? c.render(row) : escapeHtml(row[c.key])}</td>`).join('')}</tr>
@@ -718,17 +724,17 @@
 
   function playRefreshButtonFeedback(button = refreshUsersBtn) {
     if (!button) return;
-    const textNode = Array.from(button.childNodes).find((node) => node.nodeType === Node.TEXT_NODE);
+    const labelNode = button.querySelector('.action-label') || Array.from(button.childNodes).find((node) => node.nodeType === Node.TEXT_NODE);
     button.classList.remove('is-refreshing', 'is-updated');
     void button.offsetWidth;
     button.classList.add('is-refreshing');
     window.setTimeout(() => {
       button.classList.remove('is-refreshing');
       button.classList.add('is-updated');
-      if (textNode) textNode.textContent = 'Оновлено';
+      if (labelNode) labelNode.textContent = 'Оновлено';
       window.setTimeout(() => {
         button.classList.remove('is-updated');
-        if (textNode) textNode.textContent = 'Оновити';
+        if (labelNode) labelNode.textContent = 'Оновити';
       }, 1000);
     }, 520);
   }
@@ -1232,6 +1238,13 @@
   document.querySelectorAll('[data-date-preset]').forEach((btn) => btn.addEventListener('click', () => setLogDatePreset(btn.dataset.datePreset)));
   applyLogDateFilter?.addEventListener('click', () => {
     logDateRange = { from: logDateFrom?.value || '', to: logDateTo?.value || '' };
+    closeLogDateModal();
+    renderLogs();
+  });
+  resetLogDateFilter?.addEventListener('click', () => {
+    logDateRange = { from: '', to: '' };
+    if (logDateFrom) logDateFrom.value = '';
+    if (logDateTo) logDateTo.value = '';
     closeLogDateModal();
     renderLogs();
   });

@@ -2728,6 +2728,12 @@ body[data-minimal-motion] *::after {
   font-size: 19px;
   line-height: 1;
 }
+.logs-refresh-btn .action-label {
+  display: inline-block;
+  min-width: 86px;
+  text-align: left;
+}
+
 .logs-toolbar {
   margin-top: 42px;
 }
