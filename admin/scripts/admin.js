@@ -36,6 +36,7 @@
   const requestsTable = document.getElementById('requestsTable');
   const logsTable = document.getElementById('logsTable');
 
+  const refreshUsersBtn = document.getElementById('refreshUsers');
   const userSearch = document.getElementById('userSearch');
   const userStatusFilter = document.getElementById('userStatusFilter');
   const userStatusCustom = document.getElementById('userStatusCustom');
