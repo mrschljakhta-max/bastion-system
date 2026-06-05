@@ -36,14 +36,8 @@
   const requestsTable = document.getElementById('requestsTable');
   const logsTable = document.getElementById('logsTable');
 
-  const refreshUsersBtn = document.getElementById('refreshUsers');
   const userSearch = document.getElementById('userSearch');
   const userStatusFilter = document.getElementById('userStatusFilter');
-  const userStatusCustom = document.getElementById('userStatusCustom');
-  const userStatusTrigger = document.getElementById('userStatusTrigger');
-  const userStatusMenu = document.getElementById('userStatusMenu');
-  const userStatusValue = userStatusTrigger?.querySelector('.status-select-value');
-  const userStatusOptions = Array.from(document.querySelectorAll('[data-status-value]'));
   const requestSearch = document.getElementById('requestSearch');
   const requestStatusFilter = document.getElementById('requestStatusFilter');
   const logSearch = document.getElementById('logSearch');
@@ -51,24 +45,18 @@
 
   const adminAccessForm = document.getElementById('adminAccessForm');
   const adminAccessQuery = document.getElementById('adminAccessQuery');
-  const adminAccessRole = document.getElementById('adminAccessRole');
   const adminAccessFind = document.getElementById('adminAccessFind');
   const adminAccessGrant = document.getElementById('adminAccessGrant');
-  const adminAccessRevoke = document.getElementById('adminAccessRevoke');
   const adminAccessResult = document.getElementById('adminAccessResult');
   let adminAccessDropdown = null;
   let adminAccessSelectedIndex = -1;
+  let currentAdminAccessUser = null;
 
   let lastInvite = null;
   let adminSession = null;
   let usersCache = [];
   let requestsCache = [];
   let logsCache = [];
-  let pendingUserDelete = null;
-
-  const userDeleteModal = document.getElementById('userDeleteModal');
-  const userDeleteTarget = document.getElementById('userDeleteTarget');
-  const confirmUserDelete = document.getElementById('confirmUserDelete');
 
   const client = window.supabase.createClient(
     window.BASTION_CONFIG.SUPABASE_URL,
@@ -129,19 +117,6 @@
     }
   }
 
-  function formatDateStacked(value) {
-    if (!value) return '—';
-    try {
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return escapeHtml(value);
-      const day = date.toLocaleDateString('uk-UA', { year: 'numeric', month: '2-digit', day: '2-digit' });
-      const time = date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
-      return `<span class="admin-date-stack"><strong>${escapeHtml(day)}</strong><small>${escapeHtml(time)}</small></span>`;
-    } catch (_) {
-      return escapeHtml(value);
-    }
-  }
-
   function renderTable(tableId, rows, columns, emptyText = 'Даних немає.') {
     const table = document.getElementById(tableId);
     if (!table) return;
@@ -182,15 +157,6 @@
     return `<span class="admin-status-badge" data-status="${escapeHtml(v)}">${escapeHtml(v)}</span>`;
   }
 
-  function boolIcon(value, label = '') {
-    const ok = Boolean(value);
-    return `<span class="admin-bool-icon ${ok ? 'is-ok' : 'is-no'}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${ok ? '✓' : '×'}</span>`;
-  }
-
-  function actionIconButton(kind, attrs, label, icon) {
-    return `<button type="button" class="admin-icon-action admin-icon-action--${escapeHtml(kind)}" ${attrs} title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><span>${icon}</span></button>`;
-  }
-
   function actionButtons(items) {
     return `<div class="admin-row-actions">${items.join('')}</div>`;
   }
@@ -204,15 +170,10 @@
     return String(value ?? '').toLowerCase().trim();
   }
 
-  function isUserPendingRegistration(row) {
-    const status = normalizeText(row?.status);
-    return status === 'pending' || status === 'invited' || status === 'mfa_pending' || !row?.login;
-  }
-
   function updateUsersMetrics(rows = usersCache) {
     setMetric('usersTotalCount', rows.length);
     setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && String(r.status).toLowerCase() !== 'disabled').length);
-    setMetric('usersPendingCount', rows.filter(isUserPendingRegistration).length);
+    setMetric('usersMfaCount', rows.filter((r) => Boolean(r.mfa_enabled)).length);
   }
 
   function updateRequestsMetrics(rows = requestsCache) {
@@ -240,31 +201,9 @@
         status === 'all' ||
         (status === 'active' && isActive) ||
         (status === 'disabled' && !isActive) ||
-        (status === 'pending' && isUserPendingRegistration(row)) ||
         rowStatus === status;
       return matchesSearch && matchesStatus;
     });
-  }
-
-  function setStatusFilterValue(value, render = true) {
-    if (!userStatusFilter) return;
-    userStatusFilter.value = value;
-    const selected = userStatusOptions.find((option) => option.dataset.statusValue === value);
-    userStatusOptions.forEach((option) => option.classList.toggle('is-selected', option === selected));
-    if (userStatusValue && selected) userStatusValue.textContent = selected.textContent.trim();
-    usersKpiCards.forEach((card) => card.classList.toggle('is-active-filter', card.dataset.usersKpiFilter === value));
-    if (render) renderUsers();
-  }
-
-  function closeStatusSelect() {
-    userStatusCustom?.classList.remove('is-open');
-    userStatusTrigger?.setAttribute('aria-expanded', 'false');
-  }
-
-  function toggleStatusSelect() {
-    const open = !userStatusCustom?.classList.contains('is-open');
-    userStatusCustom?.classList.toggle('is-open', open);
-    userStatusTrigger?.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
 
   function getFilteredRequests() {
@@ -305,27 +244,21 @@
       { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
       { key: 'email', label: 'Email' },
       { key: 'role', label: 'Роль', render: (row) => `<span class="admin-role-pill">${escapeHtml(row.role || '—')}</span>` },
-      { key: 'status', label: 'Статус', render: (row) => {
-        const active = Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled';
-        return boolIcon(active, active ? 'Активний' : 'Вимкнений');
-      } },
-      { key: 'mfa_enabled', label: '2FA', render: (row) => boolIcon(Boolean(row.mfa_enabled), Boolean(row.mfa_enabled) ? '2FA увімкнено' : '2FA вимкнено') },
-      { key: 'is_active', label: 'Доступ', render: (row) => {
-        const access = Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled';
-        return boolIcon(access, access ? 'Доступ активний' : 'Доступ закрито');
-      } },
-      { key: 'created_at', label: 'Створено', render: (row) => formatDateStacked(row.created_at) },
+      { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
+      { key: 'mfa_enabled', label: '2FA', render: (row) => Boolean(row.mfa_enabled) ? '<span class="admin-good">ON</span>' : '<span class="admin-muted-inline">OFF</span>' },
+      { key: 'is_active', label: 'Доступ', render: (row) => Boolean(row.is_active) && row.status !== 'disabled' ? '<span class="admin-good">Активний</span>' : '<span class="admin-danger-text">Закрито</span>' },
+      { key: 'created_at', label: 'Створено', render: (row) => formatDate(row.created_at) },
       {
         key: 'actions',
         label: 'Дії',
         render: (row) => {
           const email = escapeHtml(row.email || '');
           const login = escapeHtml(row.login || '');
-          const isActive = Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled';
+          const isActive = Boolean(row.is_active) && row.status !== 'disabled';
           return actionButtons([
-            actionIconButton('toggle', `data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}"`, isActive ? 'Вимкнути користувача' : 'Увімкнути користувача', '⏻'),
-            actionIconButton('logs', `data-user-logs="${email}"`, 'Переглянути логи', '≋'),
-            actionIconButton('delete', `data-user-delete="${email}" data-login="${login}"`, 'Видалити користувача', '<img src="./assets/user-x.svg" alt="" />')
+            `<button type="button" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}">${isActive ? 'Вимкнути' : 'Увімкнути'}</button>`,
+            `<button type="button" data-user-logs="${email}">Логи</button>`,
+            `<button type="button" class="danger" data-user-delete="${email}" data-login="${login}">Видалити</button>`
           ]);
         }
       }
@@ -510,22 +443,39 @@
     return true;
   }
 
+  function syncAdminAccessAction(row = currentAdminAccessUser) {
+    if (!adminAccessGrant) return;
+    if (!row) {
+      adminAccessGrant.disabled = true;
+      adminAccessGrant.textContent = 'Надати адмін-доступ';
+      adminAccessGrant.dataset.adminAccessAction = 'grant';
+      return;
+    }
+
+    const isAdmin = Boolean(row.is_admin);
+    adminAccessGrant.disabled = false;
+    adminAccessGrant.dataset.adminAccessAction = isAdmin ? 'revoke' : 'grant';
+    adminAccessGrant.textContent = isAdmin ? 'Відкликати адмін-доступ' : 'Надати адмін-доступ';
+  }
+
   function renderAdminAccessResult(row, mode = 'found') {
     if (!adminAccessResult) return;
+
+    currentAdminAccessUser = row || null;
+    syncAdminAccessAction(currentAdminAccessUser);
 
     if (!row) {
       adminAccessResult.innerHTML = `
         <div class="admin-empty-card">
           <strong>Користувача не знайдено</strong>
-          <span>Перевір login або email. Користувач має спочатку пройти звичайну реєстрацію.</span>
+          <span>Перевірте логін або email. Користувач має спочатку пройти звичайну реєстрацію.</span>
         </div>
       `;
       return;
     }
 
     const isAdmin = Boolean(row.is_admin);
-    const adminRole = row.admin_role || '—';
-    const status = isAdmin ? 'admin enabled' : 'user only';
+    const adminStatusText = isAdmin ? 'Так' : 'Ні';
     adminAccessResult.innerHTML = `
       <div class="admin-access-profile" data-mode="${escapeHtml(mode)}">
         <div>
@@ -540,24 +490,62 @@
         </div>
         <div>
           <span>Адмін-доступ</span>
-          <strong class="${isAdmin ? 'admin-good' : 'admin-muted-inline'}">${escapeHtml(status)}</strong>
-          <small>${escapeHtml(adminRole)}</small>
+          <strong class="${isAdmin ? 'admin-good' : 'admin-muted-inline'}">${adminStatusText}</strong>
+          <small>${isAdmin ? 'Доступ до адмін-сайту активний' : 'Доступ до адмін-сайту відсутній'}</small>
         </div>
         <div>
           <span>2FA</span>
-          <strong class="${row.mfa_enabled ? 'admin-good' : 'admin-muted-inline'}">${row.mfa_enabled ? 'ON' : 'OFF'}</strong>
+          <strong class="${row.mfa_enabled ? 'admin-good' : 'admin-muted-inline'}">${row.mfa_enabled ? 'Увімкнено' : 'Вимкнено'}</strong>
           <small>${row.auth_user_id ? 'auth linked' : 'no auth binding'}</small>
         </div>
       </div>
     `;
+  }
 
-    if (adminAccessRole && row.admin_role) adminAccessRole.value = row.admin_role;
+  function confirmAdminAccessAction(row, action) {
+    return new Promise((resolve) => {
+      const isGrant = action === 'grant';
+      const overlay = document.createElement('div');
+      overlay.className = 'admin-confirm-overlay';
+      overlay.innerHTML = `
+        <div class="admin-confirm-dialog" role="dialog" aria-modal="true" aria-label="Підтвердження дії">
+          <div class="admin-confirm-icon">${isGrant ? '+' : '−'}</div>
+          <h3>${isGrant ? 'Надати адмін-доступ?' : 'Відкликати адмін-доступ?'}</h3>
+          <p>${isGrant ? 'Користувач отримає право входу в адмінський сайт BASTION.' : 'Користувач втратить право входу в адмінський сайт BASTION.'}</p>
+          <div class="admin-confirm-user">
+            <span>Користувач</span>
+            <strong>${escapeHtml(row?.login || '—')}</strong>
+            <small>${escapeHtml(row?.email || '—')}</small>
+          </div>
+          <div class="admin-confirm-actions">
+            <button type="button" class="admin-secondary" data-confirm-cancel>Відхилити</button>
+            <button type="button" class="admin-confirm-primary" data-confirm-ok>${isGrant ? 'Надати' : 'Відкликати'}</button>
+          </div>
+        </div>
+      `;
+
+      const close = (result) => {
+        overlay.classList.remove('is-visible');
+        window.setTimeout(() => overlay.remove(), 160);
+        resolve(result);
+      };
+
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) close(false);
+      });
+      overlay.querySelector('[data-confirm-cancel]')?.addEventListener('click', () => close(false));
+      overlay.querySelector('[data-confirm-ok]')?.addEventListener('click', () => close(true));
+
+      document.body.appendChild(overlay);
+      window.requestAnimationFrame(() => overlay.classList.add('is-visible'));
+      overlay.querySelector('[data-confirm-cancel]')?.focus();
+    });
   }
 
   async function findAdminAccessUser(silent = false) {
     const query = adminAccessQuery?.value?.trim();
     if (!query) {
-      if (!silent) alert('Введіть login або email користувача.');
+      if (!silent) alert('Введіть логін або email користувача.');
       return null;
     }
 
@@ -565,24 +553,6 @@
     const row = Array.isArray(rows) ? rows[0] : rows;
     renderAdminAccessResult(row || null);
     return row || null;
-  }
-
-
-  function playRefreshButtonFeedback() {
-    if (!refreshUsersBtn) return;
-    const textNode = Array.from(refreshUsersBtn.childNodes).find((node) => node.nodeType === Node.TEXT_NODE);
-    refreshUsersBtn.classList.remove('is-refreshing', 'is-updated');
-    void refreshUsersBtn.offsetWidth;
-    refreshUsersBtn.classList.add('is-refreshing');
-    window.setTimeout(() => {
-      refreshUsersBtn.classList.remove('is-refreshing');
-      refreshUsersBtn.classList.add('is-updated');
-      if (textNode) textNode.textContent = 'Оновлено';
-      window.setTimeout(() => {
-        refreshUsersBtn.classList.remove('is-updated');
-        if (textNode) textNode.textContent = 'Оновити';
-      }, 1000);
-    }, 520);
   }
 
   async function refreshUsers() {
@@ -839,6 +809,7 @@
 
   bindCopyButton(copyMainSiteUrl, `${window.location.origin}/`);
   bindCopyButton(copyAdminStartUrl, `${window.location.origin}/admin/start.html`);
+  syncAdminAccessAction(null);
 
 
   async function sendAdminAccessEmail(user, role) {
@@ -926,22 +897,6 @@
     btn.addEventListener('click', () => activateTab(btn.dataset.adminTab));
   });
 
-  function openUserDeleteModal(email, login) {
-    pendingUserDelete = { email, login: login || email };
-    if (userDeleteTarget) userDeleteTarget.textContent = login && login !== email ? `${login} • ${email}` : email;
-    if (userDeleteModal) {
-      userDeleteModal.hidden = false;
-      requestAnimationFrame(() => userDeleteModal.classList.add('is-open'));
-    }
-  }
-
-  function closeUserDeleteModal() {
-    pendingUserDelete = null;
-    if (!userDeleteModal) return;
-    userDeleteModal.classList.remove('is-open');
-    window.setTimeout(() => { userDeleteModal.hidden = true; }, 160);
-  }
-
   usersTable?.addEventListener('click', async (event) => {
     const toggle = event.target.closest('[data-user-toggle]');
     const remove = event.target.closest('[data-user-delete]');
@@ -972,7 +927,16 @@
       if (remove) {
         const email = remove.dataset.userDelete;
         const login = remove.dataset.login || email;
-        openUserDeleteModal(email, login);
+        const typed = prompt(`Повне видалення акаунта.\n\nБуде видалено доступ, invite, MFA-secret і profile binding.\nДля підтвердження введіть login або email:\n${login}`);
+        if (!typed) return;
+        if (typed.trim().toLowerCase() !== String(login).toLowerCase() && typed.trim().toLowerCase() !== String(email).toLowerCase()) {
+          alert('Підтвердження не збігається. Видалення скасовано.');
+          return;
+        }
+        if (!confirm(`Остаточно видалити ${email}? Цю дію не можна швидко відкотити.`)) return;
+        await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: typed.trim() });
+        await refreshUsers();
+        await refreshLogs();
       }
     } catch (error) {
       console.error(error);
@@ -1022,45 +986,8 @@
     }
   });
 
-  userStatusTrigger?.addEventListener('click', toggleStatusSelect);
-  userStatusOptions.forEach((option) => {
-    option.addEventListener('click', () => {
-      setStatusFilterValue(option.dataset.statusValue || 'all');
-      closeStatusSelect();
-    });
-  });
-  document.addEventListener('click', (event) => {
-    if (!userStatusCustom) return;
-    if (!userStatusCustom.contains(event.target)) closeStatusSelect();
-  });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeStatusSelect();
-      if (userDeleteModal && !userDeleteModal.hidden) closeUserDeleteModal();
-    }
-  });
-  document.querySelectorAll('[data-delete-cancel]').forEach((btn) => {
-    btn.addEventListener('click', closeUserDeleteModal);
-  });
-  confirmUserDelete?.addEventListener('click', async () => {
-    if (!pendingUserDelete?.email) return;
-    const { email } = pendingUserDelete;
-    confirmUserDelete.disabled = true;
-    try {
-      await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: email });
-      closeUserDeleteModal();
-      await refreshUsers();
-      await refreshLogs();
-    } catch (error) {
-      console.error(error);
-      alert(error.message || 'Не вдалося видалити користувача.');
-    } finally {
-      confirmUserDelete.disabled = false;
-    }
-  });
-
   userSearch?.addEventListener('input', renderUsers);
-  userStatusFilter?.addEventListener('change', () => setStatusFilterValue(userStatusFilter.value || 'all'));
+  userStatusFilter?.addEventListener('change', renderUsers);
   requestSearch?.addEventListener('input', renderRequests);
   requestStatusFilter?.addEventListener('change', renderRequests);
   logSearch?.addEventListener('input', renderLogs);
@@ -1106,62 +1033,57 @@
   adminAccessForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const query = adminAccessQuery?.value?.trim();
-    const role = adminAccessRole?.value || 'admin';
-    if (!query) return alert('Введіть login або email користувача.');
-    if (!confirm(`Надати адмін-доступ (${role}) для ${query}?`)) return;
+    if (!query) return alert('Введіть логін або email користувача.');
+
+    let row = currentAdminAccessUser;
+    const rowKey = String(row?.login || row?.email || '').trim().toLowerCase();
+    if (!row || (rowKey && !String(query).trim().toLowerCase().includes(rowKey) && rowKey !== String(query).trim().toLowerCase())) {
+      row = await findAdminAccessUser(true);
+    }
+
+    if (!row) {
+      renderAdminAccessResult(null);
+      return;
+    }
+
+    const action = Boolean(row.is_admin) ? 'revoke' : 'grant';
+    const confirmed = await confirmAdminAccessAction(row, action);
+    if (!confirmed) return;
 
     adminAccessGrant.disabled = true;
-    adminAccessGrant.textContent = 'Надаю…';
-    try {
-      const rows = await adminRpc('admin_grant_admin_access', { p_query: query, p_admin_role: role });
-      const row = Array.isArray(rows) ? rows[0] : rows;
-      renderAdminAccessResult(row || null, 'granted');
+    adminAccessGrant.textContent = action === 'grant' ? 'Надаю…' : 'Відкликаю…';
 
-      let emailNotice = 'Лист користувачу надіслано.';
-      try {
-        await sendAdminAccessEmail(row, role);
-      } catch (mailError) {
-        console.error('Admin access email failed:', mailError);
-        emailNotice = `Адмін-доступ надано, але лист не надіслано: ${mailError.message || 'помилка Edge Function'}.`;
+    try {
+      const rows = action === 'grant'
+        ? await adminRpc('admin_grant_admin_access', { p_query: query, p_admin_role: 'admin' })
+        : await adminRpc('admin_revoke_admin_access', { p_query: query });
+      const updatedRow = Array.isArray(rows) ? rows[0] : rows;
+      renderAdminAccessResult(updatedRow || null, action === 'grant' ? 'granted' : 'revoked');
+
+      if (action === 'grant') {
+        try {
+          await sendAdminAccessEmail(updatedRow, 'admin');
+        } catch (mailError) {
+          console.error('Admin access email failed:', mailError);
+        }
       }
 
-      await refreshLogs();
-      alert(`Адмін-доступ надано. Користувач може входити в admin/login.html тим самим login/password.\n\n${emailNotice}`);
+      await Promise.all([refreshLogs(), refreshUsers()]);
+      adminAccessGrant.textContent = action === 'grant' ? 'Доступ надано ✓' : 'Доступ відкликано ✓';
+      window.setTimeout(() => syncAdminAccessAction(updatedRow || currentAdminAccessUser), 1400);
     } catch (error) {
       console.error(error);
-      alert(error.message || 'Не вдалося надати адмін-доступ.');
+      alert(error.message || (action === 'grant' ? 'Не вдалося надати адмін-доступ.' : 'Не вдалося відкликати адмін-доступ.'));
+      syncAdminAccessAction(row);
     } finally {
-      adminAccessGrant.disabled = false;
-      adminAccessGrant.textContent = 'Надати адмін-доступ →';
+      window.setTimeout(() => {
+        adminAccessGrant.disabled = false;
+        syncAdminAccessAction(currentAdminAccessUser);
+      }, 300);
     }
   });
 
-  adminAccessRevoke?.addEventListener('click', async () => {
-    const query = adminAccessQuery?.value?.trim();
-    if (!query) return alert('Введіть login або email користувача.');
-    if (!confirm(`Відкликати адмін-доступ для ${query}?`)) return;
-
-    adminAccessRevoke.disabled = true;
-    adminAccessRevoke.textContent = 'Відкликаю…';
-    try {
-      const rows = await adminRpc('admin_revoke_admin_access', { p_query: query });
-      const row = Array.isArray(rows) ? rows[0] : rows;
-      renderAdminAccessResult(row || null, 'revoked');
-      await refreshLogs();
-      alert('Адмін-доступ відкликано.');
-    } catch (error) {
-      console.error(error);
-      alert(error.message || 'Не вдалося відкликати адмін-доступ.');
-    } finally {
-      adminAccessRevoke.disabled = false;
-      adminAccessRevoke.textContent = 'Відкликати';
-    }
-  });
-
-  refreshUsersBtn?.addEventListener('click', async () => {
-    playRefreshButtonFeedback();
-    await refreshUsers();
-  });
+  document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
   document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);
   document.getElementById('refreshLogs')?.addEventListener('click', refreshLogs);
 
