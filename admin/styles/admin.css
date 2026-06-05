@@ -2044,3 +2044,89 @@ body[data-minimal-motion] *::after {
   background: linear-gradient(180deg, #ff4669, #c4143a);
   box-shadow: 0 18px 44px rgba(255,49,88,.22);
 }
+
+
+/* =========================================================
+   BASTION Admin — users page polish v3
+   ========================================================= */
+.admin-card .admin-primary-action,
+.users-card-head .admin-primary-action {
+  min-height: 56px !important;
+  background: linear-gradient(180deg, #ff4268 0%, #e81f4e 48%, #c4143a 100%) !important;
+  border: 1px solid rgba(255, 84, 116, .56) !important;
+  color: #fff !important;
+  box-shadow:
+    0 20px 50px rgba(255, 49, 88, .28),
+    0 0 30px rgba(255, 49, 88, .13),
+    inset 0 1px 0 rgba(255,255,255,.26) !important;
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.admin-card .admin-primary-action:hover,
+.users-card-head .admin-primary-action:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow:
+    0 26px 62px rgba(255, 49, 88, .34),
+    0 0 38px rgba(255, 49, 88, .18),
+    inset 0 1px 0 rgba(255,255,255,.30) !important;
+}
+.admin-card .admin-primary-action:active,
+.users-card-head .admin-primary-action:active {
+  transform: translateY(1px) scale(.985);
+  box-shadow:
+    0 12px 28px rgba(255, 49, 88, .24),
+    inset 0 2px 8px rgba(0,0,0,.22) !important;
+}
+.admin-primary-action.is-refreshing .action-icon {
+  animation: bastion-refresh-spin .52s cubic-bezier(.22,.8,.18,1) 1;
+}
+.admin-primary-action.is-updated {
+  filter: brightness(1.1);
+}
+@keyframes bastion-refresh-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.user-kpi-card {
+  cursor: pointer;
+  user-select: none;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+.user-kpi-card:hover,
+.user-kpi-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(255, 72, 110, .62);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 22px 60px rgba(0,0,0,.26),
+    0 0 34px rgba(255,49,88,.14);
+  outline: none;
+}
+.user-kpi-card:active {
+  transform: translateY(0) scale(.992);
+}
+.user-kpi-card.is-active-filter {
+  border-color: rgba(255, 72, 110, .78);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.045),
+    0 24px 64px rgba(0,0,0,.28),
+    0 0 42px rgba(255,49,88,.20);
+}
+.user-kpi-card .kpi-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 0 !important;
+}
+.user-kpi-card .kpi-icon img {
+  display: block !important;
+  margin: auto !important;
+  object-fit: contain !important;
+  object-position: 50% 50% !important;
+  transform: translateY(0) !important;
+}
+.user-kpi-card .kpi-copy {
+  display: grid;
+  align-content: center;
+}

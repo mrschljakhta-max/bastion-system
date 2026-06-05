@@ -203,13 +203,15 @@
     return String(value ?? '').toLowerCase().trim();
   }
 
+  function isUserPendingRegistration(row) {
+    const status = normalizeText(row?.status);
+    return status === 'pending' || status === 'invited' || status === 'mfa_pending' || !row?.login;
+  }
+
   function updateUsersMetrics(rows = usersCache) {
     setMetric('usersTotalCount', rows.length);
     setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && String(r.status).toLowerCase() !== 'disabled').length);
-    setMetric('usersPendingCount', rows.filter((r) => {
-      const status = String(r.status || '').toLowerCase();
-      return status === 'pending' || status === 'invited' || status === 'mfa_pending' || !r.login;
-    }).length);
+    setMetric('usersPendingCount', rows.filter(isUserPendingRegistration).length);
   }
 
   function updateRequestsMetrics(rows = requestsCache) {
@@ -237,6 +239,7 @@
         status === 'all' ||
         (status === 'active' && isActive) ||
         (status === 'disabled' && !isActive) ||
+        (status === 'pending' && isUserPendingRegistration(row)) ||
         rowStatus === status;
       return matchesSearch && matchesStatus;
     });
@@ -248,6 +251,7 @@
     const selected = userStatusOptions.find((option) => option.dataset.statusValue === value);
     userStatusOptions.forEach((option) => option.classList.toggle('is-selected', option === selected));
     if (userStatusValue && selected) userStatusValue.textContent = selected.textContent.trim();
+    usersKpiCards.forEach((card) => card.classList.toggle('is-active-filter', card.dataset.usersKpiFilter === value));
     if (render) renderUsers();
   }
 
@@ -560,6 +564,24 @@
     const row = Array.isArray(rows) ? rows[0] : rows;
     renderAdminAccessResult(row || null);
     return row || null;
+  }
+
+
+  function playRefreshButtonFeedback() {
+    if (!refreshUsersBtn) return;
+    const textNode = Array.from(refreshUsersBtn.childNodes).find((node) => node.nodeType === Node.TEXT_NODE);
+    refreshUsersBtn.classList.remove('is-refreshing', 'is-updated');
+    void refreshUsersBtn.offsetWidth;
+    refreshUsersBtn.classList.add('is-refreshing');
+    window.setTimeout(() => {
+      refreshUsersBtn.classList.remove('is-refreshing');
+      refreshUsersBtn.classList.add('is-updated');
+      if (textNode) textNode.textContent = 'Оновлено';
+      window.setTimeout(() => {
+        refreshUsersBtn.classList.remove('is-updated');
+        if (textNode) textNode.textContent = 'Оновити';
+      }, 1000);
+    }, 520);
   }
 
   async function refreshUsers() {
@@ -1135,7 +1157,10 @@
     }
   });
 
-  document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
+  refreshUsersBtn?.addEventListener('click', async () => {
+    playRefreshButtonFeedback();
+    await refreshUsers();
+  });
   document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);
   document.getElementById('refreshLogs')?.addEventListener('click', refreshLogs);
 
