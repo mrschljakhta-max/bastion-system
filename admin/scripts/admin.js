@@ -38,13 +38,11 @@
 
   const userSearch = document.getElementById('userSearch');
   const userStatusFilter = document.getElementById('userStatusFilter');
-  const userStatusFilterCustom = document.getElementById('userStatusFilterCustom');
-  const userStatusFilterTrigger = document.getElementById('userStatusFilterTrigger');
-  const userStatusFilterValue = userStatusFilterTrigger?.querySelector('.role-select-value');
-  const userStatusFilterOptions = Array.from(document.querySelectorAll('[data-status-filter-value]'));
-  const deleteUserModal = document.getElementById('deleteUserModal');
-  const deleteUserTarget = document.getElementById('deleteUserTarget');
-  const deleteUserConfirm = document.getElementById('deleteUserConfirm');
+  const userStatusCustom = document.getElementById('userStatusCustom');
+  const userStatusTrigger = document.getElementById('userStatusTrigger');
+  const userStatusMenu = document.getElementById('userStatusMenu');
+  const userStatusValue = userStatusTrigger?.querySelector('.status-select-value');
+  const userStatusOptions = Array.from(document.querySelectorAll('[data-status-value]'));
   const requestSearch = document.getElementById('requestSearch');
   const requestStatusFilter = document.getElementById('requestStatusFilter');
   const logSearch = document.getElementById('logSearch');
@@ -65,6 +63,11 @@
   let usersCache = [];
   let requestsCache = [];
   let logsCache = [];
+  let pendingUserDelete = null;
+
+  const userDeleteModal = document.getElementById('userDeleteModal');
+  const userDeleteTarget = document.getElementById('userDeleteTarget');
+  const confirmUserDelete = document.getElementById('confirmUserDelete');
 
   const client = window.supabase.createClient(
     window.BASTION_CONFIG.SUPABASE_URL,
@@ -125,14 +128,14 @@
     }
   }
 
-  function formatDateStack(value) {
+  function formatDateStacked(value) {
     if (!value) return '—';
     try {
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return escapeHtml(value);
       const day = date.toLocaleDateString('uk-UA', { year: 'numeric', month: '2-digit', day: '2-digit' });
       const time = date.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
-      return `<span class="admin-date-stack"><span>${escapeHtml(day)}</span><small>${escapeHtml(time)}</small></span>`;
+      return `<span class="admin-date-stack"><strong>${escapeHtml(day)}</strong><small>${escapeHtml(time)}</small></span>`;
     } catch (_) {
       return escapeHtml(value);
     }
@@ -178,14 +181,13 @@
     return `<span class="admin-status-badge" data-status="${escapeHtml(v)}">${escapeHtml(v)}</span>`;
   }
 
-  function boolIcon(isOk, labelOk = 'Так', labelNo = 'Ні') {
-    const label = isOk ? labelOk : labelNo;
-    return `<span class="admin-bool-icon ${isOk ? 'is-ok' : 'is-no'}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${isOk ? '✓' : '×'}</span>`;
+  function boolIcon(value, label = '') {
+    const ok = Boolean(value);
+    return `<span class="admin-bool-icon ${ok ? 'is-ok' : 'is-no'}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">${ok ? '✓' : '×'}</span>`;
   }
 
-  function rowStatusOk(row) {
-    const status = normalizeText(row.status);
-    return ['active', 'enabled'].includes(status);
+  function actionIconButton(kind, attrs, label, icon) {
+    return `<button type="button" class="admin-icon-action admin-icon-action--${escapeHtml(kind)}" ${attrs} title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><span>${icon}</span></button>`;
   }
 
   function actionButtons(items) {
@@ -203,8 +205,11 @@
 
   function updateUsersMetrics(rows = usersCache) {
     setMetric('usersTotalCount', rows.length);
-    setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && rowStatusOk(r)).length);
-    setMetric('usersRegistrationCount', rows.filter((r) => ['pending', 'invited', 'mfa_pending'].includes(normalizeText(r.status))).length);
+    setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && String(r.status).toLowerCase() !== 'disabled').length);
+    setMetric('usersPendingCount', rows.filter((r) => {
+      const status = String(r.status || '').toLowerCase();
+      return status === 'pending' || status === 'invited' || status === 'mfa_pending' || !r.login;
+    }).length);
   }
 
   function updateRequestsMetrics(rows = requestsCache) {
@@ -235,6 +240,26 @@
         rowStatus === status;
       return matchesSearch && matchesStatus;
     });
+  }
+
+  function setStatusFilterValue(value, render = true) {
+    if (!userStatusFilter) return;
+    userStatusFilter.value = value;
+    const selected = userStatusOptions.find((option) => option.dataset.statusValue === value);
+    userStatusOptions.forEach((option) => option.classList.toggle('is-selected', option === selected));
+    if (userStatusValue && selected) userStatusValue.textContent = selected.textContent.trim();
+    if (render) renderUsers();
+  }
+
+  function closeStatusSelect() {
+    userStatusCustom?.classList.remove('is-open');
+    userStatusTrigger?.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleStatusSelect() {
+    const open = !userStatusCustom?.classList.contains('is-open');
+    userStatusCustom?.classList.toggle('is-open', open);
+    userStatusTrigger?.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
 
   function getFilteredRequests() {
@@ -275,21 +300,27 @@
       { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
       { key: 'email', label: 'Email' },
       { key: 'role', label: 'Роль', render: (row) => `<span class="admin-role-pill">${escapeHtml(row.role || '—')}</span>` },
-      { key: 'status', label: 'Статус', render: (row) => boolIcon(rowStatusOk(row), 'Активний статус', 'Неактивний статус') },
-      { key: 'mfa_enabled', label: '2FA', render: (row) => boolIcon(Boolean(row.mfa_enabled), '2FA увімкнено', '2FA вимкнено') },
-      { key: 'is_active', label: 'Доступ', render: (row) => boolIcon(Boolean(row.is_active) && normalizeText(row.status) !== 'disabled', 'Доступ активний', 'Доступ закрито') },
-      { key: 'created_at', label: 'Створено', render: (row) => formatDateStack(row.created_at) },
+      { key: 'status', label: 'Статус', render: (row) => {
+        const active = Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled';
+        return boolIcon(active, active ? 'Активний' : 'Вимкнений');
+      } },
+      { key: 'mfa_enabled', label: '2FA', render: (row) => boolIcon(Boolean(row.mfa_enabled), Boolean(row.mfa_enabled) ? '2FA увімкнено' : '2FA вимкнено') },
+      { key: 'is_active', label: 'Доступ', render: (row) => {
+        const access = Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled';
+        return boolIcon(access, access ? 'Доступ активний' : 'Доступ закрито');
+      } },
+      { key: 'created_at', label: 'Створено', render: (row) => formatDateStacked(row.created_at) },
       {
         key: 'actions',
         label: 'Дії',
         render: (row) => {
           const email = escapeHtml(row.email || '');
           const login = escapeHtml(row.login || '');
-          const isActive = Boolean(row.is_active) && row.status !== 'disabled';
+          const isActive = Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled';
           return actionButtons([
-            `<button type="button" class="admin-icon-action" data-icon="power" data-tooltip="${isActive ? 'Вимкнути користувача' : 'Увімкнути користувача'}" aria-label="${isActive ? 'Вимкнути користувача' : 'Увімкнути користувача'}" title="${isActive ? 'Вимкнути користувача' : 'Увімкнути користувача'}" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}"></button>`,
-            `<button type="button" class="admin-icon-action" data-icon="logs" data-tooltip="Переглянути логи" aria-label="Переглянути логи" title="Переглянути логи" data-user-logs="${email}"></button>`,
-            `<button type="button" class="admin-icon-action danger" data-icon="trash" data-tooltip="Видалити користувача" aria-label="Видалити користувача" title="Видалити користувача" data-user-delete="${email}" data-login="${login}"></button>`
+            actionIconButton('toggle', `data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}"`, isActive ? 'Вимкнути користувача' : 'Увімкнути користувача', '⏻'),
+            actionIconButton('logs', `data-user-logs="${email}"`, 'Переглянути логи', '≋'),
+            actionIconButton('delete', `data-user-delete="${email}" data-login="${login}"`, 'Видалити користувача', '<img src="./assets/user-x.svg" alt="" />')
           ]);
         }
       }
@@ -625,57 +656,6 @@
     if (event.key === 'Escape') closeInviteRoleSelect();
   });
 
-  function syncUserStatusFilterCustom() {
-    if (!userStatusFilter || !userStatusFilterValue) return;
-    const selectedOption = userStatusFilter.options[userStatusFilter.selectedIndex];
-    userStatusFilterValue.textContent = selectedOption?.textContent || 'Усі користувачі';
-    userStatusFilterOptions.forEach((option) => {
-      const isSelected = option.dataset.statusFilterValue === userStatusFilter.value;
-      option.classList.toggle('is-selected', isSelected);
-      option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
-    });
-  }
-
-  function closeUserStatusFilterSelect() {
-    userStatusFilterCustom?.classList.remove('is-open');
-    userStatusFilterTrigger?.setAttribute('aria-expanded', 'false');
-  }
-
-  function openUserStatusFilterSelect() {
-    userStatusFilterCustom?.classList.add('is-open');
-    userStatusFilterTrigger?.setAttribute('aria-expanded', 'true');
-  }
-
-  userStatusFilterTrigger?.addEventListener('click', (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (userStatusFilterCustom?.classList.contains('is-open')) closeUserStatusFilterSelect();
-    else openUserStatusFilterSelect();
-  });
-
-  userStatusFilterOptions.forEach((option) => {
-    option.addEventListener('click', (event) => {
-      event.preventDefault();
-      const value = option.dataset.statusFilterValue;
-      if (userStatusFilter && value) {
-        userStatusFilter.value = value;
-        userStatusFilter.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-      syncUserStatusFilterCustom();
-      closeUserStatusFilterSelect();
-      userStatusFilterTrigger?.focus();
-    });
-  });
-
-  userStatusFilter?.addEventListener('change', syncUserStatusFilterCustom);
-  document.addEventListener('click', (event) => {
-    if (!userStatusFilterCustom?.contains(event.target)) closeUserStatusFilterSelect();
-  });
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeUserStatusFilterSelect();
-  });
-  syncUserStatusFilterCustom();
-
   function updateInvitePreview() {
     if (inviteLoginPreview) inviteLoginPreview.value = normalizeLoginFromEmail(inviteEmail?.value);
     if (inviteNoteCounter && inviteNote) inviteNoteCounter.textContent = `${inviteNote.value.length} / 255`;
@@ -689,7 +669,7 @@
     if (inviteResult) inviteResult.hidden = true;
     if (sendEmailBtn) sendEmailBtn.disabled = true;
     if (inviteForm) inviteForm.dataset.requestId = '';
-    if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення';
+    if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
     updateInvitePreview();
     syncInviteRoleCustom();
   });
@@ -774,12 +754,12 @@
       updateInvitePreview();
       syncInviteRoleCustom();
       setTimeout(() => {
-        if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення';
+        if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
       }, 1600);
     } catch (error) {
       console.error(error);
       alert(error.message || 'Не вдалося створити або надіслати запрошення.');
-      inviteSubmit.textContent = 'Надіслати запрошення';
+      inviteSubmit.textContent = 'Надіслати запрошення →';
     } finally {
       inviteSubmit.disabled = false;
     }
@@ -923,37 +903,20 @@
     btn.addEventListener('click', () => activateTab(btn.dataset.adminTab));
   });
 
-  function openDeleteUserDialog({ email, login }) {
-    return new Promise((resolve) => {
-      if (!deleteUserModal || !deleteUserConfirm) {
-        resolve(window.confirm(`Видалити користувача ${email}?`));
-        return;
-      }
+  function openUserDeleteModal(email, login) {
+    pendingUserDelete = { email, login: login || email };
+    if (userDeleteTarget) userDeleteTarget.textContent = login && login !== email ? `${login} • ${email}` : email;
+    if (userDeleteModal) {
+      userDeleteModal.hidden = false;
+      requestAnimationFrame(() => userDeleteModal.classList.add('is-open'));
+    }
+  }
 
-      const target = login && login !== email ? `${login} · ${email}` : email;
-      if (deleteUserTarget) deleteUserTarget.textContent = target || '—';
-      deleteUserModal.hidden = false;
-      document.body.classList.add('admin-modal-open');
-      deleteUserConfirm.focus();
-
-      const close = (result) => {
-        deleteUserModal.hidden = true;
-        document.body.classList.remove('admin-modal-open');
-        deleteUserModal.querySelectorAll('[data-delete-cancel]').forEach((btn) => btn.removeEventListener('click', onCancel));
-        deleteUserConfirm.removeEventListener('click', onConfirm);
-        document.removeEventListener('keydown', onKeydown);
-        resolve(result);
-      };
-      const onCancel = () => close(false);
-      const onConfirm = () => close(true);
-      const onKeydown = (event) => {
-        if (event.key === 'Escape') close(false);
-      };
-
-      deleteUserModal.querySelectorAll('[data-delete-cancel]').forEach((btn) => btn.addEventListener('click', onCancel));
-      deleteUserConfirm.addEventListener('click', onConfirm);
-      document.addEventListener('keydown', onKeydown);
-    });
+  function closeUserDeleteModal() {
+    pendingUserDelete = null;
+    if (!userDeleteModal) return;
+    userDeleteModal.classList.remove('is-open');
+    window.setTimeout(() => { userDeleteModal.hidden = true; }, 160);
   }
 
   usersTable?.addEventListener('click', async (event) => {
@@ -986,16 +949,7 @@
       if (remove) {
         const email = remove.dataset.userDelete;
         const login = remove.dataset.login || email;
-        const typed = prompt(`Повне видалення акаунта.\n\nБуде видалено доступ, invite, MFA-secret і profile binding.\nДля підтвердження введіть login або email:\n${login}`);
-        if (!typed) return;
-        if (typed.trim().toLowerCase() !== String(login).toLowerCase() && typed.trim().toLowerCase() !== String(email).toLowerCase()) {
-          alert('Підтвердження не збігається. Видалення скасовано.');
-          return;
-        }
-        if (!confirm(`Остаточно видалити ${email}? Цю дію не можна швидко відкотити.`)) return;
-        await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: typed.trim() });
-        await refreshUsers();
-        await refreshLogs();
+        openUserDeleteModal(email, login);
       }
     } catch (error) {
       console.error(error);
@@ -1045,8 +999,45 @@
     }
   });
 
+  userStatusTrigger?.addEventListener('click', toggleStatusSelect);
+  userStatusOptions.forEach((option) => {
+    option.addEventListener('click', () => {
+      setStatusFilterValue(option.dataset.statusValue || 'all');
+      closeStatusSelect();
+    });
+  });
+  document.addEventListener('click', (event) => {
+    if (!userStatusCustom) return;
+    if (!userStatusCustom.contains(event.target)) closeStatusSelect();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeStatusSelect();
+      if (userDeleteModal && !userDeleteModal.hidden) closeUserDeleteModal();
+    }
+  });
+  document.querySelectorAll('[data-delete-cancel]').forEach((btn) => {
+    btn.addEventListener('click', closeUserDeleteModal);
+  });
+  confirmUserDelete?.addEventListener('click', async () => {
+    if (!pendingUserDelete?.email) return;
+    const { email } = pendingUserDelete;
+    confirmUserDelete.disabled = true;
+    try {
+      await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: email });
+      closeUserDeleteModal();
+      await refreshUsers();
+      await refreshLogs();
+    } catch (error) {
+      console.error(error);
+      alert(error.message || 'Не вдалося видалити користувача.');
+    } finally {
+      confirmUserDelete.disabled = false;
+    }
+  });
+
   userSearch?.addEventListener('input', renderUsers);
-  userStatusFilter?.addEventListener('change', renderUsers);
+  userStatusFilter?.addEventListener('change', () => setStatusFilterValue(userStatusFilter.value || 'all'));
   requestSearch?.addEventListener('input', renderRequests);
   requestStatusFilter?.addEventListener('change', renderRequests);
   logSearch?.addEventListener('input', renderLogs);

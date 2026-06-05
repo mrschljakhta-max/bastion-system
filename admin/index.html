@@ -147,54 +147,56 @@
 
       <section class="admin-tab" id="tab-users" data-title="Користувачі">
         <div class="admin-card admin-card-wide admin-control-card">
-          <div class="admin-card-head">
+          <div class="admin-card-head users-card-head">
             <div>
-              <h2>Користувачі</h2>
               <p class="admin-muted">Перегляд, керування та контроль доступу користувачів системи.</p>
             </div>
-            <button id="refreshUsers" class="admin-action-button refresh-users-btn" type="button">Оновити</button>
+            <button id="refreshUsers" class="admin-primary-action" type="button"><span class="action-icon">↻</span>Оновити</button>
           </div>
 
           <div class="admin-metrics-grid users-kpi-grid">
-            <div class="admin-metric users-kpi-card">
-              <span class="users-kpi-icon users-kpi-icon-total" aria-hidden="true"></span>
-              <div class="users-kpi-text"><span>Всього користувачів</span><strong id="usersTotalCount">0</strong></div>
+            <div class="admin-metric user-kpi-card">
+              <span class="kpi-icon"><img src="./assets/users.svg" alt="" /></span>
+              <div class="kpi-copy"><span>Всього користувачів</span><strong id="usersTotalCount">0</strong></div>
             </div>
-            <div class="admin-metric users-kpi-card">
-              <span class="users-kpi-icon users-kpi-icon-active" aria-hidden="true"></span>
-              <div class="users-kpi-text"><span>Активних</span><strong id="usersActiveCount">0</strong></div>
+            <div class="admin-metric user-kpi-card">
+              <span class="kpi-icon"><img src="./assets/user-check.svg" alt="" /></span>
+              <div class="kpi-copy"><span>Активних</span><strong id="usersActiveCount">0</strong></div>
             </div>
-            <div class="admin-metric users-kpi-card">
-              <span class="users-kpi-icon users-kpi-icon-pending" aria-hidden="true"></span>
-              <div class="users-kpi-text"><span>На етапі реєстрації</span><strong id="usersRegistrationCount">0</strong></div>
+            <div class="admin-metric user-kpi-card">
+              <span class="kpi-icon"><img src="./assets/user-key.svg" alt="" /></span>
+              <div class="kpi-copy"><span>На етапі реєстрації</span><strong id="usersPendingCount">0</strong></div>
             </div>
           </div>
 
           <div class="admin-toolbar">
-            <label class="admin-toolbar-field">
+            <label class="admin-toolbar-field admin-search-field">
               <span>Пошук</span>
-              <input id="userSearch" type="search" placeholder="Логін, email або роль..." />
+              <div class="admin-search-control">
+                <img src="./assets/user-search.svg" alt="" />
+                <input id="userSearch" type="search" placeholder="Логін, email або роль..." />
+              </div>
             </label>
-            <label class="admin-toolbar-field">
+            <label class="admin-toolbar-field admin-status-filter-field">
               <span>Статус</span>
-              <select id="userStatusFilter" class="native-select-hidden" aria-hidden="true" tabindex="-1">
+              <select id="userStatusFilter" class="visually-hidden-select">
                 <option value="all">Усі користувачі</option>
                 <option value="active">Активні</option>
                 <option value="disabled">Вимкнені</option>
                 <option value="pending">Pending</option>
                 <option value="invited">Invited</option>
               </select>
-              <div class="role-select status-filter-select" id="userStatusFilterCustom">
-                <button type="button" class="role-select-trigger" id="userStatusFilterTrigger" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="role-select-value">Усі користувачі</span>
-                  <span class="role-select-caret" aria-hidden="true"><img src="./assets/arrow-badge-down.svg" alt="" /></span>
+              <div class="status-select" id="userStatusCustom">
+                <button type="button" class="status-select-trigger" id="userStatusTrigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="status-select-value">Усі користувачі</span>
+                  <span class="status-select-caret"><img src="./assets/arrow-badge-down.svg" alt="" /></span>
                 </button>
-                <div class="role-select-menu" id="userStatusFilterMenu" role="listbox" aria-label="Статус користувачів">
-                  <button type="button" class="role-select-option is-selected" data-status-filter-value="all" role="option" aria-selected="true">Усі користувачі</button>
-                  <button type="button" class="role-select-option" data-status-filter-value="active" role="option" aria-selected="false">Активні</button>
-                  <button type="button" class="role-select-option" data-status-filter-value="disabled" role="option" aria-selected="false">Вимкнені</button>
-                  <button type="button" class="role-select-option" data-status-filter-value="pending" role="option" aria-selected="false">Pending</button>
-                  <button type="button" class="role-select-option" data-status-filter-value="invited" role="option" aria-selected="false">Invited</button>
+                <div class="status-select-menu" id="userStatusMenu" role="listbox">
+                  <button type="button" class="status-select-option is-selected" data-status-value="all">Усі користувачі</button>
+                  <button type="button" class="status-select-option" data-status-value="active">Активні</button>
+                  <button type="button" class="status-select-option" data-status-value="disabled">Вимкнені</button>
+                  <button type="button" class="status-select-option" data-status-value="pending">Pending</button>
+                  <button type="button" class="status-select-option" data-status-value="invited">Invited</button>
                 </div>
               </div>
             </label>
@@ -454,16 +456,16 @@
     </section>
   </main>
 
-  <div class="admin-confirm-modal" id="deleteUserModal" hidden>
+  <div class="admin-confirm-modal" id="userDeleteModal" hidden>
     <div class="admin-confirm-backdrop" data-delete-cancel></div>
-    <div class="admin-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteUserTitle">
-      <div class="admin-confirm-icon" aria-hidden="true">!</div>
-      <h2 id="deleteUserTitle">Видалити користувача?</h2>
+    <div class="admin-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="userDeleteTitle">
+      <div class="admin-confirm-icon"><img src="./assets/user-x.svg" alt="" /></div>
+      <h2 id="userDeleteTitle">Видалити користувача?</h2>
       <p>Користувача буде видалено із системи BASTION. Цю дію неможливо скасувати.</p>
-      <div class="admin-confirm-target" id="deleteUserTarget">—</div>
+      <strong id="userDeleteTarget" class="admin-confirm-target">—</strong>
       <div class="admin-confirm-actions">
-        <button type="button" class="admin-confirm-cancel" data-delete-cancel>Відхилити</button>
-        <button type="button" class="admin-confirm-delete" id="deleteUserConfirm">Видалити</button>
+        <button type="button" class="admin-confirm-ghost" data-delete-cancel>Відхилити</button>
+        <button type="button" class="admin-confirm-danger" id="confirmUserDelete">Видалити</button>
       </div>
     </div>
   </div>
