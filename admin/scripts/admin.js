@@ -443,19 +443,31 @@
     return true;
   }
 
+  function setAdminAccessButtonLabel(button, label, icon = '') {
+    if (!button) return;
+    const currentIcon = icon || button.querySelector('.btn-icon')?.innerHTML || '';
+    button.innerHTML = `
+      <span class="btn-icon">${currentIcon}</span>
+      <span class="btn-label">${escapeHtml(label)}</span>
+    `;
+  }
+
+  const findButtonIcon = '<img src="./assets/admin-list-search.svg" alt="" />';
+  const accessButtonIcon = '<img src="./assets/admin-lock-access.svg" alt="" />';
+
   function syncAdminAccessAction(row = currentAdminAccessUser) {
     if (!adminAccessGrant) return;
     if (!row) {
       adminAccessGrant.disabled = true;
-      adminAccessGrant.textContent = 'Надати адмін-доступ';
       adminAccessGrant.dataset.adminAccessAction = 'grant';
+      setAdminAccessButtonLabel(adminAccessGrant, 'Надати адмін-доступ', accessButtonIcon);
       return;
     }
 
     const isAdmin = Boolean(row.is_admin);
     adminAccessGrant.disabled = false;
     adminAccessGrant.dataset.adminAccessAction = isAdmin ? 'revoke' : 'grant';
-    adminAccessGrant.textContent = isAdmin ? 'Відкликати адмін-доступ' : 'Надати адмін-доступ';
+    setAdminAccessButtonLabel(adminAccessGrant, isAdmin ? 'Відкликати адмін-доступ' : 'Надати адмін-доступ', accessButtonIcon);
   }
 
   function renderAdminAccessResult(row, mode = 'found') {
@@ -1018,7 +1030,7 @@
 
   adminAccessFind?.addEventListener('click', async () => {
     adminAccessFind.disabled = true;
-    adminAccessFind.textContent = 'Шукаю…';
+    setAdminAccessButtonLabel(adminAccessFind, 'Шукаю…', findButtonIcon);
     try {
       await findAdminAccessUser();
     } catch (error) {
@@ -1026,7 +1038,7 @@
       alert(error.message || 'Не вдалося знайти користувача.');
     } finally {
       adminAccessFind.disabled = false;
-      adminAccessFind.textContent = 'Знайти';
+      setAdminAccessButtonLabel(adminAccessFind, 'Знайти', findButtonIcon);
     }
   });
 
@@ -1051,7 +1063,7 @@
     if (!confirmed) return;
 
     adminAccessGrant.disabled = true;
-    adminAccessGrant.textContent = action === 'grant' ? 'Надаю…' : 'Відкликаю…';
+    setAdminAccessButtonLabel(adminAccessGrant, action === 'grant' ? 'Надаю…' : 'Відкликаю…', accessButtonIcon);
 
     try {
       const rows = action === 'grant'
@@ -1069,7 +1081,7 @@
       }
 
       await Promise.all([refreshLogs(), refreshUsers()]);
-      adminAccessGrant.textContent = action === 'grant' ? 'Доступ надано ✓' : 'Доступ відкликано ✓';
+      setAdminAccessButtonLabel(adminAccessGrant, action === 'grant' ? 'Доступ надано ✓' : 'Доступ відкликано ✓', accessButtonIcon);
       window.setTimeout(() => syncAdminAccessAction(updatedRow || currentAdminAccessUser), 1400);
     } catch (error) {
       console.error(error);

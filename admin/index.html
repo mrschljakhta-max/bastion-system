@@ -194,19 +194,33 @@
             </button>
           </div>
 
-          <div class="admin-access-layout">
-            <form class="admin-form access-form admin-access-form" id="adminAccessForm">
-              <label class="field-shell field-wide">
-                <span>Логін або Email користувача</span>
-                <div class="field-control">
-                  <span class="field-icon">◎</span>
-                  <input id="adminAccessQuery" type="text" placeholder="Введіть логін або email користувача..." autocomplete="off" aria-autocomplete="list" required />
+          <div class="admin-access-layout admin-access-layout-v2">
+            <form class="admin-form access-form admin-access-form admin-access-form-v2" id="adminAccessForm">
+              <div class="admin-access-search-panel field-wide">
+                <div class="admin-access-panel-title">
+                  <span class="panel-title-icon"><img src="./assets/admin-list-search.svg" alt="" /></span>
+                  <span>Пошук користувача</span>
                 </div>
-              </label>
+                <div class="admin-access-search-row">
+                  <label class="field-shell admin-access-query-shell">
+                    <span>Логін або Email користувача</span>
+                    <div class="field-control admin-access-search-control">
+                      <span class="field-icon"><img src="./assets/admin-user-search.svg" alt="" /></span>
+                      <input id="adminAccessQuery" type="text" placeholder="Введіть логін або email користувача..." autocomplete="off" aria-autocomplete="list" required />
+                    </div>
+                  </label>
 
-              <div class="admin-actions admin-access-actions field-wide">
-                <button type="button" class="admin-secondary bastion-action-btn" id="adminAccessFind">Знайти</button>
-                <button type="submit" class="bastion-action-btn admin-access-main-action" id="adminAccessGrant">Надати адмін-доступ</button>
+                  <div class="admin-actions admin-access-actions-v2">
+                    <button type="button" class="admin-secondary bastion-action-btn admin-access-find-btn" id="adminAccessFind">
+                      <span class="btn-icon"><img src="./assets/admin-list-search.svg" alt="" /></span>
+                      <span class="btn-label">Знайти</span>
+                    </button>
+                    <button type="submit" class="bastion-action-btn admin-access-main-action" id="adminAccessGrant">
+                      <span class="btn-icon"><img src="./assets/admin-lock-access.svg" alt="" /></span>
+                      <span class="btn-label">Надати адмін-доступ</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </form>
 

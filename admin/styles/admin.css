@@ -1867,3 +1867,182 @@ body[data-minimal-motion] *::after {
     width: 100%;
   }
 }
+
+/* ===== BASTION Admin access page v2: visualized search/action block ===== */
+.admin-access-layout-v2 {
+  gap: 28px;
+}
+
+.admin-access-form-v2 {
+  margin-top: 14px;
+}
+
+.admin-access-search-panel {
+  position: relative;
+  padding: 28px;
+  border: 1px solid rgba(255,49,88,.46);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 74% 50%, rgba(255,49,88,.12), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,.035), rgba(0,0,0,.28));
+  box-shadow:
+    0 22px 55px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 0 28px rgba(255,49,88,.08);
+}
+
+.admin-access-search-panel::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 23px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255,49,88,.18), transparent 32%, rgba(255,49,88,.10));
+  opacity: .35;
+}
+
+.admin-access-panel-title {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 20px;
+  color: var(--admin-accent, #ff3158);
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.panel-title-icon,
+.admin-access-actions-v2 .btn-icon {
+  display: inline-grid;
+  place-items: center;
+}
+
+.panel-title-icon img {
+  width: 22px;
+  height: 22px;
+  filter:
+    brightness(0) saturate(100%)
+    invert(40%) sepia(93%) saturate(3488%) hue-rotate(326deg) brightness(105%) contrast(103%)
+    drop-shadow(0 0 8px rgba(255,49,88,.62));
+}
+
+.admin-access-search-row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(430px, .72fr);
+  gap: 22px;
+  align-items: end;
+}
+
+.admin-access-query-shell {
+  min-width: 0;
+}
+
+.admin-access-search-control {
+  min-height: 76px;
+}
+
+.admin-access-search-control .field-icon {
+  width: 72px;
+  min-width: 72px;
+}
+
+.admin-access-search-control input {
+  font-size: 17px;
+}
+
+.admin-access-actions-v2 {
+  display: grid;
+  grid-template-columns: minmax(160px, .42fr) minmax(250px, .58fr);
+  gap: 18px;
+  align-items: stretch;
+  margin: 0;
+}
+
+.admin-access-actions-v2 .bastion-action-btn,
+.admin-access-actions-v2 .admin-secondary {
+  min-height: 76px;
+  height: 76px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 26px;
+  white-space: nowrap;
+}
+
+.admin-access-actions-v2 .admin-secondary {
+  border-color: rgba(255,255,255,.14);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.10), transparent 58%),
+    linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.035));
+  color: rgba(255,255,255,.90);
+}
+
+.admin-access-actions-v2 .admin-secondary:hover,
+.admin-access-actions-v2 .admin-secondary:focus-visible {
+  border-color: rgba(255,49,88,.50);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,49,88,.15), transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));
+  box-shadow: 0 16px 36px rgba(0,0,0,.24), 0 0 22px rgba(255,49,88,.12);
+}
+
+.admin-access-actions-v2 .admin-access-main-action {
+  background: linear-gradient(135deg, #ff3b67 0%, #e81747 55%, #c20f35 100%);
+  border-color: rgba(255,97,127,.75);
+  box-shadow:
+    0 20px 45px rgba(255,49,88,.22),
+    0 0 34px rgba(255,49,88,.18),
+    inset 0 1px 0 rgba(255,255,255,.22);
+}
+
+.admin-access-actions-v2 .btn-icon img {
+  width: 23px;
+  height: 23px;
+  display: block;
+  filter:
+    brightness(0) saturate(100%) invert(100%) sepia(5%) saturate(748%) hue-rotate(191deg) brightness(112%) contrast(103%)
+    drop-shadow(0 0 8px rgba(255,255,255,.30));
+}
+
+.admin-access-actions-v2 .admin-secondary .btn-icon img {
+  filter:
+    brightness(0) saturate(100%) invert(100%) sepia(5%) saturate(748%) hue-rotate(191deg) brightness(112%) contrast(103%)
+    drop-shadow(0 0 8px rgba(255,255,255,.14));
+}
+
+.admin-access-main-action[data-admin-access-action="revoke"] {
+  background: linear-gradient(135deg, rgba(255,49,88,.92), rgba(118,19,42,.95));
+}
+
+.admin-access-result {
+  padding: 24px;
+}
+
+@media (max-width: 1180px) {
+  .admin-access-search-row {
+    grid-template-columns: 1fr;
+  }
+  .admin-access-actions-v2 {
+    grid-template-columns: minmax(160px, .36fr) minmax(260px, .64fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-access-search-panel {
+    padding: 20px;
+  }
+  .admin-access-actions-v2 {
+    grid-template-columns: 1fr;
+  }
+  .admin-access-actions-v2 .bastion-action-btn,
+  .admin-access-actions-v2 .admin-secondary {
+    width: 100%;
+  }
+}
