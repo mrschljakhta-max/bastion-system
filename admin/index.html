@@ -88,7 +88,7 @@
       <section class="admin-tab is-active" id="tab-invite" data-title="Надати доступ">
         <div class="admin-card admin-card-wide access-card">
           <div class="access-card-head access-card-head-clean">
-            <p class="admin-muted">Заповніть email, роль і створіть персональне setup-посилання для першого входу.</p>
+            <p class="admin-muted">Заповніть email і вкажіть роль майбутнього користувача</p>
             <button type="button" class="bastion-link-copy" id="copyMainSiteUrl" data-copy-default="" aria-label="Копіювати посилання на сайт BASTION" title="Копіювати посилання на сайт BASTION">
               <img src="./assets/bastion-main-link-logo.png" alt="BASTION" />
               <span class="bastion-link-tooltip">Копіювати посилання на сайт BASTION</span>
@@ -138,7 +138,7 @@
             </label>
 
             <div class="admin-actions access-actions field-wide">
-              <button type="submit" id="inviteSubmit" class="send-invite-btn">Надіслати запрошення →</button>
+              <button type="submit" id="inviteSubmit" class="send-invite-btn">Надіслати запрошення</button>
             </div>
           </form>
 
@@ -147,34 +147,58 @@
 
       <section class="admin-tab" id="tab-users" data-title="Користувачі">
         <div class="admin-card admin-card-wide admin-control-card">
-          <div class="admin-card-head">
+          <div class="admin-card-head users-card-head">
             <div>
-              <h2>Користувачі</h2>
-              <p class="admin-muted">Центр керування акаунтами: статус, 2FA, доступ, логи та повне видалення.</p>
+              <p class="admin-muted">Перегляд, керування та контроль доступу користувачів системи.</p>
             </div>
-            <button id="refreshUsers">Оновити</button>
+            <button id="refreshUsers" class="admin-primary-action" type="button"><span class="action-icon">↻</span>Оновити</button>
           </div>
 
-          <div class="admin-metrics-grid">
-            <div class="admin-metric"><span>Усього</span><strong id="usersTotalCount">0</strong></div>
-            <div class="admin-metric"><span>Активні</span><strong id="usersActiveCount">0</strong></div>
-            <div class="admin-metric"><span>2FA</span><strong id="usersMfaCount">0</strong></div>
+          <div class="admin-metrics-grid users-kpi-grid">
+            <div class="admin-metric user-kpi-card" data-users-kpi-filter="all" role="button" tabindex="0" aria-label="Показати всіх користувачів">
+              <span class="kpi-icon"><img src="./assets/users.svg" alt="" /></span>
+              <div class="kpi-copy"><span>Всього користувачів</span><strong id="usersTotalCount">0</strong></div>
+            </div>
+            <div class="admin-metric user-kpi-card" data-users-kpi-filter="active" role="button" tabindex="0" aria-label="Показати активних користувачів">
+              <span class="kpi-icon"><img src="./assets/user-check.svg" alt="" /></span>
+              <div class="kpi-copy"><span>Активних</span><strong id="usersActiveCount">0</strong></div>
+            </div>
+            <div class="admin-metric user-kpi-card" data-users-kpi-filter="pending" role="button" tabindex="0" aria-label="Показати користувачів на етапі реєстрації">
+              <span class="kpi-icon"><img src="./assets/user-key.svg" alt="" /></span>
+              <div class="kpi-copy"><span>На етапі реєстрації</span><strong id="usersPendingCount">0</strong></div>
+            </div>
           </div>
 
           <div class="admin-toolbar">
-            <label class="admin-toolbar-field">
+            <label class="admin-toolbar-field admin-search-field">
               <span>Пошук</span>
-              <input id="userSearch" type="search" placeholder="login, email, роль..." />
+              <div class="admin-search-control">
+                <img src="./assets/user-search.svg" alt="" />
+                <input id="userSearch" type="search" placeholder="Логін, email або роль..." />
+              </div>
             </label>
-            <label class="admin-toolbar-field">
+            <label class="admin-toolbar-field admin-status-filter-field">
               <span>Статус</span>
-              <select id="userStatusFilter">
+              <select id="userStatusFilter" class="visually-hidden-select">
                 <option value="all">Усі користувачі</option>
                 <option value="active">Активні</option>
                 <option value="disabled">Вимкнені</option>
                 <option value="pending">Pending</option>
                 <option value="invited">Invited</option>
               </select>
+              <div class="status-select" id="userStatusCustom">
+                <button type="button" class="status-select-trigger" id="userStatusTrigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="status-select-value">Усі користувачі</span>
+                  <span class="status-select-caret"><img src="./assets/arrow-badge-down.svg" alt="" /></span>
+                </button>
+                <div class="status-select-menu" id="userStatusMenu" role="listbox">
+                  <button type="button" class="status-select-option is-selected" data-status-value="all">Усі користувачі</button>
+                  <button type="button" class="status-select-option" data-status-value="active">Активні</button>
+                  <button type="button" class="status-select-option" data-status-value="disabled">Вимкнені</button>
+                  <button type="button" class="status-select-option" data-status-value="pending">Pending</button>
+                  <button type="button" class="status-select-option" data-status-value="invited">Invited</button>
+                </div>
+              </div>
             </label>
           </div>
 
@@ -419,6 +443,20 @@
       </section>
     </section>
   </main>
+
+  <div class="admin-confirm-modal" id="userDeleteModal" hidden>
+    <div class="admin-confirm-backdrop" data-delete-cancel></div>
+    <div class="admin-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="userDeleteTitle">
+      <div class="admin-confirm-icon"><img src="./assets/user-x.svg" alt="" /></div>
+      <h2 id="userDeleteTitle">Видалити користувача?</h2>
+      <p>Користувача буде видалено із системи BASTION. Цю дію неможливо скасувати.</p>
+      <strong id="userDeleteTarget" class="admin-confirm-target">—</strong>
+      <div class="admin-confirm-actions">
+        <button type="button" class="admin-confirm-ghost" data-delete-cancel>Відхилити</button>
+        <button type="button" class="admin-confirm-danger" id="confirmUserDelete">Видалити</button>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../scripts/config.js?v=28"></script>
