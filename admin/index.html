@@ -194,30 +194,33 @@
             </button>
           </div>
 
-          <div class="admin-access-layout admin-access-layout-v2">
-            <form class="admin-form access-form admin-access-form admin-access-form-v2" id="adminAccessForm">
+          <div class="admin-access-layout">
+            <form class="admin-form access-form admin-access-form" id="adminAccessForm">
               <div class="admin-access-search-panel field-wide">
-                <div class="admin-access-panel-title">
-                  <span class="panel-title-icon"><img src="./assets/admin-list-search.svg" alt="" /></span>
+                <div class="admin-access-section-title">
+                  <img src="./assets/user-search.svg" alt="" aria-hidden="true" />
                   <span>Пошук користувача</span>
                 </div>
+
                 <div class="admin-access-search-row">
                   <label class="field-shell admin-access-query-shell">
                     <span>Логін або Email користувача</span>
-                    <div class="field-control admin-access-search-control">
-                      <span class="field-icon"><img src="./assets/admin-user-search.svg" alt="" /></span>
+                    <div class="field-control admin-access-query-control">
+                      <span class="field-icon admin-access-field-icon">
+                        <img src="./assets/user-search.svg" alt="" aria-hidden="true" />
+                      </span>
                       <input id="adminAccessQuery" type="text" placeholder="Введіть логін або email користувача..." autocomplete="off" aria-autocomplete="list" required />
                     </div>
                   </label>
 
-                  <div class="admin-actions admin-access-actions-v2">
+                  <div class="admin-actions admin-access-actions">
                     <button type="button" class="admin-secondary bastion-action-btn admin-access-find-btn" id="adminAccessFind">
-                      <span class="btn-icon"><img src="./assets/admin-list-search.svg" alt="" /></span>
-                      <span class="btn-label">Знайти</span>
+                      <span class="admin-btn-icon"><img src="./assets/list-search.svg" alt="" aria-hidden="true" /></span>
+                      <span>Знайти</span>
                     </button>
                     <button type="submit" class="bastion-action-btn admin-access-main-action" id="adminAccessGrant">
-                      <span class="btn-icon"><img src="./assets/admin-lock-access.svg" alt="" /></span>
-                      <span class="btn-label">Надати адмін-доступ</span>
+                      <span class="admin-btn-icon"><img src="./assets/lock-access.svg" alt="" aria-hidden="true" /></span>
+                      <span>Надати адмін-доступ</span>
                     </button>
                   </div>
                 </div>
@@ -225,7 +228,7 @@
             </form>
 
             <div class="admin-access-result" id="adminAccessResult">
-              <div class="admin-empty-card">
+              <div class="admin-empty-card admin-access-empty-card">
                 <strong>Очікується пошук</strong>
                 <span>Введіть логін або email користувача, якому потрібно надати права адміністратора.</span>
               </div>
