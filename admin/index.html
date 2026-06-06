@@ -138,7 +138,7 @@
             </label>
 
             <div class="admin-actions access-actions field-wide">
-              <button type="submit" id="inviteSubmit" class="send-invite-btn"><span class="send-invite-label">Надіслати запрошення</span></button>
+              <button type="submit" id="inviteSubmit" class="send-invite-btn">Надіслати запрошення →</button>
             </div>
           </form>
 
@@ -146,25 +146,40 @@
       </section>
 
       <section class="admin-tab" id="tab-users" data-title="Користувачі">
-        <div class="admin-card admin-card-wide admin-control-card">
-          <div class="admin-card-head">
-            <div>
-              <h2>Користувачі</h2>
-              <p class="admin-muted">Центр керування акаунтами: статус, 2FA, доступ, логи та повне видалення.</p>
-            </div>
-            <button id="refreshUsers">Оновити</button>
+        <div class="admin-card admin-card-wide admin-control-card users-control-card">
+          <div class="admin-card-head admin-card-head-clean">
+            <p class="admin-muted">Перегляд, керування та контроль доступу користувачів системи.</p>
+            <button id="refreshUsers" class="admin-refresh-btn" type="button">
+              <span class="admin-refresh-icon">↻</span>
+              <span class="admin-refresh-text">Оновити</span>
+            </button>
           </div>
 
-          <div class="admin-metrics-grid">
-            <div class="admin-metric"><span>Усього</span><strong id="usersTotalCount">0</strong></div>
-            <div class="admin-metric"><span>Активні</span><strong id="usersActiveCount">0</strong></div>
-            <div class="admin-metric"><span>2FA</span><strong id="usersMfaCount">0</strong></div>
+          <div class="admin-metrics-grid admin-metrics-grid-icons">
+            <button class="admin-metric admin-metric-icon-card" type="button" data-user-kpi="all">
+              <span class="admin-metric-icon"><img src="assets/users.svg" alt="" /></span>
+              <span class="admin-metric-label">Всього користувачів</span>
+              <strong id="usersTotalCount">0</strong>
+            </button>
+            <button class="admin-metric admin-metric-icon-card" type="button" data-user-kpi="active">
+              <span class="admin-metric-icon"><img src="assets/user-check.svg" alt="" /></span>
+              <span class="admin-metric-label">Активних</span>
+              <strong id="usersActiveCount">0</strong>
+            </button>
+            <button class="admin-metric admin-metric-icon-card" type="button" data-user-kpi="pending">
+              <span class="admin-metric-icon"><img src="assets/user-plus.svg" alt="" /></span>
+              <span class="admin-metric-label">На етапі реєстрації</span>
+              <strong id="usersMfaCount">0</strong>
+            </button>
           </div>
 
-          <div class="admin-toolbar">
+          <div class="admin-toolbar users-toolbar">
             <label class="admin-toolbar-field">
               <span>Пошук</span>
-              <input id="userSearch" type="search" placeholder="login, email, роль..." />
+              <div class="admin-icon-input">
+                <img src="assets/user-search.svg" alt="" />
+                <input id="userSearch" type="search" placeholder="Логін, email або роль..." />
+              </div>
             </label>
             <label class="admin-toolbar-field">
               <span>Статус</span>
@@ -178,7 +193,18 @@
             </label>
           </div>
 
-          <div class="admin-table-wrap"><table id="usersTable"></table></div>
+          <div class="admin-table-wrap users-table-wrap"><table id="usersTable"></table></div>
+          <div class="admin-date-popover" id="userDateFilterPanel" hidden>
+            <div class="admin-date-popover-head">Період відображення</div>
+            <div class="admin-date-fields">
+              <label>Від <input id="userDateFrom" type="date" /></label>
+              <label>До <input id="userDateTo" type="date" /></label>
+            </div>
+            <div class="admin-date-actions">
+              <button type="button" id="userDateReset">Скинути</button>
+              <button type="button" id="userDateApply" class="accent">Застосувати</button>
+            </div>
+          </div>
         </div>
       </section>
 
