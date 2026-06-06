@@ -17,15 +17,15 @@
     localStorage.setItem('bastion_ui_settings', JSON.stringify(s));
     localStorage.setItem('BASTION_ADMIN_PALETTE', s.palette || 'crimson');
     window.BastionSettings?.apply?.();
-    setState('SAVED');
+    setState('ЗБЕРЕЖЕНО');
   }
 
   function setState(text){
     const el=$('settingsSaveState');
     if(el){
-      el.textContent=text;
+      el.textContent=(text==='SAVED'?'ЗБЕРЕЖЕНО':text==='READY'?'ГОТОВО':text);
       clearTimeout(setState.t);
-      setState.t=setTimeout(()=>el.textContent='READY',1400);
+      setState.t=setTimeout(()=>el.textContent='ГОТОВО',1400);
     }
   }
 
@@ -77,7 +77,7 @@
     });
     $('clearUiCache')?.addEventListener('click',()=>{
       ['bastion_profile_nickname','bastion_profile_avatar'].forEach(k=>localStorage.removeItem(k));
-      setState('CACHE CLEARED');
+      setState('ОЧИЩЕНО');
     });
     $('reloadAssets')?.addEventListener('click',()=>location.reload());
     $('resetSettings')?.addEventListener('click',()=>{

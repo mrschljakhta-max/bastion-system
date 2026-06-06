@@ -84,96 +84,44 @@
 
 
 
-  <main class="bastion-settings-screen" data-module="settings">
-    <section class="settings-command-card">
-      <header class="settings-hero">
+  <main class="bastion-settings-screen admin-settings-screen admin-settings-palettes" data-module="settings">
+    <section class="settings-command-card settings-palette-command-card">
+      <header class="settings-hero settings-hero-clean">
         <div>
-          <div class="bastion-module-kicker">07 — Налаштування</div>
-          <h1>Налаштування системи</h1>
-          <p>Персоналізація інтерфейсу BASTION: тема, профіль, продуктивність, безпека, поведінка сторінок та AI-модулі.</p>
+          <h1>Налаштування</h1>
+          <p class="settings-lead">Оберіть повну палітру відображення сайту BASTION Admin: фон, кнопки, KPI-картки, навігацію, форми, таблиці та іконки.</p>
         </div>
-        <div class="settings-status">
-          <span>CONFIG NODE</span>
-          <strong id="settingsSaveState">READY</strong>
-        </div>
+        <span class="settings-save-pill" id="settingsSaveState" aria-live="polite">ГОТОВО</span>
       </header>
 
-      <div class="settings-grid">
-        <section class="settings-panel settings-panel--wide">
-          <div class="settings-panel-head">
-            <span class="settings-icon">◉</span>
-            <div><h2>Візуальна тема</h2><p>Колірна палітра, неон, фон і режим продуктивності.</p></div>
-          </div>
-          <div class="palette-grid" id="paletteGrid">
-            <button type="button" class="palette-card" data-palette="crimson"><i></i><strong>Crimson Core</strong><span>поточна червоно-чорна</span></button>
-            <button type="button" class="palette-card" data-palette="ice"><i></i><strong>Arctic Ice</strong><span>cyan / blue HUD</span></button>
-            <button type="button" class="palette-card" data-palette="emerald"><i></i><strong>Emerald Command</strong><span>зелений tactical</span></button>
-            <button type="button" class="palette-card" data-palette="gold"><i></i><strong>Gold Authority</strong><span>чорний + золото</span></button>
-            <button type="button" class="palette-card" data-palette="violet"><i></i><strong>Void Purple</strong><span>темний фіолетовий</span></button>
-          </div>
-          <div class="settings-controls settings-controls--quad">
-            <label><span>Glow strength</span><input id="glowStrength" type="range" min="0" max="100" step="5"></label>
-            <label><span>Animation level</span><input id="animationLevel" type="range" min="0" max="100" step="5"></label>
-            <label><span>Particle density</span><input id="particleDensity" type="range" min="0" max="100" step="5"></label>
-            <label><span>Blur amount</span><input id="blurAmount" type="range" min="0" max="100" step="5"></label>
-          </div>
-          <div class="segmented-control" id="performanceMode">
-            <button type="button" data-mode="cinematic">High Fidelity</button>
-            <button type="button" data-mode="balanced">Balanced</button>
-            <button type="button" data-mode="performance">Performance</button>
-          </div>
-        </section>
+      <section class="settings-palette-lab" aria-label="Вибір теми BASTION Admin">
+        <div class="settings-section-title">
+          <span class="settings-section-mark">◆</span>
+          <div><h2>Вибір теми</h2><p>Кожна палітра змінює весь інтерфейс, а службові статуси залишаються зрозумілими.</p></div>
+        </div>
+        <div class="palette-grid-showcase" id="paletteGrid">
+          <button type="button" class="theme-palette-card palette-card-showcase" data-palette="crimson"><span class="palette-preview"><i></i><i></i><i></i><i></i><i></i></span><span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span><strong>Crimson Core</strong><span>червоний командний режим</span></button>
+          <button type="button" class="theme-palette-card palette-card-showcase" data-palette="ice"><span class="palette-preview"><i></i><i></i><i></i><i></i><i></i></span><span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span><strong>Arctic Ice</strong><span>блакитно-крижаний режим</span></button>
+          <button type="button" class="theme-palette-card palette-card-showcase" data-palette="emerald"><span class="palette-preview"><i></i><i></i><i></i><i></i><i></i></span><span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span><strong>Emerald Command</strong><span>зелений тактичний режим</span></button>
+          <button type="button" class="theme-palette-card palette-card-showcase" data-palette="gold"><span class="palette-preview"><i></i><i></i><i></i><i></i><i></i></span><span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span><strong>Gold Authority</strong><span>жовто-графітовий режим</span></button>
+          <button type="button" class="theme-palette-card palette-card-showcase" data-palette="violet"><span class="palette-preview"><i></i><i></i><i></i><i></i><i></i></span><span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span><strong>Void Purple</strong><span>фіолетовий режим переваги</span></button>
+          <button type="button" class="theme-palette-card palette-card-showcase" data-palette="marsala"><span class="palette-preview"><i></i><i></i><i></i><i></i><i></i></span><span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span><strong>Marsala Command</strong><span>марсаловий преміум-режим</span></button>
+          <button type="button" class="theme-palette-card palette-card-showcase" data-palette="polar"><span class="palette-preview"><i></i><i></i><i></i><i></i><i></i></span><span class="palette-strip"><b></b><b></b><b></b><b></b><b></b></span><strong>Polar White</strong><span>світлий арктичний режим</span></button>
+        </div>
+      </section>
 
-        <section class="settings-panel">
-          <div class="settings-panel-head"><span class="settings-icon">◎</span><div><h2>Профіль</h2><p>Відображення користувача у HUD.</p></div></div>
-          <label class="settings-field"><span>Nickname</span><input id="settingsNickname" type="text" maxlength="32" placeholder="lavash.squad"></label>
-          <label class="settings-field"><span>Avatar URL</span><input id="settingsAvatar" type="url" placeholder="https://..."></label>
-          <div class="settings-actions"><button type="button" id="applyProfileSettings">Оновити профіль</button></div>
-        </section>
-
-        <section class="settings-panel">
-          <div class="settings-panel-head"><span class="settings-icon">⇄</span><div><h2>Поведінка інтерфейсу</h2><p>Стартова сторінка і навігація.</p></div></div>
-          <label class="settings-field"><span>Default landing page</span><select id="defaultLanding"><option value="app">Основне меню</option><option value="upload">Завантаження</option><option value="dicts">Довідники</option><option value="analysis">Аналіз</option><option value="command">Висновки</option></select></label>
-          <label class="settings-field"><span>Sidebar mode</span><select id="sidebarMode"><option value="compact">Compact</option><option value="expanded">Expanded</option><option value="auto">Auto-hide</option></select></label>
-          <label class="settings-toggle"><input id="minimalMotion" type="checkbox"><span>Minimal motion mode</span></label>
-        </section>
-
-        <section class="settings-panel">
-          <div class="settings-panel-head"><span class="settings-icon">⛨</span><div><h2>Безпека</h2><p>Пароль, MFA та активні сесії.</p></div></div>
-          <div class="settings-stack">
-            <button type="button" class="settings-ghost">Змінити пароль</button>
-            <button type="button" class="settings-ghost">Перегенерувати MFA QR</button>
-            <button type="button" class="settings-ghost">Завершити інші сесії</button>
-          </div>
-        </section>
-
-        <section class="settings-panel">
-          <div class="settings-panel-head"><span class="settings-icon">⌁</span><div><h2>Developer / System</h2><p>Діагностика, кеш і версія.</p></div></div>
-          <label class="settings-toggle"><input id="debugMode" type="checkbox"><span>Debug mode</span></label>
-          <div class="settings-stack">
-            <button type="button" id="clearUiCache" class="settings-ghost">Очистити UI cache</button>
-            <button type="button" id="reloadAssets" class="settings-ghost">Reload assets</button>
-          </div>
-          <div class="version-card"><span>BASTION UI</span><strong>v0.9.7-dev</strong><small>local settings profile</small></div>
-        </section>
-
-        <section class="settings-panel">
-          <div class="settings-panel-head"><span class="settings-icon">AI</span><div><h2>AI Settings</h2><p>Майбутній режим аналітичного помічника.</p></div></div>
-          <label class="settings-field"><span>AI personality</span><select id="aiPersonality"><option value="analyst">Analyst</option><option value="commander">Commander</option><option value="operator">Operator</option><option value="minimal">Minimal</option></select></label>
-          <label class="settings-field"><span>Response style</span><select id="aiResponseStyle"><option value="detailed">Detailed</option><option value="short">Short</option><option value="military">Military</option><option value="technical">Technical</option></select></label>
-          <label class="settings-toggle"><input id="allowAiAnalysis" type="checkbox"><span>Allow data analysis</span></label>
-        </section>
-
-        <section class="settings-panel settings-panel--danger">
-          <div class="settings-panel-head"><span class="settings-icon">!</span><div><h2>Danger Zone</h2><p>Скидання локальних налаштувань інтерфейсу.</p></div></div>
-          <div class="settings-stack"><button type="button" id="resetSettings" class="danger-btn">Reset preferences</button></div>
-        </section>
-      </div>
-
-      <div class="settings-footer-actions">
-        <a class="bastion-module-back" href="./app.html">← Повернутися до основного меню</a>
-        <button type="button" id="saveSettings" class="settings-save">Зберегти налаштування</button>
-      </div>
+      <section class="settings-theme-groups" aria-label="Групи елементів, які змінює тема">
+        <h3>Що змінює тема</h3>
+        <div class="settings-theme-group-grid">
+          <article><span>01</span><strong>Фон</strong><p>основний фон, градієнти, світіння та сітка</p></article>
+          <article><span>02</span><strong>Кнопки</strong><p>основні дії, hover-ефекти та натискання</p></article>
+          <article><span>03</span><strong>KPI-картки</strong><p>рамки, підсвітка, іконки та акценти</p></article>
+          <article><span>04</span><strong>Навігація</strong><p>ліва панель, активний пункт і кнопка під логотипом</p></article>
+          <article><span>05</span><strong>Форми</strong><p>поля, dropdown, календарі та фокус</p></article>
+          <article><span>06</span><strong>Таблиці</strong><p>заголовки, рядки, hover та фільтри</p></article>
+          <article><span>07</span><strong>Іконки</strong><p>колір, рамки, glow і службові маркери</p></article>
+        </div>
+      </section>
     </section>
   </main>
 
