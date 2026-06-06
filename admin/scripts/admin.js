@@ -21,6 +21,15 @@
   const inviteRoleOptions = Array.from(document.querySelectorAll('[data-role-value]'));
   const inviteNote = document.getElementById('inviteNote');
   const inviteSubmit = document.getElementById('inviteSubmit');
+
+  function setInviteSubmitState(label, state = '') {
+    if (!inviteSubmit) return;
+    const labelNode = inviteSubmit.querySelector('.send-invite-label');
+    if (labelNode) labelNode.textContent = label;
+    else inviteSubmit.textContent = label;
+    inviteSubmit.classList.remove('is-sending', 'is-sent');
+    if (state) inviteSubmit.classList.add(state);
+  }
   const sendEmailBtn = document.getElementById('sendEmailBtn');
   const inviteLoginPreview = document.getElementById('inviteLoginPreview');
   const inviteNoteCounter = document.getElementById('inviteNoteCounter');
@@ -57,8 +66,6 @@
   let usersCache = [];
   let requestsCache = [];
   let logsCache = [];
-  let logDateFrom = null;
-  let logDateTo = null;
 
   const client = window.supabase.createClient(
     window.BASTION_CONFIG.SUPABASE_URL,
@@ -275,11 +282,7 @@
 
   function statusBadge(value) {
     const v = String(value ?? '—').toLowerCase();
-    const labels = {
-      approved: 'Схвалено', rejected: 'Відхилено', pending: 'Нова', resolved: 'Опрацьовано',
-      active: 'Активний', disabled: 'Вимкнено', invited: 'Запрошено', mfa_pending: '2FA очікується'
-    };
-    return `<span class="admin-status-badge" data-status="${escapeHtml(v)}">${escapeHtml(labels[v] || v)}</span>`;
+    return `<span class="admin-status-badge" data-status="${escapeHtml(v)}">${escapeHtml(v)}</span>`;
   }
 
   function actionButtons(items) {
@@ -298,11 +301,6 @@
   function updateUsersMetrics(rows = usersCache) {
     setMetric('usersTotalCount', rows.length);
     setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && String(r.status).toLowerCase() !== 'disabled').length);
-    const pending = rows.filter((r) => {
-      const st = String(r.status || '').toLowerCase();
-      return st === 'pending' || st === 'invited' || st === 'mfa_pending' || !r.login;
-    }).length;
-    setMetric('usersPendingCount', pending);
     setMetric('usersMfaCount', rows.filter((r) => Boolean(r.mfa_enabled)).length);
   }
 
@@ -327,12 +325,10 @@
       const rowStatus = normalizeText(row.status);
       const isActive = Boolean(row.is_active) && rowStatus !== 'disabled';
       const matchesSearch = !q || haystack.includes(q);
-      const isPending = rowStatus === 'pending' || rowStatus === 'invited' || rowStatus === 'mfa_pending' || !row.login;
       const matchesStatus =
         status === 'all' ||
         (status === 'active' && isActive) ||
         (status === 'disabled' && !isActive) ||
-        (status === 'pending' && isPending) ||
         rowStatus === status;
       return matchesSearch && matchesStatus;
     });
@@ -364,26 +360,8 @@
         (action === 'mfa' && rowAction.includes('mfa')) ||
         (action === 'login' && rowAction.includes('login')) ||
         (action === 'delete' && rowAction.includes('delete'));
-      const ts = row.created_at ? new Date(row.created_at).getTime() : 0;
-      const after = !logDateFrom || ts >= new Date(`${logDateFrom}T00:00:00`).getTime();
-      const before = !logDateTo || ts <= new Date(`${logDateTo}T23:59:59`).getTime();
-      return (!q || haystack.includes(q)) && actionGroup && after && before;
+      return (!q || haystack.includes(q)) && actionGroup;
     });
-  }
-
-  function splitDateTime(value) {
-    const formatted = formatDate(value);
-    if (!formatted || formatted === '—') return '<span>—</span>';
-    const parts = formatted.split(',').map((p) => p.trim());
-    return `<strong class="date-line">${escapeHtml(parts[0] || formatted)}</strong>${parts[1] ? `<small class="time-line">${escapeHtml(parts[1])}</small>` : ''}`;
-  }
-
-  function boolIcon(value) {
-    return value ? '<span class="admin-bool is-yes">✓</span>' : '<span class="admin-bool is-no">×</span>';
-  }
-
-  function iconButton(cls, attrs, label, img) {
-    return `<button type="button" class="icon-action ${cls || ''}" ${attrs} title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}"><img src="${img}" alt="" /><span class="sr-only">${escapeHtml(label)}</span></button>`;
   }
 
   function renderUsers() {
@@ -394,21 +372,21 @@
       { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
       { key: 'email', label: 'Email' },
       { key: 'role', label: 'Роль', render: (row) => `<span class="admin-role-pill">${escapeHtml(row.role || '—')}</span>` },
-      { key: 'status', label: 'Статус', render: (row) => boolIcon(Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled') },
-      { key: 'mfa_enabled', label: '2FA', render: (row) => boolIcon(Boolean(row.mfa_enabled)) },
-      { key: 'is_active', label: 'Доступ', render: (row) => boolIcon(Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled') },
-      { key: 'created_at', label: 'Створено', render: (row) => splitDateTime(row.created_at) },
+      { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
+      { key: 'mfa_enabled', label: '2FA', render: (row) => Boolean(row.mfa_enabled) ? '<span class="admin-good">ON</span>' : '<span class="admin-muted-inline">OFF</span>' },
+      { key: 'is_active', label: 'Доступ', render: (row) => Boolean(row.is_active) && row.status !== 'disabled' ? '<span class="admin-good">Активний</span>' : '<span class="admin-danger-text">Закрито</span>' },
+      { key: 'created_at', label: 'Створено', render: (row) => formatDate(row.created_at) },
       {
         key: 'actions',
         label: 'Дії',
         render: (row) => {
           const email = escapeHtml(row.email || '');
           const login = escapeHtml(row.login || '');
-          const isActive = Boolean(row.is_active) && String(row.status).toLowerCase() !== 'disabled';
+          const isActive = Boolean(row.is_active) && row.status !== 'disabled';
           return actionButtons([
-            iconButton('', `data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}"`, isActive ? 'Вимкнути користувача' : 'Увімкнути користувача', './assets/adjustments-minus.svg'),
-            iconButton('', `data-user-logs="${email}"`, 'Переглянути логи', './assets/list-search.svg'),
-            iconButton('danger', `data-user-delete="${email}" data-login="${login}"`, 'Видалити користувача', './assets/user-x.svg')
+            `<button type="button" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}">${isActive ? 'Вимкнути' : 'Увімкнути'}</button>`,
+            `<button type="button" data-user-logs="${email}">Логи</button>`,
+            `<button type="button" class="danger" data-user-delete="${email}" data-login="${login}">Видалити</button>`
           ]);
         }
       }
@@ -422,7 +400,7 @@
     renderTable('requestsTable', rows, [
       { key: 'email', label: 'Email', render: (row) => `<strong>${escapeHtml(row.email)}</strong>` },
       { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
-      { key: 'requested_at', label: 'Дата', render: (row) => splitDateTime(row.requested_at) },
+      { key: 'requested_at', label: 'Дата', render: (row) => formatDate(row.requested_at) },
       { key: 'note', label: 'Повідомлення', render: (row) => `<span class="admin-note-cell">${escapeHtml(row.note || '—')}</span>` },
       {
         key: 'actions',
@@ -432,9 +410,9 @@
           const email = escapeHtml(row.email || '');
           const note = escapeHtml(row.note || '');
           return actionButtons([
-            iconButton('', `data-request-use="${id}" data-email="${email}" data-note="${note}"`, 'Взяти email', './assets/at.svg'),
-            iconButton('', `data-request-status="${id}" data-status="approved"`, 'Схвалити заявку', './assets/checkbox.svg'),
-            iconButton('danger', `data-request-status="${id}" data-status="rejected"`, 'Відхилити заявку', './assets/file-dislike.svg')
+            `<button type="button" data-request-use="${id}" data-email="${email}" data-note="${note}">Взяти email</button>`,
+            `<button type="button" data-request-status="${id}" data-status="approved">Вирішено</button>`,
+            `<button type="button" class="danger" data-request-status="${id}" data-status="rejected">Відхилити</button>`
           ]);
         }
       }
@@ -464,9 +442,10 @@
 
   function renderLogs() {
     const rows = getFilteredLogs();
+    updateLogsMetrics(logsCache);
 
     renderTable('logsTable', rows, [
-      { key: 'created_at', label: 'Дата <button type="button" class="log-date-filter-btn" id="logDateFilterBtn" title="Фільтр за датою"><img src="./assets/calendar-event.svg" alt="" /></button>', render: (row) => splitDateTime(row.created_at) },
+      { key: 'created_at', label: 'Дата', render: (row) => formatDate(row.created_at) },
       { key: 'email', label: 'Email/Login', render: (row) => `<strong>${escapeHtml(row.email || '—')}</strong>` },
       { key: 'action', label: 'Подія', render: (row) => `<span class="admin-log-human">${escapeHtml(humanLog(row))}</span><small>${escapeHtml(row.action || '')}</small>` },
       {
@@ -719,27 +698,6 @@
     return row || null;
   }
 
-  function bastionConfirm({ title, text, confirm = 'Підтвердити', cancel = 'Відхилити' }) {
-    return new Promise((resolve) => {
-      const overlay = document.createElement('div');
-      overlay.className = 'bastion-modal-overlay';
-      overlay.innerHTML = `
-        <div class="bastion-modal" role="dialog" aria-modal="true">
-          <h3>${escapeHtml(title)}</h3>
-          <p>${escapeHtml(text)}</p>
-          <div class="bastion-modal-actions">
-            <button type="button" class="admin-secondary" data-confirm-cancel>${escapeHtml(cancel)}</button>
-            <button type="button" class="bastion-action-btn danger" data-confirm-ok>${escapeHtml(confirm)}</button>
-          </div>
-        </div>`;
-      document.body.appendChild(overlay);
-      const close = (value) => { overlay.remove(); resolve(value); };
-      overlay.querySelector('[data-confirm-cancel]')?.addEventListener('click', () => close(false));
-      overlay.querySelector('[data-confirm-ok]')?.addEventListener('click', () => close(true));
-      overlay.addEventListener('click', (event) => { if (event.target === overlay) close(false); });
-    });
-  }
-
   async function refreshUsers() {
     try {
       usersCache = await adminRpc('admin_list_allowed_users');
@@ -847,7 +805,7 @@
     if (inviteResult) inviteResult.hidden = true;
     if (sendEmailBtn) sendEmailBtn.disabled = true;
     if (inviteForm) inviteForm.dataset.requestId = '';
-    if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
+    setInviteSubmitState('Надіслати запрошення');
     updateInvitePreview();
     syncInviteRoleCustom();
   });
@@ -883,7 +841,7 @@
   inviteForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     inviteSubmit.disabled = true;
-    inviteSubmit.textContent = 'Створюю доступ…';
+    setInviteSubmitState('Створюю доступ…', 'is-sending');
 
     try {
       const rows = await adminRpc('admin_create_user_invite', {
@@ -907,9 +865,9 @@
       if (mailtoInvite) mailtoInvite.href = buildMailto(lastInvite);
       if (inviteResult) inviteResult.hidden = true;
 
-      inviteSubmit.textContent = 'Надсилаю лист…';
+      setInviteSubmitState('Надсилаю лист…', 'is-sending');
       await sendInviteEmail(lastInvite);
-      inviteSubmit.textContent = 'Запрошення надіслано ✓';
+      setInviteSubmitState('Надіслано', 'is-sent');
 
       if (inviteForm?.dataset?.requestId) {
         try {
@@ -932,12 +890,12 @@
       updateInvitePreview();
       syncInviteRoleCustom();
       setTimeout(() => {
-        if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
+        setInviteSubmitState('Надіслати запрошення');
       }, 1600);
     } catch (error) {
       console.error(error);
       alert(error.message || 'Не вдалося створити або надіслати запрошення.');
-      inviteSubmit.textContent = 'Надіслати запрошення →';
+      setInviteSubmitState('Надіслати запрошення');
     } finally {
       inviteSubmit.disabled = false;
     }
@@ -1112,14 +1070,14 @@
       if (remove) {
         const email = remove.dataset.userDelete;
         const login = remove.dataset.login || email;
-        const ok = await bastionConfirm({
-          title: 'Видалити користувача?',
-          text: `Користувача ${login} буде видалено із системи BASTION. Цю дію неможливо скасувати.`,
-          confirm: 'Видалити',
-          cancel: 'Відхилити'
-        });
-        if (!ok) return;
-        await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: String(login || email).trim() });
+        const typed = prompt(`Повне видалення акаунта.\n\nБуде видалено доступ, invite, MFA-secret і profile binding.\nДля підтвердження введіть login або email:\n${login}`);
+        if (!typed) return;
+        if (typed.trim().toLowerCase() !== String(login).toLowerCase() && typed.trim().toLowerCase() !== String(email).toLowerCase()) {
+          alert('Підтвердження не збігається. Видалення скасовано.');
+          return;
+        }
+        if (!confirm(`Остаточно видалити ${email}? Цю дію не можна швидко відкотити.`)) return;
+        await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: typed.trim() });
         await refreshUsers();
         await refreshLogs();
       }
@@ -1179,170 +1137,8 @@
   logActionFilter?.addEventListener('change', renderLogs);
 
 
-
-  document.addEventListener('click', (event) => {
-    const userKpi = event.target.closest('[data-user-kpi]');
-    if (userKpi && userStatusFilter) {
-      userStatusFilter.value = userKpi.dataset.userKpi || 'all';
-      userStatusFilter.dispatchEvent(new Event('change', { bubbles: true }));
-      renderUsers();
-    }
-    const reqKpi = event.target.closest('[data-request-kpi]');
-    if (reqKpi && requestStatusFilter) {
-      requestStatusFilter.value = reqKpi.dataset.requestKpi || 'all';
-      requestStatusFilter.dispatchEvent(new Event('change', { bubbles: true }));
-      renderRequests();
-    }
-    const dateBtn = event.target.closest('#logDateFilterBtn');
-    if (dateBtn) openLogDateModal();
-  });
-
-  document.getElementById('resetLogFilters')?.addEventListener('click', () => {
-    if (logSearch) logSearch.value = '';
-    if (logActionFilter) {
-      logActionFilter.value = 'all';
-      logActionFilter.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    logDateFrom = null;
-    logDateTo = null;
-    renderLogs();
-  });
-
-  function openLogDateModal() {
-    const overlay = document.createElement('div');
-    overlay.className = 'bastion-modal-overlay';
-    overlay.innerHTML = `
-      <div class="bastion-modal date-modal" role="dialog" aria-modal="true">
-        <h3>Період журналу</h3>
-        <label>Від <input type="date" id="logDateFromInput" value="${logDateFrom || ''}"></label>
-        <label>До <input type="date" id="logDateToInput" value="${logDateTo || ''}"></label>
-        <div class="bastion-modal-actions">
-          <button type="button" class="admin-secondary" data-date-clear>Скинути</button>
-          <button type="button" class="admin-secondary" data-date-cancel>Відхилити</button>
-          <button type="button" class="bastion-action-btn" data-date-apply>Застосувати</button>
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-    const close = () => overlay.remove();
-    overlay.querySelector('[data-date-cancel]')?.addEventListener('click', close);
-    overlay.querySelector('[data-date-clear]')?.addEventListener('click', () => { logDateFrom = null; logDateTo = null; close(); renderLogs(); });
-    overlay.querySelector('[data-date-apply]')?.addEventListener('click', () => {
-      logDateFrom = overlay.querySelector('#logDateFromInput')?.value || null;
-      logDateTo = overlay.querySelector('#logDateToInput')?.value || null;
-      close(); renderLogs();
-    });
-  }
-
   adminAccessQuery?.addEventListener('focus', () => renderAdminAccessDropdown(true));
-
-  document.addEventListener('click', (event) => {
-    const userKpi = event.target.closest('[data-user-kpi]');
-    if (userKpi && userStatusFilter) {
-      userStatusFilter.value = userKpi.dataset.userKpi || 'all';
-      userStatusFilter.dispatchEvent(new Event('change', { bubbles: true }));
-      renderUsers();
-    }
-    const reqKpi = event.target.closest('[data-request-kpi]');
-    if (reqKpi && requestStatusFilter) {
-      requestStatusFilter.value = reqKpi.dataset.requestKpi || 'all';
-      requestStatusFilter.dispatchEvent(new Event('change', { bubbles: true }));
-      renderRequests();
-    }
-    const dateBtn = event.target.closest('#logDateFilterBtn');
-    if (dateBtn) openLogDateModal();
-  });
-
-  document.getElementById('resetLogFilters')?.addEventListener('click', () => {
-    if (logSearch) logSearch.value = '';
-    if (logActionFilter) {
-      logActionFilter.value = 'all';
-      logActionFilter.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    logDateFrom = null;
-    logDateTo = null;
-    renderLogs();
-  });
-
-  function openLogDateModal() {
-    const overlay = document.createElement('div');
-    overlay.className = 'bastion-modal-overlay';
-    overlay.innerHTML = `
-      <div class="bastion-modal date-modal" role="dialog" aria-modal="true">
-        <h3>Період журналу</h3>
-        <label>Від <input type="date" id="logDateFromInput" value="${logDateFrom || ''}"></label>
-        <label>До <input type="date" id="logDateToInput" value="${logDateTo || ''}"></label>
-        <div class="bastion-modal-actions">
-          <button type="button" class="admin-secondary" data-date-clear>Скинути</button>
-          <button type="button" class="admin-secondary" data-date-cancel>Відхилити</button>
-          <button type="button" class="bastion-action-btn" data-date-apply>Застосувати</button>
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-    const close = () => overlay.remove();
-    overlay.querySelector('[data-date-cancel]')?.addEventListener('click', close);
-    overlay.querySelector('[data-date-clear]')?.addEventListener('click', () => { logDateFrom = null; logDateTo = null; close(); renderLogs(); });
-    overlay.querySelector('[data-date-apply]')?.addEventListener('click', () => {
-      logDateFrom = overlay.querySelector('#logDateFromInput')?.value || null;
-      logDateTo = overlay.querySelector('#logDateToInput')?.value || null;
-      close(); renderLogs();
-    });
-  }
-
   adminAccessQuery?.addEventListener('input', () => renderAdminAccessDropdown(false));
-
-  document.addEventListener('click', (event) => {
-    const userKpi = event.target.closest('[data-user-kpi]');
-    if (userKpi && userStatusFilter) {
-      userStatusFilter.value = userKpi.dataset.userKpi || 'all';
-      userStatusFilter.dispatchEvent(new Event('change', { bubbles: true }));
-      renderUsers();
-    }
-    const reqKpi = event.target.closest('[data-request-kpi]');
-    if (reqKpi && requestStatusFilter) {
-      requestStatusFilter.value = reqKpi.dataset.requestKpi || 'all';
-      requestStatusFilter.dispatchEvent(new Event('change', { bubbles: true }));
-      renderRequests();
-    }
-    const dateBtn = event.target.closest('#logDateFilterBtn');
-    if (dateBtn) openLogDateModal();
-  });
-
-  document.getElementById('resetLogFilters')?.addEventListener('click', () => {
-    if (logSearch) logSearch.value = '';
-    if (logActionFilter) {
-      logActionFilter.value = 'all';
-      logActionFilter.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    logDateFrom = null;
-    logDateTo = null;
-    renderLogs();
-  });
-
-  function openLogDateModal() {
-    const overlay = document.createElement('div');
-    overlay.className = 'bastion-modal-overlay';
-    overlay.innerHTML = `
-      <div class="bastion-modal date-modal" role="dialog" aria-modal="true">
-        <h3>Період журналу</h3>
-        <label>Від <input type="date" id="logDateFromInput" value="${logDateFrom || ''}"></label>
-        <label>До <input type="date" id="logDateToInput" value="${logDateTo || ''}"></label>
-        <div class="bastion-modal-actions">
-          <button type="button" class="admin-secondary" data-date-clear>Скинути</button>
-          <button type="button" class="admin-secondary" data-date-cancel>Відхилити</button>
-          <button type="button" class="bastion-action-btn" data-date-apply>Застосувати</button>
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-    const close = () => overlay.remove();
-    overlay.querySelector('[data-date-cancel]')?.addEventListener('click', close);
-    overlay.querySelector('[data-date-clear]')?.addEventListener('click', () => { logDateFrom = null; logDateTo = null; close(); renderLogs(); });
-    overlay.querySelector('[data-date-apply]')?.addEventListener('click', () => {
-      logDateFrom = overlay.querySelector('#logDateFromInput')?.value || null;
-      logDateTo = overlay.querySelector('#logDateToInput')?.value || null;
-      close(); renderLogs();
-    });
-  }
-
   adminAccessQuery?.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowDown') {
       event.preventDefault();
@@ -1427,20 +1223,9 @@
     }
   });
 
-  async function pulseRefreshButton(btn, fn) {
-    if (!btn) return fn();
-    const label = btn.querySelector('.refresh-label') || btn;
-    btn.classList.add('is-loading');
-    const old = label.textContent;
-    try { await fn(); label.textContent = 'Оновлено'; }
-    finally {
-      setTimeout(() => { label.textContent = old || 'Оновити'; btn.classList.remove('is-loading'); }, 900);
-    }
-  }
-
-  document.getElementById('refreshUsers')?.addEventListener('click', (e) => pulseRefreshButton(e.currentTarget, refreshUsers));
-  document.getElementById('refreshRequests')?.addEventListener('click', (e) => pulseRefreshButton(e.currentTarget, refreshRequests));
-  document.getElementById('refreshLogs')?.addEventListener('click', (e) => pulseRefreshButton(e.currentTarget, refreshLogs));
+  document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
+  document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);
+  document.getElementById('refreshLogs')?.addEventListener('click', refreshLogs);
 
   document.getElementById('adminLogout')?.addEventListener('click', async () => {
     const token = getAdminToken();
