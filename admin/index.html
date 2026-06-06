@@ -138,7 +138,7 @@
             </label>
 
             <div class="admin-actions access-actions field-wide">
-              <button type="submit" id="inviteSubmit" class="send-invite-btn"><span class="btn-label">Надіслати запрошення</span></button>
+              <button type="submit" id="inviteSubmit" class="send-invite-btn"><span class="send-invite-icon"><img src="./assets/brand-telegram.svg" alt="" aria-hidden="true" /></span><span class="send-invite-label">Надіслати запрошення</span></button>
             </div>
           </form>
 
@@ -146,27 +146,44 @@
       </section>
 
       <section class="admin-tab" id="tab-users" data-title="Користувачі">
-        <div class="admin-card admin-card-wide admin-control-card">
-          <div class="admin-card-head">
+        <div class="admin-card admin-card-wide admin-control-card users-control-card">
+          <div class="admin-card-head users-card-head-clean">
             <div>
-              <h2>Користувачі</h2>
-              <p class="admin-muted">Центр керування акаунтами: статус, 2FA, доступ, логи та повне видалення.</p>
+              <p class="admin-muted">Перегляд, керування та контроль доступу користувачів системи.</p>
             </div>
-            <button id="refreshUsers">Оновити</button>
+            <button id="refreshUsers" type="button" class="bastion-action-btn admin-refresh-btn users-refresh-btn">
+              <span class="admin-btn-icon"><img src="./assets/scan-traces.svg" alt="" aria-hidden="true" /></span>
+              <span class="admin-btn-label">Оновити</span>
+            </button>
           </div>
 
-          <div class="admin-metrics-grid">
-            <div class="admin-metric"><span>Усього</span><strong id="usersTotalCount">0</strong></div>
-            <div class="admin-metric"><span>Активні</span><strong id="usersActiveCount">0</strong></div>
-            <div class="admin-metric"><span>2FA</span><strong id="usersMfaCount">0</strong></div>
+          <div class="admin-metrics-grid admin-metrics-icon-grid users-metrics-grid">
+            <button type="button" class="admin-metric admin-metric-action" data-users-kpi-filter="all" aria-label="Показати всіх користувачів">
+              <span class="metric-icon"><img src="./assets/users.svg" alt="" aria-hidden="true" /></span>
+              <span>Всього користувачів</span>
+              <strong id="usersTotalCount">0</strong>
+            </button>
+            <button type="button" class="admin-metric admin-metric-action" data-users-kpi-filter="active" aria-label="Показати активних користувачів">
+              <span class="metric-icon"><img src="./assets/user-check.svg" alt="" aria-hidden="true" /></span>
+              <span>Активних</span>
+              <strong id="usersActiveCount">0</strong>
+            </button>
+            <button type="button" class="admin-metric admin-metric-action" data-users-kpi-filter="pending" aria-label="Показати користувачів на етапі реєстрації">
+              <span class="metric-icon"><img src="./assets/user-plus.svg" alt="" aria-hidden="true" /></span>
+              <span>На етапі реєстрації</span>
+              <strong id="usersMfaCount">0</strong>
+            </button>
           </div>
 
-          <div class="admin-toolbar">
-            <label class="admin-toolbar-field">
+          <div class="admin-toolbar users-toolbar">
+            <label class="admin-toolbar-field admin-icon-field admin-search-field">
               <span>Пошук</span>
-              <input id="userSearch" type="search" placeholder="login, email, роль..." />
+              <div class="admin-field-with-icon">
+                <span class="admin-field-icon"><img src="./assets/user-search.svg" alt="" aria-hidden="true" /></span>
+                <input id="userSearch" type="search" placeholder="Логін, email або роль..." />
+              </div>
             </label>
-            <label class="admin-toolbar-field">
+            <label class="admin-toolbar-field admin-status-filter-field">
               <span>Статус</span>
               <select id="userStatusFilter">
                 <option value="all">Усі користувачі</option>
@@ -178,7 +195,7 @@
             </label>
           </div>
 
-          <div class="admin-table-wrap"><table id="usersTable"></table></div>
+          <div class="admin-table-wrap users-table-wrap"><table id="usersTable"></table></div>
         </div>
       </section>
 

@@ -57,6 +57,8 @@
   let usersCache = [];
   let requestsCache = [];
   let logsCache = [];
+  let usersDateRange = { start: null, end: null };
+  let usersDatePopover = null;
 
   const client = window.supabase.createClient(
     window.BASTION_CONFIG.SUPABASE_URL,
@@ -292,7 +294,7 @@
   function updateUsersMetrics(rows = usersCache) {
     setMetric('usersTotalCount', rows.length);
     setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && String(r.status).toLowerCase() !== 'disabled').length);
-    setMetric('usersMfaCount', rows.filter((r) => Boolean(r.mfa_enabled)).length);
+    setMetric('usersMfaCount', rows.filter((r) => String(r.status || '').toLowerCase() === 'pending' || String(r.status || '').toLowerCase() === 'invited' || !r.auth_user_id).length);
   }
 
   function updateRequestsMetrics(rows = requestsCache) {
@@ -321,7 +323,18 @@
         (status === 'active' && isActive) ||
         (status === 'disabled' && !isActive) ||
         rowStatus === status;
-      return matchesSearch && matchesStatus;
+      let matchesDate = true;
+      if (usersDateRange.start || usersDateRange.end) {
+        const created = row.created_at ? new Date(row.created_at) : null;
+        if (!created || Number.isNaN(created.getTime())) {
+          matchesDate = false;
+        } else {
+          const start = usersDateRange.start ? new Date(`${usersDateRange.start}T00:00:00`) : null;
+          const end = usersDateRange.end ? new Date(`${usersDateRange.end}T23:59:59`) : null;
+          matchesDate = (!start || created >= start) && (!end || created <= end);
+        }
+      }
+      return matchesSearch && matchesStatus && matchesDate;
     });
   }
 
@@ -355,6 +368,92 @@
     });
   }
 
+  function adminBoolIcon(value) {
+    return value
+      ? '<span class="admin-state-icon admin-state-yes" aria-label="Так">✓</span>'
+      : '<span class="admin-state-icon admin-state-no" aria-label="Ні">×</span>';
+  }
+
+  function formatDateStack(value) {
+    const text = formatDate(value);
+    if (!text || text === '—') return '—';
+    const parts = String(text).split(',').map((p) => p.trim()).filter(Boolean);
+    if (parts.length < 2) return escapeHtml(text);
+    return `<span class="admin-date-stack"><strong>${escapeHtml(parts[0])}</strong><small>${escapeHtml(parts[1])}</small></span>`;
+  }
+
+  function usersDateLabel() {
+    if (!usersDateRange.start && !usersDateRange.end) return 'Період';
+    return `${usersDateRange.start || '...'} — ${usersDateRange.end || '...'}`;
+  }
+
+  function closeUsersDatePopover() {
+    if (usersDatePopover) usersDatePopover.remove();
+    usersDatePopover = null;
+  }
+
+  function openUsersDatePopover(anchor) {
+    closeUsersDatePopover();
+    usersDatePopover = document.createElement('div');
+    usersDatePopover.className = 'admin-date-popover users-date-popover';
+    usersDatePopover.innerHTML = `
+      <div class="admin-date-popover-head">
+        <strong>Період створення</strong>
+        <button type="button" data-users-date-close aria-label="Закрити">×</button>
+      </div>
+      <div class="admin-date-grid">
+        <label>Від<input type="date" data-users-date-start value="${usersDateRange.start || ''}"></label>
+        <label>До<input type="date" data-users-date-end value="${usersDateRange.end || ''}"></label>
+      </div>
+      <div class="admin-date-quick">
+        <button type="button" data-users-date-preset="today">Сьогодні</button>
+        <button type="button" data-users-date-preset="7">7 днів</button>
+        <button type="button" data-users-date-preset="30">30 днів</button>
+        <button type="button" data-users-date-preset="all">Весь час</button>
+      </div>
+      <div class="admin-date-actions">
+        <button type="button" class="admin-secondary" data-users-date-reset>Скинути</button>
+        <button type="button" class="admin-confirm-primary" data-users-date-apply>Застосувати</button>
+      </div>
+    `;
+    document.body.appendChild(usersDatePopover);
+    const rect = anchor.getBoundingClientRect();
+    const width = 360;
+    usersDatePopover.style.left = `${Math.min(rect.left, window.innerWidth - width - 16)}px`;
+    usersDatePopover.style.top = `${rect.bottom + 10}px`;
+
+    const setPreset = (days) => {
+      if (days === 'all') {
+        usersDatePopover.querySelector('[data-users-date-start]').value = '';
+        usersDatePopover.querySelector('[data-users-date-end]').value = '';
+        return;
+      }
+      const end = new Date();
+      const start = new Date();
+      if (days !== 'today') start.setDate(end.getDate() - Number(days) + 1);
+      const fmt = (d) => d.toISOString().slice(0, 10);
+      usersDatePopover.querySelector('[data-users-date-start]').value = fmt(start);
+      usersDatePopover.querySelector('[data-users-date-end]').value = fmt(end);
+    };
+    usersDatePopover.querySelector('[data-users-date-close]')?.addEventListener('click', closeUsersDatePopover);
+    usersDatePopover.querySelector('[data-users-date-reset]')?.addEventListener('click', () => {
+      usersDateRange = { start: null, end: null };
+      closeUsersDatePopover();
+      renderUsers();
+    });
+    usersDatePopover.querySelector('[data-users-date-apply]')?.addEventListener('click', () => {
+      usersDateRange = {
+        start: usersDatePopover.querySelector('[data-users-date-start]')?.value || null,
+        end: usersDatePopover.querySelector('[data-users-date-end]')?.value || null
+      };
+      closeUsersDatePopover();
+      renderUsers();
+    });
+    usersDatePopover.querySelectorAll('[data-users-date-preset]').forEach((btn) => {
+      btn.addEventListener('click', () => setPreset(btn.dataset.usersDatePreset));
+    });
+  }
+
   function renderUsers() {
     const rows = getFilteredUsers();
     updateUsersMetrics(usersCache);
@@ -363,10 +462,10 @@
       { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
       { key: 'email', label: 'Email' },
       { key: 'role', label: 'Роль', render: (row) => `<span class="admin-role-pill">${escapeHtml(row.role || '—')}</span>` },
-      { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
-      { key: 'mfa_enabled', label: '2FA', render: (row) => Boolean(row.mfa_enabled) ? '<span class="admin-good">ON</span>' : '<span class="admin-muted-inline">OFF</span>' },
-      { key: 'is_active', label: 'Доступ', render: (row) => Boolean(row.is_active) && row.status !== 'disabled' ? '<span class="admin-good">Активний</span>' : '<span class="admin-danger-text">Закрито</span>' },
-      { key: 'created_at', label: 'Створено', render: (row) => formatDate(row.created_at) },
+      { key: 'status', label: 'Статус', render: (row) => adminBoolIcon(Boolean(row.is_active) && String(row.status || '').toLowerCase() !== 'disabled' && String(row.status || '').toLowerCase() !== 'pending') },
+      { key: 'mfa_enabled', label: '2FA', render: (row) => adminBoolIcon(Boolean(row.mfa_enabled)) },
+      { key: 'is_active', label: 'Доступ', render: (row) => adminBoolIcon(Boolean(row.is_active) && String(row.status || '').toLowerCase() !== 'disabled' && String(row.status || '').toLowerCase() !== 'pending') },
+      { key: 'created_at', label: `Створено <button type="button" class="admin-date-filter-trigger" data-users-date-toggle title="Обрати період"> <img src="./assets/calendar-event.svg" alt="" aria-hidden="true" /></button>`, render: (row) => formatDateStack(row.created_at) },
       {
         key: 'actions',
         label: 'Дії',
@@ -374,14 +473,20 @@
           const email = escapeHtml(row.email || '');
           const login = escapeHtml(row.login || '');
           const isActive = Boolean(row.is_active) && row.status !== 'disabled';
-          return actionButtons([
-            `<button type="button" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}">${isActive ? 'Вимкнути' : 'Увімкнути'}</button>`,
-            `<button type="button" data-user-logs="${email}">Логи</button>`,
-            `<button type="button" class="danger" data-user-delete="${email}" data-login="${login}">Видалити</button>`
-          ]);
+          return `<div class="admin-icon-actions">
+            <button type="button" class="admin-icon-action" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}" title="${isActive ? 'Вимкнути користувача' : 'Увімкнути користувача'}"><img src="./assets/lock-access.svg" alt="" aria-hidden="true" /></button>
+            <button type="button" class="admin-icon-action" data-user-logs="${email}" title="Переглянути логи"><img src="./assets/list-search.svg" alt="" aria-hidden="true" /></button>
+            <button type="button" class="admin-icon-action danger" data-user-delete="${email}" data-login="${login}" title="Видалити користувача"><img src="./assets/user-x.svg" alt="" aria-hidden="true" /></button>
+          </div>`;
         }
       }
     ], 'Користувачів не знайдено.');
+
+    usersTable?.querySelector('[data-users-date-toggle]')?.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openUsersDatePopover(event.currentTarget);
+    });
   }
 
   function renderRequests() {
@@ -796,7 +901,7 @@
     if (inviteResult) inviteResult.hidden = true;
     if (sendEmailBtn) sendEmailBtn.disabled = true;
     if (inviteForm) inviteForm.dataset.requestId = '';
-    if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення';
+    if (inviteSubmit) setInviteSubmitLabel('Надіслати запрошення');
     updateInvitePreview();
     syncInviteRoleCustom();
   });
@@ -807,6 +912,20 @@
   function makeSetupUrl(token) {
     const root = window.location.href.split('/admin/')[0];
     return `${root}/setup-account.html?token=${encodeURIComponent(token)}`;
+  }
+
+  function setInviteSubmitLabel(text) {
+    if (!inviteSubmit) return;
+    const label = inviteSubmit.querySelector('.send-invite-label');
+    if (label) label.textContent = text;
+    else inviteSubmit.textContent = text;
+  }
+
+  function pulseInviteButton() {
+    if (!inviteSubmit) return;
+    inviteSubmit.classList.remove('is-sent-pulse');
+    void inviteSubmit.offsetWidth;
+    inviteSubmit.classList.add('is-sent-pulse');
   }
 
   function buildMailto(invite) {
@@ -832,9 +951,7 @@
   inviteForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     inviteSubmit.disabled = true;
-    inviteSubmit.classList.remove('is-sent');
-    inviteSubmit.classList.add('is-sending');
-    inviteSubmit.textContent = 'Створюю доступ…';
+    setInviteSubmitLabel('Створюю доступ…');
 
     try {
       const rows = await adminRpc('admin_create_user_invite', {
@@ -858,11 +975,9 @@
       if (mailtoInvite) mailtoInvite.href = buildMailto(lastInvite);
       if (inviteResult) inviteResult.hidden = true;
 
-      inviteSubmit.textContent = 'Надсилаю лист…';
+      setInviteSubmitLabel('Надсилаю лист…');
       await sendInviteEmail(lastInvite);
-      inviteSubmit.classList.remove('is-sending');
-      inviteSubmit.classList.add('is-sent');
-      inviteSubmit.textContent = 'Надіслано ✓';
+      setInviteSubmitLabel('Надіслано ✓');
 
       if (inviteForm?.dataset?.requestId) {
         try {
@@ -885,16 +1000,12 @@
       updateInvitePreview();
       syncInviteRoleCustom();
       setTimeout(() => {
-        if (inviteSubmit) {
-          inviteSubmit.textContent = 'Надіслати запрошення';
-          inviteSubmit.classList.remove('is-sent','is-sending');
-        }
+        if (inviteSubmit) setInviteSubmitLabel('Надіслати запрошення');
       }, 1600);
     } catch (error) {
       console.error(error);
       alert(error.message || 'Не вдалося створити або надіслати запрошення.');
-      inviteSubmit.classList.remove('is-sent','is-sending');
-      inviteSubmit.textContent = 'Надіслати запрошення';
+      setInviteSubmitLabel('Надіслати запрошення');
     } finally {
       inviteSubmit.disabled = false;
     }
@@ -1128,6 +1239,22 @@
     }
   });
 
+  document.querySelectorAll('[data-users-kpi-filter]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (userStatusFilter) {
+        userStatusFilter.value = btn.dataset.usersKpiFilter || 'all';
+        userStatusFilter.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      renderUsers();
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (usersDatePopover && !usersDatePopover.contains(event.target) && !event.target.closest('[data-users-date-toggle]')) {
+      closeUsersDatePopover();
+    }
+  });
+
   userSearch?.addEventListener('input', renderUsers);
   userStatusFilter?.addEventListener('change', renderUsers);
   requestSearch?.addEventListener('input', renderRequests);
@@ -1222,30 +1349,7 @@
     }
   });
 
-  document.getElementById('refreshUsers')?.addEventListener('click', async (event) => {
-    const btn = event.currentTarget;
-    if (btn?.disabled) return;
-    const oldText = btn.textContent;
-    btn.disabled = true;
-    btn.classList.add('is-refreshing');
-    btn.textContent = 'Оновити';
-    try {
-      await refreshUsers();
-      btn.classList.remove('is-refreshing');
-      btn.classList.add('is-done');
-      btn.textContent = 'Оновлено';
-      setTimeout(() => {
-        btn.textContent = oldText || 'Оновити';
-        btn.classList.remove('is-done');
-      }, 1000);
-    } catch (error) {
-      btn.classList.remove('is-refreshing','is-done');
-      btn.textContent = oldText || 'Оновити';
-      console.error(error);
-    } finally {
-      setTimeout(() => { btn.disabled = false; }, 260);
-    }
-  });
+  document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
   document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);
   document.getElementById('refreshLogs')?.addEventListener('click', refreshLogs);
 
