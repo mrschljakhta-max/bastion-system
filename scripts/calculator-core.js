@@ -309,7 +309,10 @@
     const values = collectImportQuantities();
     if (!values.length) return null;
     return {
-      min: Math.min(...values),
+      // Мінімальний залишок має бути 0 за замовчуванням.
+      // Раніше сюди підставлялась мінімальна кількість з імпорту,
+      // через що файл з найменшим елементом SN4=12 давав 0 комплектів.
+      min: 0,
       max: Math.max(...values),
       count: values.length
     };
@@ -806,23 +809,41 @@
   const analysisItemsFromImport = () => {
     const ctx = readImportContext();
     const rows = [];
+    const pick = (source, keys) => {
+      for (const key of keys) {
+        const value = source?.[key];
+        if (value !== undefined && value !== null && String(value).trim() !== '') return value;
+      }
+      return '';
+    };
     const pushItem = (file, item) => {
       if (!item || typeof item !== 'object') return;
-      const unit = String(file?.unitName || file?.unit || file?.review?.unitName || file?.review?.unit || '').trim();
+      const raw = item.raw && typeof item.raw === 'object' ? item.raw : item;
+      const unit = String(
+        pick(item, ['unitName', 'unit', 'unit_name', 'підрозділ', 'Підрозділ']) ||
+        pick(raw, ['unitName', 'unit', 'unit_name', 'підрозділ', 'Підрозділ']) ||
+        file?.unitName || file?.unit || file?.review?.unitName || file?.review?.unit || ''
+      ).trim();
       if (!unit) return;
-      const qty = numericQuantityFrom(item.quantity ?? item.count ?? item.qty ?? item.amount ?? item.total ?? item.value ?? item['кількість'] ?? item['загалом']);
+      const qty = numericQuantityFrom(
+        pick(item, ['quantity', 'count', 'qty', 'amount', 'total', 'кількість', 'Кількість', 'загалом']) ||
+        pick(raw, ['quantity', 'count', 'qty', 'amount', 'total', 'кількість', 'Кількість', 'загалом'])
+      );
       if (qty === null) return;
-      rows.push({
-        unit,
-        name: normalizeItemName(item.name || item.title || item.label || item.value || item.item || item['назва'] || item['найменування']),
-        qty
-      });
+      const name = normalizeItemName(
+        pick(item, ['name', 'title', 'label', 'item', 'назва', 'Назва', 'найменування']) ||
+        pick(raw, ['name', 'title', 'label', 'item', 'назва', 'Назва', 'найменування'])
+      );
+      rows.push({ unit, name, qty });
     };
-    if (ctx && Array.isArray(ctx.files)) {
-      ctx.files.forEach((file) => {
-        const itemArrays = [file.items, file.known, file.rows, file.inventory].filter(Array.isArray);
-        itemArrays.forEach((arr) => arr.forEach((item) => pushItem(file, item)));
-      });
+    if (ctx && typeof ctx === 'object') {
+      [ctx.items, ctx.inventory, ctx.rows].filter(Array.isArray).forEach((arr) => arr.forEach((item) => pushItem({}, item)));
+      if (Array.isArray(ctx.files)) {
+        ctx.files.forEach((file) => {
+          const itemArrays = [file.items, file.known, file.rows, file.inventory, file.review?.known, file.review?.unknown, file.review?.rows].filter(Array.isArray);
+          itemArrays.forEach((arr) => arr.forEach((item) => pushItem(file, item)));
+        });
+      }
     }
     return rows;
   };
@@ -1010,11 +1031,20 @@
 
     stockByUnit.forEach((unitStock, unitKey) => {
       totalStock += unitStock.total;
-      const evaluated = recipes.map((recipe) => {
+      const usedByKey = new Map();
+      const allocationGroup = ensureResultGroup(allocationMap, unitStock.unit);
+      const recipeOrder = recipes
+        .map((recipe, index) => ({ recipe, index }))
+        .sort((a, b) => b.recipe.rangeMeters - a.recipe.rangeMeters || a.index - b.index);
+      const allocatedRecipes = [];
+
+      const evaluateRecipe = (recipe) => {
         const componentResults = recipe.components.map((component) => {
           const stockItem = findStockItem(unitStock.items, component);
           const initial = Number(stockItem?.qty || 0);
-          const usableAfterReserve = Math.max(0, initial - minReserve);
+          const alreadyUsed = Number(usedByKey.get(component.key) || 0);
+          const current = Math.max(0, initial - alreadyUsed);
+          const usableAfterReserve = Math.max(0, current - minReserve);
           const available = maxTake > 0 ? Math.min(usableAfterReserve, maxTake) : usableAfterReserve;
           const kitsByItem = component.need > 0 ? Math.floor(available / component.need) : 0;
           return {
@@ -1022,31 +1052,45 @@
             key: component.key,
             need: component.need,
             initial,
+            current,
             available,
             kitsByItem
           };
         });
         const kits = componentResults.length ? Math.min(...componentResults.map(item => item.kitsByItem)) : 0;
-        const bottleneckItem = componentResults.slice().sort((a, b) => a.kitsByItem - b.kitsByItem || a.name.localeCompare(b.name, 'uk'))[0];
-        return { recipe, components: componentResults, kits, bottleneckItem };
-      });
+        const bottleneckItems = componentResults
+          .filter(item => item.kitsByItem === kits)
+          .map(item => item.name)
+          .sort((a, b) => a.localeCompare(b, 'uk'));
+        return { recipe, components: componentResults, kits, bottleneckItems };
+      };
 
-      const best = evaluated.sort((a, b) => b.kits - a.kits || b.recipe.rangeMeters - a.recipe.rangeMeters || String(a.recipe.row.name).localeCompare(String(b.recipe.row.name), 'uk'))[0];
-      const usedByKey = new Map();
-      if (best && best.kits > 0) {
-        const allocationGroup = ensureResultGroup(allocationMap, unitStock.unit);
-        best.components.forEach((component) => {
-          const used = best.kits * component.need;
+      recipeOrder.forEach(({ recipe }) => {
+        const result = evaluateRecipe(recipe);
+        if (!result.kits || result.kits <= 0) return;
+        const recipeName = result.components.map(component => component.name).join(' + ') || result.recipe.row?.name || 'Комбінація';
+        const previous = allocationGroup.items.get(recipeName) || { name: recipeName, qty: 0, used: 0, initial: 0 };
+        previous.qty += result.kits;
+        previous.used += result.kits;
+        previous.initial += result.kits;
+        allocationGroup.items.set(recipeName, previous);
+        allocationGroup.total += result.kits;
+
+        result.components.forEach((component) => {
+          const used = result.kits * component.need;
           usedByKey.set(component.key, (usedByKey.get(component.key) || 0) + used);
-          const previous = allocationGroup.items.get(component.key) || { name: component.name, qty: 0, used: 0, initial: 0 };
-          previous.qty += used;
-          previous.used += used;
-          previous.initial += component.initial;
-          allocationGroup.items.set(component.key, previous);
-          allocationGroup.total += used;
           totalUsed += used;
         });
-      }
+
+        allocatedRecipes.push({
+          unit: unitStock.unit,
+          recipe: recipeName,
+          kits: result.kits,
+          range: result.recipe.row?.range || '—',
+          rangeMeters: result.recipe.rangeMeters || 0,
+          bottleneck: result.bottleneckItems.join(', ') || '—'
+        });
+      });
 
       const remainGroup = ensureResultGroup(remainMap, unitStock.unit);
       unitStock.items.forEach((stockItem, itemKey) => {
@@ -1062,14 +1106,20 @@
         totalRemain += remain;
       });
 
-      unitRecipeResults.push({
-        unit: unitStock.unit,
-        recipe: best?.recipe?.row?.name || '—',
-        kits: best?.kits || 0,
-        range: best?.recipe?.row?.range || '—',
-        rangeMeters: best?.recipe?.rangeMeters || 0,
-        bottleneck: best?.bottleneckItem?.name || '—'
-      });
+      if (allocatedRecipes.length) {
+        unitRecipeResults.push(...allocatedRecipes);
+      } else {
+        const evaluated = recipeOrder.map(({ recipe }) => evaluateRecipe(recipe));
+        const bestZero = evaluated.sort((a, b) => b.kits - a.kits || b.recipe.rangeMeters - a.recipe.rangeMeters)[0];
+        unitRecipeResults.push({
+          unit: unitStock.unit,
+          recipe: bestZero?.recipe?.row?.name || '—',
+          kits: 0,
+          range: bestZero?.recipe?.row?.range || '—',
+          rangeMeters: bestZero?.recipe?.rangeMeters || 0,
+          bottleneck: bestZero?.bottleneckItems?.join(', ') || '—'
+        });
+      }
     });
 
     const remains = groupRowsArray(remainMap);

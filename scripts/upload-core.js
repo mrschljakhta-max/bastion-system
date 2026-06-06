@@ -867,6 +867,8 @@
         index: record.index || 0,
         name: record.name || rowName(record.raw) || '',
         quantity: Number.isInteger(Number(record.count)) ? Number(record.count) : null,
+        unitName: record.unitName || record.unit || record.raw?.unitName || record.raw?.unit || record.raw?.['підрозділ'] || record.raw?.['Підрозділ'] || '',
+        raw: record.raw || null,
         category: record.match?.label || record.match?.config?.label || record.match?.dictLabel || '',
         dictKey: record.match?.config?.key || record.match?.dictKey || '',
         known: !!record.match && Number.isInteger(Number(record.count))
