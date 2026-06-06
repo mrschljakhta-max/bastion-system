@@ -465,7 +465,7 @@
       { key: 'status', label: 'Статус', render: (row) => adminBoolIcon(Boolean(row.is_active) && String(row.status || '').toLowerCase() !== 'disabled' && String(row.status || '').toLowerCase() !== 'pending') },
       { key: 'mfa_enabled', label: '2FA', render: (row) => adminBoolIcon(Boolean(row.mfa_enabled)) },
       { key: 'is_active', label: 'Доступ', render: (row) => adminBoolIcon(Boolean(row.is_active) && String(row.status || '').toLowerCase() !== 'disabled' && String(row.status || '').toLowerCase() !== 'pending') },
-      { key: 'created_at', label: `Створено <button type="button" class="admin-date-filter-trigger" data-users-date-toggle title="Обрати період"> <img src="./assets/calendar-event.svg" alt="" aria-hidden="true" /></button>`, render: (row) => formatDateStack(row.created_at) },
+      { key: 'created_at', label: 'Створено <span class="admin-date-filter-trigger" data-users-date-toggle title="Обрати період"><img src="./assets/calendar-event.svg" alt="" aria-hidden="true" /></span>', render: (row) => formatDateStack(row.created_at) },
       {
         key: 'actions',
         label: 'Дії',
