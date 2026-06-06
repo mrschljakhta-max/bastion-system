@@ -1045,7 +1045,9 @@
           const alreadyUsed = Number(usedByKey.get(component.key) || 0);
           const current = Math.max(0, initial - alreadyUsed);
           const usableAfterReserve = Math.max(0, current - minReserve);
-          const available = maxTake > 0 ? Math.min(usableAfterReserve, maxTake) : usableAfterReserve;
+          const availableBeforeLimit = usableAfterReserve;
+          const available = maxTake > 0 ? Math.min(availableBeforeLimit, maxTake) : availableBeforeLimit;
+          const rawKitsByItem = component.need > 0 ? Math.floor(availableBeforeLimit / component.need) : 0;
           const kitsByItem = component.need > 0 ? Math.floor(available / component.need) : 0;
           return {
             name: stockItem?.name || component.name,
@@ -1054,15 +1056,25 @@
             initial,
             current,
             available,
+            availableBeforeLimit,
+            rawKitsByItem,
             kitsByItem
           };
         });
         const kits = componentResults.length ? Math.min(...componentResults.map(item => item.kitsByItem)) : 0;
+
+        // Вузьке місце визначаємо не по обмеженому значенню maxTake,
+        // а по реальному запасу елемента після мінімального резерву.
+        // Інакше при maxTake = 100 усі компоненти штучно виглядають однаково
+        // і KPI показує всі елементи як обмежувальні.
+        const stockLimitedKits = componentResults.length
+          ? Math.min(...componentResults.map(item => item.rawKitsByItem))
+          : 0;
         const bottleneckItems = componentResults
-          .filter(item => item.kitsByItem === kits)
+          .filter(item => item.rawKitsByItem === stockLimitedKits)
           .map(item => item.name)
           .sort((a, b) => a.localeCompare(b, 'uk'));
-        return { recipe, components: componentResults, kits, bottleneckItems };
+        return { recipe, components: componentResults, kits, bottleneckItems, stockLimitedKits };
       };
 
       recipeOrder.forEach(({ recipe }) => {
@@ -1125,8 +1137,9 @@
     const remains = groupRowsArray(remainMap);
     const allocations = groupRowsArray(allocationMap);
     const totalKits = unitRecipeResults.reduce((sum, item) => sum + Number(item.kits || 0), 0);
-    const bottleneck = unitRecipeResults.length
-      ? unitRecipeResults.slice().sort((a, b) => a.kits - b.kits || a.bottleneck.localeCompare(b.bottleneck, 'uk'))[0].bottleneck
+    const positiveRecipeResults = unitRecipeResults.filter(item => Number(item.kits || 0) > 0);
+    const bottleneck = positiveRecipeResults.length
+      ? positiveRecipeResults.slice().sort((a, b) => a.kits - b.kits || a.bottleneck.localeCompare(b.bottleneck, 'uk'))[0].bottleneck
       : '—';
 
     return {
@@ -1172,6 +1185,14 @@
 
   const saveAnalysisResult = (result) => {
     const raw = JSON.stringify(result);
+
+    // Очищаємо всі старі варіанти ключів перед записом, щоб analysis.html
+    // не підхоплювала попередній результат після нового імпорту/розрахунку.
+    ANALYSIS_STORAGE_KEYS.forEach((key) => {
+      try { window.localStorage?.removeItem(key); } catch (_) {}
+      try { window.sessionStorage?.removeItem(key); } catch (_) {}
+    });
+
     ANALYSIS_STORAGE_KEYS.forEach((key) => {
       try { window.localStorage?.setItem(key, raw); } catch (_) {}
       try { window.sessionStorage?.setItem(key, raw); } catch (_) {}

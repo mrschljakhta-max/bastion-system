@@ -89,15 +89,15 @@
 
   function readStoredResult() {
     const keys = [
-      'bastion.analysis.result',
       'bastion.calculation.result',
+      'bastion.analysis.result',
       'bastionCalculatorResult',
       'bastionAnalysisResult'
     ];
 
     for (const key of keys) {
       try {
-        const raw = localStorage.getItem(key);
+        const raw = localStorage.getItem(key) || sessionStorage.getItem(key);
         if (!raw) continue;
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed === 'object') return normalizeResult(parsed);
