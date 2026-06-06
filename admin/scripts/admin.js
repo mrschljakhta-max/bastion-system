@@ -78,6 +78,125 @@
 
   applyStoredPalette();
 
+
+  function initBastionDropdowns() {
+    const configs = [
+      { id: 'userStatusFilter', icon: 'users' },
+      { id: 'requestStatusFilter', icon: 'requests' },
+      { id: 'logActionFilter', icon: 'logs' }
+    ];
+
+    const closeAll = (except = null) => {
+      document.querySelectorAll('.bastion-select.is-open').forEach((node) => {
+        if (node !== except) {
+          node.classList.remove('is-open');
+          const btn = node.querySelector('.bastion-select-trigger');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    };
+
+    const iconMarkup = (type) => {
+      if (type === 'logs') return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h8"/><path d="M17 15l3 3m0-3l-3 3"/></svg>';
+      if (type === 'requests') return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10l3 3v13H4V4h3z"/><path d="M8 10h8M8 14h6"/><path d="M17 4v4h3"/></svg>';
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M17 11l2 2 4-4"/></svg>';
+    };
+
+    configs.forEach(({ id, icon }) => {
+      const select = document.getElementById(id);
+      if (!select || select.dataset.bastionEnhanced === '1') return;
+      select.dataset.bastionEnhanced = '1';
+      select.classList.add('bastion-select-native');
+      select.setAttribute('aria-hidden', 'true');
+      select.tabIndex = -1;
+
+      const root = document.createElement('div');
+      root.className = 'bastion-select';
+      root.dataset.selectFor = id;
+
+      const trigger = document.createElement('button');
+      trigger.type = 'button';
+      trigger.className = 'bastion-select-trigger';
+      trigger.setAttribute('aria-haspopup', 'listbox');
+      trigger.setAttribute('aria-expanded', 'false');
+
+      const ico = document.createElement('span');
+      ico.className = 'bastion-select-icon';
+      ico.innerHTML = iconMarkup(icon);
+
+      const value = document.createElement('span');
+      value.className = 'bastion-select-value';
+
+      const caret = document.createElement('span');
+      caret.className = 'bastion-select-caret';
+      caret.innerHTML = '<img src="./assets/arrow-badge-down.svg" alt="" />';
+
+      trigger.append(ico, value, caret);
+
+      const menu = document.createElement('div');
+      menu.className = 'bastion-select-menu';
+      menu.setAttribute('role', 'listbox');
+
+      const sync = () => {
+        const selected = select.options[select.selectedIndex] || select.options[0];
+        value.textContent = selected ? selected.textContent.trim() : '—';
+        menu.querySelectorAll('.bastion-select-option').forEach((option) => {
+          const isSelected = option.dataset.value === select.value;
+          option.classList.toggle('is-selected', isSelected);
+          option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        });
+      };
+
+      Array.from(select.options).forEach((opt) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'bastion-select-option';
+        item.dataset.value = opt.value;
+        item.setAttribute('role', 'option');
+        item.textContent = opt.textContent.trim();
+        item.addEventListener('click', () => {
+          select.value = opt.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          sync();
+          root.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.focus();
+        });
+        menu.appendChild(item);
+      });
+
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        const open = !root.classList.contains('is-open');
+        closeAll(root);
+        root.classList.toggle('is-open', open);
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      trigger.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          root.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      select.addEventListener('change', sync);
+      root.append(trigger, menu);
+      select.insertAdjacentElement('afterend', root);
+      sync();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.bastion-select')) closeAll();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeAll();
+    });
+  }
+
+  initBastionDropdowns();
+
   function getAdminToken() {
     return localStorage.getItem(STORAGE_KEY);
   }
@@ -105,22 +224,16 @@
     try {
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return escapeHtml(value);
-      return date.toLocaleString('uk-UA', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
-    } catch (_) { return escapeHtml(value); }
-  }
-  function formatDateStack(value) {
-    if (!value) return '—';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return escapeHtml(value);
-    const date = d.toLocaleDateString('uk-UA', { year:'numeric', month:'2-digit', day:'2-digit' });
-    const time = d.toLocaleTimeString('uk-UA', { hour:'2-digit', minute:'2-digit' });
-    return `<strong>${date}</strong><small>${time}</small>`;
-  }
-  function boolMark(ok) { return `<span class="bool-mark ${ok ? 'is-ok' : 'is-no'}">${ok ? '✓' : '×'}</span>`; }
-  function statusUa(value) {
-    const v = normalizeText(value);
-    const map = { approved:'Схвалено', rejected:'Відхилено', pending:'Нова', resolved:'Опрацьовано', active:'Активний', disabled:'Вимкнено', invited:'Запрошено' };
-    return `<span class="admin-status-badge" data-status="${escapeHtml(v)}">${escapeHtml(map[v] || value || '—')}</span>`;
+      return date.toLocaleString('uk-UA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (_) {
+      return escapeHtml(value);
+    }
   }
 
   function renderTable(tableId, rows, columns, emptyText = 'Даних немає.') {
@@ -133,7 +246,7 @@
     }
 
     table.innerHTML = `
-      <thead><tr>${columns.map((c) => `<th>${c.label}</th>`).join('')}</tr></thead>
+      <thead><tr>${columns.map((c) => `<th>${escapeHtml(c.label)}</th>`).join('')}</tr></thead>
       <tbody>
         ${rows.map((row) => `
           <tr>${columns.map((c) => `<td>${c.render ? c.render(row) : escapeHtml(row[c.key])}</td>`).join('')}</tr>
@@ -179,7 +292,7 @@
   function updateUsersMetrics(rows = usersCache) {
     setMetric('usersTotalCount', rows.length);
     setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && String(r.status).toLowerCase() !== 'disabled').length);
-    setMetric('usersMfaCount', rows.filter((r) => ['pending','invited','mfa_pending'].includes(String(r.status || '').toLowerCase()) || !r.login).length);
+    setMetric('usersMfaCount', rows.filter((r) => Boolean(r.mfa_enabled)).length);
   }
 
   function updateRequestsMetrics(rows = requestsCache) {
@@ -214,7 +327,7 @@
 
   function getFilteredRequests() {
     const q = normalizeText(requestSearch?.value);
-    const status = normalizeText(requestStatusFilter?.value || 'all');
+    const status = normalizeText(requestStatusFilter?.value || 'pending');
 
     return requestsCache.filter((row) => {
       const haystack = `${row.email || ''} ${row.note || ''} ${row.status || ''}`.toLowerCase();
@@ -245,35 +358,55 @@
   function renderUsers() {
     const rows = getFilteredUsers();
     updateUsersMetrics(usersCache);
+
     renderTable('usersTable', rows, [
-      { key:'login', label:'Login', render:(row)=>`<strong>${escapeHtml(row.login || '—')}</strong>` },
-      { key:'email', label:'Email' },
-      { key:'role', label:'Роль', render:(row)=>`<span class="admin-role-pill">${escapeHtml(row.role || '—')}</span>` },
-      { key:'status', label:'Статус', render:(row)=>boolMark(Boolean(row.is_active) && normalizeText(row.status) !== 'disabled') },
-      { key:'mfa_enabled', label:'2FA', render:(row)=>boolMark(Boolean(row.mfa_enabled)) },
-      { key:'is_active', label:'Доступ', render:(row)=>boolMark(Boolean(row.is_active) && normalizeText(row.status) !== 'disabled') },
-      { key:'created_at', label:'Створено', render:(row)=>formatDateStack(row.created_at) },
-      { key:'actions', label:'Дії', render:(row)=>{ const email=escapeHtml(row.email||''); const login=escapeHtml(row.login||''); const isActive=Boolean(row.is_active)&&normalizeText(row.status)!=='disabled'; return actionButtons([
-        `<button type="button" class="icon-action" title="${isActive ? 'Вимкнути' : 'Увімкнути'}" data-user-toggle="${email}" data-active="${isActive ? 'false':'true'}">⏻</button>`,
-        `<button type="button" class="icon-action" title="Логи" data-user-logs="${email}">≋</button>`,
-        `<button type="button" class="icon-action danger" title="Видалити користувача" data-user-delete="${email}" data-login="${login}"><img src="./assets/user-x.svg" alt="" /></button>`
-      ]); }}
+      { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
+      { key: 'email', label: 'Email' },
+      { key: 'role', label: 'Роль', render: (row) => `<span class="admin-role-pill">${escapeHtml(row.role || '—')}</span>` },
+      { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
+      { key: 'mfa_enabled', label: '2FA', render: (row) => Boolean(row.mfa_enabled) ? '<span class="admin-good">ON</span>' : '<span class="admin-muted-inline">OFF</span>' },
+      { key: 'is_active', label: 'Доступ', render: (row) => Boolean(row.is_active) && row.status !== 'disabled' ? '<span class="admin-good">Активний</span>' : '<span class="admin-danger-text">Закрито</span>' },
+      { key: 'created_at', label: 'Створено', render: (row) => formatDate(row.created_at) },
+      {
+        key: 'actions',
+        label: 'Дії',
+        render: (row) => {
+          const email = escapeHtml(row.email || '');
+          const login = escapeHtml(row.login || '');
+          const isActive = Boolean(row.is_active) && row.status !== 'disabled';
+          return actionButtons([
+            `<button type="button" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}">${isActive ? 'Вимкнути' : 'Увімкнути'}</button>`,
+            `<button type="button" data-user-logs="${email}">Логи</button>`,
+            `<button type="button" class="danger" data-user-delete="${email}" data-login="${login}">Видалити</button>`
+          ]);
+        }
+      }
     ], 'Користувачів не знайдено.');
   }
 
   function renderRequests() {
     const rows = getFilteredRequests();
     updateRequestsMetrics(requestsCache);
+
     renderTable('requestsTable', rows, [
-      { key:'email', label:'Email', render:(row)=>`<strong>${escapeHtml(row.email)}</strong>` },
-      { key:'status', label:'Статус', render:(row)=>statusUa(row.status) },
-      { key:'requested_at', label:'Дата', render:(row)=>formatDateStack(row.requested_at) },
-      { key:'note', label:'Повідомлення', render:(row)=>`<span class="admin-note-cell">${escapeHtml(row.note || '—')}</span>` },
-      { key:'actions', label:'Дії', render:(row)=>{ const id=escapeHtml(row.id||''); const email=escapeHtml(row.email||''); const note=escapeHtml(row.note||''); return actionButtons([
-        `<button type="button" class="icon-action" title="Взяти email" data-request-use="${id}" data-email="${email}" data-note="${note}"><img src="./assets/at.svg" alt="" /></button>`,
-        `<button type="button" class="icon-action" title="Схвалити" data-request-status="${id}" data-status="approved"><img src="./assets/checkbox.svg" alt="" /></button>`,
-        `<button type="button" class="icon-action danger" title="Відхилити" data-request-status="${id}" data-status="rejected"><img src="./assets/file-dislike.svg" alt="" /></button>`
-      ]); }}
+      { key: 'email', label: 'Email', render: (row) => `<strong>${escapeHtml(row.email)}</strong>` },
+      { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
+      { key: 'requested_at', label: 'Дата', render: (row) => formatDate(row.requested_at) },
+      { key: 'note', label: 'Повідомлення', render: (row) => `<span class="admin-note-cell">${escapeHtml(row.note || '—')}</span>` },
+      {
+        key: 'actions',
+        label: 'Дії',
+        render: (row) => {
+          const id = escapeHtml(row.id || '');
+          const email = escapeHtml(row.email || '');
+          const note = escapeHtml(row.note || '');
+          return actionButtons([
+            `<button type="button" data-request-use="${id}" data-email="${email}" data-note="${note}">Взяти email</button>`,
+            `<button type="button" data-request-status="${id}" data-status="approved">Вирішено</button>`,
+            `<button type="button" class="danger" data-request-status="${id}" data-status="rejected">Відхилити</button>`
+          ]);
+        }
+      }
     ], 'Заявок за цим фільтром немає.');
   }
 
@@ -300,11 +433,17 @@
 
   function renderLogs() {
     const rows = getFilteredLogs();
+    updateLogsMetrics(logsCache);
+
     renderTable('logsTable', rows, [
-      { key:'created_at', label:'Дата <button type="button" id="logDateFilterBtn" class="date-filter-btn" title="Фільтр за датою">▦</button>', render:(row)=>formatDateStack(row.created_at) },
-      { key:'email', label:'Email/Login', render:(row)=>`<strong>${escapeHtml(row.email || '—')}</strong>` },
-      { key:'action', label:'Подія', render:(row)=>`<span class="admin-log-human">${escapeHtml(humanLog(row))}</span><small>${escapeHtml(row.action || '')}</small>` },
-      { key:'details', label:'Details', render:(row)=>`<button type="button" class="admin-details-btn" data-log-details="${escapeHtml(JSON.stringify(row.details || {}))}">Деталі</button>` }
+      { key: 'created_at', label: 'Дата', render: (row) => formatDate(row.created_at) },
+      { key: 'email', label: 'Email/Login', render: (row) => `<strong>${escapeHtml(row.email || '—')}</strong>` },
+      { key: 'action', label: 'Подія', render: (row) => `<span class="admin-log-human">${escapeHtml(humanLog(row))}</span><small>${escapeHtml(row.action || '')}</small>` },
+      {
+        key: 'details',
+        label: 'Details',
+        render: (row) => `<button type="button" class="admin-details-btn" data-log-details="${escapeHtml(JSON.stringify(row.details || {}))}">Деталі</button>`
+      }
     ], 'Логів за цим фільтром немає.');
   }
 
@@ -888,12 +1027,6 @@
     if (save) localStorage.setItem(ACTIVE_TAB_KEY, tabName);
   }
 
-
-  function flashRefreshButton(btn){ if(!btn) return; const label=btn.querySelector('.refresh-label')||btn; const old=label.textContent; btn.classList.add('is-spinning'); label.textContent='Оновлено'; setTimeout(()=>{ label.textContent=old || 'Оновити'; btn.classList.remove('is-spinning'); }, 1000); }
-  document.querySelectorAll('[data-user-kpi]').forEach(btn=>btn.addEventListener('click',()=>{ if(userStatusFilter) userStatusFilter.value=btn.dataset.userKpi; renderUsers(); }));
-  document.querySelectorAll('[data-request-kpi]').forEach(btn=>btn.addEventListener('click',()=>{ if(requestStatusFilter) requestStatusFilter.value=btn.dataset.requestKpi; renderRequests(); }));
-  document.getElementById('resetLogFilters')?.addEventListener('click',()=>{ if(logSearch) logSearch.value=''; if(logActionFilter) logActionFilter.value='all'; renderLogs(); });
-
   document.querySelectorAll('[data-admin-tab]').forEach((btn) => {
     btn.addEventListener('click', () => activateTab(btn.dataset.adminTab));
   });
@@ -928,8 +1061,14 @@
       if (remove) {
         const email = remove.dataset.userDelete;
         const login = remove.dataset.login || email;
-        if (!confirm(`Видалити користувача ${email}? Цю дію неможливо скасувати.`)) return;
-        await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: String(login || email).trim() });
+        const typed = prompt(`Повне видалення акаунта.\n\nБуде видалено доступ, invite, MFA-secret і profile binding.\nДля підтвердження введіть login або email:\n${login}`);
+        if (!typed) return;
+        if (typed.trim().toLowerCase() !== String(login).toLowerCase() && typed.trim().toLowerCase() !== String(email).toLowerCase()) {
+          alert('Підтвердження не збігається. Видалення скасовано.');
+          return;
+        }
+        if (!confirm(`Остаточно видалити ${email}? Цю дію не можна швидко відкотити.`)) return;
+        await adminRpc('admin_delete_user_full', { p_email: email, p_confirm: typed.trim() });
         await refreshUsers();
         await refreshLogs();
       }
@@ -1075,9 +1214,9 @@
     }
   });
 
-  document.getElementById('refreshUsers')?.addEventListener('click', async (e)=>{ await refreshUsers(); flashRefreshButton(e.currentTarget); });
-  document.getElementById('refreshRequests')?.addEventListener('click', async (e)=>{ await refreshRequests(); flashRefreshButton(e.currentTarget); });
-  document.getElementById('refreshLogs')?.addEventListener('click', async (e)=>{ await refreshLogs(); flashRefreshButton(e.currentTarget); });
+  document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
+  document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);
+  document.getElementById('refreshLogs')?.addEventListener('click', refreshLogs);
 
   document.getElementById('adminLogout')?.addEventListener('click', async () => {
     const token = getAdminToken();
