@@ -9,7 +9,7 @@
     crimson: {
       accent: '#ff3158', soft: '#ff7980', line: 'rgba(255, 49, 88, 0.42)', glow: 'rgba(255, 49, 88, 0.18)', gold: '#ffc21a'
     },
-    arctic: {
+    ice: {
       accent: '#36dfff', soft: '#95f1ff', line: 'rgba(54, 223, 255, 0.44)', glow: 'rgba(54, 223, 255, 0.17)', gold: '#ff3158'
     },
     emerald: {
@@ -18,15 +18,9 @@
     gold: {
       accent: '#ffc451', soft: '#ffe0a3', line: 'rgba(255, 196, 81, 0.44)', glow: 'rgba(255, 196, 81, 0.16)', gold: '#ffc451'
     },
-    void: {
-      accent: '#a36bff', soft: '#d2b4ff', line: 'rgba(163, 107, 255, 0.42)', glow: 'rgba(163, 107, 255, 0.16)', gold: '#ff3158'
-    },
-    marsala: {
-      accent: '#dc586d', soft: '#ff9aa9', line: 'rgba(220,88,109,.42)', glow: 'rgba(220,88,109,.18)', gold: '#ffd1a1'
-    },
-    polar: {
-      accent: '#048db7', soft: '#9ee7ff', line: 'rgba(4,141,183,.42)', glow: 'rgba(4,141,183,.14)', gold: '#048db7'
-    }
+    violet: { accent: '#a36bff', soft: '#d2b4ff', line: 'rgba(163, 107, 255, 0.42)', glow: 'rgba(163, 107, 255, 0.16)', gold: '#ff3158' },
+    marsala: { accent: '#dc586d', soft: '#ff9cab', line: 'rgba(220,88,109,.45)', glow: 'rgba(220,88,109,.18)', gold: '#ffc1a1' },
+    polar: { accent: '#048db7', soft: '#d0ecf7', line: 'rgba(4,141,183,.38)', glow: 'rgba(4,141,183,.14)', gold: '#048db7' }
   };
 
   function read() {

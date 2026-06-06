@@ -29,8 +29,8 @@
   <link rel="stylesheet" href="../styles/fonts.css" />
   <link rel="stylesheet" href="../styles/theme.css" />
   <link rel="stylesheet" href="../styles/base.css" />
-  <link rel="stylesheet" href="./styles/admin.css?v=130" />
-  <link rel="stylesheet" href="./styles/settings.css?v=130" />
+  <link rel="stylesheet" href="./styles/admin.css?v=121" />
+  <link rel="stylesheet" href="./styles/settings.css?v=115" />
 </head>
 <body class="admin-body">
   <main class="admin-shell">
@@ -88,7 +88,7 @@
       <section class="admin-tab is-active" id="tab-invite" data-title="Надати доступ">
         <div class="admin-card admin-card-wide access-card">
           <div class="access-card-head access-card-head-clean">
-            <p class="admin-muted">Заповніть email і вкажіть роль майбутнього користувача</p>
+            <p class="admin-muted">Заповніть email, роль і створіть персональне setup-посилання для першого входу.</p>
             <button type="button" class="bastion-link-copy" id="copyMainSiteUrl" data-copy-default="" aria-label="Копіювати посилання на сайт BASTION" title="Копіювати посилання на сайт BASTION">
               <img src="./assets/bastion-main-link-logo.png" alt="BASTION" />
               <span class="bastion-link-tooltip">Копіювати посилання на сайт BASTION</span>
@@ -138,7 +138,7 @@
             </label>
 
             <div class="admin-actions access-actions field-wide">
-              <button type="submit" id="inviteSubmit" class="send-invite-btn">Надіслати запрошення</button>
+              <button type="submit" id="inviteSubmit" class="send-invite-btn">Надіслати запрошення →</button>
             </div>
           </form>
 
@@ -146,33 +146,33 @@
       </section>
 
       <section class="admin-tab" id="tab-users" data-title="Користувачі">
-        <div class="admin-card admin-card-wide admin-control-card">
-          <div class="admin-card-head admin-page-head-clean">
-            <p class="admin-muted">Перегляд, керування та контроль доступу користувачів системи.</p>
-            <button id="refreshUsers" class="admin-refresh-btn" type="button"><span class="admin-refresh-icon">↻</span><span class="admin-refresh-label">Оновити</span></button>
+        <div class="admin-card admin-card-wide admin-control-card admin-v2-card">
+          <div class="admin-card-head admin-card-head-clean">
+            <div>
+              <p class="admin-muted">Перегляд, керування та контроль доступу користувачів системи.</p>
+            </div>
+            <button id="refreshUsers" class="bastion-refresh-btn"><span class="refresh-icon">↻</span><span class="refresh-label">Оновити</span></button>
           </div>
 
           <div class="admin-metrics-grid admin-kpi-grid">
-            <button type="button" class="admin-metric admin-kpi-card" data-user-kpi="all"><span class="admin-kpi-icon"><img src="./assets/users.svg" alt="" /></span><span>Всього користувачів</span><strong id="usersTotalCount">0</strong></button>
-            <button type="button" class="admin-metric admin-kpi-card" data-user-kpi="active"><span class="admin-kpi-icon"><img src="./assets/user-check.svg" alt="" /></span><span>Активних</span><strong id="usersActiveCount">0</strong></button>
-            <button type="button" class="admin-metric admin-kpi-card" data-user-kpi="registering"><span class="admin-kpi-icon"><img src="./assets/user-key.svg" alt="" /></span><span>На етапі реєстрації</span><strong id="usersRegisteringCount">0</strong></button>
+            <button type="button" class="admin-metric admin-kpi-card" data-user-kpi="all"><span class="kpi-icon"><img src="./assets/users.svg" alt="" /></span><span>Всього користувачів</span><strong id="usersTotalCount">0</strong></button>
+            <button type="button" class="admin-metric admin-kpi-card" data-user-kpi="active"><span class="kpi-icon"><img src="./assets/user-check.svg" alt="" /></span><span>Активних</span><strong id="usersActiveCount">0</strong></button>
+            <button type="button" class="admin-metric admin-kpi-card" data-user-kpi="pending"><span class="kpi-icon"><img src="./assets/user-key.svg" alt="" /></span><span>На етапі реєстрації</span><strong id="usersMfaCount">0</strong></button>
           </div>
 
-          <div class="admin-toolbar">
-            <label class="admin-toolbar-field search-with-icon">
+          <div class="admin-toolbar admin-v2-toolbar">
+            <label class="admin-toolbar-field admin-search-field">
               <span>Пошук</span>
-              <span class="toolbar-input-icon"><img src="./assets/user-search.svg" alt="" /></span>
-              <input id="userSearch" type="search" placeholder="Логін, email або роль..." />
+              <div class="field-control"><span class="field-icon"><img src="./assets/user-search.svg" alt="" /></span><input id="userSearch" type="search" placeholder="Логін, email або роль..." /></div>
             </label>
-            <label class="admin-toolbar-field custom-select-field">
+            <label class="admin-toolbar-field admin-select-field">
               <span>Статус</span>
               <select id="userStatusFilter" class="bastion-select">
                 <option value="all">Усі користувачі</option>
                 <option value="active">Активні</option>
                 <option value="disabled">Вимкнені</option>
-                <option value="pending">Pending</option>
-                <option value="invited">Invited</option>
-                <option value="registering">На етапі реєстрації</option>
+                <option value="pending">На етапі реєстрації</option>
+                <option value="invited">Запрошені</option>
               </select>
             </label>
           </div>
@@ -237,89 +237,49 @@
       </section>
 
       <section class="admin-tab" id="tab-requests" data-title="Заявки">
-        <div class="admin-card admin-card-wide admin-control-card">
-          <div class="admin-card-head admin-page-head-clean">
-            <p class="admin-muted">Перегляд заявок, поданих користувачами через стартову сторінку системи.</p>
-            <button id="refreshRequests" class="admin-refresh-btn" type="button"><span class="admin-refresh-icon">↻</span><span class="admin-refresh-label">Оновити</span></button>
+        <div class="admin-card admin-card-wide admin-control-card admin-v2-card">
+          <div class="admin-card-head admin-card-head-clean">
+            <div><p class="admin-muted">Перегляд заявок, поданих користувачами через стартову сторінку системи.</p></div>
+            <button id="refreshRequests" class="bastion-refresh-btn"><span class="refresh-icon">↻</span><span class="refresh-label">Оновити</span></button>
           </div>
-
           <div class="admin-metrics-grid admin-kpi-grid">
-            <button type="button" class="admin-metric admin-kpi-card" data-request-kpi="all"><span class="admin-kpi-icon"><img src="./assets/brand-juejin.svg" alt="" /></span><span>Всього заявок</span><strong id="requestsTotalCount">0</strong></button>
-            <button type="button" class="admin-metric admin-kpi-card" data-request-kpi="pending"><span class="admin-kpi-icon"><img src="./assets/user-plus.svg" alt="" /></span><span>Нові</span><strong id="requestsPendingCount">0</strong></button>
-            <button type="button" class="admin-metric admin-kpi-card" data-request-kpi="approved"><span class="admin-kpi-icon"><img src="./assets/user-check.svg" alt="" /></span><span>Схвалені</span><strong id="requestsApprovedCount">0</strong></button>
+            <button type="button" class="admin-metric admin-kpi-card" data-request-kpi="all"><span class="kpi-icon"><img src="./assets/brand-juejin.svg" alt="" /></span><span>Всього заявок</span><strong id="requestsTotalCount">0</strong></button>
+            <button type="button" class="admin-metric admin-kpi-card" data-request-kpi="pending"><span class="kpi-icon"><img src="./assets/user-plus.svg" alt="" /></span><span>Нові</span><strong id="requestsPendingCount">0</strong></button>
+            <button type="button" class="admin-metric admin-kpi-card" data-request-kpi="approved"><span class="kpi-icon"><img src="./assets/user-check.svg" alt="" /></span><span>Схвалені</span><strong id="requestsApprovedCount">0</strong></button>
           </div>
-
-          <div class="admin-toolbar">
-            <label class="admin-toolbar-field search-with-icon">
-              <span>Пошук</span>
-              <span class="toolbar-input-icon"><img src="./assets/user-search.svg" alt="" /></span>
-              <input id="requestSearch" type="search" placeholder="email або текст повідомлення..." />
-            </label>
-            <label class="admin-toolbar-field custom-select-field">
-              <span>Статус</span>
-              <select id="requestStatusFilter" class="bastion-select">
-                <option value="all">Усі заявки</option>
-                <option value="pending">Нові</option>
-                <option value="approved">Схвалені</option>
-                <option value="rejected">Відхилені</option>
-                <option value="resolved">Опрацьовані</option>
-              </select>
-            </label>
+          <div class="admin-toolbar admin-v2-toolbar">
+            <label class="admin-toolbar-field admin-search-field"><span>Пошук</span><div class="field-control"><span class="field-icon"><img src="./assets/user-search.svg" alt="" /></span><input id="requestSearch" type="search" placeholder="email або текст повідомлення..." /></div></label>
+            <label class="admin-toolbar-field admin-select-field"><span>Статус</span><select id="requestStatusFilter" class="bastion-select"><option value="all">Усі заявки</option><option value="pending">Нові</option><option value="approved">Схвалені</option><option value="rejected">Відхилені</option><option value="resolved">Опрацьовані</option></select></label>
           </div>
-
           <div class="admin-table-wrap"><table id="requestsTable"></table></div>
         </div>
       </section>
 
       <section class="admin-tab" id="tab-logs" data-title="Логування">
-        <div class="admin-card admin-card-wide admin-control-card logs-control-card">
-          <div class="admin-card-head admin-page-head-clean">
-            <p class="admin-muted">Перегляд журналу подій, дій адміністраторів та системних операцій у BASTION.</p>
-            <div class="admin-head-actions">
-              <button id="clearLogFilters" class="admin-secondary admin-clear-filters" type="button" hidden>Скинути фільтри</button>
-              <button id="refreshLogs" class="admin-refresh-btn" type="button"><span class="admin-refresh-icon">↻</span><span class="admin-refresh-label">Оновити</span></button>
-            </div>
+        <div class="admin-card admin-card-wide admin-control-card admin-v2-card admin-logs-card">
+          <div class="admin-card-head admin-card-head-clean">
+            <div><p class="admin-muted">Перегляд журналу подій, дій адміністраторів та системних операцій у BASTION.</p></div>
+            <div class="logs-actions"><button id="resetLogFilters" class="admin-secondary">Скинути фільтри</button><button id="refreshLogs" class="bastion-refresh-btn"><span class="refresh-icon">↻</span><span class="refresh-label">Оновити</span></button></div>
           </div>
-
-          <div class="admin-toolbar">
-            <label class="admin-toolbar-field search-with-icon">
-              <span>Пошук</span>
-              <span class="toolbar-input-icon"><img src="./assets/list-search.svg" alt="" /></span>
-              <input id="logSearch" type="search" placeholder="email, login, дія, details..." />
-            </label>
-            <label class="admin-toolbar-field custom-select-field">
-              <span>Тип події</span>
-              <select id="logActionFilter" class="bastion-select">
-                <option value="all">Усі події</option>
-                <option value="admin">Admin</option>
-                <option value="invite">Invite</option>
-                <option value="mfa">MFA</option>
-                <option value="login">Login</option>
-                <option value="delete">Delete</option>
-              </select>
-            </label>
+          <div class="admin-toolbar admin-v2-toolbar">
+            <label class="admin-toolbar-field admin-search-field"><span>Пошук</span><div class="field-control"><span class="field-icon"><img src="./assets/list-search.svg" alt="" /></span><input id="logSearch" type="search" placeholder="email, login, дія, details..." /></div></label>
+            <label class="admin-toolbar-field admin-select-field"><span>Тип події</span><select id="logActionFilter" class="bastion-select"><option value="all">Усі події</option><option value="admin">Admin</option><option value="invite">Invite</option><option value="mfa">MFA</option><option value="login">Login</option><option value="delete">Delete</option></select></label>
           </div>
-
           <div class="admin-table-wrap"><table id="logsTable"></table></div>
         </div>
       </section>
 
       <section class="admin-tab" id="tab-settings" data-title="Налаштування">
-        <div class="admin-card admin-card-wide admin-control-card settings-palette-card">
-          <div class="admin-card-head admin-page-head-clean">
-            <p class="admin-muted">Оберіть повну палітру відображення сайту BASTION Admin: фон, кнопки, KPI-картки, навігацію, форми, таблиці та іконки.</p>
-          </div>
-          <div class="settings-theme-gallery" id="paletteGrid">
-            <button type="button" class="settings-theme-card is-active" data-palette="crimson"><span class="theme-preview theme-crimson"></span><strong>Crimson Core</strong><em>червоний командний режим</em><span class="theme-swatches"><i></i><i></i><i></i><i></i></span></button>
-            <button type="button" class="settings-theme-card" data-palette="arctic"><span class="theme-preview theme-arctic"></span><strong>Arctic Ice</strong><em>блакитно-крижаний режим</em><span class="theme-swatches"><i></i><i></i><i></i><i></i></span></button>
-            <button type="button" class="settings-theme-card" data-palette="emerald"><span class="theme-preview theme-emerald"></span><strong>Emerald Command</strong><em>зелений тактичний режим</em><span class="theme-swatches"><i></i><i></i><i></i><i></i></span></button>
-            <button type="button" class="settings-theme-card" data-palette="gold"><span class="theme-preview theme-gold"></span><strong>Gold Authority</strong><em>жовто-графітовий режим</em><span class="theme-swatches"><i></i><i></i><i></i><i></i></span></button>
-            <button type="button" class="settings-theme-card" data-palette="void"><span class="theme-preview theme-void"></span><strong>Void Purple</strong><em>фіолетовий режим</em><span class="theme-swatches"><i></i><i></i><i></i><i></i></span></button>
-            <button type="button" class="settings-theme-card" data-palette="marsala"><span class="theme-preview theme-marsala"></span><strong>Marsala Command</strong><em>марсаловий преміум режим</em><span class="theme-swatches"><i></i><i></i><i></i><i></i></span></button>
-            <button type="button" class="settings-theme-card" data-palette="polar"><span class="theme-preview theme-polar"></span><strong>Polar White</strong><em>світлий арктичний режим</em><span class="theme-swatches"><i></i><i></i><i></i><i></i></span></button>
-          </div>
-          <div class="settings-theme-groups">
-            <span>Фон</span><span>Кнопки</span><span>KPI-картки</span><span>Навігація</span><span>Форми</span><span>Таблиці</span><span>Іконки</span>
+        <div class="admin-card admin-card-wide admin-control-card admin-settings-palettes-card">
+          <p class="admin-muted settings-intro">Оберіть повну палітру відображення сайту BASTION Admin: фон, кнопки, KPI-картки, навігацію, форми, таблиці та іконки.</p>
+          <div class="theme-palette-grid" id="paletteGrid">
+            <button type="button" class="theme-palette-card is-active" data-palette="crimson"><div class="theme-preview theme-crimson"><span></span></div><strong>CRIMSON CORE</strong><small>червоний командний режим</small><div class="theme-bars"><i></i><i></i><i></i><i></i></div></button>
+            <button type="button" class="theme-palette-card" data-palette="ice"><div class="theme-preview theme-ice"><span></span></div><strong>ARCTIC ICE</strong><small>блакитно-крижаний режим</small><div class="theme-bars"><i></i><i></i><i></i><i></i></div></button>
+            <button type="button" class="theme-palette-card" data-palette="emerald"><div class="theme-preview theme-emerald"><span></span></div><strong>EMERALD COMMAND</strong><small>зелений тактичний режим</small><div class="theme-bars"><i></i><i></i><i></i><i></i></div></button>
+            <button type="button" class="theme-palette-card" data-palette="gold"><div class="theme-preview theme-gold"><span></span></div><strong>GOLD AUTHORITY</strong><small>жовто-графітовий режим</small><div class="theme-bars"><i></i><i></i><i></i><i></i></div></button>
+            <button type="button" class="theme-palette-card" data-palette="violet"><div class="theme-preview theme-violet"><span></span></div><strong>VOID PURPLE</strong><small>фіолетовий режим переваги</small><div class="theme-bars"><i></i><i></i><i></i><i></i></div></button>
+            <button type="button" class="theme-palette-card" data-palette="marsala"><div class="theme-preview theme-marsala"><span></span></div><strong>MARSALA COMMAND</strong><small>марсаловий режим штабу</small><div class="theme-bars"><i></i><i></i><i></i><i></i></div></button>
+            <button type="button" class="theme-palette-card" data-palette="polar"><div class="theme-preview theme-polar"><span></span></div><strong>POLAR WHITE</strong><small>світлий арктичний режим</small><div class="theme-bars"><i></i><i></i><i></i><i></i></div></button>
           </div>
         </div>
       </section>
@@ -328,8 +288,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../scripts/config.js?v=28"></script>
-  <script src="./scripts/settings-runtime.js?v=130"></script>
-  <script src="./scripts/admin.js?v=130"></script>
-  <script src="./scripts/settings.js?v=130"></script>
+  <script src="./scripts/settings-runtime.js?v=115"></script>
+  <script src="./scripts/admin.js?v=120"></script>
+  <script src="./scripts/settings.js?v=115"></script>
 </body>
 </html>

@@ -31,7 +31,7 @@
 
   function fill(){
     const s=read();
-    document.querySelectorAll('.palette-card,.settings-theme-card').forEach(b=>b.classList.toggle('is-active', b.dataset.palette===s.palette));
+    document.querySelectorAll('.palette-card,.theme-palette-card').forEach(b=>b.classList.toggle('is-active', b.dataset.palette===s.palette));
     document.querySelectorAll('#performanceMode button').forEach(b=>b.classList.toggle('is-active', b.dataset.mode===s.performanceMode));
     ['glowStrength','animationLevel','particleDensity','blurAmount','defaultLanding','sidebarMode','aiPersonality','aiResponseStyle'].forEach(id=>{ if($(id)) $(id).value=s[id]; });
     if($('minimalMotion')) $('minimalMotion').checked=!!s.minimalMotion;
@@ -54,7 +54,7 @@
   }
 
   function bind(){
-    document.querySelectorAll('.palette-card,.settings-theme-card').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.palette-card,.theme-palette-card').forEach(btn=>btn.addEventListener('click',()=>{
       const s=collect();
       s.palette=btn.dataset.palette;
       write(s);
