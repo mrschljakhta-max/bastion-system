@@ -33,11 +33,6 @@
   const copyAdminStartUrl = document.getElementById('copyAdminStartUrl');
 
   const usersTable = document.getElementById('usersTable');
-  const userDateFilterPanel = document.getElementById('userDateFilterPanel');
-  const userDateFromInput = document.getElementById('userDateFrom');
-  const userDateToInput = document.getElementById('userDateTo');
-  const userDateApplyBtn = document.getElementById('userDateApply');
-  const userDateResetBtn = document.getElementById('userDateReset');
   const requestsTable = document.getElementById('requestsTable');
   const logsTable = document.getElementById('logsTable');
 
@@ -60,8 +55,6 @@
   let lastInvite = null;
   let adminSession = null;
   let usersCache = [];
-  let userCreatedFrom = '';
-  let userCreatedTo = '';
   let requestsCache = [];
   let logsCache = [];
 
@@ -247,15 +240,13 @@
     const table = document.getElementById(tableId);
     if (!table) return;
 
-    const head = `<thead><tr>${columns.map((c) => `<th>${c.labelHtml || escapeHtml(c.label)}</th>`).join('')}</tr></thead>`;
-
     if (!rows?.length) {
-      table.innerHTML = `${head}<tbody><tr><td class="admin-empty-cell" colspan="${columns.length}">${escapeHtml(emptyText)}</td></tr></tbody>`;
+      table.innerHTML = `<tr><td class="admin-empty-cell">${escapeHtml(emptyText)}</td></tr>`;
       return;
     }
 
     table.innerHTML = `
-      ${head}
+      <thead><tr>${columns.map((c) => `<th>${escapeHtml(c.label)}</th>`).join('')}</tr></thead>
       <tbody>
         ${rows.map((row) => `
           <tr>${columns.map((c) => `<td>${c.render ? c.render(row) : escapeHtml(row[c.key])}</td>`).join('')}</tr>
@@ -298,41 +289,10 @@
     return String(value ?? '').toLowerCase().trim();
   }
 
-
-  function formatDateStack(value) {
-    if (!value) return '—';
-    const formatted = formatDate(value);
-    const parts = formatted.split(',').map((part) => part.trim());
-    if (parts.length < 2) return escapeHtml(formatted);
-    return `<span class="admin-date-stack"><strong>${escapeHtml(parts[0])}</strong><small>${escapeHtml(parts.slice(1).join(', '))}</small></span>`;
-  }
-
-  function isWithinDateRange(value, from, to) {
-    if (!from && !to) return true;
-    if (!value) return false;
-    const current = new Date(value);
-    if (Number.isNaN(current.getTime())) return false;
-    if (from) {
-      const start = new Date(`${from}T00:00:00`);
-      if (current < start) return false;
-    }
-    if (to) {
-      const end = new Date(`${to}T23:59:59`);
-      if (current > end) return false;
-    }
-    return true;
-  }
-
-  function boolMark(value) {
-    return value
-      ? '<span class="admin-bool-mark admin-bool-yes">✓</span>'
-      : '<span class="admin-bool-mark admin-bool-no">×</span>';
-  }
-
   function updateUsersMetrics(rows = usersCache) {
     setMetric('usersTotalCount', rows.length);
     setMetric('usersActiveCount', rows.filter((r) => Boolean(r.is_active) && String(r.status).toLowerCase() !== 'disabled').length);
-    setMetric('usersMfaCount', rows.filter((r) => String(r.status || '').toLowerCase() === 'pending' || String(r.status || '').toLowerCase() === 'invited' || !r.login).length);
+    setMetric('usersMfaCount', rows.filter((r) => Boolean(r.mfa_enabled)).length);
   }
 
   function updateRequestsMetrics(rows = requestsCache) {
@@ -361,8 +321,7 @@
         (status === 'active' && isActive) ||
         (status === 'disabled' && !isActive) ||
         rowStatus === status;
-      const matchesDate = isWithinDateRange(row.created_at, userCreatedFrom, userCreatedTo);
-      return matchesSearch && matchesStatus && matchesDate;
+      return matchesSearch && matchesStatus;
     });
   }
 
@@ -404,10 +363,10 @@
       { key: 'login', label: 'Login', render: (row) => `<strong>${escapeHtml(row.login || '—')}</strong>` },
       { key: 'email', label: 'Email' },
       { key: 'role', label: 'Роль', render: (row) => `<span class="admin-role-pill">${escapeHtml(row.role || '—')}</span>` },
-      { key: 'status', label: 'Статус', render: (row) => boolMark(Boolean(row.is_active) && String(row.status || '').toLowerCase() !== 'disabled' && String(row.status || '').toLowerCase() !== 'pending') },
-      { key: 'mfa_enabled', label: '2FA', render: (row) => boolMark(Boolean(row.mfa_enabled)) },
-      { key: 'is_active', label: 'Доступ', render: (row) => boolMark(Boolean(row.is_active) && row.status !== 'disabled') },
-      { key: 'created_at', label: 'Створено', labelHtml: '<button type="button" class="admin-date-head-btn" id="userDateHeadBtn"><span>Створено</span><img src="assets/calendar-event.svg" alt="" /></button>', render: (row) => formatDateStack(row.created_at) },
+      { key: 'status', label: 'Статус', render: (row) => statusBadge(row.status) },
+      { key: 'mfa_enabled', label: '2FA', render: (row) => Boolean(row.mfa_enabled) ? '<span class="admin-good">ON</span>' : '<span class="admin-muted-inline">OFF</span>' },
+      { key: 'is_active', label: 'Доступ', render: (row) => Boolean(row.is_active) && row.status !== 'disabled' ? '<span class="admin-good">Активний</span>' : '<span class="admin-danger-text">Закрито</span>' },
+      { key: 'created_at', label: 'Створено', render: (row) => formatDate(row.created_at) },
       {
         key: 'actions',
         label: 'Дії',
@@ -416,9 +375,9 @@
           const login = escapeHtml(row.login || '');
           const isActive = Boolean(row.is_active) && row.status !== 'disabled';
           return actionButtons([
-            `<button type="button" class="admin-icon-action" title="${isActive ? 'Вимкнути користувача' : 'Увімкнути користувача'}" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}"><span>⏻</span></button>`,
-            `<button type="button" class="admin-icon-action" title="Переглянути логи" data-user-logs="${email}"><span>≋</span></button>`,
-            `<button type="button" class="admin-icon-action danger" title="Видалити користувача" data-user-delete="${email}" data-login="${login}"><img src="assets/user-x.svg" alt="" /></button>`
+            `<button type="button" data-user-toggle="${email}" data-active="${isActive ? 'false' : 'true'}">${isActive ? 'Вимкнути' : 'Увімкнути'}</button>`,
+            `<button type="button" data-user-logs="${email}">Логи</button>`,
+            `<button type="button" class="danger" data-user-delete="${email}" data-login="${login}">Видалити</button>`
           ]);
         }
       }
@@ -837,7 +796,7 @@
     if (inviteResult) inviteResult.hidden = true;
     if (sendEmailBtn) sendEmailBtn.disabled = true;
     if (inviteForm) inviteForm.dataset.requestId = '';
-    if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
+    if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення';
     updateInvitePreview();
     syncInviteRoleCustom();
   });
@@ -873,6 +832,8 @@
   inviteForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     inviteSubmit.disabled = true;
+    inviteSubmit.classList.remove('is-sent');
+    inviteSubmit.classList.add('is-sending');
     inviteSubmit.textContent = 'Створюю доступ…';
 
     try {
@@ -899,7 +860,9 @@
 
       inviteSubmit.textContent = 'Надсилаю лист…';
       await sendInviteEmail(lastInvite);
-      inviteSubmit.textContent = 'Запрошення надіслано ✓';
+      inviteSubmit.classList.remove('is-sending');
+      inviteSubmit.classList.add('is-sent');
+      inviteSubmit.textContent = 'Надіслано ✓';
 
       if (inviteForm?.dataset?.requestId) {
         try {
@@ -922,12 +885,16 @@
       updateInvitePreview();
       syncInviteRoleCustom();
       setTimeout(() => {
-        if (inviteSubmit) inviteSubmit.textContent = 'Надіслати запрошення →';
+        if (inviteSubmit) {
+          inviteSubmit.textContent = 'Надіслати запрошення';
+          inviteSubmit.classList.remove('is-sent','is-sending');
+        }
       }, 1600);
     } catch (error) {
       console.error(error);
       alert(error.message || 'Не вдалося створити або надіслати запрошення.');
-      inviteSubmit.textContent = 'Надіслати запрошення →';
+      inviteSubmit.classList.remove('is-sent','is-sending');
+      inviteSubmit.textContent = 'Надіслати запрошення';
     } finally {
       inviteSubmit.disabled = false;
     }
@@ -1163,46 +1130,6 @@
 
   userSearch?.addEventListener('input', renderUsers);
   userStatusFilter?.addEventListener('change', renderUsers);
-
-  document.querySelectorAll('[data-user-kpi]').forEach((card) => {
-    card.addEventListener('click', () => {
-      const value = card.dataset.userKpi || 'all';
-      if (userStatusFilter) {
-        userStatusFilter.value = value === 'all' ? 'all' : value;
-        renderUsers();
-      }
-    });
-  });
-
-  usersTable?.addEventListener('click', (event) => {
-    const dateBtn = event.target.closest('#userDateHeadBtn');
-    if (!dateBtn || !userDateFilterPanel) return;
-    event.preventDefault();
-    userDateFilterPanel.hidden = !userDateFilterPanel.hidden;
-  });
-
-  userDateApplyBtn?.addEventListener('click', () => {
-    userCreatedFrom = userDateFromInput?.value || '';
-    userCreatedTo = userDateToInput?.value || '';
-    if (userDateFilterPanel) userDateFilterPanel.hidden = true;
-    renderUsers();
-  });
-
-  userDateResetBtn?.addEventListener('click', () => {
-    userCreatedFrom = '';
-    userCreatedTo = '';
-    if (userDateFromInput) userDateFromInput.value = '';
-    if (userDateToInput) userDateToInput.value = '';
-    if (userDateFilterPanel) userDateFilterPanel.hidden = true;
-    renderUsers();
-  });
-
-  document.addEventListener('click', (event) => {
-    if (!userDateFilterPanel || userDateFilterPanel.hidden) return;
-    if (event.target.closest('#userDateFilterPanel') || event.target.closest('#userDateHeadBtn')) return;
-    userDateFilterPanel.hidden = true;
-  });
-
   requestSearch?.addEventListener('input', renderRequests);
   requestStatusFilter?.addEventListener('change', renderRequests);
   logSearch?.addEventListener('input', renderLogs);
@@ -1295,7 +1222,30 @@
     }
   });
 
-  document.getElementById('refreshUsers')?.addEventListener('click', refreshUsers);
+  document.getElementById('refreshUsers')?.addEventListener('click', async (event) => {
+    const btn = event.currentTarget;
+    if (btn?.disabled) return;
+    const oldText = btn.textContent;
+    btn.disabled = true;
+    btn.classList.add('is-refreshing');
+    btn.textContent = 'Оновити';
+    try {
+      await refreshUsers();
+      btn.classList.remove('is-refreshing');
+      btn.classList.add('is-done');
+      btn.textContent = 'Оновлено';
+      setTimeout(() => {
+        btn.textContent = oldText || 'Оновити';
+        btn.classList.remove('is-done');
+      }, 1000);
+    } catch (error) {
+      btn.classList.remove('is-refreshing','is-done');
+      btn.textContent = oldText || 'Оновити';
+      console.error(error);
+    } finally {
+      setTimeout(() => { btn.disabled = false; }, 260);
+    }
+  });
   document.getElementById('refreshRequests')?.addEventListener('click', refreshRequests);
   document.getElementById('refreshLogs')?.addEventListener('click', refreshLogs);
 

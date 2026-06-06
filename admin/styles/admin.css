@@ -2270,243 +2270,93 @@ body[data-minimal-motion] *::after {
   text-shadow: 0 0 10px rgba(255, 62, 108, .55);
 }
 
-/* =========================================================
-   BASTION Admin — Users page polish patch
-   ========================================================= */
-.users-control-card .admin-card-head-clean {
-  align-items: flex-start;
-  gap: 20px;
+
+/* ===== BASTION Admin v130: invite button + users refresh polish ===== */
+.send-invite-btn {
+  position: relative;
+  overflow: hidden;
+  min-width: 320px;
+  padding-inline: 28px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .12em;
 }
-.users-control-card .admin-card-head-clean h2 { display: none !important; }
-.admin-refresh-btn {
+.send-invite-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.24), transparent);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+.send-invite-btn:hover::before {
+  transform: translateX(3px) translateY(-2px) rotate(-10deg);
+}
+.send-invite-btn:hover::after {
+  animation: inviteButtonSweep .85s ease;
+}
+.send-invite-btn.is-sending::before {
+  animation: invitePlanePulse .85s ease-in-out infinite;
+}
+.send-invite-btn.is-sent {
+  box-shadow: 0 22px 70px rgba(255,49,88,.34), inset 0 1px 0 rgba(255,255,255,.28);
+}
+.send-invite-btn.is-sent::before {
+  animation: invitePlaneSend .78s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes inviteButtonSweep {
+  to { transform: translateX(120%); }
+}
+@keyframes invitePlanePulse {
+  0%,100% { transform: translateX(0) translateY(0); opacity: .8; }
+  50% { transform: translateX(4px) translateY(-3px); opacity: 1; }
+}
+@keyframes invitePlaneSend {
+  0% { transform: translateX(0) translateY(0) scale(1); opacity: 1; }
+  45% { transform: translateX(18px) translateY(-12px) scale(1.08); opacity: .2; }
+  46% { transform: translateX(-16px) translateY(12px) scale(.92); opacity: 0; }
+  100% { transform: translateX(0) translateY(0) scale(1); opacity: 1; }
+}
+
+#refreshUsers {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  min-height: 54px;
-  padding: 0 28px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 49, 88, .42);
+  min-height: 58px;
+  min-width: 190px;
+  border: 1px solid rgba(255,49,88,.62);
+  border-radius: 14px;
   background: linear-gradient(180deg, #ff3158, #c91439);
   color: #fff;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  box-shadow: 0 18px 54px rgba(255,49,88,.22), inset 0 1px 0 rgba(255,255,255,.18);
-}
-.admin-refresh-btn:active .admin-refresh-icon { transform: rotate(360deg); }
-.admin-refresh-icon { display: inline-block; transition: transform .55s ease; }
-.admin-metrics-grid-icons .admin-metric {
-  position: relative;
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  grid-template-rows: auto auto;
-  column-gap: 18px;
-  align-items: center;
-  text-align: left;
-  cursor: pointer;
-}
-.admin-metrics-grid-icons .admin-metric:hover {
-  border-color: rgba(255,49,88,.45);
-  box-shadow: 0 0 32px rgba(255,49,88,.12), inset 0 1px 0 rgba(255,255,255,.05);
-}
-.admin-metric-icon-card {
-  width: 100%;
-  border: 1px solid rgba(255,255,255,.11);
-  font-family: inherit;
-}
-.admin-metric-icon {
-  grid-row: 1 / span 2;
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255,49,88,.45);
-  background: rgba(255,49,88,.12);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 22px rgba(255,49,88,.10);
-}
-.admin-metric-icon img {
-  width: 27px;
-  height: 27px;
-  filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.28));
-  opacity: .96;
-}
-.admin-metric-label,
-.admin-metrics-grid-icons .admin-metric span.admin-metric-label {
-  margin: 0 0 8px;
-  color: rgba(255,255,255,.66);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-}
-.admin-metrics-grid-icons .admin-metric strong {
-  font-size: 34px;
-}
-.users-toolbar .admin-icon-input {
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-height: 54px;
-  border: 1px solid rgba(255,255,255,.13);
-  border-radius: 14px;
-  background: rgba(0,0,0,.22);
-  overflow: hidden;
-}
-.users-toolbar .admin-icon-input > img {
-  width: 64px;
-  align-self: stretch;
-  padding: 17px 20px;
-  border-right: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,49,88,.12);
-  filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,.2));
-  opacity: .96;
-}
-.users-toolbar .admin-icon-input input {
-  min-height: 54px;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.admin-bool-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  font-size: 27px;
-  font-weight: 900;
-  line-height: 1;
-}
-.admin-bool-yes {
-  color: #8dffda;
-  border: 1px solid rgba(0,255,170,.42);
-  background: rgba(0,255,170,.10);
-  box-shadow: 0 0 18px rgba(0,255,170,.12);
-}
-.admin-bool-no {
-  color: #ff7c95;
-  border: 1px solid rgba(255,49,88,.42);
-  background: rgba(255,49,88,.10);
-}
-.admin-date-stack {
-  display: grid;
-  gap: 4px;
-  line-height: 1.1;
-}
-.admin-date-stack strong { color: #fff; font-size: 13px; }
-.admin-date-stack small { color: rgba(255,255,255,.62); font-size: 12px; }
-.admin-date-head-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  cursor: pointer;
-}
-.admin-date-head-btn img {
-  width: 15px;
-  height: 15px;
-  filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,.24));
-  opacity: .9;
-}
-.admin-date-head-btn:hover img { opacity: 1; }
-.admin-date-popover {
-  position: absolute;
-  right: 34px;
-  bottom: 42px;
-  z-index: 80;
-  width: min(420px, calc(100% - 68px));
-  padding: 18px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,49,88,.45);
-  background: rgba(12, 8, 12, .96);
-  box-shadow: 0 22px 70px rgba(0,0,0,.52), 0 0 42px rgba(255,49,88,.13);
-  backdrop-filter: blur(18px);
-}
-.admin-date-popover-head {
-  margin-bottom: 14px;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
-.admin-date-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.admin-date-fields label {
-  display: grid;
-  gap: 7px;
-  color: rgba(255,255,255,.6);
-  font-size: 11px;
+  box-shadow: 0 18px 54px rgba(255,49,88,.26), inset 0 1px 0 rgba(255,255,255,.2);
+  font-size: 14px;
   font-weight: 900;
   letter-spacing: .12em;
   text-transform: uppercase;
-}
-.admin-date-fields input {
-  min-height: 42px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
-  color: #fff;
-  padding: 0 12px;
-  color-scheme: dark;
-}
-.admin-date-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 16px;
-}
-.admin-date-actions button {
-  min-height: 40px;
-  padding: 0 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.07);
-  color: rgba(255,255,255,.85);
-  font-weight: 900;
-  letter-spacing: .09em;
-  text-transform: uppercase;
   cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
-.admin-date-actions button.accent {
-  border-color: rgba(255,49,88,.42);
-  background: linear-gradient(180deg, #ff3158, #c91439);
-  color: #fff;
-}
-.admin-icon-action {
-  width: 38px !important;
-  min-width: 38px;
-  height: 38px;
-  min-height: 38px !important;
-  padding: 0 !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.admin-icon-action img {
+#refreshUsers::before {
+  content: '↻';
+  display: inline-grid;
+  place-items: center;
   width: 20px;
   height: 20px;
-  filter: brightness(0) invert(1);
-}
-.admin-icon-action span {
   font-size: 18px;
   line-height: 1;
 }
-@media (max-width: 960px) {
-  .admin-metrics-grid-icons .admin-metric { grid-template-columns: 54px 1fr; }
-  .users-toolbar { grid-template-columns: 1fr; }
+#refreshUsers:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 24px 70px rgba(255,49,88,.34), inset 0 1px 0 rgba(255,255,255,.25);
+}
+#refreshUsers:active {
+  transform: translateY(1px) scale(.985);
+}
+#refreshUsers.is-refreshing::before,
+#refreshUsers.is-done::before {
+  animation: bastionRefreshSpin .75s ease;
+}
+@keyframes bastionRefreshSpin {
+  to { transform: rotate(360deg); }
 }
